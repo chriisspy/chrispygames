@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Spyfall</title>
+
+<!-- ============================================================
+  SPYFALL — Firebase Edition
+  
+  SETUP INSTRUCTIONS:
+  1. Go to https://console.firebase.google.com
+  2. Click "Add project" → name it anything → create
+  3. In the left sidebar: Build → Realtime Database → Create database
+     → Start in TEST MODE → Enable
+  4. In the left sidebar: Project Settings (gear icon) → Your apps
+     → Click </> (Web) → Register app (any name) → copy the config
+  5. Paste your config values into the FIREBASE CONFIG section below
+  6. Upload this file to Netlify (netlify.com → drag & drop)
+  ============================================================ -->
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<script>
+// ============================================================
+// FIREBASE CONFIG — replace these values with yours
+// ============================================================
+const firebaseConfig = {
+  apiKey:            "PASTE_YOUR_API_KEY_HERE",
+  authDomain:        "PASTE_YOUR_AUTH_DOMAIN_HERE",
+  databaseURL:       "PASTE_YOUR_DATABASE_URL_HERE",
+  projectId:         "PASTE_YOUR_PROJECT_ID_HERE",
+  storageBucket:     "PASTE_YOUR_STORAGE_BUCKET_HERE",
+  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID_HERE",
+  appId:             "PASTE_YOUR_APP_ID_HERE"
+};
+// ============================================================
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;
+  --surface:#13131a;
+  --surface2:#1c1c26;
+  --surface3:#252532;
+  --accent:#e8d44d;
+  --accent2:#e85d4d;
+  --text:#f0eff5;
+  --muted:#7a7a8c;
+  --border:#2a2a3a;
+  --spy:#e85d4d;
+  --safe:#4de8a0;
+  --radius:12px;
+  --radius-lg:20px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+
+.screen{display:none;min-height:100vh;padding:24px;flex-direction:column;align-items:center;justify-content:center;gap:24px}
+.screen.active{display:flex}
+
+.logo{font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1}
+.logo span{color:var(--accent)}
+.tagline{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:100%;max-width:440px}
+.card h2{font-size:22px;font-weight:700;margin-bottom:20px}
+
+.btn{width:100%;padding:14px 20px;border-radius:var(--radius);border:none;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important}
+.btn-primary{background:var(--accent);color:#0a0a0f}
+.btn-primary:not(:disabled):hover{background:#f0dd55;transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface2);border-color:var(--muted)}
+.btn-danger{background:var(--accent2);color:#fff}
+.btn-danger:hover{background:#f06050}
+.btn-sm{padding:8px 16px;font-size:13px;width:auto}
+
+input,select{width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:15px;outline:none;transition:border 0.15s;margin-bottom:12px}
+input:focus,select:focus{border-color:var(--accent)}
+input::placeholder{color:var(--muted)}
+label{font-size:13px;color:var(--muted);margin-bottom:6px;display:block;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
+select option{background:var(--surface2)}
+
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;margin:16px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.code-display{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;letter-spacing:8px;color:var(--accent);text-align:center;padding:20px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;user-select:none}
+.code-display:hover{border-color:var(--accent)}
+.code-hint{font-size:11px;color:var(--muted);text-align:center;font-family:'DM Mono',monospace;margin-top:6px}
+
+.player-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.player-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);font-size:14px;animation:fadeIn 0.25s ease}
+.player-dot{width:8px;height:8px;border-radius:50%;background:var(--safe);flex-shrink:0}
+.player-dot.host{background:var(--accent)}
+.player-name{flex:1}
+.player-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:3px 8px;background:var(--surface3);border-radius:6px}
+
+.status-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* Reveal screen */
+.reveal-outer{display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;gap:16px}
+.reveal-tap{text-align:center;padding:60px 40px;background:var(--surface);border:2px dashed var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all 0.2s;width:100%}
+.reveal-tap:hover{border-color:var(--accent);background:var(--surface2)}
+.reveal-tap .hint{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:2px}
+.reveal-tap .eye-icon{font-size:48px;margin-bottom:12px}
+.reveal-tap .reveal-cta{font-size:18px;font-weight:700;color:var(--text)}
+
+.role-card{width:100%;border-radius:var(--radius-lg);padding:36px 28px;text-align:center;animation:flipIn 0.4s ease}
+.role-card.spy-card{background:linear-gradient(135deg,#2a1015,#1a0a0f);border:2px solid var(--spy)}
+.role-card.safe-card{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.role-card .role-label{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+.role-card.spy-card .role-label{color:var(--spy)}
+.role-card.safe-card .role-label{color:var(--safe)}
+.role-card .role-name{font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.role-card.spy-card .role-name{color:var(--spy)}
+.role-card.safe-card .role-name{color:var(--safe)}
+.role-card .location-line{font-size:14px;color:var(--muted);margin-bottom:4px;font-family:'DM Mono',monospace}
+.role-card .location-name{font-size:22px;font-weight:700;color:var(--text)}
+.spy-warning{background:rgba(232,93,77,0.1);border:1px solid rgba(232,93,77,0.3);border-radius:var(--radius);padding:14px;font-size:13px;color:var(--spy);text-align:center}
+
+.location-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.location-chip{padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center;transition:all 0.15s}
+.location-chip.current{border-color:var(--accent);color:var(--accent);background:rgba(232,212,77,0.08)}
+
+/* Timer */
+.timer-area{text-align:center;padding:20px 0}
+.timer-display{font-family:'DM Mono',monospace;font-size:56px;font-weight:500;letter-spacing:4px;color:var(--text);transition:color 0.3s}
+.timer-display.warning{color:var(--accent)}
+.timer-display.danger{color:var(--spy);animation:timer-pulse 1s infinite}
+@keyframes timer-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.timer-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+
+.tab-bar{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:16px}
+.tab-btn{flex:1;padding:8px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.tab-btn.active{background:var(--surface3);color:var(--text)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.notice{padding:12px 16px;border-radius:var(--radius);font-size:13px;font-family:'DM Mono',monospace;margin-bottom:12px}
+.notice.info{background:rgba(232,212,77,0.08);border:1px solid rgba(232,212,77,0.2);color:var(--accent)}
+.notice.error{background:rgba(232,93,77,0.08);border:1px solid rgba(232,93,77,0.2);color:var(--spy)}
+.notice.success{background:rgba(77,232,160,0.08);border:1px solid rgba(77,232,160,0.2);color:var(--safe)}
+
+.vote-list{display:flex;flex-direction:column;gap:8px}
+.vote-item{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;transition:all 0.15s}
+.vote-item:hover{border-color:var(--spy);background:rgba(232,93,77,0.05)}
+.vote-item.voted{border-color:var(--spy);background:rgba(232,93,77,0.1)}
+
+.result-banner{text-align:center;padding:32px 20px;border-radius:var(--radius-lg)}
+.result-banner.spy-wins{background:linear-gradient(135deg,#2a1015,#1a0a0f);border:2px solid var(--spy)}
+.result-banner.crew-wins{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.result-banner .result-emoji{font-size:48px;margin-bottom:8px}
+.result-banner h2{font-size:28px;font-weight:800;margin-bottom:8px}
+.result-banner.spy-wins h2{color:var(--spy)}
+.result-banner.crew-wins h2{color:var(--safe)}
+.result-banner p{font-size:14px;color:var(--muted);font-family:'DM Mono',monospace}
+
+.flex-row{display:flex;gap:8px}
+.flex-row .btn{flex:1}
+.back-btn{background:transparent;border:none;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:6px}
+.back-btn:hover{color:var(--text)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.live-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--safe);display:flex;align-items:center;gap:4px}
+.live-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flipIn{from{opacity:0;transform:rotateY(-90deg)}to{opacity:1;transform:rotateY(0)}}
+.fadeIn{animation:fadeIn 0.3s ease forwards}
+</style>
+</head>
+<body>
+
+<!-- ===================== PASSWORD ===================== -->
+<div class="screen active" id="screen-password">
+  <div class="logo">SPY<span>FALL</span></div>
+  <div class="tagline">Private game — enter password</div>
+  <div class="card fadeIn">
+    <h2>Welcome</h2>
+    <label>Password</label>
+    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off"/>
+    <div id="passwordError" class="notice error" style="display:none">Incorrect password. Try again.</div>
+    <button class="btn btn-primary" onclick="checkPassword()">Enter</button>
+  </div>
+</div>
+
+<!-- ===================== HOME ===================== -->
+<div class="screen active" id="screen-home">
+  <div class="logo">SPY<span>FALL</span></div>
+  <div class="tagline">The social deduction game</div>
+  <div class="card fadeIn">
+    <h2>Play</h2>
+    <label>Your name</label>
+    <input id="playerName" type="text" placeholder="Enter your name..." maxlength="20" autocomplete="off"/>
+    <div id="homeError" class="notice error" style="display:none"></div>
+    <button class="btn btn-primary" id="createBtn" onclick="createGame()">Create New Game</button>
+    <div class="divider">or join existing</div>
+    <label>Game code</label>
+    <div class="flex-row">
+      <input id="joinCode" type="text" placeholder="XXXX" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-family:'DM Mono',monospace;font-size:18px;margin-bottom:0"/>
+      <button class="btn btn-secondary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
+    </div>
+  </div>
+  <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-align:center;max-width:300px;line-height:1.8">
+    Find the spy before time runs out — or trick them into guessing the wrong location.
+  </div>
+</div>
+
+<!-- ===================== LOBBY (host) ===================== -->
+<div class="screen" id="screen-lobby">
+  <div style="width:100%;max-width:440px">
+    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <div style="height:16px"></div>
+    <div class="card fadeIn">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <h2 style="flex:1;font-size:20px;font-weight:700">Game Lobby</h2>
+        <div class="live-badge">LIVE</div>
+      </div>
+      <label>Share this code with friends</label>
+      <div class="code-display" onclick="copyCode()" id="gameCodeDisplay">----</div>
+      <div class="code-hint">tap to copy · share with friends to join</div>
+      <div style="height:20px"></div>
+      <label>Players (<span id="lobbyCount">1</span>)</label>
+      <div class="player-list" id="playerList"></div>
+      <div style="height:16px"></div>
+      <div id="minPlayersNotice" class="notice info">Need at least 3 players to start</div>
+      <div style="height:8px"></div>
+      <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>Start Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== WAITING (non-host) ===================== -->
+<div class="screen" id="screen-waiting">
+  <div style="width:100%;max-width:440px">
+    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <div style="height:16px"></div>
+    <div class="card fadeIn">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <h2 style="flex:1;font-size:20px;font-weight:700">Waiting for host</h2>
+        <div class="live-badge">LIVE</div>
+      </div>
+      <label>Game code</label>
+      <div class="code-display" id="waitingCodeDisplay" onclick="copyCode()">----</div>
+      <div class="code-hint">tap to copy</div>
+      <div style="height:20px"></div>
+      <label>Players (<span id="waitingCount">...</span>)</label>
+      <div class="player-list" id="waitingPlayerList"></div>
+      <div style="height:12px"></div>
+      <div class="notice info" style="margin-bottom:0">Waiting for the host to start the game...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ROLE REVEAL ===================== -->
+<div class="screen" id="screen-reveal">
+  <div class="reveal-outer">
+    <div style="text-align:center">
+      <div class="logo" style="font-size:28px;margin-bottom:4px">SPY<span style="color:var(--accent)">FALL</span></div>
+      <div class="tagline">Game has started</div>
+    </div>
+    <div id="revealTap" class="reveal-tap">
+      <div class="hint">Your secret</div>
+      <div class="eye-icon">👁</div>
+      <div class="reveal-cta">Tap to reveal your role</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:8px">Make sure nobody else is watching</div>
+    </div>
+    <div id="revealCard" style="display:none;width:100%"></div>
+    <button id="revealReadyBtn" class="btn btn-primary" style="display:none" onclick="goToGame()">I've seen my role →</button>
+  </div>
+</div>
+
+<!-- ===================== GAME ===================== -->
+<div class="screen" id="screen-game">
+  <div style="width:100%;max-width:440px">
+    <div class="card fadeIn">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('timer')">Timer</button>
+        <button class="tab-btn" onclick="switchTab('locations')">Locations</button>
+        <button class="tab-btn" onclick="switchTab('vote')">Vote</button>
+      </div>
+
+      <!-- TIMER TAB -->
+      <div class="tab-content active" id="tab-timer">
+        <div class="timer-area">
+          <div class="timer-display" id="timerDisplay">08:00</div>
+          <div class="timer-label">remaining</div>
+        </div>
+        <div id="myRoleSummary" style="padding:14px;background:var(--surface2);border-radius:var(--radius);margin-bottom:12px;font-size:14px;text-align:center;line-height:1.6"></div>
+        <div class="flex-row" id="timerControls">
+          <button class="btn btn-secondary" id="timerToggleBtn" onclick="toggleTimer()">Pause</button>
+          <button class="btn btn-danger" style="flex:0.7" onclick="endGameEarly()">End Round</button>
+        </div>
+        <div id="spyGuessSection" style="display:none;margin-top:20px">
+          <div class="notice info" style="margin-bottom:12px">You are the spy — if you figure out the location, guess it now to win!</div>
+          <label>Guess the location</label>
+          <select id="spyGuessSelect"><option value="">-- Select a location --</option></select>
+          <button class="btn btn-primary" onclick="spyGuessLocation()">Submit Guess</button>
+        </div>
+      </div>
+
+      <!-- LOCATIONS TAB -->
+      <div class="tab-content" id="tab-locations">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;font-family:'DM Mono',monospace;line-height:1.6">
+          All possible locations this round. The highlighted one is the real location (hidden from the spy).
+        </div>
+        <div class="location-grid" id="locationGrid"></div>
+      </div>
+
+      <!-- VOTE TAB -->
+      <div class="tab-content" id="tab-vote">
+        <div class="notice info">Suspect someone? Tap their name to accuse them. A majority vote reveals the result.</div>
+        <div style="height:12px"></div>
+        <div class="vote-list" id="voteList"></div>
+        <div id="voteStatus" style="margin-top:12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== RESULT ===================== -->
+<div class="screen" id="screen-result">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:16px">
+    <div id="resultBanner" class="fadeIn"></div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:16px">The spy was...</h2>
+      <div style="padding:20px;background:var(--surface2);border-radius:var(--radius);text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">🕵️</div>
+        <div style="font-size:24px;font-weight:800;color:var(--spy)" id="spyNameResult">---</div>
+        <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px" id="locationResult">---</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="playAgain()">Play Again</button>
+    <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+  </div>
+</div>
+
+<script>
+// =====================================================
+// PASSWORD GATE
+// =====================================================
+const SITE_PASSWORD = 'boyznight@111';
+
+(function() {
+  const unlocked = sessionStorage.getItem('sf_unlocked');
+  if (unlocked === '1') {
+    document.getElementById('screen-password').classList.remove('active');
+    document.getElementById('screen-home').classList.add('active');
+  }
+})();
+
+function checkPassword() {
+  const val = document.getElementById('passwordInput').value;
+  if (val === SITE_PASSWORD) {
+    sessionStorage.setItem('sf_unlocked', '1');
+    document.getElementById('screen-password').classList.remove('active');
+    document.getElementById('screen-home').classList.add('active');
+  } else {
+    const err = document.getElementById('passwordError');
+    err.style.display = 'block';
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('passwordInput').focus();
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.querySelector('.screen.active')?.id === 'screen-password') {
+    checkPassword();
+  }
+});
+
+// =====================================================
+// GAME DATA
+// =====================================================
+const ALL_LOCATIONS = [
+  {name:'Airplane',        roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
+  {name:'Bank',            roles:['Manager','Teller','Customer','Security Guard','Loan Officer']},
+  {name:'Beach',           roles:['Lifeguard','Tourist','Vendor','Surfer','Volleyball Player']},
+  {name:'Casino',          roles:['Dealer','Pit Boss','Player','Cocktail Server','Security']},
+  {name:'Circus',          roles:['Clown','Ringmaster','Acrobat','Animal Trainer','Ticket Seller']},
+  {name:'Hospital',        roles:['Doctor','Nurse','Patient','Surgeon','Receptionist']},
+  {name:'Hotel',           roles:['Concierge','Guest','Bellhop','Manager','Housekeeper']},
+  {name:'Military Base',   roles:['General','Soldier','Sniper','Cook','Medic']},
+  {name:'Movie Studio',    roles:['Director','Actor','Cameraman','Makeup Artist','Producer']},
+  {name:'Ocean Liner',     roles:['Captain','Crew Member','Passenger','Chef','Entertainer']},
+  {name:'Police Station',  roles:['Chief','Detective','Officer','Suspect','Lawyer']},
+  {name:'Restaurant',      roles:['Chef','Waiter','Customer','Manager','Busboy']},
+  {name:'School',          roles:['Teacher','Student','Principal','Janitor','Coach']},
+  {name:'Space Station',   roles:['Commander','Scientist','Engineer','Pilot','Doctor']},
+  {name:'Supermarket',     roles:['Cashier','Manager','Customer','Stocker','Security']},
+  {name:'Theater',         roles:['Actor','Director','Audience Member','Stage Manager','Critic']},
+  {name:'Train',           roles:['Conductor','Engineer','Passenger','Ticket Inspector','Dining Staff']},
+  {name:'Submarine',       roles:['Captain','Navigator','Cook','Engineer','Sonar Operator']},
+  {name:'Amusement Park',  roles:['Ride Operator','Visitor','Performer','Security','Food Vendor']},
+  {name:'Spy HQ',          roles:['Handler','Agent','Tech Expert','Analyst','Double Agent']},
+];
+const LOCATIONS_PER_GAME = 12;
+const TIMER_DURATION = 8 * 60; // seconds
+
+// =====================================================
+// STATE
+// =====================================================
+let myId = localStorage.getItem('sf_myId');
+if (!myId) { myId = Math.random().toString(36).slice(2,12); localStorage.setItem('sf_myId', myId); }
+
+let gameCode    = null;
+let amHost      = false;
+let gameRef     = null;
+let gameListener = null;
+let localGame   = null;
+let timerInterval = null;
+
+// =====================================================
+// UTILS
+// =====================================================
+const randInt = n => Math.floor(Math.random() * n);
+const pick    = arr => arr[randInt(arr.length)];
+const shuffle = arr => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = randInt(i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+const genCode = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:4}, () => chars[randInt(chars.length)]).join('');
+};
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3500);
+}
+function setLoading(btnId, loading, text) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.innerHTML = loading ? `<span class="spinner"></span>${text}` : text;
+}
+
+// =====================================================
+// FIREBASE HELPERS
+// =====================================================
+function gameRefFor(code) {
+  return db.ref('games/' + code);
+}
+function listenToGame(code, callback) {
+  if (gameListener && gameRef) gameRef.off('value', gameListener);
+  gameRef = gameRefFor(code);
+  gameListener = gameRef.on('value', snap => {
+    const data = snap.val();
+    if (data) { localGame = data; callback(data); }
+  });
+}
+function stopListening() {
+  if (gameListener && gameRef) { gameRef.off('value', gameListener); gameListener = null; }
+}
+function updateGame(code, updates) {
+  return gameRefFor(code).update(updates);
+}
+
+// =====================================================
+// CREATE GAME
+// =====================================================
+async function createGame() {
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) return showError('homeError', 'Please enter your name');
+  setLoading('createBtn', true, 'Creating...');
+
+  const code = genCode();
+  gameCode = code;
+  amHost   = true;
+
+  const locations = shuffle(ALL_LOCATIONS).slice(0, LOCATIONS_PER_GAME).map(l => l.name);
+  const game = {
+    code,
+    status:        'lobby',
+    hostId:        myId,
+    locations,
+    currentLocation: null,
+    roles:         {},
+    spyId:         null,
+    spyGuess:      null,
+    votes:         {},
+    result:        null,
+    timerStart:    null,
+    timerDuration: TIMER_DURATION,
+    timerRunning:  false,
+    timerOffset:   0,
+    players: {
+      [myId]: { id: myId, name, isHost: true, joinedAt: Date.now() }
+    },
+    createdAt: Date.now()
+  };
+
+  try {
+    await gameRefFor(code).set(game);
+    document.getElementById('gameCodeDisplay').textContent = code;
+    showScreen('lobby');
+    listenToGame(code, onGameUpdate);
+  } catch(e) {
+    showError('homeError', 'Could not connect to Firebase. Check your config.');
+    console.error(e);
+  }
+  setLoading('createBtn', false, 'Create New Game');
+}
+
+// =====================================================
+// JOIN GAME
+// =====================================================
+async function joinGame() {
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) return showError('homeError', 'Please enter your name');
+  const code = document.getElementById('joinCode').value.trim().toUpperCase();
+  if (code.length < 4) return showError('homeError', 'Enter a valid 4-letter code');
+
+  setLoading('joinBtn', true, '...');
+  try {
+    const snap = await gameRefFor(code).once('value');
+    const game = snap.val();
+    if (!game) { setLoading('joinBtn', false, 'Join'); return showError('homeError', 'Game not found — check the code'); }
+    if (game.status !== 'lobby') { setLoading('joinBtn', false, 'Join'); return showError('homeError', 'That game has already started'); }
+
+    gameCode = code;
+    amHost   = false;
+
+    const existing = game.players && game.players[myId];
+    if (!existing) {
+      await gameRefFor(code).child('players/' + myId).set({ id: myId, name, isHost: false, joinedAt: Date.now() });
+    }
+
+    document.getElementById('waitingCodeDisplay').textContent = code;
+    showScreen('waiting');
+    listenToGame(code, onGameUpdate);
+  } catch(e) {
+    showError('homeError', 'Connection error — check your Firebase config');
+    console.error(e);
+  }
+  setLoading('joinBtn', false, 'Join');
+}
+
+// =====================================================
+// MAIN GAME UPDATE LISTENER
+// =====================================================
+function onGameUpdate(game) {
+  const cur = document.querySelector('.screen.active')?.id;
+
+  if (game.status === 'lobby') {
+    if (cur === 'screen-lobby')   renderLobby(game);
+    if (cur === 'screen-waiting') renderWaiting(game);
+  }
+
+  if (game.status === 'playing') {
+    if (cur === 'screen-lobby' || cur === 'screen-waiting' || cur === 'screen-home') {
+      enterRevealScreen(game);
+    } else if (cur === 'screen-game') {
+      renderGame(game);
+    }
+  }
+
+  if (game.status === 'result') {
+    if (cur !== 'screen-result') showResultScreen(game);
+  }
+
+  // Host: re-lobby after play again
+  if (game.status === 'lobby' && (cur === 'screen-result' || cur === 'screen-game')) {
+    if (amHost) { renderLobby(game); showScreen('lobby'); }
+    else        { renderWaiting(game); showScreen('waiting'); }
+  }
+}
+
+// =====================================================
+// LOBBY
+// =====================================================
+function renderLobby(game) {
+  const players = Object.values(game.players || {}).sort((a,b) => a.joinedAt - b.joinedAt);
+  const n = players.length;
+  document.getElementById('lobbyCount').textContent = n;
+  document.getElementById('playerList').innerHTML = players.map(p => `
+    <div class="player-item">
+      <div class="player-dot ${p.isHost ? 'host' : ''}"></div>
+      <div class="player-name">${esc(p.name)}</div>
+      ${p.isHost ? '<div class="player-badge">host</div>' : ''}
+      ${p.id === myId ? '<div class="player-badge">you</div>' : ''}
+    </div>`).join('');
+  const ok = n >= 3;
+  document.getElementById('startBtn').disabled = !ok;
+  document.getElementById('minPlayersNotice').style.display = ok ? 'none' : 'block';
+}
+
+function renderWaiting(game) {
+  const players = Object.values(game.players || {}).sort((a,b) => a.joinedAt - b.joinedAt);
+  document.getElementById('waitingCount').textContent = players.length;
+  document.getElementById('waitingPlayerList').innerHTML = players.map(p => `
+    <div class="player-item">
+      <div class="player-dot ${p.isHost ? 'host' : ''}"></div>
+      <div class="player-name">${esc(p.name)}</div>
+      ${p.isHost ? '<div class="player-badge">host</div>' : ''}
+      ${p.id === myId ? '<div class="player-badge">you</div>' : ''}
+    </div>`).join('');
+}
+
+// =====================================================
+// START GAME (host only)
+// =====================================================
+async function startGame() {
+  const game = localGame;
+  if (!game) return;
+  const players = Object.values(game.players || {});
+  if (players.length < 3) return;
+
+  const spyIdx  = randInt(players.length);
+  const spyId   = players[spyIdx].id;
+
+  const locName = pick(game.locations);
+  const locObj  = ALL_LOCATIONS.find(l => l.name === locName) || ALL_LOCATIONS[0];
+  const shuffledRoles = shuffle(locObj.roles);
+  const roles = {};
+  players.forEach((p, i) => {
+    roles[p.id] = (p.id === spyId) ? '__SPY__' : shuffledRoles[i % shuffledRoles.length];
+  });
+
+  await updateGame(gameCode, {
+    status:          'playing',
+    spyId,
+    currentLocation: locObj.name,
+    roles,
+    timerStart:      Date.now(),
+    timerRunning:    true,
+    timerOffset:     0,
+    votes:           {},
+    result:          null,
+    spyGuess:        null,
+  });
+}
+
+// =====================================================
+// REVEAL SCREEN
+// =====================================================
+function enterRevealScreen(game) {
+  document.getElementById('revealTap').style.display   = 'block';
+  document.getElementById('revealCard').style.display  = 'none';
+  document.getElementById('revealReadyBtn').style.display = 'none';
+  showScreen('reveal');
+
+  const isSpy  = game.spyId === myId;
+  const myRole = game.roles && game.roles[myId];
+
+  document.getElementById('revealTap').onclick = () => {
+    document.getElementById('revealTap').style.display = 'none';
+    const card = document.getElementById('revealCard');
+    if (isSpy) {
+      card.innerHTML = `
+        <div class="role-card spy-card">
+          <div class="role-label">⚠ You are the spy</div>
+          <div class="role-name">SPY</div>
+          <div style="font-size:14px;color:var(--muted);margin-top:8px">You do not know the location.</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px">Blend in. Ask questions. Don't get caught.</div>
+        </div>
+        <div class="spy-warning" style="margin-top:12px">
+          🎯 Listen carefully. Figure out where everyone is.<br>
+          You can guess the location at any time to win.
+        </div>`;
+    } else {
+      card.innerHTML = `
+        <div class="role-card safe-card">
+          <div class="role-label">✓ You are not the spy</div>
+          <div class="role-name">${esc(myRole)}</div>
+          <div class="location-line" style="margin-top:16px">You are at</div>
+          <div class="location-name">${esc(game.currentLocation)}</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:8px">Find the spy without revealing the location.</div>
+        </div>`;
+    }
+    card.style.display = 'block';
+    document.getElementById('revealReadyBtn').style.display = 'block';
+  };
+}
+
+function goToGame() {
+  if (!localGame) return;
+  initGameScreen(localGame);
+  showScreen('game');
+}
+
+// =====================================================
+// GAME SCREEN
+// =====================================================
+let timerRunning = false;
+
+function initGameScreen(game) {
+  const isSpy = game.spyId === myId;
+
+  // Locations tab
+  document.getElementById('locationGrid').innerHTML = game.locations.map(loc => `
+    <div class="location-chip ${!isSpy && loc === game.currentLocation ? 'current' : ''}">${esc(loc)}</div>
+  `).join('');
+
+  // Spy guess select
+  const sel = document.getElementById('spyGuessSelect');
+  sel.innerHTML = '<option value="">-- Select a location --</option>' +
+    game.locations.map(l => `<option value="${l}">${esc(l)}</option>`).join('');
+
+  // Show spy guess section only for spy
+  document.getElementById('spyGuessSection').style.display = isSpy ? 'block' : 'none';
+
+  // Timer controls: only host sees pause
+  document.getElementById('timerControls').style.display = amHost ? 'flex' : 'none';
+
+  // Role summary
+  updateRoleSummary(game);
+
+  // Start local timer tick
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (localGame && localGame.status === 'playing') tickTimer(localGame);
+  }, 500);
+
+  renderGame(game);
+}
+
+function renderGame(game) {
+  tickTimer(game);
+  updateVoteList(game);
+  updateTimerBtn(game);
+}
+
+function updateRoleSummary(game) {
+  const isSpy = game.spyId === myId;
+  const el = document.getElementById('myRoleSummary');
+  if (isSpy) {
+    el.innerHTML = `<span style="color:var(--spy);font-weight:700">🕵️ You are the SPY</span><br>
+      <span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Guess the location to win if accused</span>`;
+  } else {
+    const role = game.roles && game.roles[myId];
+    el.innerHTML = `<span style="color:var(--safe);font-weight:700">${esc(role)}</span>
+      <span style="color:var(--muted);font-size:13px"> at </span>
+      <span style="font-weight:700">${esc(game.currentLocation)}</span>`;
+  }
+}
+
+function tickTimer(game) {
+  if (!game.timerStart) return;
+  let elapsed;
+  if (game.timerRunning) {
+    elapsed = Math.floor((Date.now() - game.timerStart) / 1000) + (game.timerOffset || 0);
+  } else {
+    elapsed = game.timerOffset || 0;
+  }
+  const remaining = Math.max(0, game.timerDuration - elapsed);
+  const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+  const s = (remaining % 60).toString().padStart(2, '0');
+  const el = document.getElementById('timerDisplay');
+  el.textContent = `${m}:${s}`;
+  el.className = 'timer-display' + (remaining < 60 ? ' danger' : remaining < 120 ? ' warning' : '');
+
+  if (remaining === 0 && game.timerRunning && amHost) {
+    resolveGame('timeout');
+  }
+}
+
+function updateTimerBtn(game) {
+  const btn = document.getElementById('timerToggleBtn');
+  if (btn) btn.textContent = game.timerRunning ? 'Pause' : 'Resume';
+}
+
+async function toggleTimer() {
+  const game = localGame;
+  if (!game) return;
+  if (game.timerRunning) {
+    const elapsed = Math.floor((Date.now() - game.timerStart) / 1000) + (game.timerOffset || 0);
+    await updateGame(gameCode, { timerRunning: false, timerOffset: elapsed });
+  } else {
+    await updateGame(gameCode, { timerRunning: true, timerStart: Date.now(), timerOffset: game.timerOffset || 0 });
+  }
+}
+
+// =====================================================
+// VOTING
+// =====================================================
+function updateVoteList(game) {
+  const players  = Object.values(game.players || {}).sort((a,b) => a.joinedAt - b.joinedAt);
+  const myVote   = game.votes && game.votes[myId];
+  const voteCounts = {};
+  Object.values(game.votes || {}).forEach(v => { voteCounts[v] = (voteCounts[v] || 0) + 1; });
+  const n        = players.length;
+  const majority = Math.ceil(n / 2);
+
+  document.getElementById('voteList').innerHTML = players
+    .filter(p => p.id !== myId)
+    .map(p => {
+      const vc = voteCounts[p.id] || 0;
+      return `<div class="vote-item ${myVote === p.id ? 'voted' : ''}" onclick="castVote('${p.id}')">
+        <div style="font-size:20px">🕵️</div>
+        <div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>
+        ${vc > 0 ? `<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${majority} needed</div>` : ''}
+        ${myVote === p.id ? '<div style="color:var(--spy);font-size:13px">✓</div>' : ''}
+      </div>`;
+    }).join('');
+
+  const totalVotes = Object.keys(game.votes || {}).length;
+  document.getElementById('voteStatus').textContent = `${totalVotes} of ${n} have voted`;
+}
+
+async function castVote(targetId) {
+  const game = localGame;
+  if (!game || game.status !== 'playing') return;
+
+  await gameRefFor(gameCode).child('votes/' + myId).set(targetId);
+
+  // Check if majority reached (optimistic check)
+  const votes = { ...(game.votes || {}), [myId]: targetId };
+  const n = Object.keys(game.players || {}).length;
+  const majority = Math.ceil(n / 2);
+  const counts = {};
+  Object.values(votes).forEach(v => { counts[v] = (counts[v] || 0) + 1; });
+  for (const [pid, cnt] of Object.entries(counts)) {
+    if (cnt >= majority && amHost) {
+      await resolveGame('vote', pid);
+      return;
+    }
+  }
+}
+
+// =====================================================
+// RESOLVE GAME
+// =====================================================
+async function resolveGame(reason, accusedId = null) {
+  const game = localGame;
+  if (!game || game.status !== 'playing') return;
+
+  let spyWins = false;
+  let description = '';
+
+  if (reason === 'timeout') {
+    spyWins = true;
+    description = 'Time ran out — spy escaped!';
+  } else if (reason === 'vote') {
+    if (accusedId === game.spyId) {
+      spyWins = false;
+      description = 'Correct! The spy was caught by majority vote.';
+    } else {
+      spyWins = true;
+      description = 'Wrong person accused — the spy wins!';
+    }
+  } else if (reason === 'spy_guess_correct') {
+    spyWins = true;
+    description = 'The spy correctly guessed the location!';
+  } else if (reason === 'spy_guess_wrong') {
+    spyWins = false;
+    description = 'The spy guessed the wrong location!';
+  } else if (reason === 'early') {
+    spyWins = false;
+    description = 'Round ended early by the host.';
+  }
+
+  await updateGame(gameCode, {
+    status: 'result',
+    timerRunning: false,
+    result: { spyWins, description, reason, accusedId }
+  });
+}
+
+async function spyGuessLocation() {
+  const guess = document.getElementById('spyGuessSelect').value;
+  if (!guess) return;
+  const game = localGame;
+  if (!game) return;
+  await gameRefFor(gameCode).child('spyGuess').set(guess);
+  if (guess === game.currentLocation) {
+    await resolveGame('spy_guess_correct');
+  } else {
+    await resolveGame('spy_guess_wrong');
+  }
+}
+
+async function endGameEarly() {
+  if (!confirm('End the round now?')) return;
+  await resolveGame('early');
+}
+
+// =====================================================
+// RESULT SCREEN
+// =====================================================
+function showResultScreen(game) {
+  clearInterval(timerInterval);
+  const r = game.result;
+  const spyPlayer = game.players && game.players[game.spyId];
+  document.getElementById('spyNameResult').textContent = spyPlayer ? spyPlayer.name : 'Unknown';
+  document.getElementById('locationResult').textContent = 'Location was: ' + (game.currentLocation || '?');
+
+  const banner = document.getElementById('resultBanner');
+  if (r.spyWins) {
+    banner.innerHTML = `<div class="result-banner spy-wins"><div class="result-emoji">🕵️</div><h2>Spy Wins!</h2><p>${esc(r.description)}</p></div>`;
+  } else {
+    banner.innerHTML = `<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Crew Wins!</h2><p>${esc(r.description)}</p></div>`;
+  }
+  showScreen('result');
+}
+
+// =====================================================
+// PLAY AGAIN / LEAVE
+// =====================================================
+async function playAgain() {
+  if (!amHost) { showScreen('waiting'); return; }
+  const game = localGame;
+  if (!game) return;
+  const newLocations = shuffle(ALL_LOCATIONS).slice(0, LOCATIONS_PER_GAME).map(l => l.name);
+  await updateGame(gameCode, {
+    status:          'lobby',
+    spyId:           null,
+    currentLocation: null,
+    roles:           {},
+    votes:           {},
+    result:          null,
+    spyGuess:        null,
+    timerStart:      null,
+    timerRunning:    false,
+    timerOffset:     0,
+    locations:       newLocations,
+  });
+}
+
+async function leaveGame() {
+  clearInterval(timerInterval);
+  stopListening();
+  if (gameCode && localGame && localGame.status === 'lobby') {
+    await gameRefFor(gameCode).child('players/' + myId).remove();
+  }
+  gameCode   = null;
+  amHost     = false;
+  localGame  = null;
+  showScreen('home');
+}
+
+// =====================================================
+// UI HELPERS
+// =====================================================
+function switchTab(tab) {
+  ['timer','locations','vote'].forEach((t, i) => {
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t === tab);
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+}
+
+function copyCode() {
+  const code = gameCode || '----';
+  navigator.clipboard?.writeText(code).then(() => {
+    const els = ['gameCodeDisplay','waitingCodeDisplay'];
+    els.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.closest('.screen.active')) {
+        const orig = el.textContent;
+        el.textContent = 'COPIED!';
+        setTimeout(() => el.textContent = orig, 1200);
+      }
+    });
+  });
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Input helpers
+document.getElementById('joinCode').addEventListener('input', e => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+document.getElementById('playerName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const code = document.getElementById('joinCode').value.trim();
+    code ? joinGame() : createGame();
+  }
+});
+</script>
+</body>
+</html>
