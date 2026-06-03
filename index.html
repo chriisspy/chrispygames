@@ -38,6 +38,7 @@ const firebaseConfig = {
 };
 // ============================================================
 
+};
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 </script>
@@ -57,6 +58,7 @@ const db = firebase.database();
   --border:#2a2a3a;
   --spy:#e85d4d;
   --safe:#4de8a0;
+  --chaos:#ff2d2d;
   --radius:12px;
   --radius-lg:20px;
 }
@@ -76,6 +78,9 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
 .btn-secondary:hover{background:var(--surface2);border-color:var(--muted)}
 .btn-danger{background:var(--accent2);color:#fff}
 .btn-danger:hover{background:#f06050}
+.btn-chaos{background:var(--chaos);color:#fff;border:none;position:relative;overflow:hidden}
+.btn-chaos:not(:disabled):hover{background:#ff1a1a;transform:translateY(-1px)}
+.btn-chaos.active-chaos{background:var(--chaos);box-shadow:0 0 20px rgba(255,45,45,0.4);border:2px solid rgba(255,100,100,0.6)}
 .btn-sm{padding:8px 16px;font-size:13px;width:auto}
 input,select{width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:15px;outline:none;transition:border 0.15s;margin-bottom:12px}
 input:focus,select:focus{border-color:var(--accent)}
@@ -94,26 +99,58 @@ select option{background:var(--surface2)}
 .player-name{flex:1}
 .player-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:3px 8px;background:var(--surface3);border-radius:6px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes chaos-pulse{0%,100%{box-shadow:0 0 10px rgba(255,45,45,0.3)}50%{box-shadow:0 0 25px rgba(255,45,45,0.7)}}
 .live-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--safe);display:flex;align-items:center;gap:4px}
 .live-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
+.chaos-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--chaos);display:flex;align-items:center;gap:4px;font-weight:700;letter-spacing:1px}
+.chaos-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--chaos);animation:pulse 1s infinite}
+
+/* Chaos mode toggle in lobby */
+.chaos-toggle-wrap{margin:16px 0;padding:16px;background:rgba(255,45,45,0.05);border:1px solid rgba(255,45,45,0.2);border-radius:var(--radius);transition:all 0.2s}
+.chaos-toggle-wrap.chaos-on{background:rgba(255,45,45,0.1);border-color:rgba(255,45,45,0.5);animation:chaos-pulse 2s infinite}
+.chaos-toggle-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.chaos-title{font-size:16px;font-weight:800;color:var(--chaos);letter-spacing:1px;text-transform:uppercase}
+.chaos-desc{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6}
+.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--surface3);border-radius:24px;transition:0.2s;border:1px solid var(--border)}
+.toggle-slider:before{position:absolute;content:'';height:16px;width:16px;left:3px;bottom:3px;background:var(--muted);border-radius:50%;transition:0.2s}
+.toggle-switch input:checked + .toggle-slider{background:var(--chaos);border-color:var(--chaos)}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px);background:#fff}
+
+/* Spy count selector */
+.spy-count-wrap{margin:12px 0}
+.spy-count-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.spy-count-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.spy-count-btn:hover{border-color:var(--accent);color:var(--accent)}
+.spy-count-display{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--text);min-width:32px;text-align:center}
+.spy-count-label{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* Reveal screen */
 .reveal-outer{display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;gap:16px}
 .reveal-tap{text-align:center;padding:60px 40px;background:var(--surface);border:2px dashed var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all 0.2s;width:100%}
 .reveal-tap:hover{border-color:var(--accent);background:var(--surface2)}
+.reveal-tap.chaos-reveal-tap:hover{border-color:var(--chaos)}
 .reveal-tap .hint{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:2px}
 .reveal-tap .eye-icon{font-size:48px;margin-bottom:12px}
 .reveal-tap .reveal-cta{font-size:18px;font-weight:700;color:var(--text)}
 .role-card{width:100%;border-radius:var(--radius-lg);padding:36px 28px;text-align:center;animation:flipIn 0.4s ease}
 .role-card.spy-card{background:linear-gradient(135deg,#2a1015,#1a0a0f);border:2px solid var(--spy)}
 .role-card.safe-card{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.role-card.chaos-spy-card{background:linear-gradient(135deg,#2a0808,#1a0404);border:2px solid var(--chaos);animation:chaos-pulse 2s infinite,flipIn 0.4s ease}
+.role-card.chaos-innocent-card{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
 .role-card .role-label{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
-.role-card.spy-card .role-label{color:var(--spy)}
-.role-card.safe-card .role-label{color:var(--safe)}
+.role-card.spy-card .role-label,.role-card.chaos-spy-card .role-label{color:var(--spy)}
+.role-card.safe-card .role-label,.role-card.chaos-innocent-card .role-label{color:var(--safe)}
 .role-card .role-name{font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
 .role-card.spy-card .role-name{color:var(--spy)}
-.role-card.safe-card .role-name{color:var(--safe)}
+.role-card.chaos-spy-card .role-name{color:var(--chaos)}
+.role-card.safe-card .role-name,.role-card.chaos-innocent-card .role-name{color:var(--safe)}
 .role-card .location-line{font-size:14px;color:var(--muted);margin-bottom:4px;font-family:'DM Mono',monospace}
 .role-card .location-name{font-size:22px;font-weight:700;color:var(--text)}
 .spy-warning{background:rgba(232,93,77,0.1);border:1px solid rgba(232,93,77,0.3);border-radius:var(--radius);padding:14px;font-size:13px;color:var(--spy);text-align:center}
+.chaos-warning{background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.4);border-radius:var(--radius);padding:14px;font-size:13px;color:var(--chaos);text-align:center;line-height:1.6}
+
 .location-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
 .location-chip{padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center;transition:all 0.15s}
 .location-chip.current{border-color:var(--accent);color:var(--accent);background:rgba(232,212,77,0.08)}
@@ -131,7 +168,7 @@ select option{background:var(--surface2)}
 .notice{padding:12px 16px;border-radius:var(--radius);font-size:13px;font-family:'DM Mono',monospace;margin-bottom:12px}
 .notice.info{background:rgba(232,212,77,0.08);border:1px solid rgba(232,212,77,0.2);color:var(--accent)}
 .notice.error{background:rgba(232,93,77,0.08);border:1px solid rgba(232,93,77,0.2);color:var(--spy)}
-.notice.success{background:rgba(77,232,160,0.08);border:1px solid rgba(77,232,160,0.2);color:var(--safe)}
+.notice.chaos{background:rgba(255,45,45,0.08);border:1px solid rgba(255,45,45,0.3);color:var(--chaos)}
 .vote-list{display:flex;flex-direction:column;gap:8px}
 .vote-item{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;transition:all 0.15s}
 .vote-item:hover{border-color:var(--spy);background:rgba(232,93,77,0.05)}
@@ -139,9 +176,10 @@ select option{background:var(--surface2)}
 .result-banner{text-align:center;padding:32px 20px;border-radius:var(--radius-lg)}
 .result-banner.spy-wins{background:linear-gradient(135deg,#2a1015,#1a0a0f);border:2px solid var(--spy)}
 .result-banner.crew-wins{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.result-banner.chaos-spies-win{background:linear-gradient(135deg,#2a0808,#1a0404);border:2px solid var(--chaos);animation:chaos-pulse 2s infinite}
 .result-banner .result-emoji{font-size:48px;margin-bottom:8px}
 .result-banner h2{font-size:28px;font-weight:800;margin-bottom:8px}
-.result-banner.spy-wins h2{color:var(--spy)}
+.result-banner.spy-wins h2,.result-banner.chaos-spies-win h2{color:var(--spy)}
 .result-banner.crew-wins h2{color:var(--safe)}
 .result-banner p{font-size:14px;color:var(--muted);font-family:'DM Mono',monospace}
 .flex-row{display:flex;gap:8px}
@@ -159,6 +197,9 @@ select option{background:var(--surface2)}
 .role-summary-hidden:hover{border-color:var(--muted)}
 .hide-toggle-btn{margin-top:8px;padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;cursor:pointer;width:100%;transition:all 0.15s}
 .hide-toggle-btn:hover{background:var(--surface2);color:var(--text)}
+
+/* Chaos mode game banner */
+.chaos-mode-banner{padding:8px 14px;background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.3);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--chaos);font-weight:700;letter-spacing:2px;margin-bottom:12px;animation:chaos-pulse 2s infinite}
 </style>
 </head>
 <body>
@@ -193,9 +234,6 @@ select option{background:var(--surface2)}
       <button class="btn btn-secondary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
     </div>
   </div>
-  <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-align:center;max-width:300px;line-height:1.8">
-    Find the spy before time runs out — or trick them into guessing the wrong location.
-  </div>
 </div>
 
 <!-- LOBBY -->
@@ -206,7 +244,7 @@ select option{background:var(--surface2)}
     <div class="card fadeIn">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
         <h2 style="flex:1;font-size:20px;font-weight:700">Game Lobby</h2>
-        <div class="live-badge">LIVE</div>
+        <div class="live-badge" id="lobbyLiveBadge">LIVE</div>
       </div>
       <label>Share this code with friends</label>
       <div class="code-display" onclick="copyCode()" id="gameCodeDisplay">----</div>
@@ -214,8 +252,34 @@ select option{background:var(--surface2)}
       <div style="height:20px"></div>
       <label>Players (<span id="lobbyCount">1</span>)</label>
       <div class="player-list" id="playerList"></div>
-      <div style="height:16px"></div>
-      <div id="minPlayersNotice" class="notice info">Need at least 3 players to start</div>
+      <div style="height:8px"></div>
+
+      <!-- SPY COUNT -->
+      <div class="spy-count-wrap">
+        <label>Number of spies</label>
+        <div class="spy-count-row">
+          <button class="spy-count-btn" onclick="changeSpyCount(-1)">−</button>
+          <div class="spy-count-display" id="spyCountDisplay">1</div>
+          <button class="spy-count-btn" onclick="changeSpyCount(1)">+</button>
+          <div class="spy-count-label" id="spyCountLabel">max for your group size</div>
+        </div>
+      </div>
+
+      <!-- CHAOS MODE TOGGLE -->
+      <div class="chaos-toggle-wrap" id="chaosModeWrap">
+        <div class="chaos-toggle-header">
+          <div>
+            <div class="chaos-title">⚡ CHAOS MODE</div>
+            <div class="chaos-desc" style="margin-top:4px">Everyone is a SPY lying about the location.<br>One INNOCENT must catch them all.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="chaosModeToggle" onchange="toggleChaosMode()"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 3 players to start</div>
       <div style="height:8px"></div>
       <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>Start Game</button>
     </div>
@@ -239,7 +303,7 @@ select option{background:var(--surface2)}
       <label>Players (<span id="waitingCount">...</span>)</label>
       <div class="player-list" id="waitingPlayerList"></div>
       <div style="height:12px"></div>
-      <div class="notice info" style="margin-bottom:0">Waiting for the host to start the game...</div>
+      <div class="notice info" style="margin-bottom:0" id="waitingNotice">Waiting for the host to start the game...</div>
     </div>
   </div>
 </div>
@@ -249,7 +313,7 @@ select option{background:var(--surface2)}
   <div class="reveal-outer">
     <div style="text-align:center">
       <div class="logo" style="font-size:28px;margin-bottom:4px">SPY<span style="color:var(--accent)">FALL</span></div>
-      <div class="tagline">Game has started</div>
+      <div class="tagline" id="revealTagline">Game has started</div>
     </div>
     <div id="revealTap" class="reveal-tap">
       <div class="hint">Your secret</div>
@@ -269,6 +333,7 @@ select option{background:var(--surface2)}
 <div class="screen" id="screen-game">
   <div style="width:100%;max-width:440px">
     <div class="card fadeIn">
+      <div id="chaosModeGameBanner" class="chaos-mode-banner" style="display:none">⚡ CHAOS MODE ACTIVE ⚡</div>
       <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('timer')">Timer</button>
         <button class="tab-btn" onclick="switchTab('locations')">Locations</button>
@@ -292,20 +357,20 @@ select option{background:var(--surface2)}
           <button class="btn btn-danger" style="flex:0.7" onclick="endGameEarly()">End Round</button>
         </div>
         <div id="spyGuessSection" style="display:none;margin-top:20px">
-          <div class="notice info" style="margin-bottom:12px">You are the spy — if you figure out the location, guess it now to win!</div>
+          <div class="notice info" style="margin-bottom:12px">You don't know the location — guess it now to win if you figure it out!</div>
           <label>Guess the location</label>
           <select id="spyGuessSelect"><option value="">-- Select a location --</option></select>
           <button class="btn btn-primary" onclick="spyGuessLocation()">Submit Guess</button>
         </div>
       </div>
       <div class="tab-content" id="tab-locations">
-        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;font-family:'DM Mono',monospace;line-height:1.6">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;font-family:'DM Mono',monospace;line-height:1.6" id="locationsTabDesc">
           All possible locations this round. The highlighted one is the real location (hidden from the spy).
         </div>
         <div class="location-grid" id="locationGrid"></div>
       </div>
       <div class="tab-content" id="tab-vote">
-        <div class="notice info">Suspect someone? Tap their name to accuse them. A majority vote reveals the result.</div>
+        <div class="notice info" id="voteNotice">Suspect someone? Tap their name to accuse them. A majority vote reveals the result.</div>
         <div style="height:12px"></div>
         <div class="vote-list" id="voteList"></div>
         <div id="voteStatus" style="margin-top:12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
@@ -319,8 +384,8 @@ select option{background:var(--surface2)}
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:16px">
     <div id="resultBanner" class="fadeIn"></div>
     <div class="card fadeIn">
-      <h2 style="margin-bottom:16px">The spy was...</h2>
-      <div style="padding:20px;background:var(--surface2);border-radius:var(--radius);text-align:center">
+      <h2 style="margin-bottom:16px" id="resultTitle">The spy was...</h2>
+      <div id="resultRevealBox" style="padding:20px;background:var(--surface2);border-radius:var(--radius);text-align:center">
         <div style="font-size:36px;margin-bottom:8px">🕵️</div>
         <div style="font-size:24px;font-weight:800;color:var(--spy)" id="spyNameResult">---</div>
         <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px" id="locationResult">---</div>
@@ -332,6 +397,9 @@ select option{background:var(--surface2)}
 </div>
 
 <script>
+// =====================================================
+// PASSWORD GATE
+// =====================================================
 const SITE_PASSWORD = 'boyznight@111';
 (function() {
   if (sessionStorage.getItem('sf_unlocked') === '1') {
@@ -357,11 +425,14 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.querySelector('.screen.active')?.id === 'screen-password') checkPassword();
 });
 
+// =====================================================
+// GAME DATA
+// =====================================================
 const ALL_LOCATIONS = [
   {name:'Airplane',       roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
-  {name:'Commonwealth Bank',           roles:['Manager','Teller','Customer','Security Guard','Loan Officer']},
-  {name:'Bondi Beach',          roles:['Lifeguard','Tourist','Vendor','Surfer','Volleyball Player']},
-  {name:'Star Casino',         roles:['Dealer','Asian Investor','Player','Cocktail Server','Security']},
+  {name:'Bank',           roles:['Manager','Teller','Customer','Security Guard','Loan Officer']},
+  {name:'Beach',          roles:['Lifeguard','Tourist','Vendor','Surfer','Volleyball Player']},
+  {name:'Casino',         roles:['Dealer','Pit Boss','Player','Cocktail Server','Security']},
   {name:'Circus',         roles:['Clown','Ringmaster','Acrobat','Animal Trainer','Ticket Seller']},
   {name:'Hospital',       roles:['Doctor','Nurse','Patient','Surgeon','Receptionist']},
   {name:'Hotel',          roles:['Concierge','Guest','Bellhop','Manager','Housekeeper']},
@@ -372,40 +443,74 @@ const ALL_LOCATIONS = [
   {name:'Restaurant',     roles:['Chef','Waiter','Customer','Manager','Busboy']},
   {name:'School',         roles:['Teacher','Student','Principal','Janitor','Coach']},
   {name:'Space Station',  roles:['Commander','Scientist','Engineer','Pilot','Doctor']},
-  {name:'Woolworths',    roles:['Cashier','Manager','Customer','Stocker','Security']},
+  {name:'Supermarket',    roles:['Cashier','Manager','Customer','Stocker','Security']},
   {name:'Theater',        roles:['Actor','Director','Audience Member','Stage Manager','Critic']},
   {name:'Train',          roles:['Conductor','Engineer','Passenger','Ticket Inspector','Dining Staff']},
   {name:'Submarine',      roles:['Captain','Navigator','Cook','Engineer','Sonar Operator']},
-  {name:'Luna Park', roles:['Ride Operator','Visitor','Performer','Security','Food Vendor']},
+  {name:'Amusement Park', roles:['Ride Operator','Visitor','Performer','Security','Food Vendor']},
   {name:'Spy HQ',         roles:['Handler','Agent','Tech Expert','Analyst','Double Agent']},
-  {name:'Gregory Hills Hotel', roles:['Chef','Footy Fan','Alcoholic','Waiter','Bartender']},
-  {name:'Macarthur Square', roles:['Eshay','Retail Worker','Police Officer','Bowling Expert','Event Cinemas Janitor','Nandos Chef']},
-  {name:'World Gym', roles:['Roid Head','Cleaner','BBL Baddie','Personal Trainer','Receptionist','Eshay']},
 ];
 const LOCATIONS_PER_GAME = 12;
 const TIMER_DURATION = 8 * 60;
+const CHAOS_TIMER_DURATION = 6 * 60;
 
+// =====================================================
+// STATE
+// =====================================================
 let myId = localStorage.getItem('sf_myId');
 if (!myId) { myId = Math.random().toString(36).slice(2,12); localStorage.setItem('sf_myId', myId); }
 let gameCode=null, amHost=false, gameRef=null, gameListener=null, localGame=null, timerInterval=null;
 let roleVisible=true, revealVisible=true;
+let localSpyCount=1, localChaosMode=false;
 
+// =====================================================
+// UTILS
+// =====================================================
 const randInt = n => Math.floor(Math.random()*n);
 const pick    = arr => arr[randInt(arr.length)];
-const shuffle = arr => {
-  const a=[...arr];
-  for(let i=a.length-1;i>0;i--){const j=randInt(i+1);[a[i],a[j]]=[a[j],a[i]];}
-  return a;
-};
-const genCode = () => {
-  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return Array.from({length:4},()=>chars[randInt(chars.length)]).join('');
-};
+const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=randInt(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
+const genCode = () => { const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; return Array.from({length:4},()=>c[randInt(c.length)]).join(''); };
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');}
 function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
 function setLoading(btnId,loading,text){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${text}`:text;}
 function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+// =====================================================
+// SPY COUNT CONTROLS (host only)
+// =====================================================
+function maxSpies(n) {
+  if (n <= 4) return 1;
+  if (n <= 7) return 2;
+  return 3;
+}
+function changeSpyCount(delta) {
+  const game = localGame;
+  const n = game ? Object.keys(game.players||{}).length : 3;
+  const max = maxSpies(n);
+  localSpyCount = Math.min(max, Math.max(1, localSpyCount + delta));
+  updateSpyCountUI(n);
+  if (gameCode) updateGame(gameCode, { spyCount: localSpyCount });
+}
+function updateSpyCountUI(n) {
+  const max = maxSpies(n);
+  localSpyCount = Math.min(localSpyCount, max);
+  document.getElementById('spyCountDisplay').textContent = localSpyCount;
+  document.getElementById('spyCountLabel').textContent = `of ${max} max for ${n} players`;
+}
+
+// =====================================================
+// CHAOS MODE TOGGLE (host only)
+// =====================================================
+function toggleChaosMode() {
+  localChaosMode = document.getElementById('chaosModeToggle').checked;
+  const wrap = document.getElementById('chaosModeWrap');
+  wrap.classList.toggle('chaos-on', localChaosMode);
+  if (gameCode) updateGame(gameCode, { chaosMode: localChaosMode });
+}
+
+// =====================================================
+// FIREBASE HELPERS
+// =====================================================
 function gameRefFor(code){return db.ref('games/'+code);}
 function listenToGame(code,callback){
   if(gameListener&&gameRef)gameRef.off('value',gameListener);
@@ -415,46 +520,44 @@ function listenToGame(code,callback){
 function stopListening(){if(gameListener&&gameRef){gameRef.off('value',gameListener);gameListener=null;}}
 function updateGame(code,updates){return gameRefFor(code).update(updates);}
 
+// =====================================================
+// PRESENCE
+// =====================================================
 function setupPresence(){
   if(!gameCode)return;
-  const presenceRef=gameRefFor(gameCode).child('players/'+myId+'/online');
-  presenceRef.set(true);
-  presenceRef.onDisconnect().set(false);
+  const ref=gameRefFor(gameCode).child('players/'+myId+'/online');
+  ref.set(true); ref.onDisconnect().set(false);
   gameRefFor(gameCode).child('players/'+myId).onDisconnect().update({online:false});
 }
-
 function watchPresence(game){
   if(!amHost)return;
-  Object.values(game.players||{}).forEach(p=>{
-    if(p.id===myId)return;
-    if(p.online===false)handlePlayerLeft(p.id,game);
-  });
+  Object.values(game.players||{}).forEach(p=>{if(p.id!==myId&&p.online===false)handlePlayerLeft(p.id,game);});
 }
-
 async function handlePlayerLeft(leftId,game){
   if(!amHost||!gameCode)return;
-  const snap=await gameRefFor(gameCode).once('value');
-  const freshGame=snap.val();
-  if(!freshGame)return;
-  if(freshGame.status==='lobby'){await gameRefFor(gameCode).child('players/'+leftId).remove();}
-  if(freshGame.hostId===leftId){
-    const remaining=Object.values(freshGame.players||{}).filter(p=>p.id!==leftId).sort((a,b)=>a.joinedAt-b.joinedAt);
-    if(remaining.length>0){
-      const newHost=remaining[0];
-      await gameRefFor(gameCode).child('players/'+newHost.id+'/isHost').set(true);
-      await gameRefFor(gameCode).child('hostId').set(newHost.id);
-      if(newHost.id===myId){amHost=true;document.getElementById('timerControls').style.display='flex';}
+  const snap=await gameRefFor(gameCode).once('value');const fg=snap.val();if(!fg)return;
+  if(fg.status==='lobby')await gameRefFor(gameCode).child('players/'+leftId).remove();
+  if(fg.hostId===leftId){
+    const rem=Object.values(fg.players||{}).filter(p=>p.id!==leftId).sort((a,b)=>a.joinedAt-b.joinedAt);
+    if(rem.length>0){
+      const nh=rem[0];
+      await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);
+      await gameRefFor(gameCode).child('hostId').set(nh.id);
+      if(nh.id===myId){amHost=true;document.getElementById('timerControls').style.display='flex';}
     }
   }
 }
 
+// =====================================================
+// CREATE GAME
+// =====================================================
 async function createGame(){
   const name=document.getElementById('playerName').value.trim();
   if(!name)return showError('homeError','Please enter your name');
   setLoading('createBtn',true,'Creating...');
   const code=genCode();gameCode=code;amHost=true;
   const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  const game={code,status:'lobby',hostId:myId,locations,currentLocation:null,roles:{},spyId:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
+  const game={code,status:'lobby',hostId:myId,locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
@@ -463,6 +566,9 @@ async function createGame(){
   setLoading('createBtn',false,'Create New Game');
 }
 
+// =====================================================
+// JOIN GAME
+// =====================================================
 async function joinGame(){
   const name=document.getElementById('playerName').value.trim();
   if(!name)return showError('homeError','Please enter your name');
@@ -475,21 +581,32 @@ async function joinGame(){
     if(game.status!=='lobby'){setLoading('joinBtn',false,'Join');return showError('homeError','That game has already started');}
     gameCode=code;amHost=false;
     const existing=game.players&&game.players[myId];
-    if(!existing){await gameRefFor(code).child('players/'+myId).set({id:myId,name,isHost:false,joinedAt:Date.now(),online:true});}
-    else{await gameRefFor(code).child('players/'+myId+'/online').set(true);}
+    if(!existing)await gameRefFor(code).child('players/'+myId).set({id:myId,name,isHost:false,joinedAt:Date.now(),online:true});
+    else await gameRefFor(code).child('players/'+myId+'/online').set(true);
     setupPresence();document.getElementById('waitingCodeDisplay').textContent=code;
     showScreen('waiting');listenToGame(code,onGameUpdate);
   }catch(e){showError('homeError','Connection error — check your Firebase config');console.error(e);}
   setLoading('joinBtn',false,'Join');
 }
 
+// =====================================================
+// GAME UPDATE LISTENER
+// =====================================================
 function onGameUpdate(game){
   const cur=document.querySelector('.screen.active')?.id;
   if(game.hostId===myId&&!amHost)amHost=true;
   if(amHost)watchPresence(game);
+
   if(game.status==='lobby'){
-    if(cur==='screen-lobby')renderLobby(game);
-    if(cur==='screen-waiting'){renderWaiting(game);if(game.hostId===myId){renderLobby(game);showScreen('lobby');}}
+    if(cur==='screen-lobby'){renderLobby(game);}
+    if(cur==='screen-waiting'){
+      renderWaiting(game);
+      if(game.hostId===myId){renderLobby(game);showScreen('lobby');}
+      // Show chaos mode notice in waiting room
+      const notice=document.getElementById('waitingNotice');
+      if(game.chaosMode){notice.className='notice chaos';notice.textContent='⚡ Host has enabled CHAOS MODE!';}
+      else{notice.className='notice info';notice.textContent='Waiting for the host to start the game...';}
+    }
   }
   if(game.status==='playing'){
     if(cur==='screen-lobby'||cur==='screen-waiting'||cur==='screen-home')enterRevealScreen(game);
@@ -502,13 +619,30 @@ function onGameUpdate(game){
   }
 }
 
+// =====================================================
+// LOBBY
+// =====================================================
 function renderLobby(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
-  document.getElementById('lobbyCount').textContent=players.length;
+  const n=players.length;
+  document.getElementById('lobbyCount').textContent=n;
   document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item"><div class="player-dot ${p.isHost?'host':''}"></div><div class="player-name">${esc(p.name)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}</div>`).join('');
-  const ok=players.length>=3;
+  const ok=n>=3;
   document.getElementById('startBtn').disabled=!ok;
   document.getElementById('minPlayersNotice').style.display=ok?'none':'block';
+  // Sync spy count from Firebase if changed by another host action
+  if(game.spyCount&&game.spyCount!==localSpyCount){localSpyCount=game.spyCount;}
+  updateSpyCountUI(n);
+  // Sync chaos toggle
+  if(game.chaosMode!==undefined){
+    localChaosMode=game.chaosMode;
+    document.getElementById('chaosModeToggle').checked=localChaosMode;
+    document.getElementById('chaosModeWrap').classList.toggle('chaos-on',localChaosMode);
+  }
+  // In chaos mode, force spy count to 1 (one innocent only makes sense)
+  const spyCountWrap=document.querySelector('.spy-count-wrap');
+  if(localChaosMode){spyCountWrap.style.opacity='0.4';spyCountWrap.style.pointerEvents='none';}
+  else{spyCountWrap.style.opacity='1';spyCountWrap.style.pointerEvents='auto';}
 }
 
 function renderWaiting(game){
@@ -517,35 +651,124 @@ function renderWaiting(game){
   document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item"><div class="player-dot ${p.isHost?'host':''}"></div><div class="player-name">${esc(p.name)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
 }
 
+// =====================================================
+// START GAME
+// =====================================================
 async function startGame(){
   const game=localGame;if(!game)return;
-  const players=Object.values(game.players||{});if(players.length<3)return;
-  const spyIdx=randInt(players.length);const spyId=players[spyIdx].id;
-  const locName=pick(game.locations);const locObj=ALL_LOCATIONS.find(l=>l.name===locName)||ALL_LOCATIONS[0];
-  const shuffledRoles=shuffle(locObj.roles);const roles={};
-  players.forEach((p,i)=>{roles[p.id]=(p.id===spyId)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});
-  await updateGame(gameCode,{status:'playing',spyId,currentLocation:locObj.name,roles,timerStart:Date.now(),timerRunning:true,timerOffset:0,votes:{},result:null,spyGuess:null});
+  const players=Object.values(game.players||{});
+  if(players.length<3)return;
+  const isChaos=localChaosMode;
+  const locName=pick(game.locations);
+  const locObj=ALL_LOCATIONS.find(l=>l.name===locName)||ALL_LOCATIONS[0];
+  const shuffledRoles=shuffle(locObj.roles);
+  const roles={};
+  let spyIds=[];
+  let innocentId=null;
+
+  if(isChaos){
+    // One random INNOCENT who knows the location. Everyone else is a SPY who doesn't.
+    const innocentIdx=randInt(players.length);
+    innocentId=players[innocentIdx].id;
+    players.forEach((p,i)=>{
+      if(p.id===innocentId){roles[p.id]='__INNOCENT__';}
+      else{roles[p.id]='__CHAOS_SPY__';}
+    });
+    spyIds=players.filter(p=>p.id!==innocentId).map(p=>p.id);
+  } else {
+    const count=Math.min(localSpyCount, maxSpies(players.length));
+    const shuffledPlayers=shuffle([...players]);
+    spyIds=shuffledPlayers.slice(0,count).map(p=>p.id);
+    players.forEach((p,i)=>{
+      roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];
+    });
+  }
+
+  const duration=isChaos?CHAOS_TIMER_DURATION:TIMER_DURATION;
+  await updateGame(gameCode,{
+    status:'playing',spyIds,innocentId,
+    spyId:spyIds[0]||null, // keep for backwards compat
+    currentLocation:locObj.name,roles,
+    timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:duration,
+    votes:{},result:null,spyGuess:null,chaosMode:isChaos,spyCount:spyIds.length,
+  });
 }
 
+// =====================================================
+// REVEAL SCREEN
+// =====================================================
 function enterRevealScreen(game){
   revealVisible=true;
+  const isChaos=game.chaosMode;
+  const spyIds=game.spyIds||[game.spyId];
+  const isSpy=spyIds.includes(myId);
+  const isInnocent=game.innocentId===myId;
+  const myRole=game.roles&&game.roles[myId];
+
   document.getElementById('revealTap').style.display='block';
   document.getElementById('revealCard').style.display='none';
   document.getElementById('revealActions').style.display='none';
+  document.getElementById('revealTagline').textContent=isChaos?'⚡ CHAOS MODE — Game has started':'Game has started';
+  document.getElementById('revealTap').className='reveal-tap'+(isChaos?' chaos-reveal-tap':'');
   showScreen('reveal');
-  const isSpy=game.spyId===myId;
-  const myRole=game.roles&&game.roles[myId];
+
   document.getElementById('revealTap').onclick=()=>{
     document.getElementById('revealTap').style.display='none';
     const card=document.getElementById('revealCard');
-    if(isSpy){
-      card.innerHTML=`<div class="role-card spy-card"><div class="role-label">⚠ You are the spy</div><div class="role-name">SPY</div><div style="font-size:14px;color:var(--muted);margin-top:8px">You do not know the location.</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Blend in. Ask questions. Don't get caught.</div></div><div class="spy-warning" style="margin-top:12px">🎯 Listen carefully. Figure out where everyone is.<br>You can guess the location at any time to win.</div>`;
-    }else{
-      card.innerHTML=`<div class="role-card safe-card"><div class="role-label">✓ You are not the spy</div><div class="role-name">${esc(myRole)}</div><div class="location-line" style="margin-top:16px">You are at</div><div class="location-name">${esc(game.currentLocation)}</div><div style="font-size:13px;color:var(--muted);margin-top:8px">Find the spy without revealing the location.</div></div>`;
+
+    if(isChaos){
+      if(isInnocent){
+        // Chaos innocent — knows location, tries to catch spies
+        card.innerHTML=`
+          <div class="role-card chaos-innocent-card">
+            <div class="role-label">✓ You are the INNOCENT</div>
+            <div class="role-name" style="color:var(--safe)">INNOCENT</div>
+            <div class="location-line" style="margin-top:16px">The location is</div>
+            <div class="location-name">${esc(game.currentLocation)}</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:8px">Everyone else is lying. Catch them out.</div>
+          </div>
+          <div class="chaos-warning" style="margin-top:12px">
+            🎯 You are outnumbered. Everyone else is a spy bluffing about the location.<br>Vote to identify a spy to win.
+          </div>`;
+      } else {
+        // Chaos spy — doesn't know location, has to bluff
+        card.innerHTML=`
+          <div class="role-card chaos-spy-card">
+            <div class="role-label">⚡ You are a SPY</div>
+            <div class="role-name">SPY</div>
+            <div style="font-size:14px;color:var(--muted);margin-top:8px">You do NOT know the location.</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px">Lie convincingly. Blend in. Don't get caught.</div>
+          </div>
+          <div class="chaos-warning" style="margin-top:12px">
+            🤫 The INNOCENT knows the location. Your whole team is bluffing.<br>Make the Innocent vote for the wrong person to win.
+          </div>`;
+      }
+    } else {
+      if(isSpy){
+        card.innerHTML=`
+          <div class="role-card spy-card">
+            <div class="role-label">⚠ You are the spy</div>
+            <div class="role-name">SPY</div>
+            <div style="font-size:14px;color:var(--muted);margin-top:8px">You do not know the location.</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px">Blend in. Ask questions. Don't get caught.</div>
+          </div>
+          <div class="spy-warning" style="margin-top:12px">
+            🎯 Listen carefully. Figure out where everyone is.<br>You can guess the location at any time to win.
+          </div>`;
+      } else {
+        card.innerHTML=`
+          <div class="role-card safe-card">
+            <div class="role-label">✓ You are not the spy</div>
+            <div class="role-name">${esc(myRole)}</div>
+            <div class="location-line" style="margin-top:16px">You are at</div>
+            <div class="location-name">${esc(game.currentLocation)}</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:8px">Find the spy without revealing the location.</div>
+          </div>`;
+      }
     }
+
     card.style.display='block';
-    const actions=document.getElementById('revealActions');
-    actions.style.display='flex';
+    document.getElementById('revealActions').style.display='flex';
     document.getElementById('hideRoleBtn').textContent='🙈 Hide my role';
   };
 }
@@ -560,12 +783,42 @@ function toggleHideRole(){
 
 function goToGame(){if(!localGame)return;roleVisible=true;initGameScreen(localGame);showScreen('game');}
 
+// =====================================================
+// GAME SCREEN
+// =====================================================
 function initGameScreen(game){
-  const isSpy=game.spyId===myId;
-  document.getElementById('locationGrid').innerHTML=game.locations.map(loc=>`<div class="location-chip ${!isSpy&&loc===game.currentLocation?'current':''}">${esc(loc)}</div>`).join('');
+  const isChaos=game.chaosMode;
+  const spyIds=game.spyIds||[game.spyId];
+  const isSpy=spyIds.includes(myId);
+  const isInnocent=game.innocentId===myId;
+  // In chaos mode, the spy doesn't know location — show locations tab but no highlight
+  const showLocationHighlight=isChaos?isInnocent:!isSpy;
+
+  document.getElementById('chaosModeGameBanner').style.display=isChaos?'block':'none';
+  document.getElementById('locationGrid').innerHTML=game.locations.map(loc=>`<div class="location-chip ${showLocationHighlight&&loc===game.currentLocation?'current':''}">${esc(loc)}</div>`).join('');
+
+  if(isChaos){
+    document.getElementById('locationsTabDesc').textContent=isInnocent?'The highlighted location is where everyone claims to be. Only you know the truth.':'All possible locations. You do NOT know which one is real — that\'s your job to figure out.';
+  } else {
+    document.getElementById('locationsTabDesc').textContent='All possible locations this round. The highlighted one is the real location (hidden from the spy).';
+  }
+
   const sel=document.getElementById('spyGuessSelect');
   sel.innerHTML='<option value="">-- Select a location --</option>'+game.locations.map(l=>`<option value="${l}">${esc(l)}</option>`).join('');
-  document.getElementById('spyGuessSection').style.display=isSpy?'block':'none';
+
+  // Spy guess: in normal mode shown to spies. In chaos mode shown to chaos spies (not innocent).
+  const showGuess=isChaos?(isSpy&&!isInnocent):isSpy;
+  document.getElementById('spyGuessSection').style.display=showGuess?'block':'none';
+
+  // Vote notice
+  if(isChaos){
+    document.getElementById('voteNotice').className='notice chaos';
+    document.getElementById('voteNotice').textContent=isInnocent?'⚡ You are the Innocent — vote to identify a spy. Majority rules.':'⚡ Make the Innocent vote for the wrong person. Blend in.';
+  } else {
+    document.getElementById('voteNotice').className='notice info';
+    document.getElementById('voteNotice').textContent='Suspect someone? Tap their name to accuse them. A majority vote reveals the result.';
+  }
+
   document.getElementById('timerControls').style.display=amHost?'flex':'none';
   updateRoleSummary(game);
   clearInterval(timerInterval);
@@ -573,13 +826,31 @@ function initGameScreen(game){
   renderGame(game);
 }
 
-function renderGame(game){tickTimer(game);updateVoteList(game);updateTimerBtn(game);document.getElementById('timerControls').style.display=amHost?'flex':'none';}
+function renderGame(game){
+  tickTimer(game);updateVoteList(game);updateTimerBtn(game);
+  document.getElementById('timerControls').style.display=amHost?'flex':'none';
+}
 
 function updateRoleSummary(game){
-  const isSpy=game.spyId===myId;
+  const isChaos=game.chaosMode;
+  const spyIds=game.spyIds||[game.spyId];
+  const isSpy=spyIds.includes(myId);
+  const isInnocent=game.innocentId===myId;
   const el=document.getElementById('myRoleSummary');
-  if(isSpy){el.innerHTML=`<span style="color:var(--spy);font-weight:700">🕵️ You are the SPY</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Guess the location to win if accused</span>`;}
-  else{const role=game.roles&&game.roles[myId];el.innerHTML=`<span style="color:var(--safe);font-weight:700">${esc(role)}</span><span style="color:var(--muted);font-size:13px"> at </span><span style="font-weight:700">${esc(game.currentLocation)}</span>`;}
+  if(isChaos){
+    if(isInnocent){
+      el.innerHTML=`<span style="color:var(--safe);font-weight:700">✓ You are the INNOCENT</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Location: ${esc(game.currentLocation)}</span>`;
+    } else {
+      el.innerHTML=`<span style="color:var(--chaos);font-weight:700">⚡ You are a SPY</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Bluff about the location — you don't know it</span>`;
+    }
+  } else {
+    if(isSpy){
+      el.innerHTML=`<span style="color:var(--spy);font-weight:700">🕵️ You are the SPY</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Guess the location to win if accused</span>`;
+    } else {
+      const role=game.roles&&game.roles[myId];
+      el.innerHTML=`<span style="color:var(--safe);font-weight:700">${esc(role)}</span><span style="color:var(--muted);font-size:13px"> at </span><span style="font-weight:700">${esc(game.currentLocation)}</span>`;
+    }
+  }
 }
 
 function toggleGameRoleVisibility(){
@@ -590,7 +861,6 @@ function toggleGameRoleVisibility(){
   if(roleVisible){summary.style.display='block';hidden.style.display='none';btn.textContent='🙈 Hide my role';}
   else{summary.style.display='none';hidden.style.display='block';btn.textContent='👁 Show my role';}
 }
-
 function revealRoleSummary(){
   roleVisible=true;
   document.getElementById('myRoleSummary').style.display='block';
@@ -600,7 +870,7 @@ function revealRoleSummary(){
 
 function tickTimer(game){
   if(!game.timerStart)return;
-  let elapsed=game.timerRunning?Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0):(game.timerOffset||0);
+  const elapsed=game.timerRunning?Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0):(game.timerOffset||0);
   const remaining=Math.max(0,game.timerDuration-elapsed);
   const m=Math.floor(remaining/60).toString().padStart(2,'0');
   const s=(remaining%60).toString().padStart(2,'0');
@@ -609,21 +879,30 @@ function tickTimer(game){
   el.className='timer-display'+(remaining<60?' danger':remaining<120?' warning':'');
   if(remaining===0&&game.timerRunning&&amHost)resolveGame('timeout');
 }
-
 function updateTimerBtn(game){const btn=document.getElementById('timerToggleBtn');if(btn)btn.textContent=game.timerRunning?'Pause':'Resume';}
-
 async function toggleTimer(){
   const game=localGame;if(!game)return;
-  if(game.timerRunning){const elapsed=Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0);await updateGame(gameCode,{timerRunning:false,timerOffset:elapsed});}
+  if(game.timerRunning){const e=Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0);await updateGame(gameCode,{timerRunning:false,timerOffset:e});}
   else{await updateGame(gameCode,{timerRunning:true,timerStart:Date.now(),timerOffset:game.timerOffset||0});}
 }
 
+// =====================================================
+// VOTING
+// =====================================================
 function updateVoteList(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const myVote=game.votes&&game.votes[myId];
   const voteCounts={};Object.values(game.votes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const n=players.length;const majority=Math.ceil(n/2);
-  document.getElementById('voteList').innerHTML=players.filter(p=>p.id!==myId).map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')"><div style="font-size:20px">🕵️</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${majority} needed</div>`:''}${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('voteList').innerHTML=players.filter(p=>p.id!==myId).map(p=>{
+    const vc=voteCounts[p.id]||0;
+    return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')">
+      <div style="font-size:20px">🕵️</div>
+      <div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>
+      ${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${majority} needed</div>`:''}
+      ${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}
+    </div>`;
+  }).join('');
   document.getElementById('voteStatus').textContent=`${Object.keys(game.votes||{}).length} of ${n} have voted`;
 }
 
@@ -633,17 +912,38 @@ async function castVote(targetId){
   const votes={...(game.votes||{}),[myId]:targetId};
   const n=Object.keys(game.players||{}).length;const majority=Math.ceil(n/2);const counts={};
   Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
-  for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority&&amHost){await resolveGame('vote',pid);return;}}
+  for(const[pid,cnt]of Object.entries(counts)){
+    if(cnt>=majority&&amHost){await resolveGame('vote',pid);return;}
+  }
 }
 
+// =====================================================
+// RESOLVE GAME
+// =====================================================
 async function resolveGame(reason,accusedId=null){
   const game=localGame;if(!game||game.status!=='playing')return;
+  const isChaos=game.chaosMode;
+  const spyIds=game.spyIds||[game.spyId];
   let spyWins=false,description='';
-  if(reason==='timeout'){spyWins=true;description='Time ran out — spy escaped!';}
-  else if(reason==='vote'){if(accusedId===game.spyId){spyWins=false;description='Correct! The spy was caught by majority vote.';}else{spyWins=true;description='Wrong person accused — the spy wins!';}}
-  else if(reason==='spy_guess_correct'){spyWins=true;description='The spy correctly guessed the location!';}
-  else if(reason==='spy_guess_wrong'){spyWins=false;description='The spy guessed the wrong location!';}
-  else if(reason==='early'){spyWins=false;description='Round ended early by the host.';}
+
+  if(isChaos){
+    // In chaos mode: spies win if innocent can't catch one. Innocent wins if they vote correctly.
+    if(reason==='timeout'){spyWins=true;description='Time ran out — the spies fooled the Innocent!';}
+    else if(reason==='vote'){
+      if(spyIds.includes(accusedId)){spyWins=false;description='The Innocent correctly identified a spy!';}
+      else{spyWins=true;description='Wrong person accused — the spies win!';}
+    }
+    else if(reason==='early'){spyWins=false;description='Round ended early.';}
+  } else {
+    if(reason==='timeout'){spyWins=true;description='Time ran out — spy escaped!';}
+    else if(reason==='vote'){
+      if(spyIds.includes(accusedId)){spyWins=false;description='Correct! A spy was caught by majority vote.';}
+      else{spyWins=true;description='Wrong person accused — the spy wins!';}
+    }
+    else if(reason==='spy_guess_correct'){spyWins=true;description='The spy correctly guessed the location!';}
+    else if(reason==='spy_guess_wrong'){spyWins=false;description='The spy guessed the wrong location!';}
+    else if(reason==='early'){spyWins=false;description='Round ended early by the host.';}
+  }
   await updateGame(gameCode,{status:'result',timerRunning:false,result:{spyWins,description,reason,accusedId}});
 }
 
@@ -654,25 +954,53 @@ async function spyGuessLocation(){
   if(guess===game.currentLocation)await resolveGame('spy_guess_correct');
   else await resolveGame('spy_guess_wrong');
 }
-
 async function endGameEarly(){if(!confirm('End the round now?'))return;await resolveGame('early');}
 
+// =====================================================
+// RESULT SCREEN
+// =====================================================
 function showResultScreen(game){
-  clearInterval(timerInterval);const r=game.result;
-  const spyPlayer=game.players&&game.players[game.spyId];
-  document.getElementById('spyNameResult').textContent=spyPlayer?spyPlayer.name:'Unknown';
-  document.getElementById('locationResult').textContent='Location was: '+(game.currentLocation||'?');
+  clearInterval(timerInterval);
+  const r=game.result;
+  const isChaos=game.chaosMode;
+  const spyIds=game.spyIds||[game.spyId];
+  const innocentPlayer=game.innocentId&&game.players&&game.players[game.innocentId];
+  const spyPlayers=spyIds.map(id=>game.players&&game.players[id]).filter(Boolean);
+
+  if(isChaos){
+    document.getElementById('resultTitle').textContent='The Innocent was...';
+    document.getElementById('resultRevealBox').innerHTML=`
+      <div style="font-size:36px;margin-bottom:8px">🎭</div>
+      <div style="font-size:24px;font-weight:800;color:var(--safe)">${esc(innocentPlayer?.name||'Unknown')}</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation)}</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">The spies: ${spyPlayers.map(p=>esc(p.name)).join(', ')}</div>`;
+  } else {
+    document.getElementById('resultTitle').textContent=spyIds.length>1?'The spies were...':'The spy was...';
+    document.getElementById('resultRevealBox').innerHTML=`
+      <div style="font-size:36px;margin-bottom:8px">🕵️</div>
+      <div style="font-size:24px;font-weight:800;color:var(--spy)">${spyPlayers.map(p=>esc(p.name)).join(' & ')||'Unknown'}</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation||'?')}</div>`;
+  }
+
   const banner=document.getElementById('resultBanner');
-  if(r.spyWins){banner.innerHTML=`<div class="result-banner spy-wins"><div class="result-emoji">🕵️</div><h2>Spy Wins!</h2><p>${esc(r.description)}</p></div>`;}
-  else{banner.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Crew Wins!</h2><p>${esc(r.description)}</p></div>`;}
+  if(isChaos){
+    if(r.spyWins){banner.innerHTML=`<div class="result-banner chaos-spies-win"><div class="result-emoji">⚡</div><h2>Spies Win!</h2><p>${esc(r.description)}</p></div>`;}
+    else{banner.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Innocent Wins!</h2><p>${esc(r.description)}</p></div>`;}
+  } else {
+    if(r.spyWins){banner.innerHTML=`<div class="result-banner spy-wins"><div class="result-emoji">🕵️</div><h2>Spy Wins!</h2><p>${esc(r.description)}</p></div>`;}
+    else{banner.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Crew Wins!</h2><p>${esc(r.description)}</p></div>`;}
+  }
   showScreen('result');
 }
 
+// =====================================================
+// PLAY AGAIN / LEAVE
+// =====================================================
 async function playAgain(){
   if(!amHost){showScreen('waiting');return;}
   const game=localGame;if(!game)return;
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,locations:newLocations});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations});
 }
 
 async function leaveGame(){
@@ -684,16 +1012,20 @@ async function leaveGame(){
         if(game.status==='lobby'){
           await gameRefFor(gameCode).child('players/'+myId).remove();
           if(game.hostId===myId){
-            const remaining=Object.values(game.players||{}).filter(p=>p.id!==myId).sort((a,b)=>a.joinedAt-b.joinedAt);
-            if(remaining.length>0){const newHost=remaining[0];await gameRefFor(gameCode).child('players/'+newHost.id+'/isHost').set(true);await gameRefFor(gameCode).child('hostId').set(newHost.id);}
+            const rem=Object.values(game.players||{}).filter(p=>p.id!==myId).sort((a,b)=>a.joinedAt-b.joinedAt);
+            if(rem.length>0){const nh=rem[0];await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);await gameRefFor(gameCode).child('hostId').set(nh.id);}
           }
         }else{await gameRefFor(gameCode).child('players/'+myId+'/online').set(false);}
       }
     }catch(e){console.error(e);}
   }
-  gameCode=null;amHost=false;localGame=null;showScreen('home');
+  gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;
+  showScreen('home');
 }
 
+// =====================================================
+// UI HELPERS
+// =====================================================
 function switchTab(tab){
   ['timer','locations','vote'].forEach((t,i)=>{document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);document.getElementById('tab-'+t).classList.toggle('active',t===tab);});
 }
@@ -706,3 +1038,4 @@ document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key===
 </script>
 </body>
 </html>
+
