@@ -181,6 +181,19 @@ select option{background:var(--surface2)}
 .hide-toggle-btn{margin-top:8px;padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;cursor:pointer;width:100%;transition:all 0.15s}
 .hide-toggle-btn:hover{background:var(--surface2);color:var(--text)}
 
+/* Dev panel */
+.dev-panel{background:var(--surface);border:1px solid #2a2a3a;border-radius:var(--radius-lg);padding:20px}
+.dev-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.dev-desc{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:14px;line-height:1.6}
+.dev-section-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.dev-btn{padding:9px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:left}
+.dev-btn:hover{border-color:var(--accent);color:var(--accent)}
+.dev-btn-chaos{border-color:rgba(255,45,45,0.3);color:var(--chaos)}
+.dev-btn-chaos:hover{border-color:var(--chaos);background:rgba(255,45,45,0.08)}
+.dev-btn-neutral{color:var(--muted)}
+.dev-btn-neutral:hover{color:var(--text);border-color:var(--muted)}
+
 /* Chat */
 .chat-wrap{margin-top:16px;border-top:1px solid var(--border);padding-top:16px}
 .chat-label{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
@@ -237,6 +250,51 @@ select option{background:var(--surface2)}
     <div class="flex-row">
       <input id="joinCode" type="text" placeholder="XXXX" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-family:'DM Mono',monospace;font-size:18px;margin-bottom:0"/>
       <button class="btn btn-secondary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
+    </div>
+  </div>
+
+  <!-- DEV TEST PANEL -->
+  <div style="width:100%;max-width:440px">
+    <button onclick="toggleDevPanel()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;letter-spacing:1px;text-transform:uppercase">
+      <span id="devArrow">▶</span> Dev Tools
+    </button>
+    <div id="devPanel" style="display:none;margin-top:8px">
+      <div class="dev-panel">
+        <div class="dev-title">🛠 Developer Test Panel</div>
+        <div class="dev-desc">Instantly simulate game states without needing other players.</div>
+
+        <div class="dev-section-label">Quick Start</div>
+        <div class="dev-grid">
+          <button class="dev-btn" onclick="devStartAs('crew')">👤 Play as Crew</button>
+          <button class="dev-btn" onclick="devStartAs('spy')">🕵️ Play as Spy</button>
+          <button class="dev-btn dev-btn-chaos" onclick="devStartAs('chaos-innocent')">😇 Chaos Innocent</button>
+          <button class="dev-btn dev-btn-chaos" onclick="devStartAs('chaos-spy')">⚡ Chaos Spy</button>
+        </div>
+
+        <div class="dev-section-label" style="margin-top:12px">Jump to Screen</div>
+        <div class="dev-grid">
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('lobby')">Lobby</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('waiting')">Waiting</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('reveal')">Role Reveal</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('game')">Game</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('result-crew')">Result: Crew Win</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('result-spy')">Result: Spy Win</button>
+        </div>
+
+        <div class="dev-section-label" style="margin-top:12px">Options</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+          <label style="font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0;font-family:'DM Mono',monospace">Spy count:</label>
+          <select id="devSpyCount" style="width:auto;margin-bottom:0;padding:6px 10px;font-size:13px">
+            <option value="1">1 spy</option>
+            <option value="2">2 spies</option>
+            <option value="3">3 spies</option>
+          </select>
+          <label style="font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0;font-family:'DM Mono',monospace">Chaos:</label>
+          <input type="checkbox" id="devChaosMode" style="width:auto;margin-bottom:0;padding:0;width:16px;height:16px"/>
+        </div>
+
+        <div id="devStatus" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--safe);display:none"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -458,11 +516,10 @@ document.addEventListener('keydown', e => {
 // GAME DATA
 // =====================================================
 const ALL_LOCATIONS = [
-const ALL_LOCATIONS = [
   {name:'Airplane',       roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
-  {name:'Commonwealth Bank',           roles:['Manager','Teller','Customer','Security Guard','Loan Officer']},
-  {name:'Bondi Beach',          roles:['Lifeguard','Tourist','Vendor','Surfer','Volleyball Player']},
-  {name:'Star Casino',         roles:['Dealer','Asian Investor','Player','Cocktail Server','Security']},
+  {name:'Bank',           roles:['Manager','Teller','Customer','Security Guard','Loan Officer']},
+  {name:'Beach',          roles:['Lifeguard','Tourist','Vendor','Surfer','Volleyball Player']},
+  {name:'Casino',         roles:['Dealer','Pit Boss','Player','Cocktail Server','Security']},
   {name:'Circus',         roles:['Clown','Ringmaster','Acrobat','Animal Trainer','Ticket Seller']},
   {name:'Hospital',       roles:['Doctor','Nurse','Patient','Surgeon','Receptionist']},
   {name:'Hotel',          roles:['Concierge','Guest','Bellhop','Manager','Housekeeper']},
@@ -473,15 +530,12 @@ const ALL_LOCATIONS = [
   {name:'Restaurant',     roles:['Chef','Waiter','Customer','Manager','Busboy']},
   {name:'School',         roles:['Teacher','Student','Principal','Janitor','Coach']},
   {name:'Space Station',  roles:['Commander','Scientist','Engineer','Pilot','Doctor']},
-  {name:'Woolworths',    roles:['Cashier','Manager','Customer','Stocker','Security']},
+  {name:'Supermarket',    roles:['Cashier','Manager','Customer','Stocker','Security']},
   {name:'Theater',        roles:['Actor','Director','Audience Member','Stage Manager','Critic']},
   {name:'Train',          roles:['Conductor','Engineer','Passenger','Ticket Inspector','Dining Staff']},
   {name:'Submarine',      roles:['Captain','Navigator','Cook','Engineer','Sonar Operator']},
-  {name:'Luna Park', roles:['Ride Operator','Visitor','Performer','Security','Food Vendor']},
+  {name:'Amusement Park', roles:['Ride Operator','Visitor','Performer','Security','Food Vendor']},
   {name:'Spy HQ',         roles:['Handler','Agent','Tech Expert','Analyst','Double Agent']},
-  {name:'Gregory Hills Hotel', roles:['Chef','Footy Fan','Alcoholic','Waiter','Bartender']},
-  {name:'Macarthur Square', roles:['Eshay','Retail Worker','Police Officer','Bowling Expert','Event Cinemas Janitor','Nandos Chef']},
-  {name:'World Gym', roles:['Roid Head','Cleaner','BBL Baddie','Personal Trainer','Receptionist','Eshay']},
 ];
 const LOCATIONS_PER_GAME = 12;
 const TIMER_DURATION = 8 * 60;
@@ -1117,6 +1171,204 @@ async function sendChat() {
 }
 
 // =====================================================
+// DEV TEST PANEL
+// =====================================================
+function toggleDevPanel() {
+  const panel = document.getElementById('devPanel');
+  const arrow = document.getElementById('devArrow');
+  const open = panel.style.display === 'none';
+  if (open) {
+    if (sessionStorage.getItem('sf_dev_unlocked') !== '1') {
+      const pw = prompt('Enter dev password:');
+      if (pw !== 'chrispyiscool@123!') {
+        alert('Incorrect password.');
+        return;
+      }
+      sessionStorage.setItem('sf_dev_unlocked', '1');
+    }
+  }
+  panel.style.display = open ? 'block' : 'none';
+  arrow.textContent = open ? '▼' : '▶';
+}
+
+function devShowStatus(msg) {
+  const el = document.getElementById('devStatus');
+  el.textContent = '✓ ' + msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+function devMockGame(overrides = {}) {
+  const spyCount = parseInt(document.getElementById('devSpyCount').value) || 1;
+  const chaosMode = document.getElementById('devChaosMode').checked;
+  const loc = ALL_LOCATIONS[randInt(ALL_LOCATIONS.length)];
+  const shuffledRoles = shuffle(loc.roles);
+
+  const mockPlayers = {
+    [myId]: { id: myId, name: 'You (Dev)', isHost: true, joinedAt: Date.now(), online: true },
+    'dev_p2': { id: 'dev_p2', name: 'Player 2', isHost: false, joinedAt: Date.now()+1, online: true },
+    'dev_p3': { id: 'dev_p3', name: 'Player 3', isHost: false, joinedAt: Date.now()+2, online: true },
+    'dev_p4': { id: 'dev_p4', name: 'Player 4', isHost: false, joinedAt: Date.now()+3, online: true },
+  };
+
+  const locations = shuffle(ALL_LOCATIONS).slice(0, LOCATIONS_PER_GAME).map(l => l.name);
+  if (!locations.includes(loc.name)) locations[0] = loc.name;
+
+  const base = {
+    code: 'DEV0',
+    status: 'playing',
+    hostId: myId,
+    locations,
+    currentLocation: loc.name,
+    roles: {},
+    spyId: null,
+    spyIds: [],
+    innocentId: null,
+    spyGuess: null,
+    votes: {},
+    result: null,
+    timerStart: Date.now(),
+    timerDuration: TIMER_DURATION,
+    timerRunning: true,
+    timerOffset: 0,
+    spyCount,
+    chaosMode,
+    players: mockPlayers,
+    createdAt: Date.now(),
+  };
+
+  const playerIds = Object.keys(mockPlayers);
+
+  if (chaosMode) {
+    base.innocentId = overrides.forceInnocent ? myId : (overrides.forceSpy ? 'dev_p2' : myId);
+    playerIds.forEach(id => {
+      base.roles[id] = id === base.innocentId ? '__INNOCENT__' : '__CHAOS_SPY__';
+    });
+    base.spyIds = playerIds.filter(id => id !== base.innocentId);
+  } else {
+    let spyIds = [];
+    if (overrides.forceSpy) {
+      spyIds = [myId];
+      for (let i = 1; i < spyCount; i++) spyIds.push(playerIds[i] || playerIds[0]);
+    } else {
+      spyIds = playerIds.slice(1, 1 + spyCount);
+    }
+    base.spyIds = spyIds;
+    base.spyId = spyIds[0];
+    playerIds.forEach((id, i) => {
+      base.roles[id] = spyIds.includes(id) ? '__SPY__' : shuffledRoles[i % shuffledRoles.length];
+    });
+  }
+
+  return { ...base, ...overrides };
+}
+
+function devStartAs(role) {
+  // Ensure name is set
+  const nameInput = document.getElementById('playerName');
+  if (!nameInput.value.trim()) nameInput.value = 'Dev';
+
+  gameCode = 'DEV0';
+  amHost = true;
+
+  let game;
+  const chaosMode = document.getElementById('devChaosMode').checked;
+
+  if (role === 'crew') {
+    game = devMockGame({ chaosMode: false });
+    // make sure myId is not a spy
+    game.spyIds = ['dev_p2'];
+    game.spyId = 'dev_p2';
+    game.roles[myId] = game.locations[0] ? shuffle(ALL_LOCATIONS.find(l=>l.name===game.currentLocation)?.roles||['Crew Member'])[0] : 'Crew Member';
+  } else if (role === 'spy') {
+    game = devMockGame({ chaosMode: false, forceSpy: true });
+  } else if (role === 'chaos-innocent') {
+    game = devMockGame({ chaosMode: true, forceInnocent: true });
+    document.getElementById('devChaosMode').checked = true;
+  } else if (role === 'chaos-spy') {
+    game = devMockGame({ chaosMode: true, forceSpy: true });
+    game.innocentId = 'dev_p2';
+    game.roles[myId] = '__CHAOS_SPY__';
+    game.roles['dev_p2'] = '__INNOCENT__';
+    game.spyIds = ['dev_p3', 'dev_p4', myId];
+    document.getElementById('devChaosMode').checked = true;
+  }
+
+  localGame = game;
+  enterRevealScreen(game);
+  devShowStatus(`Started as ${role} — tap to reveal your role`);
+}
+
+function devGoScreen(screen) {
+  const nameInput = document.getElementById('playerName');
+  if (!nameInput.value.trim()) nameInput.value = 'Dev';
+
+  gameCode = 'DEV0';
+  amHost = true;
+
+  if (screen === 'lobby') {
+    const mockGame = {
+      code: 'DEV0', status: 'lobby', hostId: myId, locations: shuffle(ALL_LOCATIONS).slice(0,12).map(l=>l.name),
+      players: {
+        [myId]: {id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},
+        'dev_p2': {id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},
+        'dev_p3': {id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},
+      },
+      spyCount:1, chaosMode:false, createdAt:Date.now()
+    };
+    localGame = mockGame;
+    document.getElementById('gameCodeDisplay').textContent = 'DEV0';
+    renderLobby(mockGame);
+    showScreen('lobby');
+
+  } else if (screen === 'waiting') {
+    const mockGame = {
+      code: 'DEV0', status: 'lobby', hostId: 'dev_p2',
+      players: {
+        [myId]: {id:myId,name:'You (Dev)',isHost:false,joinedAt:Date.now(),online:true},
+        'dev_p2': {id:'dev_p2',name:'Host Player',isHost:true,joinedAt:Date.now()-1,online:true},
+        'dev_p3': {id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+1,online:true},
+      },
+      chaosMode:false, createdAt:Date.now()
+    };
+    localGame = mockGame;
+    amHost = false;
+    document.getElementById('waitingCodeDisplay').textContent = 'DEV0';
+    renderWaiting(mockGame);
+    showScreen('waiting');
+
+  } else if (screen === 'reveal') {
+    const game = devMockGame({});
+    localGame = game;
+    enterRevealScreen(game);
+
+  } else if (screen === 'game') {
+    const game = devMockGame({});
+    localGame = game;
+    initGameScreen(game);
+    showScreen('game');
+
+  } else if (screen === 'result-crew') {
+    const game = devMockGame({});
+    game.status = 'result';
+    game.timerRunning = false;
+    game.result = { spyWins: false, description: 'Correct! A spy was caught by majority vote.', reason: 'vote', accusedId: 'dev_p2' };
+    localGame = game;
+    showResultScreen(game);
+
+  } else if (screen === 'result-spy') {
+    const game = devMockGame({ forceSpy: true });
+    game.status = 'result';
+    game.timerRunning = false;
+    game.result = { spyWins: true, description: 'Time ran out — spy escaped!', reason: 'timeout', accusedId: null };
+    localGame = game;
+    showResultScreen(game);
+  }
+
+  devShowStatus(`Jumped to: ${screen}`);
+}
+
+// =====================================================
 // UI HELPERS
 // =====================================================
 function switchTab(tab){
@@ -1131,3 +1383,4 @@ document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key===
 </script>
 </body>
 </html>
+
