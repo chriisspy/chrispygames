@@ -398,7 +398,8 @@ select option{background:var(--surface2)}
 <!-- ROLE REVEAL -->
 <div class="screen" id="screen-reveal">
   <div class="reveal-outer">
-    <div style="text-align:center">
+    <div style="text-align:center;width:100%">
+      <button class="back-btn" onclick="devBackHome()" style="margin-bottom:8px">← Back to home</button>
       <div class="logo" style="font-size:28px;margin-bottom:4px">SPY<span style="color:var(--accent)">FALL</span></div>
       <div class="tagline" id="revealTagline">Game has started</div>
     </div>
@@ -419,6 +420,7 @@ select option{background:var(--surface2)}
 <!-- GAME -->
 <div class="screen" id="screen-game">
   <div style="width:100%;max-width:440px">
+    <button class="back-btn" onclick="leaveGame()" style="margin-bottom:12px">← Leave game</button>
     <div class="card fadeIn">
       <div id="chaosModeGameBanner" class="chaos-mode-banner" style="display:none">⚡ CHAOS MODE ACTIVE ⚡</div>
       <div class="tab-bar">
@@ -469,6 +471,7 @@ select option{background:var(--surface2)}
 <!-- RESULT -->
 <div class="screen" id="screen-result">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:16px">
+    <button class="back-btn" onclick="devBackHome()">← Back to home</button>
     <div id="resultBanner" class="fadeIn"></div>
     <div class="card fadeIn">
       <h2 style="margin-bottom:16px" id="resultTitle">The spy was...</h2>
@@ -516,26 +519,29 @@ document.addEventListener('keydown', e => {
 // GAME DATA
 // =====================================================
 const ALL_LOCATIONS = [
-  {name:'Airplane',       roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
-  {name:'Bank',           roles:['Manager','Teller','Customer','Security Guard','Loan Officer']},
-  {name:'Beach',          roles:['Lifeguard','Tourist','Vendor','Surfer','Volleyball Player']},
-  {name:'Casino',         roles:['Dealer','Pit Boss','Player','Cocktail Server','Security']},
-  {name:'Circus',         roles:['Clown','Ringmaster','Acrobat','Animal Trainer','Ticket Seller']},
-  {name:'Hospital',       roles:['Doctor','Nurse','Patient','Surgeon','Receptionist']},
-  {name:'Hotel',          roles:['Concierge','Guest','Bellhop','Manager','Housekeeper']},
-  {name:'Military Base',  roles:['General','Soldier','Sniper','Cook','Medic']},
-  {name:'Movie Studio',   roles:['Director','Actor','Cameraman','Makeup Artist','Producer']},
-  {name:'Ocean Liner',    roles:['Captain','Crew Member','Passenger','Chef','Entertainer']},
-  {name:'Police Station', roles:['Chief','Detective','Officer','Suspect','Lawyer']},
-  {name:'Restaurant',     roles:['Chef','Waiter','Customer','Manager','Busboy']},
-  {name:'School',         roles:['Teacher','Student','Principal','Janitor','Coach']},
-  {name:'Space Station',  roles:['Commander','Scientist','Engineer','Pilot','Doctor']},
-  {name:'Supermarket',    roles:['Cashier','Manager','Customer','Stocker','Security']},
-  {name:'Theater',        roles:['Actor','Director','Audience Member','Stage Manager','Critic']},
-  {name:'Train',          roles:['Conductor','Engineer','Passenger','Ticket Inspector','Dining Staff']},
-  {name:'Submarine',      roles:['Captain','Navigator','Cook','Engineer','Sonar Operator']},
-  {name:'Amusement Park', roles:['Ride Operator','Visitor','Performer','Security','Food Vendor']},
-  {name:'Spy HQ',         roles:['Handler','Agent','Tech Expert','Analyst','Double Agent']},
+  {name:'Airplane',            roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
+  {name:'Commonwealth Bank',   roles:['Manager','Teller','Customer','Security Guard','Loan Officer']},
+  {name:'Bondi Beach',         roles:['Lifeguard','Tourist','Vendor','Surfer','Volleyball Player']},
+  {name:'Star Casino',         roles:['Dealer','Asian Investor','Player','Cocktail Server','Security']},
+  {name:'Circus',              roles:['Clown','Ringmaster','Acrobat','Animal Trainer','Ticket Seller']},
+  {name:'Hospital',            roles:['Doctor','Nurse','Patient','Surgeon','Receptionist']},
+  {name:'Hotel',               roles:['Concierge','Guest','Bellhop','Manager','Housekeeper']},
+  {name:'Military Base',       roles:['General','Soldier','Sniper','Cook','Medic']},
+  {name:'Movie Studio',        roles:['Director','Actor','Cameraman','Makeup Artist','Producer']},
+  {name:'Ocean Liner',         roles:['Captain','Crew Member','Passenger','Chef','Entertainer']},
+  {name:'Police Station',      roles:['Chief','Detective','Officer','Suspect','Lawyer']},
+  {name:'Restaurant',          roles:['Chef','Waiter','Customer','Manager','Busboy']},
+  {name:'School',              roles:['Teacher','Student','Principal','Janitor','Coach']},
+  {name:'Space Station',       roles:['Commander','Scientist','Engineer','Pilot','Doctor']},
+  {name:'Woolworths',          roles:['Cashier','Manager','Customer','Stocker','Security']},
+  {name:'Theater',             roles:['Actor','Director','Audience Member','Stage Manager','Critic']},
+  {name:'Train',               roles:['Conductor','Engineer','Passenger','Ticket Inspector','Dining Staff']},
+  {name:'Submarine',           roles:['Captain','Navigator','Cook','Engineer','Sonar Operator']},
+  {name:'Luna Park',           roles:['Ride Operator','Visitor','Performer','Security','Food Vendor']},
+  {name:'Spy HQ',              roles:['Handler','Agent','Tech Expert','Analyst','Double Agent']},
+  {name:'Gregory Hills Hotel', roles:['Chef','Footy Fan','Alcoholic','Waiter','Bartender']},
+  {name:'Macarthur Square',    roles:['Eshay','Retail Worker','Police Officer','Bowling Expert','Event Cinemas Janitor','Nandos Chef']},
+  {name:'World Gym',           roles:['Roid Head','Cleaner','BBL Baddie','Personal Trainer','Receptionist','Eshay']},
 ];
 const LOCATIONS_PER_GAME = 12;
 const TIMER_DURATION = 8 * 60;
@@ -1366,6 +1372,18 @@ function devGoScreen(screen) {
   }
 
   devShowStatus(`Jumped to: ${screen}`);
+}
+
+function devBackHome() {
+  clearInterval(timerInterval);
+  stopListening();
+  stopChat();
+  gameCode = null;
+  amHost = false;
+  localGame = null;
+  localSpyCount = 1;
+  localChaosMode = false;
+  showScreen('home');
 }
 
 // =====================================================
