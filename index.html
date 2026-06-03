@@ -50,6 +50,8 @@ html{overflow-x:hidden}
 .screen{display:none;min-height:100vh;padding:24px;flex-direction:column;align-items:center;justify-content:center;gap:24px}
 .screen.active{display:flex}
 .screen.active.scrollable{justify-content:flex-start;padding-top:24px;padding-bottom:40px;overflow-y:auto}
+.screen.game-screen{display:none;height:100vh;max-height:100vh;padding:16px;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.screen.game-screen.active{display:flex}
 .logo{font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1}
 .logo span{color:var(--accent)}
 .tagline{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
@@ -420,10 +422,10 @@ select option{background:var(--surface2)}
 </div>
  
 <!-- GAME -->
-<div class="screen" id="screen-game">
-  <div style="width:100%;max-width:440px">
+<div class="screen game-screen" id="screen-game">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:0">
     <button class="back-btn" onclick="leaveGame()" style="margin-bottom:12px">← Leave game</button>
-    <div class="card fadeIn">
+    <div class="card fadeIn" style="flex:1">
       <div id="chaosModeGameBanner" class="chaos-mode-banner" style="display:none">⚡ CHAOS MODE ACTIVE ⚡</div>
       <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('timer')">Timer</button>
