@@ -48,6 +48,7 @@ const db = firebase.database();
 body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
 .screen{display:none;min-height:100vh;padding:24px;flex-direction:column;align-items:center;justify-content:center;gap:24px}
 .screen.active{display:flex}
+.screen.active.scrollable{justify-content:flex-start;padding-top:24px;padding-bottom:40px;overflow-y:auto}
 .logo{font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1}
 .logo span{color:var(--accent)}
 .tagline{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
@@ -198,7 +199,7 @@ select option{background:var(--surface2)}
 .chat-wrap{margin-top:16px;border-top:1px solid var(--border);padding-top:16px}
 .chat-label{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .chat-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
-.chat-messages{height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px;scroll-behavior:smooth}
+.chat-messages{height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
 .chat-messages::-webkit-scrollbar{width:4px}
 .chat-messages::-webkit-scrollbar-track{background:transparent}
 .chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
@@ -300,7 +301,7 @@ select option{background:var(--surface2)}
 </div>
 
 <!-- LOBBY -->
-<div class="screen" id="screen-lobby">
+<div class="screen scrollable" id="screen-lobby">
   <div style="width:100%;max-width:440px">
     <button class="back-btn" onclick="leaveGame()">← Leave game</button>
     <div style="height:16px"></div>
@@ -362,7 +363,7 @@ select option{background:var(--surface2)}
 </div>
 
 <!-- WAITING -->
-<div class="screen" id="screen-waiting">
+<div class="screen scrollable" id="screen-waiting">
   <div style="width:100%;max-width:440px">
     <button class="back-btn" onclick="leaveGame()">← Leave game</button>
     <div style="height:16px"></div>
@@ -396,7 +397,7 @@ select option{background:var(--surface2)}
 </div>
 
 <!-- ROLE REVEAL -->
-<div class="screen" id="screen-reveal">
+<div class="screen scrollable" id="screen-reveal">
   <div class="reveal-outer">
     <div style="text-align:center;width:100%">
       <button class="back-btn" onclick="devBackHome()" style="margin-bottom:8px">← Back to home</button>
@@ -469,7 +470,7 @@ select option{background:var(--surface2)}
 </div>
 
 <!-- RESULT -->
-<div class="screen" id="screen-result">
+<div class="screen scrollable" id="screen-result">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:16px">
     <button class="back-btn" onclick="devBackHome()">← Back to home</button>
     <div id="resultBanner" class="fadeIn"></div>
@@ -1401,4 +1402,3 @@ document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key===
 </script>
 </body>
 </html>
-
