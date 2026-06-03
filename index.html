@@ -25,7 +25,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 </script>
-
+ 
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -46,6 +46,7 @@ const db = firebase.database();
   --radius-lg:20px;
 }
 body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+html{overflow-x:hidden}
 .screen{display:none;min-height:100vh;padding:24px;flex-direction:column;align-items:center;justify-content:center;gap:24px}
 .screen.active{display:flex}
 .screen.active.scrollable{justify-content:flex-start;padding-top:24px;padding-bottom:40px;overflow-y:auto}
@@ -88,7 +89,7 @@ select option{background:var(--surface2)}
 .live-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
 .chaos-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--chaos);display:flex;align-items:center;gap:4px;font-weight:700;letter-spacing:1px}
 .chaos-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--chaos);animation:pulse 1s infinite}
-
+ 
 /* Chaos mode toggle in lobby */
 .chaos-toggle-wrap{margin:16px 0;padding:16px;background:rgba(255,45,45,0.05);border:1px solid rgba(255,45,45,0.2);border-radius:var(--radius);transition:all 0.2s}
 .chaos-toggle-wrap.chaos-on{background:rgba(255,45,45,0.1);border-color:rgba(255,45,45,0.5);animation:chaos-pulse 2s infinite}
@@ -101,7 +102,7 @@ select option{background:var(--surface2)}
 .toggle-slider:before{position:absolute;content:'';height:16px;width:16px;left:3px;bottom:3px;background:var(--muted);border-radius:50%;transition:0.2s}
 .toggle-switch input:checked + .toggle-slider{background:var(--chaos);border-color:var(--chaos)}
 .toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px);background:#fff}
-
+ 
 /* Spy count selector */
 .spy-count-wrap{margin:12px 0}
 .spy-count-row{display:flex;align-items:center;gap:8px;margin-top:6px}
@@ -109,7 +110,7 @@ select option{background:var(--surface2)}
 .spy-count-btn:hover{border-color:var(--accent);color:var(--accent)}
 .spy-count-display{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--text);min-width:32px;text-align:center}
 .spy-count-label{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
-
+ 
 /* Reveal screen */
 .reveal-outer{display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;gap:16px}
 .reveal-tap{text-align:center;padding:60px 40px;background:var(--surface);border:2px dashed var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all 0.2s;width:100%}
@@ -134,7 +135,7 @@ select option{background:var(--surface2)}
 .role-card .location-name{font-size:22px;font-weight:700;color:var(--text)}
 .spy-warning{background:rgba(232,93,77,0.1);border:1px solid rgba(232,93,77,0.3);border-radius:var(--radius);padding:14px;font-size:13px;color:var(--spy);text-align:center}
 .chaos-warning{background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.4);border-radius:var(--radius);padding:14px;font-size:13px;color:var(--chaos);text-align:center;line-height:1.6}
-
+ 
 .location-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
 .location-chip{padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center;transition:all 0.15s}
 .location-chip.current{border-color:var(--accent);color:var(--accent);background:rgba(232,212,77,0.08)}
@@ -181,7 +182,7 @@ select option{background:var(--surface2)}
 .role-summary-hidden:hover{border-color:var(--muted)}
 .hide-toggle-btn{margin-top:8px;padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;cursor:pointer;width:100%;transition:all 0.15s}
 .hide-toggle-btn:hover{background:var(--surface2);color:var(--text)}
-
+ 
 /* Dev panel */
 .dev-panel{background:var(--surface);border:1px solid #2a2a3a;border-radius:var(--radius-lg);padding:20px}
 .dev-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
@@ -194,7 +195,7 @@ select option{background:var(--surface2)}
 .dev-btn-chaos:hover{border-color:var(--chaos);background:rgba(255,45,45,0.08)}
 .dev-btn-neutral{color:var(--muted)}
 .dev-btn-neutral:hover{color:var(--text);border-color:var(--muted)}
-
+ 
 /* Chat */
 .chat-wrap{margin-top:16px;border-top:1px solid var(--border);padding-top:16px}
 .chat-label{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
@@ -216,13 +217,13 @@ select option{background:var(--surface2)}
 .chat-input::placeholder{color:var(--muted)}
 .chat-send-btn{padding:10px 16px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0}
 .chat-send-btn:hover{background:#f0dd55}
-
+ 
 /* Chaos mode game banner */
 .chaos-mode-banner{padding:8px 14px;background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.3);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--chaos);font-weight:700;letter-spacing:2px;margin-bottom:12px;animation:chaos-pulse 2s infinite}
 </style>
 </head>
 <body>
-
+ 
 <!-- PASSWORD -->
 <div class="screen active" id="screen-password">
   <div class="logo">SPY<span>FALL</span></div>
@@ -235,7 +236,7 @@ select option{background:var(--surface2)}
     <button class="btn btn-primary" onclick="checkPassword()">Enter</button>
   </div>
 </div>
-
+ 
 <!-- HOME -->
 <div class="screen" id="screen-home">
   <div class="logo">SPY<span>FALL</span></div>
@@ -253,7 +254,7 @@ select option{background:var(--surface2)}
       <button class="btn btn-secondary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
     </div>
   </div>
-
+ 
   <!-- DEV TEST PANEL -->
   <div style="width:100%;max-width:440px">
     <button onclick="toggleDevPanel()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;letter-spacing:1px;text-transform:uppercase">
@@ -263,7 +264,7 @@ select option{background:var(--surface2)}
       <div class="dev-panel">
         <div class="dev-title">🛠 Developer Test Panel</div>
         <div class="dev-desc">Instantly simulate game states without needing other players.</div>
-
+ 
         <div class="dev-section-label">Quick Start</div>
         <div class="dev-grid">
           <button class="dev-btn" onclick="devStartAs('crew')">👤 Play as Crew</button>
@@ -271,7 +272,7 @@ select option{background:var(--surface2)}
           <button class="dev-btn dev-btn-chaos" onclick="devStartAs('chaos-innocent')">😇 Chaos Innocent</button>
           <button class="dev-btn dev-btn-chaos" onclick="devStartAs('chaos-spy')">⚡ Chaos Spy</button>
         </div>
-
+ 
         <div class="dev-section-label" style="margin-top:12px">Jump to Screen</div>
         <div class="dev-grid">
           <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('lobby')">Lobby</button>
@@ -281,7 +282,7 @@ select option{background:var(--surface2)}
           <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('result-crew')">Result: Crew Win</button>
           <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('result-spy')">Result: Spy Win</button>
         </div>
-
+ 
         <div class="dev-section-label" style="margin-top:12px">Options</div>
         <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
           <label style="font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0;font-family:'DM Mono',monospace">Spy count:</label>
@@ -293,13 +294,13 @@ select option{background:var(--surface2)}
           <label style="font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0;font-family:'DM Mono',monospace">Chaos:</label>
           <input type="checkbox" id="devChaosMode" style="width:auto;margin-bottom:0;padding:0;width:16px;height:16px"/>
         </div>
-
+ 
         <div id="devStatus" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--safe);display:none"></div>
       </div>
     </div>
   </div>
 </div>
-
+ 
 <!-- LOBBY -->
 <div class="screen scrollable" id="screen-lobby">
   <div style="width:100%;max-width:440px">
@@ -317,7 +318,7 @@ select option{background:var(--surface2)}
       <label>Players (<span id="lobbyCount">1</span>)</label>
       <div class="player-list" id="playerList"></div>
       <div style="height:8px"></div>
-
+ 
       <!-- SPY COUNT -->
       <div class="spy-count-wrap">
         <label>Number of spies</label>
@@ -328,7 +329,7 @@ select option{background:var(--surface2)}
           <div class="spy-count-label" id="spyCountLabel">max for your group size</div>
         </div>
       </div>
-
+ 
       <!-- CHAOS MODE TOGGLE -->
       <div class="chaos-toggle-wrap" id="chaosModeWrap">
         <div class="chaos-toggle-header">
@@ -342,11 +343,11 @@ select option{background:var(--surface2)}
           </label>
         </div>
       </div>
-
+ 
       <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 3 players to start</div>
       <div style="height:8px"></div>
       <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>Start Game</button>
-
+ 
       <!-- LOBBY CHAT -->
       <div class="chat-wrap">
         <div class="chat-label">Lobby Chat</div>
@@ -361,7 +362,7 @@ select option{background:var(--surface2)}
     </div>
   </div>
 </div>
-
+ 
 <!-- WAITING -->
 <div class="screen scrollable" id="screen-waiting">
   <div style="width:100%;max-width:440px">
@@ -380,7 +381,7 @@ select option{background:var(--surface2)}
       <div class="player-list" id="waitingPlayerList"></div>
       <div style="height:12px"></div>
       <div class="notice info" style="margin-bottom:0" id="waitingNotice">Waiting for the host to start the game...</div>
-
+ 
       <!-- WAITING CHAT -->
       <div class="chat-wrap">
         <div class="chat-label">Lobby Chat</div>
@@ -395,7 +396,7 @@ select option{background:var(--surface2)}
     </div>
   </div>
 </div>
-
+ 
 <!-- ROLE REVEAL -->
 <div class="screen scrollable" id="screen-reveal">
   <div class="reveal-outer">
@@ -417,7 +418,7 @@ select option{background:var(--surface2)}
     </div>
   </div>
 </div>
-
+ 
 <!-- GAME -->
 <div class="screen" id="screen-game">
   <div style="width:100%;max-width:440px">
@@ -468,7 +469,7 @@ select option{background:var(--surface2)}
     </div>
   </div>
 </div>
-
+ 
 <!-- RESULT -->
 <div class="screen scrollable" id="screen-result">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:16px">
@@ -486,7 +487,7 @@ select option{background:var(--surface2)}
     <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
   </div>
 </div>
-
+ 
 <script>
 // =====================================================
 // PASSWORD GATE
@@ -515,7 +516,7 @@ function checkPassword() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.querySelector('.screen.active')?.id === 'screen-password') checkPassword();
 });
-
+ 
 // =====================================================
 // GAME DATA
 // =====================================================
@@ -547,7 +548,7 @@ const ALL_LOCATIONS = [
 const LOCATIONS_PER_GAME = 12;
 const TIMER_DURATION = 8 * 60;
 const CHAOS_TIMER_DURATION = 6 * 60;
-
+ 
 // =====================================================
 // STATE
 // =====================================================
@@ -556,7 +557,7 @@ if (!myId) { myId = Math.random().toString(36).slice(2,12); localStorage.setItem
 let gameCode=null, amHost=false, gameRef=null, gameListener=null, localGame=null, timerInterval=null;
 let roleVisible=true, revealVisible=true;
 let localSpyCount=1, localChaosMode=false;
-
+ 
 // =====================================================
 // UTILS
 // =====================================================
@@ -568,7 +569,7 @@ function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classL
 function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
 function setLoading(btnId,loading,text){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${text}`:text;}
 function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
+ 
 // =====================================================
 // SPY COUNT CONTROLS (host only)
 // =====================================================
@@ -591,7 +592,7 @@ function updateSpyCountUI(n) {
   document.getElementById('spyCountDisplay').textContent = localSpyCount;
   document.getElementById('spyCountLabel').textContent = `of ${max} max for ${n} players`;
 }
-
+ 
 // =====================================================
 // CHAOS MODE TOGGLE (host only)
 // =====================================================
@@ -601,7 +602,7 @@ function toggleChaosMode() {
   wrap.classList.toggle('chaos-on', localChaosMode);
   if (gameCode) updateGame(gameCode, { chaosMode: localChaosMode });
 }
-
+ 
 // =====================================================
 // FIREBASE HELPERS
 // =====================================================
@@ -613,7 +614,7 @@ function listenToGame(code,callback){
 }
 function stopListening(){if(gameListener&&gameRef){gameRef.off('value',gameListener);gameListener=null;}}
 function updateGame(code,updates){return gameRefFor(code).update(updates);}
-
+ 
 // =====================================================
 // PRESENCE
 // =====================================================
@@ -641,7 +642,7 @@ async function handlePlayerLeft(leftId,game){
     }
   }
 }
-
+ 
 // =====================================================
 // CREATE GAME
 // =====================================================
@@ -659,7 +660,7 @@ async function createGame(){
   }catch(e){showError('homeError','Could not connect to Firebase. Check your config.');console.error(e);}
   setLoading('createBtn',false,'Create New Game');
 }
-
+ 
 // =====================================================
 // JOIN GAME
 // =====================================================
@@ -682,7 +683,7 @@ async function joinGame(){
   }catch(e){showError('homeError','Connection error — check your Firebase config');console.error(e);}
   setLoading('joinBtn',false,'Join');
 }
-
+ 
 // =====================================================
 // GAME UPDATE LISTENER
 // =====================================================
@@ -690,7 +691,7 @@ function onGameUpdate(game){
   const cur=document.querySelector('.screen.active')?.id;
   if(game.hostId===myId&&!amHost)amHost=true;
   if(amHost)watchPresence(game);
-
+ 
   if(game.status==='lobby'){
     if(cur==='screen-lobby'){renderLobby(game);}
     if(cur==='screen-waiting'){
@@ -712,7 +713,7 @@ function onGameUpdate(game){
     else{renderWaiting(game);showScreen('waiting');}
   }
 }
-
+ 
 // =====================================================
 // LOBBY
 // =====================================================
@@ -738,13 +739,13 @@ function renderLobby(game){
   if(localChaosMode){spyCountWrap.style.opacity='0.4';spyCountWrap.style.pointerEvents='none';}
   else{spyCountWrap.style.opacity='1';spyCountWrap.style.pointerEvents='auto';}
 }
-
+ 
 function renderWaiting(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   document.getElementById('waitingCount').textContent=players.length;
   document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item"><div class="player-dot ${p.isHost?'host':''}"></div><div class="player-name">${esc(p.name)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
 }
-
+ 
 // =====================================================
 // START GAME
 // =====================================================
@@ -759,7 +760,7 @@ async function startGame(){
   const roles={};
   let spyIds=[];
   let innocentId=null;
-
+ 
   if(isChaos){
     // One random INNOCENT who knows the location. Everyone else is a SPY who doesn't.
     const innocentIdx=randInt(players.length);
@@ -777,7 +778,7 @@ async function startGame(){
       roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];
     });
   }
-
+ 
   const duration=isChaos?CHAOS_TIMER_DURATION:TIMER_DURATION;
   await updateGame(gameCode,{
     status:'playing',spyIds,innocentId,
@@ -787,7 +788,7 @@ async function startGame(){
     votes:{},result:null,spyGuess:null,chaosMode:isChaos,spyCount:spyIds.length,
   });
 }
-
+ 
 // =====================================================
 // REVEAL SCREEN
 // =====================================================
@@ -798,18 +799,18 @@ function enterRevealScreen(game){
   const isSpy=spyIds.includes(myId);
   const isInnocent=game.innocentId===myId;
   const myRole=game.roles&&game.roles[myId];
-
+ 
   document.getElementById('revealTap').style.display='block';
   document.getElementById('revealCard').style.display='none';
   document.getElementById('revealActions').style.display='none';
   document.getElementById('revealTagline').textContent=isChaos?'⚡ CHAOS MODE — Game has started':'Game has started';
   document.getElementById('revealTap').className='reveal-tap'+(isChaos?' chaos-reveal-tap':'');
   showScreen('reveal');
-
+ 
   document.getElementById('revealTap').onclick=()=>{
     document.getElementById('revealTap').style.display='none';
     const card=document.getElementById('revealCard');
-
+ 
     if(isChaos){
       if(isInnocent){
         // Chaos innocent — knows location, tries to catch spies
@@ -860,13 +861,13 @@ function enterRevealScreen(game){
           </div>`;
       }
     }
-
+ 
     card.style.display='block';
     document.getElementById('revealActions').style.display='flex';
     document.getElementById('hideRoleBtn').textContent='🙈 Hide my role';
   };
 }
-
+ 
 function toggleHideRole(){
   revealVisible=!revealVisible;
   const card=document.getElementById('revealCard');
@@ -874,9 +875,9 @@ function toggleHideRole(){
   if(revealVisible){card.style.opacity='1';card.style.filter='none';card.style.pointerEvents='auto';btn.textContent='🙈 Hide my role';}
   else{card.style.opacity='0.05';card.style.filter='blur(8px)';card.style.pointerEvents='none';btn.textContent='👁 Show my role';}
 }
-
+ 
 function goToGame(){if(!localGame)return;roleVisible=true;initGameScreen(localGame);showScreen('game');}
-
+ 
 // =====================================================
 // GAME SCREEN
 // =====================================================
@@ -887,23 +888,23 @@ function initGameScreen(game){
   const isInnocent=game.innocentId===myId;
   // In chaos mode, the spy doesn't know location — show locations tab but no highlight
   const showLocationHighlight=isChaos?isInnocent:!isSpy;
-
+ 
   document.getElementById('chaosModeGameBanner').style.display=isChaos?'block':'none';
   document.getElementById('locationGrid').innerHTML=game.locations.map(loc=>`<div class="location-chip ${showLocationHighlight&&loc===game.currentLocation?'current':''}">${esc(loc)}</div>`).join('');
-
+ 
   if(isChaos){
     document.getElementById('locationsTabDesc').textContent=isInnocent?'The highlighted location is where everyone claims to be. Only you know the truth.':'All possible locations. You do NOT know which one is real — that\'s your job to figure out.';
   } else {
     document.getElementById('locationsTabDesc').textContent='All possible locations this round. The highlighted one is the real location (hidden from the spy).';
   }
-
+ 
   const sel=document.getElementById('spyGuessSelect');
   sel.innerHTML='<option value="">-- Select a location --</option>'+game.locations.map(l=>`<option value="${l}">${esc(l)}</option>`).join('');
-
+ 
   // Spy guess: in normal mode shown to spies. In chaos mode shown to chaos spies (not innocent).
   const showGuess=isChaos?(isSpy&&!isInnocent):isSpy;
   document.getElementById('spyGuessSection').style.display=showGuess?'block':'none';
-
+ 
   // Vote notice
   if(isChaos){
     document.getElementById('voteNotice').className='notice chaos';
@@ -912,19 +913,19 @@ function initGameScreen(game){
     document.getElementById('voteNotice').className='notice info';
     document.getElementById('voteNotice').textContent='Suspect someone? Tap their name to accuse them. A majority vote reveals the result.';
   }
-
+ 
   document.getElementById('timerControls').style.display=amHost?'flex':'none';
   updateRoleSummary(game);
   clearInterval(timerInterval);
   timerInterval=setInterval(()=>{if(localGame&&localGame.status==='playing')tickTimer(localGame);},500);
   renderGame(game);
 }
-
+ 
 function renderGame(game){
   tickTimer(game);updateVoteList(game);updateTimerBtn(game);
   document.getElementById('timerControls').style.display=amHost?'flex':'none';
 }
-
+ 
 function updateRoleSummary(game){
   const isChaos=game.chaosMode;
   const spyIds=game.spyIds||[game.spyId];
@@ -946,7 +947,7 @@ function updateRoleSummary(game){
     }
   }
 }
-
+ 
 function toggleGameRoleVisibility(){
   roleVisible=!roleVisible;
   const summary=document.getElementById('myRoleSummary');
@@ -961,7 +962,7 @@ function revealRoleSummary(){
   document.getElementById('myRoleHidden').style.display='none';
   document.getElementById('hideGameRoleBtn').textContent='🙈 Hide my role';
 }
-
+ 
 function tickTimer(game){
   if(!game.timerStart)return;
   const elapsed=game.timerRunning?Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0):(game.timerOffset||0);
@@ -979,7 +980,7 @@ async function toggleTimer(){
   if(game.timerRunning){const e=Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0);await updateGame(gameCode,{timerRunning:false,timerOffset:e});}
   else{await updateGame(gameCode,{timerRunning:true,timerStart:Date.now(),timerOffset:game.timerOffset||0});}
 }
-
+ 
 // =====================================================
 // VOTING
 // =====================================================
@@ -999,7 +1000,7 @@ function updateVoteList(game){
   }).join('');
   document.getElementById('voteStatus').textContent=`${Object.keys(game.votes||{}).length} of ${n} have voted`;
 }
-
+ 
 async function castVote(targetId){
   const game=localGame;if(!game||game.status!=='playing')return;
   await gameRefFor(gameCode).child('votes/'+myId).set(targetId);
@@ -1010,7 +1011,7 @@ async function castVote(targetId){
     if(cnt>=majority&&amHost){await resolveGame('vote',pid);return;}
   }
 }
-
+ 
 // =====================================================
 // RESOLVE GAME
 // =====================================================
@@ -1019,7 +1020,7 @@ async function resolveGame(reason,accusedId=null){
   const isChaos=game.chaosMode;
   const spyIds=game.spyIds||[game.spyId];
   let spyWins=false,description='';
-
+ 
   if(isChaos){
     // In chaos mode: spies win if innocent can't catch one. Innocent wins if they vote correctly.
     if(reason==='timeout'){spyWins=true;description='Time ran out — the spies fooled the Innocent!';}
@@ -1040,7 +1041,7 @@ async function resolveGame(reason,accusedId=null){
   }
   await updateGame(gameCode,{status:'result',timerRunning:false,result:{spyWins,description,reason,accusedId}});
 }
-
+ 
 async function spyGuessLocation(){
   const guess=document.getElementById('spyGuessSelect').value;if(!guess)return;
   const game=localGame;if(!game)return;
@@ -1049,7 +1050,7 @@ async function spyGuessLocation(){
   else await resolveGame('spy_guess_wrong');
 }
 async function endGameEarly(){if(!confirm('End the round now?'))return;await resolveGame('early');}
-
+ 
 // =====================================================
 // RESULT SCREEN
 // =====================================================
@@ -1060,7 +1061,7 @@ function showResultScreen(game){
   const spyIds=game.spyIds||[game.spyId];
   const innocentPlayer=game.innocentId&&game.players&&game.players[game.innocentId];
   const spyPlayers=spyIds.map(id=>game.players&&game.players[id]).filter(Boolean);
-
+ 
   if(isChaos){
     document.getElementById('resultTitle').textContent='The Innocent was...';
     document.getElementById('resultRevealBox').innerHTML=`
@@ -1075,7 +1076,7 @@ function showResultScreen(game){
       <div style="font-size:24px;font-weight:800;color:var(--spy)">${spyPlayers.map(p=>esc(p.name)).join(' & ')||'Unknown'}</div>
       <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation||'?')}</div>`;
   }
-
+ 
   const banner=document.getElementById('resultBanner');
   if(isChaos){
     if(r.spyWins){banner.innerHTML=`<div class="result-banner chaos-spies-win"><div class="result-emoji">⚡</div><h2>Spies Win!</h2><p>${esc(r.description)}</p></div>`;}
@@ -1086,7 +1087,7 @@ function showResultScreen(game){
   }
   showScreen('result');
 }
-
+ 
 // =====================================================
 // PLAY AGAIN / LEAVE
 // =====================================================
@@ -1096,7 +1097,7 @@ async function playAgain(){
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
   await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,chat:null});
 }
-
+ 
 async function leaveGame(){
   clearInterval(timerInterval);stopListening();stopChat();
   if(gameCode){
@@ -1116,12 +1117,12 @@ async function leaveGame(){
   gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;
   showScreen('home');
 }
-
+ 
 // =====================================================
 // CHAT
 // =====================================================
 let chatListener = null;
-
+ 
 function setupChat(code) {
   if (chatListener) db.ref('games/'+code+'/chat').off('value', chatListener);
   chatListener = db.ref('games/'+code+'/chat').on('value', snap => {
@@ -1130,14 +1131,14 @@ function setupChat(code) {
     renderChat(messages);
   });
 }
-
+ 
 function stopChat() {
   if (chatListener && gameCode) {
     db.ref('games/'+gameCode+'/chat').off('value', chatListener);
     chatListener = null;
   }
 }
-
+ 
 function renderChat(messages) {
   const containers = ['lobbyChatMessages', 'waitingChatMessages'];
   containers.forEach(id => {
@@ -1159,7 +1160,7 @@ function renderChat(messages) {
     el.scrollTop = el.scrollHeight;
   });
 }
-
+ 
 async function sendChat() {
   const cur = document.querySelector('.screen.active')?.id;
   const inputId = cur === 'screen-lobby' ? 'lobbyChatInput' : 'waitingChatInput';
@@ -1168,15 +1169,15 @@ async function sendChat() {
   const text = input.value.trim();
   if (!text || !gameCode) return;
   input.value = '';
-
+ 
   const game = localGame;
   const player = game && game.players && game.players[myId];
   const name = player ? player.name : 'Unknown';
-
+ 
   const msgRef = db.ref('games/'+gameCode+'/chat').push();
   await msgRef.set({ uid: myId, name, text, ts: Date.now() });
 }
-
+ 
 // =====================================================
 // DEV TEST PANEL
 // =====================================================
@@ -1197,30 +1198,30 @@ function toggleDevPanel() {
   panel.style.display = open ? 'block' : 'none';
   arrow.textContent = open ? '▼' : '▶';
 }
-
+ 
 function devShowStatus(msg) {
   const el = document.getElementById('devStatus');
   el.textContent = '✓ ' + msg;
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 3000);
 }
-
+ 
 function devMockGame(overrides = {}) {
   const spyCount = parseInt(document.getElementById('devSpyCount').value) || 1;
   const chaosMode = document.getElementById('devChaosMode').checked;
   const loc = ALL_LOCATIONS[randInt(ALL_LOCATIONS.length)];
   const shuffledRoles = shuffle(loc.roles);
-
+ 
   const mockPlayers = {
     [myId]: { id: myId, name: 'You (Dev)', isHost: true, joinedAt: Date.now(), online: true },
     'dev_p2': { id: 'dev_p2', name: 'Player 2', isHost: false, joinedAt: Date.now()+1, online: true },
     'dev_p3': { id: 'dev_p3', name: 'Player 3', isHost: false, joinedAt: Date.now()+2, online: true },
     'dev_p4': { id: 'dev_p4', name: 'Player 4', isHost: false, joinedAt: Date.now()+3, online: true },
   };
-
+ 
   const locations = shuffle(ALL_LOCATIONS).slice(0, LOCATIONS_PER_GAME).map(l => l.name);
   if (!locations.includes(loc.name)) locations[0] = loc.name;
-
+ 
   const base = {
     code: 'DEV0',
     status: 'playing',
@@ -1243,9 +1244,9 @@ function devMockGame(overrides = {}) {
     players: mockPlayers,
     createdAt: Date.now(),
   };
-
+ 
   const playerIds = Object.keys(mockPlayers);
-
+ 
   if (chaosMode) {
     base.innocentId = overrides.forceInnocent ? myId : (overrides.forceSpy ? 'dev_p2' : myId);
     playerIds.forEach(id => {
@@ -1266,21 +1267,21 @@ function devMockGame(overrides = {}) {
       base.roles[id] = spyIds.includes(id) ? '__SPY__' : shuffledRoles[i % shuffledRoles.length];
     });
   }
-
+ 
   return { ...base, ...overrides };
 }
-
+ 
 function devStartAs(role) {
   // Ensure name is set
   const nameInput = document.getElementById('playerName');
   if (!nameInput.value.trim()) nameInput.value = 'Dev';
-
+ 
   gameCode = 'DEV0';
   amHost = true;
-
+ 
   let game;
   const chaosMode = document.getElementById('devChaosMode').checked;
-
+ 
   if (role === 'crew') {
     game = devMockGame({ chaosMode: false });
     // make sure myId is not a spy
@@ -1300,19 +1301,19 @@ function devStartAs(role) {
     game.spyIds = ['dev_p3', 'dev_p4', myId];
     document.getElementById('devChaosMode').checked = true;
   }
-
+ 
   localGame = game;
   enterRevealScreen(game);
   devShowStatus(`Started as ${role} — tap to reveal your role`);
 }
-
+ 
 function devGoScreen(screen) {
   const nameInput = document.getElementById('playerName');
   if (!nameInput.value.trim()) nameInput.value = 'Dev';
-
+ 
   gameCode = 'DEV0';
   amHost = true;
-
+ 
   if (screen === 'lobby') {
     const mockGame = {
       code: 'DEV0', status: 'lobby', hostId: myId, locations: shuffle(ALL_LOCATIONS).slice(0,12).map(l=>l.name),
@@ -1327,7 +1328,7 @@ function devGoScreen(screen) {
     document.getElementById('gameCodeDisplay').textContent = 'DEV0';
     renderLobby(mockGame);
     showScreen('lobby');
-
+ 
   } else if (screen === 'waiting') {
     const mockGame = {
       code: 'DEV0', status: 'lobby', hostId: 'dev_p2',
@@ -1343,18 +1344,18 @@ function devGoScreen(screen) {
     document.getElementById('waitingCodeDisplay').textContent = 'DEV0';
     renderWaiting(mockGame);
     showScreen('waiting');
-
+ 
   } else if (screen === 'reveal') {
     const game = devMockGame({});
     localGame = game;
     enterRevealScreen(game);
-
+ 
   } else if (screen === 'game') {
     const game = devMockGame({});
     localGame = game;
     initGameScreen(game);
     showScreen('game');
-
+ 
   } else if (screen === 'result-crew') {
     const game = devMockGame({});
     game.status = 'result';
@@ -1362,7 +1363,7 @@ function devGoScreen(screen) {
     game.result = { spyWins: false, description: 'Correct! A spy was caught by majority vote.', reason: 'vote', accusedId: 'dev_p2' };
     localGame = game;
     showResultScreen(game);
-
+ 
   } else if (screen === 'result-spy') {
     const game = devMockGame({ forceSpy: true });
     game.status = 'result';
@@ -1371,10 +1372,10 @@ function devGoScreen(screen) {
     localGame = game;
     showResultScreen(game);
   }
-
+ 
   devShowStatus(`Jumped to: ${screen}`);
 }
-
+ 
 function devBackHome() {
   clearInterval(timerInterval);
   stopListening();
@@ -1386,7 +1387,7 @@ function devBackHome() {
   localChaosMode = false;
   showScreen('home');
 }
-
+ 
 // =====================================================
 // UI HELPERS
 // =====================================================
