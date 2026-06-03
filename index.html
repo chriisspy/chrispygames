@@ -22,8 +22,6 @@ const firebaseConfig = {
   messagingSenderId: "1063032915470",
   appId: "1:1063032915470:web:140317fc9b6d297d001e5f"
 };
-// ============================================================
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 </script>
@@ -183,6 +181,28 @@ select option{background:var(--surface2)}
 .hide-toggle-btn{margin-top:8px;padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;cursor:pointer;width:100%;transition:all 0.15s}
 .hide-toggle-btn:hover{background:var(--surface2);color:var(--text)}
 
+/* Chat */
+.chat-wrap{margin-top:16px;border-top:1px solid var(--border);padding-top:16px}
+.chat-label{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.chat-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
+.chat-messages{height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px;scroll-behavior:smooth}
+.chat-messages::-webkit-scrollbar{width:4px}
+.chat-messages::-webkit-scrollbar-track{background:transparent}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.chat-msg{font-size:13px;line-height:1.5;animation:fadeIn 0.2s ease}
+.chat-msg .chat-name{font-weight:700;color:var(--accent);font-family:'DM Mono',monospace;font-size:12px;margin-right:6px}
+.chat-msg .chat-name.host-name{color:var(--accent)}
+.chat-msg .chat-name.you-name{color:var(--safe)}
+.chat-msg .chat-text{color:var(--text)}
+.chat-msg .chat-time{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:6px}
+.chat-empty{text-align:center;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;padding:20px 0}
+.chat-input-row{display:flex;gap:8px}
+.chat-input{flex:1;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;outline:none;transition:border 0.15s;margin-bottom:0}
+.chat-input:focus{border-color:var(--accent)}
+.chat-input::placeholder{color:var(--muted)}
+.chat-send-btn{padding:10px 16px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0}
+.chat-send-btn:hover{background:#f0dd55}
+
 /* Chaos mode game banner */
 .chaos-mode-banner{padding:8px 14px;background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.3);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--chaos);font-weight:700;letter-spacing:2px;margin-bottom:12px;animation:chaos-pulse 2s infinite}
 </style>
@@ -267,6 +287,18 @@ select option{background:var(--surface2)}
       <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 3 players to start</div>
       <div style="height:8px"></div>
       <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>Start Game</button>
+
+      <!-- LOBBY CHAT -->
+      <div class="chat-wrap">
+        <div class="chat-label">Lobby Chat</div>
+        <div class="chat-messages" id="lobbyChatMessages">
+          <div class="chat-empty">No messages yet. Say something!</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="lobbyChatInput" type="text" placeholder="Type a message..." maxlength="120" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
+          <button class="chat-send-btn" onclick="sendChat()">Send</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -289,6 +321,18 @@ select option{background:var(--surface2)}
       <div class="player-list" id="waitingPlayerList"></div>
       <div style="height:12px"></div>
       <div class="notice info" style="margin-bottom:0" id="waitingNotice">Waiting for the host to start the game...</div>
+
+      <!-- WAITING CHAT -->
+      <div class="chat-wrap">
+        <div class="chat-label">Lobby Chat</div>
+        <div class="chat-messages" id="waitingChatMessages">
+          <div class="chat-empty">No messages yet. Say something!</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="waitingChatInput" type="text" placeholder="Type a message..." maxlength="120" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
+          <button class="chat-send-btn" onclick="sendChat()">Send</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -413,6 +457,7 @@ document.addEventListener('keydown', e => {
 // =====================================================
 // GAME DATA
 // =====================================================
+const ALL_LOCATIONS = [
 const ALL_LOCATIONS = [
   {name:'Airplane',       roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
   {name:'Commonwealth Bank',           roles:['Manager','Teller','Customer','Security Guard','Loan Officer']},
@@ -549,7 +594,7 @@ async function createGame(){
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
-    setupPresence();showScreen('lobby');listenToGame(code,onGameUpdate);
+    setupPresence();showScreen('lobby');listenToGame(code,onGameUpdate);setupChat(code);
   }catch(e){showError('homeError','Could not connect to Firebase. Check your config.');console.error(e);}
   setLoading('createBtn',false,'Create New Game');
 }
@@ -572,7 +617,7 @@ async function joinGame(){
     if(!existing)await gameRefFor(code).child('players/'+myId).set({id:myId,name,isHost:false,joinedAt:Date.now(),online:true});
     else await gameRefFor(code).child('players/'+myId+'/online').set(true);
     setupPresence();document.getElementById('waitingCodeDisplay').textContent=code;
-    showScreen('waiting');listenToGame(code,onGameUpdate);
+    showScreen('waiting');listenToGame(code,onGameUpdate);setupChat(code);
   }catch(e){showError('homeError','Connection error — check your Firebase config');console.error(e);}
   setLoading('joinBtn',false,'Join');
 }
@@ -988,11 +1033,11 @@ async function playAgain(){
   if(!amHost){showScreen('waiting');return;}
   const game=localGame;if(!game)return;
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,chat:null});
 }
 
 async function leaveGame(){
-  clearInterval(timerInterval);stopListening();
+  clearInterval(timerInterval);stopListening();stopChat();
   if(gameCode){
     try{
       const snap=await gameRefFor(gameCode).once('value');const game=snap.val();
@@ -1012,6 +1057,66 @@ async function leaveGame(){
 }
 
 // =====================================================
+// CHAT
+// =====================================================
+let chatListener = null;
+
+function setupChat(code) {
+  if (chatListener) db.ref('games/'+code+'/chat').off('value', chatListener);
+  chatListener = db.ref('games/'+code+'/chat').on('value', snap => {
+    const data = snap.val();
+    const messages = data ? Object.values(data).sort((a,b) => a.ts - b.ts) : [];
+    renderChat(messages);
+  });
+}
+
+function stopChat() {
+  if (chatListener && gameCode) {
+    db.ref('games/'+gameCode+'/chat').off('value', chatListener);
+    chatListener = null;
+  }
+}
+
+function renderChat(messages) {
+  const containers = ['lobbyChatMessages', 'waitingChatMessages'];
+  containers.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (messages.length === 0) {
+      el.innerHTML = '<div class="chat-empty">No messages yet. Say something!</div>';
+      return;
+    }
+    el.innerHTML = messages.map(m => {
+      const isMe = m.uid === myId;
+      const time = new Date(m.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      return `<div class="chat-msg">
+        <span class="chat-name ${isMe ? 'you-name' : ''}">${esc(m.name)}</span>
+        <span class="chat-text">${esc(m.text)}</span>
+        <span class="chat-time">${time}</span>
+      </div>`;
+    }).join('');
+    el.scrollTop = el.scrollHeight;
+  });
+}
+
+async function sendChat() {
+  const cur = document.querySelector('.screen.active')?.id;
+  const inputId = cur === 'screen-lobby' ? 'lobbyChatInput' : 'waitingChatInput';
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text || !gameCode) return;
+  input.value = '';
+
+  const game = localGame;
+  const player = game && game.players && game.players[myId];
+  const name = player ? player.name : 'Unknown';
+
+  const msgRef = db.ref('games/'+gameCode+'/chat').push();
+  await msgRef.set({ uid: myId, name, text, ts: Date.now() });
+}
+
+// =====================================================
 // UI HELPERS
 // =====================================================
 function switchTab(tab){
@@ -1026,4 +1131,3 @@ document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key===
 </script>
 </body>
 </html>
-
