@@ -206,6 +206,14 @@ select option{background:var(--surface2)}
 .result-banner.spy-wins h2,.result-banner.chaos-spies-win h2{color:var(--spy)}
 .result-banner.crew-wins h2,.result-banner.ooo-caught h2{color:var(--safe)}
 .result-banner.ooo-escaped h2{color:var(--ooo)}
+.result-banner.tie-banner{background:linear-gradient(135deg,#1a1600,#121000);border:2px solid var(--accent)}
+.result-banner.tie-banner h2{color:var(--accent)}
+.result-banner.gameover-banner{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.result-banner.gameover-banner h2{color:var(--safe);font-size:30px;letter-spacing:-1px}
+.result-banner.tie-banner{background:linear-gradient(135deg,#1a1600,#121000);border:2px solid var(--accent)}
+.result-banner.tie-banner h2{color:var(--accent)}
+.result-banner.gameover-banner{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.result-banner.gameover-banner h2{color:var(--safe);font-size:30px;letter-spacing:-1px}
 .result-banner p{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
 
 /* Chaos banner in game */
@@ -285,7 +293,7 @@ select option{background:var(--surface2)}
 <div class="screen" id="screen-home">
   <div style="text-align:center">
     <div class="logo">CHRISPY<span>GAMES</span></div>
-    <div class="tagline">Party games for the boys</div>
+    <div class="tagline">Party games for your crew</div>
   </div>
   <div class="game-tiles">
     <div class="game-tile game-tile-spyfall selected" id="homeTileSpyfall" onclick="selectHomeMode('spyfall')">
@@ -537,8 +545,14 @@ select option{background:var(--surface2)}
       <h2 style="margin-bottom:14px" id="resultTitle">The spy was...</h2>
       <div id="resultRevealBox" style="padding:18px;background:var(--surface2);border-radius:var(--radius);text-align:center"></div>
     </div>
-    <button class="btn btn-primary" onclick="playAgain()">Play Again</button>
-    <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    <div id="resultHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" onclick="playAgain()">Play Again</button>
+      <button class="btn btn-secondary" onclick="returnToLobby()">Return to Lobby</button>
+    </div>
+    <div id="resultNonHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <div class="notice info" style="margin-bottom:0">Waiting for host to start next game...</div>
+      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    </div>
   </div>
 </div>
 
@@ -688,7 +702,6 @@ const ALL_LOCATIONS = [
 ];
 
 const OOO_QUESTIONS = [
-  {normal:"Where would you hate to swim?",odd:"Where would you love to swim?"},
   {normal:"What would you find at a funeral?",odd:"What would make a funeral awkward?"},
   {normal:"What should people do after a breakup?",odd:"What should you never do after a breakup?"},
   {normal:"What's something good to say on a first date?",odd:"What should you never say on a first date?"},
@@ -770,7 +783,7 @@ const OOO_DISCUSS_DURATION = 30;
 let myId = localStorage.getItem('sf_myId');
 if(!myId){myId=Math.random().toString(36).slice(2,12);localStorage.setItem('sf_myId',myId);}
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
-let timerInterval=null,oooVoteTimerInterval=null;
+let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null;
 let roleVisible=true,revealVisible=true;
 let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3;
 let chatListener=null;
@@ -917,8 +930,8 @@ function onGameUpdate(game){
   if(game.hostId===myId&&!amHost)amHost=true;
   if(amHost)watchPresence(game);
 
-  const oooScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result'];
-  const sfScreens=['screen-game','screen-result'];
+  const oooScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover'];
+  const sfScreens=['screen-game','screen-result','screen-tie'];
   const allGameScreens=[...oooScreens,...sfScreens];
 
   // LOBBY
@@ -958,13 +971,31 @@ function onGameUpdate(game){
     return;
   }
 
+  // SPYFALL TIE
+  if(game.tiePhase&&game.mode!=='ooo'){
+    if(cur!=='screen-tie')showTieScreen(game);
+    else updateTieVoteList(game);
+    return;
+  }
+  // OOO TIE
+  if(game.mode==='ooo'&&game.status==='playing'&&game.oooPhase==='tie'){
+    if(cur!=='screen-tie')showTieScreen(game);
+    else updateTieVoteList(game);
+    return;
+  }
   // SPYFALL
-  if(game.status==='playing'){
-    if(['screen-lobby','screen-waiting','screen-home'].includes(cur))enterRevealScreen(game);
+  if(game.status==='playing'&&game.mode!=='ooo'){
+    const relaunch=['screen-lobby','screen-waiting','screen-home','screen-result','screen-tie'];
+    if(relaunch.includes(cur))enterRevealScreen(game);
     else if(cur==='screen-game')renderGame(game);
   }
   if(game.status==='result'&&game.mode!=='ooo'){
     if(cur!=='screen-result')showResultScreen(game);
+  }
+  // OOO GAME OVER
+  if(game.mode==='ooo'&&game.status==='result'&&game.oooPhase==='gameover'){
+    if(cur!=='screen-ooo-gameover')showOOOGameOver(game);
+    return;
   }
 }
 
@@ -1085,7 +1116,18 @@ function initGameScreen(game){
   timerInterval=setInterval(()=>{if(localGame&&localGame.status==='playing'&&localGame.mode!=='ooo')tickTimer(localGame);},500);
   renderGame(game);
 }
-function renderGame(game){tickTimer(game);updateVoteList(game);updateTimerBtn(game);document.getElementById('timerControls').style.display=amHost?'flex':'none';}
+function renderGame(game){
+  tickTimer(game);updateVoteList(game);updateTimerBtn(game);
+  document.getElementById('timerControls').style.display=amHost?'flex':'none';
+  if(amHost&&game.status==='playing'&&game.mode!=='ooo'&&!game.tiePhase){
+    const votes=game.votes||{};
+    const n=Object.keys(game.players||{}).length;
+    const majority=Math.ceil(n/2);
+    const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+    for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority){resolveGame('vote',pid);return;}}
+    if(Object.keys(votes).length>=n&&n>0&&!game.tiePhase)handleSpyfallTie(votes,game);
+  }
+}
 function updateRoleSummary(game){
   const isChaos=game.chaosMode;const spyIds=game.spyIds||[game.spyId];const isSpy=spyIds.includes(myId);const isInnocent=game.innocentId===myId;const el=document.getElementById('myRoleSummary');
   if(isChaos){
@@ -1126,17 +1168,22 @@ function updateVoteList(game){
   const myVote=game.votes&&game.votes[myId];
   const voteCounts={};Object.values(game.votes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const n=players.length;const majority=Math.ceil(n/2);
-  document.getElementById('voteList').innerHTML=players.filter(p=>p.id!==myId).map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')"><div style="font-size:20px">🕵️</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${majority}</div>`:''}${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('voteList').innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')"><div style="font-size:20px">🕵️</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}</div>`;}).join('');
   document.getElementById('voteStatus').textContent=`${Object.keys(game.votes||{}).length} of ${n} voted`;
 }
 async function castVote(targetId){
-  const game=localGame;if(!game||game.status!=='playing')return;
+  const game=localGame;if(!game||game.status!=='playing'||game.mode==='ooo')return;
+  if(game.tiePhase&&(!game.tiePlayerIds||!game.tiePlayerIds.includes(targetId)))return;
   await gameRefFor(gameCode).child('votes/'+myId).set(targetId);
   if(amHost){
     const votes={...(game.votes||{}),[myId]:targetId};
     const n=Object.keys(game.players||{}).length;const majority=Math.ceil(n/2);const counts={};
     Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
-    for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority){await resolveGame('vote',pid);return;}}
+    for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority){if(game.tiePhase)await updateGame(gameCode,{tiePhase:false});await resolveGame('vote',pid);return;}}
+    if(Object.keys(votes).length>=n){
+      if(game.tiePhase)await resolveSpyfallTieVotes(votes,game);
+      else await handleSpyfallTie(votes,game);
+    }
   }
 }
 async function resolveGame(reason,accusedId=null){
@@ -1154,8 +1201,79 @@ async function resolveGame(reason,accusedId=null){
     else if(reason==='spy_guess_wrong'){spyWins=false;description='Spy guessed the wrong location!';}
     else if(reason==='early'){spyWins=false;description='Round ended early.';}
   }
-  await updateGame(gameCode,{status:'result',timerRunning:false,result:{spyWins,description,reason,accusedId}});
+  await updateGame(gameCode,{status:'result',timerRunning:false,tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,result:{spyWins,description,reason,accusedId}});
 }
+// =====================================================
+// SPYFALL: TIE SYSTEM
+// =====================================================
+async function handleSpyfallTie(votes,game){
+  const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const maxVotes=Math.max(...Object.values(counts),0);
+  const tiedIds=Object.entries(counts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+  if((game.tieRound||0)>=1){
+    if(tiedIds.length===1)await resolveGame('vote',tiedIds[0]);
+    else await resolveGame('timeout');
+    return;
+  }
+  await updateGame(gameCode,{tiePhase:true,tiePlayerIds:tiedIds,tieStart:Date.now(),tieRound:1,votes:{}});
+}
+async function resolveSpyfallTieVotes(votes,game){
+  const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const maxVotes=Math.max(...Object.values(counts),0);
+  const topIds=Object.entries(counts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+  await updateGame(gameCode,{tiePhase:false});
+  if(topIds.length===1)await resolveGame('vote',topIds[0]);
+  else await resolveGame('timeout');
+}
+function showTieScreen(game){
+  clearInterval(tieTimerInterval);
+  const isOOO=game.mode==='ooo';
+  const tiedIds=isOOO?(game.oooTiePlayerIds||[]):(game.tiePlayerIds||[]);
+  const tiedNames=tiedIds.map(id=>(game.players&&game.players[id]&&game.players[id].name)||'?');
+  document.getElementById('tieBannerText').textContent=tiedNames.join(' & ')+' are tied';
+  document.getElementById('tieVoteInstruction').textContent=isOOO?'Who gave the odd answer?':'Who is the spy?';
+  document.getElementById('tieVoteInstruction').className=isOOO?'notice ooo':'notice info';
+  updateTieVoteList(game);
+  showScreen('tie');
+  tieTimerInterval=setInterval(()=>{const g=localGame;if(!g)return;const inTie=g.mode==='ooo'?g.oooPhase==='tie':g.tiePhase;if(!inTie){clearInterval(tieTimerInterval);return;}tickTieTimer(g);},500);
+}
+function updateTieVoteList(game){
+  const isOOO=game.mode==='ooo';
+  const tiedIds=isOOO?(game.oooTiePlayerIds||[]):(game.tiePlayerIds||[]);
+  const votes=isOOO?(game.oooVotes||{}):(game.votes||{});
+  const myVote=votes[myId];
+  const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  const n=Object.keys(game.players||{}).length;
+  const voteClass=isOOO?'ooo-voted':'voted';
+  const voteColor=isOOO?'var(--ooo)':'var(--spy)';
+  document.getElementById('tieVoteList').innerHTML=tiedIds.map(id=>{
+    const p=game.players&&game.players[id];const vc=voteCounts[id]||0;
+    const fn=isOOO?`castOOOVote('${id}')`:`castVote('${id}')`;
+    return`<div class="vote-item ${myVote===id?voteClass:''}" onclick="${fn}"><div style="font-size:20px">${isOOO?'🎭':'🕵️'}</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p?p.name:'?')}${id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:${voteColor}">${vc}/${n}</div>`:''}${myVote===id?`<div style="color:${voteColor};font-size:13px">✓</div>`:''}</div>`;
+  }).join('');
+  document.getElementById('tieVoteStatus').textContent=`${Object.keys(votes).length} of ${n} voted`;
+}
+function tickTieTimer(game){
+  const isOOO=game.mode==='ooo';
+  const start=isOOO?game.oooTieStart:game.tieStart;
+  if(!start)return;
+  const elapsed=Math.floor((Date.now()-start)/1000);
+  const remaining=Math.max(0,120-elapsed);
+  const m=Math.floor(remaining/60).toString().padStart(2,'0');const s=(remaining%60).toString().padStart(2,'0');
+  const el=document.getElementById('tieTimerDisplay');if(!el)return;
+  el.textContent=`${m}:${s}`;
+  el.className='timer-display'+(remaining<30?' danger':remaining<60?' warning':'');
+  if(remaining===0&&amHost){
+    clearInterval(tieTimerInterval);
+    const votes=isOOO?(game.oooVotes||{}):(game.votes||{});
+    const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+    const maxVotes=Math.max(...Object.values(counts),0);
+    const topIds=Object.entries(counts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+    if(isOOO){resolveOOOTieVotes(game,votes);}
+    else{updateGame(gameCode,{tiePhase:false}).then(()=>{if(topIds.length===1)resolveGame('vote',topIds[0]);else resolveGame('timeout');});}
+  }
+}
+
 async function spyGuessLocation(){
   const guess=document.getElementById('spyGuessSelect').value;if(!guess)return;
   const game=localGame;if(!game)return;
@@ -1187,6 +1305,8 @@ function showResultScreen(game){
     if(r.spyWins)banner.innerHTML=`<div class="result-banner spy-wins"><div class="result-emoji">🕵️</div><h2>Spy Wins!</h2><p>${esc(r.description)}</p></div>`;
     else banner.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Crew Wins!</h2><p>${esc(r.description)}</p></div>`;
   }
+  document.getElementById('resultHostBtns').style.display=amHost?'flex':'none';
+  document.getElementById('resultNonHostBtns').style.display=!amHost?'flex':'none';
   showScreen('result');
 }
 
@@ -1278,14 +1398,16 @@ function updateOOOAnswers(game){
   const voteCounts={};Object.values(game.oooVotes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const n=players.length;const majority=Math.ceil(n/2);
   document.getElementById('oooAnswersList').innerHTML=players.map(p=>`<div class="answer-item"><div class="answer-name">${esc(p.name)}</div><div class="answer-text">${esc(answers[p.id]||'...')}</div></div>`).join('');
-  document.getElementById('oooVoteList').innerHTML=players.filter(p=>p.id!==myId).map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'ooo-voted':''}" onclick="castOOOVote('${p.id}')"><div style="font-size:20px">🎭</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo)">${vc}/${majority}</div>`:''}${myVote===p.id?'<div style="color:var(--ooo);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('oooVoteList').innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'ooo-voted':''}" onclick="castOOOVote('${p.id}')"><div style="font-size:20px">🎭</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--ooo);font-size:13px">✓</div>':''}</div>`;}).join('');
   document.getElementById('oooVoteStatus').textContent=`${Object.keys(game.oooVotes||{}).length} of ${n} voted`;
   if(amHost)checkAllVoted(game);
 }
 function checkAllVoted(game){
-  if(game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
+  if(game.oooPhase==='answers'&&game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
   const n=Object.keys(game.players||{}).length;
-  if(Object.keys(game.oooVotes||{}).length>=n&&game.oooPhase==='answers')resolveOOORound(game);
+  const votes=Object.keys(game.oooVotes||{}).length;
+  if(votes>=n&&game.oooPhase==='answers')resolveOOORound(game);
+  if(votes>=n&&game.oooPhase==='tie')resolveOOOTieVotes(game,game.oooVotes);
 }
 function tickOOOVoteTimer(game){
   if(!game.oooVoteStart)return;
@@ -1322,8 +1444,8 @@ function tickOOOVoteTimer(game){
 }
 async function castOOOVote(targetId){
   const game=localGame;if(!game||game.oooPhase!=='answers')return;
-  if(game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
-  if(Date.now()<game.oooVoteStart)return;
+  if(game.oooPhase==='answers'&&game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
+  if(game.oooPhase==='tie'&&(!game.oooTiePlayerIds||!game.oooTiePlayerIds.includes(targetId)))return;
   // Update local state immediately (makes dev mode work + shows checkmark without waiting for Firebase)
   if(!localGame.oooVotes)localGame.oooVotes={};
   localGame.oooVotes[myId]=targetId;
@@ -1331,16 +1453,26 @@ async function castOOOVote(targetId){
   try{await gameRefFor(gameCode).child('oooVotes/'+myId).set(targetId);}catch(e){}
   if(amHost){
     const n=Object.keys(localGame.players||{}).length;
-    if(Object.keys(localGame.oooVotes).length>=n)await resolveOOORound(localGame);
+    if(Object.keys(localGame.oooVotes||{}).length>=n){
+      if(localGame.oooPhase==='tie')await resolveOOOTieVotes(localGame,localGame.oooVotes);
+      else await resolveOOORound(localGame);
+    }
   }
 }
 async function resolveOOORound(game){
   if(!game||game.oooPhase!=='answers')return;
   const votes=game.oooVotes||{};
   const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
-  let maxVotes=0,accusedId=null;
-  for(const[pid,cnt]of Object.entries(voteCounts)){if(cnt>maxVotes){maxVotes=cnt;accusedId=pid;}}
-  const caught=accusedId===game.oooImposterId;
+  let maxVotes=0;
+  for(const cnt of Object.values(voteCounts)){if(cnt>maxVotes)maxVotes=cnt;}
+  const topIds=Object.entries(voteCounts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+  // Detect tie (multiple leaders) — only one revote allowed
+  if(topIds.length>1&&(game.oooTieRound||0)<1){
+    await updateGame(gameCode,{oooPhase:'tie',oooTiePlayerIds:topIds,oooTieStart:Date.now(),oooTieRound:1,oooVotes:{}});
+    return;
+  }
+  const accusedId=topIds[0]||null;
+  const caught=accusedId===game.oooImposterId&&topIds.length===1;
   const scores={...(game.oooScores||{})};
   const players=Object.values(game.players||{});
   if(caught){players.forEach(p=>{if(p.id!==game.oooImposterId)scores[p.id]=(scores[p.id]||0)+2;});}
@@ -1376,18 +1508,71 @@ function showOOOResult(game){
 }
 async function oooNextRound(){await startOOOGame();}
 async function oooEndGame(){await updateGame(gameCode,{status:'result',oooPhase:'gameover'});}
+function showOOOGameOver(game){
+  clearInterval(oooVoteTimerInterval);
+  const players=Object.values(game.players||{}).sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
+  const winner=players[0];
+  const score=(game.oooScores&&game.oooScores[winner.id])||0;
+  document.getElementById('gameoverTitle').textContent=winner.name.toUpperCase()+' WINS!';
+  document.getElementById('gameoverSubtitle').textContent='with '+score+' point'+(score!==1?'s':'');
+  document.getElementById('gameoverScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${esc(p.name)}</div><div class="scoreboard-pts">${(game.oooScores&&game.oooScores[p.id])||0} pts</div></div>`).join('');
+  document.getElementById('gameoverReturnBtn').style.display=amHost?'block':'none';
+  document.getElementById('gameoverWaitingForHost').style.display=!amHost?'block':'none';
+  showScreen('ooo-gameover');
+}
+async function returnToLobbyOOO(){await returnToLobby();}
+// OOO TIE
+async function resolveOOOTieVotes(game,votes){
+  const counts={};Object.values(votes||{}).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const maxVotes=Math.max(...Object.values(counts),0);
+  const topIds=Object.entries(counts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+  const accused=topIds.length===1?topIds[0]:null;
+  const caught=accused===game.oooImposterId;
+  const scores={...(game.oooScores||{})};
+  const players=Object.values(game.players||{});
+  if(caught){players.forEach(p=>{if(p.id!==game.oooImposterId)scores[p.id]=(scores[p.id]||0)+2;});}
+  else{scores[game.oooImposterId]=(scores[game.oooImposterId]||0)+3;}
+  const impostorName=(game.players&&game.players[game.oooImposterId]&&game.players[game.oooImposterId].name)||'Unknown';
+  const desc=caught?impostorName+' was caught after a tie-breaker!':'Tie! '+impostorName+' escaped!';
+  const result={caught,description:desc,accusedId:accused};
+  localGame.oooPhase='result';localGame.oooScores=scores;localGame.oooResult=result;
+  try{await updateGame(gameCode,{oooPhase:'result',oooScores:scores,oooResult:result,oooTiePlayerIds:null});}catch(e){}
+  showOOOResult(localGame);
+}
 
 // =====================================================
 // PLAY AGAIN / LEAVE
 // =====================================================
 async function playAgain(){
-  if(!amHost){showScreen('waiting');return;}
+  if(!amHost)return;
+  const game=localGame;if(!game)return;
+  const isChaos=game.chaosMode;
+  const players=Object.values(game.players||{});if(players.length<3)return;
+  const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
+  const locName=pick(newLocations);
+  const locObj=ALL_LOCATIONS.find(l=>l.name===locName)||ALL_LOCATIONS[0];
+  const shuffledRoles=shuffle(locObj.roles);
+  const roles={};let spyIds=[],innocentId=null;
+  if(isChaos){
+    const idx=randInt(players.length);innocentId=players[idx].id;
+    players.forEach(p=>{roles[p.id]=p.id===innocentId?'__INNOCENT__':'__CHAOS_SPY__';});
+    spyIds=players.filter(p=>p.id!==innocentId).map(p=>p.id);
+  } else {
+    const count=Math.min(game.spyCount||1,maxSpies(players.length));
+    const sp=shuffle([...players]);spyIds=sp.slice(0,count).map(p=>p.id);
+    players.forEach((p,i)=>{roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});
+  }
+  const duration=isChaos?CHAOS_TIMER_DURATION:TIMER_DURATION;
+  await updateGame(gameCode,{status:'playing',mode:'spyfall',spyIds,innocentId,spyId:spyIds[0]||null,currentLocation:locObj.name,roles,locations:newLocations,timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:duration,votes:{},result:null,spyGuess:null,chaosMode:isChaos,spyCount:spyIds.length,tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0});
+}
+async function returnToLobby(){
+  if(!amHost)return;
   const game=localGame;if(!game)return;
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},chat:null});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,chat:null});
 }
 async function leaveGame(){
-  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);stopListening();stopChat();
+  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);stopListening();stopChat();
   if(gameCode){
     try{
       const snap=await gameRefFor(gameCode).once('value');const game=snap.val();
@@ -1500,7 +1685,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);stopListening();stopChat();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);stopListening();stopChat();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;showScreen('home');}
 
 // =====================================================
 // HOME MODE SELECT
@@ -1522,5 +1707,50 @@ function copyCode(){
 document.getElementById('joinCode').addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});
 document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});
 </script>
+
+<!-- TIE SCREEN -->
+<div class="screen scrollable" id="screen-tie">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div class="result-banner tie-banner fadeIn">
+      <div class="result-emoji">🤝</div>
+      <h2>IT'S A TIE!</h2>
+      <p id="tieBannerText">Revote — tied players shown below</p>
+    </div>
+    <div class="card fadeIn">
+      <div class="timer-area" style="padding:10px 0">
+        <div class="timer-display" id="tieTimerDisplay">02:00</div>
+        <div class="timer-label">to revote</div>
+      </div>
+      <div class="notice info" style="margin-bottom:10px" id="tieVoteInstruction">Who is the spy?</div>
+      <div class="vote-list" id="tieVoteList"></div>
+      <div id="tieVoteStatus" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+    </div>
+    <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+  </div>
+</div>
+
+<!-- OOO: GAME OVER -->
+<div class="screen scrollable" id="screen-ooo-gameover">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div class="result-banner gameover-banner fadeIn">
+      <div class="result-emoji">🏆</div>
+      <h2 id="gameoverTitle">PLAYER WINS!</h2>
+      <p id="gameoverSubtitle">Final results</p>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Final Scoreboard</h2>
+      <div id="gameoverScoreboardList"></div>
+    </div>
+    <div id="gameoverReturnBtn" style="display:none">
+      <button class="btn btn-primary" onclick="returnToLobbyOOO()">Return to Lobby</button>
+    </div>
+    <div id="gameoverWaitingForHost" style="display:none">
+      <div class="notice ooo">Waiting for host to return to lobby...</div>
+    </div>
+    <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+  </div>
+</div>
+
+
 </body>
 </html>
