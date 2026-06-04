@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Chrispy Games</title>
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
@@ -1758,6 +1760,14 @@ document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key===
   </div>
 </div>
 
-
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("Service Worker registered"))
+        .catch(error => console.log("Service Worker registration failed:", error));
+    });
+  }
+</script>
 </body>
 </html>
