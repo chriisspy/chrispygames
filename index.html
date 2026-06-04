@@ -603,6 +603,11 @@ select option{background:var(--surface2)}
       <div style="font-size:11px;color:var(--ooo);font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-top:4px">ALL ANSWERS IN</div>
       <div class="round-badge" id="oooAnswersRoundBadge">Round 1 of 3</div>
     </div>
+    <div id="oooTieBanner" class="result-banner tie-banner fadeIn" style="display:none">
+      <div class="result-emoji">🤝</div>
+      <h2>TIE — REVOTE</h2>
+      <p id="oooTieBannerText">Only tied players shown · 2 minute timer</p>
+    </div>
     <div class="card fadeIn">
       <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">The question was</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.4" id="oooRevealQuestion">---</div>
@@ -705,7 +710,6 @@ const ALL_LOCATIONS = [
 ];
 
 const OOO_QUESTIONS = [
-  {normal:"Where would you hate to swim?",odd:"Where would you love to swim?"},
   {normal:"What would you find at a funeral?",odd:"What would make a funeral awkward?"},
   {normal:"What should people do after a breakup?",odd:"What should you never do after a breakup?"},
   {normal:"What's something good to say on a first date?",odd:"What should you never say on a first date?"},
@@ -963,8 +967,13 @@ function onGameUpdate(game){
       if(cur!=='screen-ooo-question')enterOOOQuestionScreen(game);
       else updateOOOWaitingState(game);
     } else if(game.oooPhase==='answers'){
-      if(cur!=='screen-ooo-answers')showOOOAnswers(game);
-      else{updateOOOAnswers(game);if(amHost)checkAllVoted(game);}
+      if(cur!=='screen-ooo-answers'){showOOOAnswers(game);}
+      else{
+        // Update tie banner visibility if needed
+        const tb=document.getElementById('oooTieBanner');
+        if(tb)tb.style.display=game.oooTied?'block':'none';
+        updateOOOAnswers(game);if(amHost)checkAllVoted(game);
+      }
     } else if(game.oooPhase==='result'){
       if(cur!=='screen-ooo-result')showOOOResult(game);
     }
@@ -985,12 +994,7 @@ function onGameUpdate(game){
     else updateTieVoteList(game);
     return;
   }
-  // OOO TIE
-  if(game.mode==='ooo'&&game.status==='playing'&&game.oooPhase==='tie'){
-    if(cur!=='screen-tie')showTieScreen(game);
-    else updateTieVoteList(game);
-    return;
-  }
+
   // SPYFALL
   if(game.status==='playing'&&game.mode!=='ooo'){
     const relaunch=['screen-lobby','screen-waiting','screen-home','screen-result','screen-tie'];
@@ -1333,7 +1337,7 @@ async function startOOOGame(){
     status:'playing',mode:'ooo',oooPhase:'question',
     oooRound:(game.oooRound||0)+1,oooTotalRounds:game.oooTotalRounds||localOOORounds||3,
     oooQuestionNormal:q.normal,oooQuestionOdd:q.odd,oooLastQuestion:q.normal,
-    oooImposterId:imposterId,oooAnswers:{},oooVotes:{},oooVoteStart:null,oooResult:null,oooScores:scores,
+    oooImposterId:imposterId,oooAnswers:{},oooVotes:{},oooVoteStart:null,oooResult:null,oooScores:scores,oooTied:false,oooTiedPlayerIds:null,oooVoteDuration:null,
   });
 }
 
@@ -1394,6 +1398,17 @@ function showOOOAnswers(game){
   clearInterval(oooVoteTimerInterval);
   document.getElementById('oooAnswersRoundBadge').textContent=`Round ${game.oooRound} of ${game.oooTotalRounds}`;
   document.getElementById('oooRevealQuestion').textContent=game.oooQuestionNormal;
+  // Show tie banner if revote
+  const tb=document.getElementById('oooTieBanner');
+  if(tb){
+    tb.style.display=game.oooTied?'block':'none';
+    if(game.oooTied){
+      const tids=Array.isArray(game.oooTiedPlayerIds)?game.oooTiedPlayerIds:Object.values(game.oooTiedPlayerIds||{});
+      const names=tids.map(id=>(game.players&&game.players[id]&&game.players[id].name)||'?');
+      const el=document.getElementById('oooTieBannerText');
+      if(el)el.textContent=names.join(' & ')+' tied · 2 minute revote';
+    }
+  }
   updateOOOAnswers(game);
   showScreen('ooo-answers');
   oooVoteTimerInterval=setInterval(()=>{if(localGame&&localGame.oooPhase==='answers')tickOOOVoteTimer(localGame);},500);
@@ -1405,7 +1420,11 @@ function updateOOOAnswers(game){
   const voteCounts={};Object.values(game.oooVotes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const n=players.length;const majority=Math.ceil(n/2);
   document.getElementById('oooAnswersList').innerHTML=players.map(p=>`<div class="answer-item"><div class="answer-name">${esc(p.name)}</div><div class="answer-text">${esc(answers[p.id]||'...')}</div></div>`).join('');
-  document.getElementById('oooVoteList').innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'ooo-voted':''}" onclick="castOOOVote('${p.id}')"><div style="font-size:20px">🎭</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--ooo);font-size:13px">✓</div>':''}</div>`;}).join('');
+  const tiedArr=game.oooTied?(Array.isArray(game.oooTiedPlayerIds)?game.oooTiedPlayerIds:Object.values(game.oooTiedPlayerIds||{})):null;
+  const votablePlayers=tiedArr?players.filter(p=>tiedArr.includes(p.id)):players;
+  const noticeEl=document.getElementById('oooVoteNotice');
+  if(noticeEl){if(game.oooTied){noticeEl.className='notice info';noticeEl.textContent='Tie! Only vote for tied players.';}else{noticeEl.className='notice ooo';noticeEl.textContent='Who gave the odd answer? Tap to vote.';}}
+  document.getElementById('oooVoteList').innerHTML=votablePlayers.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'ooo-voted':''}" onclick="castOOOVote('${p.id}')"><div style="font-size:20px">🎭</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--ooo);font-size:13px">✓</div>':''}</div>`;}).join('');
   document.getElementById('oooVoteStatus').textContent=`${Object.keys(game.oooVotes||{}).length} of ${n} voted`;
   if(amHost)checkAllVoted(game);
 }
@@ -1414,7 +1433,6 @@ function checkAllVoted(game){
   const n=Object.keys(game.players||{}).length;
   const votes=Object.keys(game.oooVotes||{}).length;
   if(votes>=n&&game.oooPhase==='answers')resolveOOORound(game);
-  if(votes>=n&&game.oooPhase==='tie')resolveOOOTieVotes(game,game.oooVotes);
 }
 function tickOOOVoteTimer(game){
   if(!game.oooVoteStart)return;
@@ -1451,8 +1469,8 @@ function tickOOOVoteTimer(game){
 }
 async function castOOOVote(targetId){
   const game=localGame;if(!game||game.oooPhase!=='answers')return;
-  if(game.oooPhase==='answers'&&game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
-  if(game.oooPhase==='tie'){const _t=game.oooTiePlayerIds;const _ta=Array.isArray(_t)?_t:Object.values(_t||{});if(!_t||!_ta.includes(targetId))return;}
+  if(game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
+  if(game.oooTied){const _t=game.oooTiedPlayerIds;const _ta=Array.isArray(_t)?_t:Object.values(_t||{});if(!_ta.includes(targetId))return;}
   // Update local state immediately (makes dev mode work + shows checkmark without waiting for Firebase)
   if(!localGame.oooVotes)localGame.oooVotes={};
   localGame.oooVotes[myId]=targetId;
@@ -1460,10 +1478,7 @@ async function castOOOVote(targetId){
   try{await gameRefFor(gameCode).child('oooVotes/'+myId).set(targetId);}catch(e){}
   if(amHost){
     const n=Object.keys(localGame.players||{}).length;
-    if(Object.keys(localGame.oooVotes||{}).length>=n){
-      if(localGame.oooPhase==='tie')await resolveOOOTieVotes(localGame,localGame.oooVotes);
-      else await resolveOOORound(localGame);
-    }
+    if(Object.keys(localGame.oooVotes||{}).length>=n)await resolveOOORound(localGame);
   }
 }
 async function resolveOOORound(game){
@@ -1473,9 +1488,10 @@ async function resolveOOORound(game){
   let maxVotes=0;
   for(const cnt of Object.values(voteCounts)){if(cnt>maxVotes)maxVotes=cnt;}
   const topIds=Object.entries(voteCounts).filter(([,c])=>c===maxVotes).map(([id])=>id);
-  // Detect tie (multiple leaders) — only one revote allowed
-  if(topIds.length>1&&(game.oooTieRound||0)<1){
-    await updateGame(gameCode,{oooPhase:'tie',oooTiePlayerIds:topIds,oooTieStart:Date.now(),oooTieRound:1,oooVotes:{}});
+  // Detect tie — reuse answers screen with tie flag (one revote only)
+  if(topIds.length>1&&!game.oooTied){
+    const tiedNames=topIds.map(id=>(game.players&&game.players[id]&&game.players[id].name)||'?');
+    await updateGame(gameCode,{oooPhase:'answers',oooTied:true,oooTiedPlayerIds:topIds,oooVotes:{},oooVoteStart:Date.now(),oooVoteDuration:120});
     return;
   }
   const accusedId=topIds[0]||null;
@@ -1760,6 +1776,7 @@ document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key===
   </div>
 </div>
 
+
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
@@ -1769,5 +1786,6 @@ document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key===
     });
   }
 </script>
+
 </body>
 </html>
