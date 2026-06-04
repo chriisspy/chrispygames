@@ -2,17 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Spyfall</title>
-
-<!-- Firebase SDKs -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Chrispy Games</title>
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-
 <script>
-// ============================================================
-// FIREBASE CONFIG — replace these values with yours
-// ============================================================
 const firebaseConfig = {
   apiKey: "AIzaSyBHtUzguBOKpyXhHSLSoRUKszmPSlo-FB0",
   authDomain: "spyfall-24be3.firebaseapp.com",
@@ -274,7 +268,7 @@ select option{background:var(--surface2)}
   <div class="card fadeIn">
     <h2>Welcome</h2>
     <label>Password</label>
-    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off"/>
+    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off" onkeydown="if(event.key==='Enter')checkPassword()"/>
     <div id="passwordError" class="notice error" style="display:none">Incorrect password.</div>
     <button class="btn btn-primary" onclick="checkPassword()">Enter</button>
   </div>
@@ -733,7 +727,7 @@ const OOO_QUESTIONS = [
   {normal:"Who do people look up to?",odd:"Who do people despise?"},
   {normal:"Why do people get a dog?",odd:"Why do people get a lawyer?"},
   {normal:"Why do average people change their name?",odd:"Why do people change their name urgently?"},
-  {normal:"How do you make someone feel welcome?",odd:"How do you make an entire room uncomfortable?"}
+  {normal:"How do you make someone feel welcome?",odd:"How do you make an entire room uncomfortable?"},
   {normal:"How do you get away with a crime?",odd:"How do you make someone feel special?"},
   {normal:"How do you get someone to confess?",odd:"How do you become someone people trust?"},
   {normal:"How do you prepare for a police interrogation?",odd:"How do you prepare for a job interview?"},
@@ -754,7 +748,7 @@ const OOO_QUESTIONS = [
   {normal:"Why do people never leave a small town even though they should?",odd:"Why do people stay in a small town?"},
   {normal:"How do you earn a restraining order?",odd:"How do you earn respect?"},
   {normal:"How do you end up on a watchlist?",odd:"How do you make a good first impression?"},
-];
+]];
 
 const LOCATIONS_PER_GAME = 12;
 const TIMER_DURATION = 8*60;
