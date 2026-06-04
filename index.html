@@ -293,7 +293,7 @@ select option{background:var(--surface2)}
 <div class="screen" id="screen-home">
   <div style="text-align:center">
     <div class="logo">CHRISPY<span>GAMES</span></div>
-    <div class="tagline">Party games for your crew</div>
+    <div class="tagline">Party games for the boys</div>
   </div>
   <div class="game-tiles">
     <div class="game-tile game-tile-spyfall selected" id="homeTileSpyfall" onclick="selectHomeMode('spyfall')">
@@ -642,8 +642,9 @@ select option{background:var(--surface2)}
     </div>
     <div id="oooNextRoundBtn" style="display:none"><button class="btn btn-ooo" onclick="oooNextRound()">Next Round →</button></div>
     <div id="oooEndGameBtn" style="display:none"><button class="btn btn-primary" onclick="oooEndGame()">🎉 End Game</button></div>
+    <div id="oooReturnLobbyBtn" style="display:none"><button class="btn btn-secondary" onclick="returnToLobby()">Return to Lobby</button></div>
     <div id="oooWaitingForHost" style="display:none"><div class="notice ooo">Waiting for host to continue...</div></div>
-    <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    <div id="oooLeaveBtn" style="display:none"><button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button></div>
   </div>
 </div>
 
@@ -702,6 +703,7 @@ const ALL_LOCATIONS = [
 ];
 
 const OOO_QUESTIONS = [
+  {normal:"Where would you hate to swim?",odd:"Where would you love to swim?"},
   {normal:"What would you find at a funeral?",odd:"What would make a funeral awkward?"},
   {normal:"What should people do after a breakup?",odd:"What should you never do after a breakup?"},
   {normal:"What's something good to say on a first date?",odd:"What should you never say on a first date?"},
@@ -967,7 +969,11 @@ function onGameUpdate(game){
     return;
   }
   if(game.mode==='ooo'&&game.status==='result'){
-    if(cur!=='screen-ooo-result')showOOOResult(game);
+    if(game.oooPhase==='gameover'){
+      if(cur!=='screen-ooo-gameover')showOOOGameOver(game);
+    } else {
+      if(cur!=='screen-ooo-result')showOOOResult(game);
+    }
     return;
   }
 
@@ -992,11 +998,7 @@ function onGameUpdate(game){
   if(game.status==='result'&&game.mode!=='ooo'){
     if(cur!=='screen-result')showResultScreen(game);
   }
-  // OOO GAME OVER
-  if(game.mode==='ooo'&&game.status==='result'&&game.oooPhase==='gameover'){
-    if(cur!=='screen-ooo-gameover')showOOOGameOver(game);
-    return;
-  }
+
 }
 
 // =====================================================
@@ -1173,7 +1175,7 @@ function updateVoteList(game){
 }
 async function castVote(targetId){
   const game=localGame;if(!game||game.status!=='playing'||game.mode==='ooo')return;
-  if(game.tiePhase&&(!game.tiePlayerIds||!game.tiePlayerIds.includes(targetId)))return;
+  if(game.tiePhase){const _tp=game.tiePlayerIds;const _tpa=Array.isArray(_tp)?_tp:Object.values(_tp||{});if(!_tp||!_tpa.includes(targetId))return;}
   await gameRefFor(gameCode).child('votes/'+myId).set(targetId);
   if(amHost){
     const votes={...(game.votes||{}),[myId]:targetId};
@@ -1227,8 +1229,10 @@ async function resolveSpyfallTieVotes(votes,game){
 }
 function showTieScreen(game){
   clearInterval(tieTimerInterval);
+  clearInterval(oooVoteTimerInterval);
   const isOOO=game.mode==='ooo';
-  const tiedIds=isOOO?(game.oooTiePlayerIds||[]):(game.tiePlayerIds||[]);
+  const _rawTied=isOOO?(game.oooTiePlayerIds||[]):(game.tiePlayerIds||[]);
+  const tiedIds=Array.isArray(_rawTied)?_rawTied:Object.values(_rawTied);
   const tiedNames=tiedIds.map(id=>(game.players&&game.players[id]&&game.players[id].name)||'?');
   document.getElementById('tieBannerText').textContent=tiedNames.join(' & ')+' are tied';
   document.getElementById('tieVoteInstruction').textContent=isOOO?'Who gave the odd answer?':'Who is the spy?';
@@ -1239,7 +1243,8 @@ function showTieScreen(game){
 }
 function updateTieVoteList(game){
   const isOOO=game.mode==='ooo';
-  const tiedIds=isOOO?(game.oooTiePlayerIds||[]):(game.tiePlayerIds||[]);
+  const _rawTied=isOOO?(game.oooTiePlayerIds||[]):(game.tiePlayerIds||[]);
+  const tiedIds=Array.isArray(_rawTied)?_rawTied:Object.values(_rawTied);
   const votes=isOOO?(game.oooVotes||{}):(game.votes||{});
   const myVote=votes[myId];
   const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
@@ -1445,7 +1450,7 @@ function tickOOOVoteTimer(game){
 async function castOOOVote(targetId){
   const game=localGame;if(!game||game.oooPhase!=='answers')return;
   if(game.oooPhase==='answers'&&game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
-  if(game.oooPhase==='tie'&&(!game.oooTiePlayerIds||!game.oooTiePlayerIds.includes(targetId)))return;
+  if(game.oooPhase==='tie'){const _t=game.oooTiePlayerIds;const _ta=Array.isArray(_t)?_t:Object.values(_t||{});if(!_t||!_ta.includes(targetId))return;}
   // Update local state immediately (makes dev mode work + shows checkmark without waiting for Firebase)
   if(!localGame.oooVotes)localGame.oooVotes={};
   localGame.oooVotes[myId]=targetId;
@@ -1503,7 +1508,9 @@ function showOOOResult(game){
   const isLastRound=game.oooRound>=game.oooTotalRounds||game.status==='result';
   document.getElementById('oooNextRoundBtn').style.display=(!isLastRound&&amHost)?'block':'none';
   document.getElementById('oooEndGameBtn').style.display=(isLastRound&&amHost)?'block':'none';
+  document.getElementById('oooReturnLobbyBtn').style.display=amHost?'block':'none';
   document.getElementById('oooWaitingForHost').style.display=!amHost?'block':'none';
+  document.getElementById('oooLeaveBtn').style.display=!amHost?'block':'none';
   showScreen('ooo-result');
 }
 async function oooNextRound(){await startOOOGame();}
