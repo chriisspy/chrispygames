@@ -25,38 +25,27 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 </script>
- 
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#0a0a0f;
-  --surface:#13131a;
-  --surface2:#1c1c26;
-  --surface3:#252532;
-  --accent:#e8d44d;
-  --accent2:#e85d4d;
-  --text:#f0eff5;
-  --muted:#7a7a8c;
-  --border:#2a2a3a;
-  --spy:#e85d4d;
-  --safe:#4de8a0;
-  --chaos:#ff2d2d;
-  --radius:12px;
-  --radius-lg:20px;
-}
 html,body{overflow-x:hidden;max-width:100vw}
+:root{
+  --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--surface3:#252532;
+  --accent:#e8d44d;--accent2:#e85d4d;--text:#f0eff5;--muted:#7a7a8c;
+  --border:#2a2a3a;--spy:#e85d4d;--safe:#4de8a0;--chaos:#ff2d2d;--ooo:#a78bfa;
+  --radius:12px;--radius-lg:20px;
+}
 body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh}
-.screen{display:none;width:100%;max-width:100vw;min-height:100vh;padding:24px;box-sizing:border-box;flex-direction:column;align-items:center;justify-content:center;gap:24px;overflow-x:hidden}
+.screen{display:none;width:100%;max-width:100vw;min-height:100vh;padding:24px;box-sizing:border-box;flex-direction:column;align-items:center;justify-content:center;gap:20px;overflow-x:hidden}
 .screen.active{display:flex}
 .screen.scrollable{justify-content:flex-start;padding-top:24px;padding-bottom:40px;overflow-y:auto;overflow-x:hidden}
 .screen.game-screen{min-height:unset;height:100vh;max-height:100vh;padding:16px;justify-content:center;overflow:hidden}
-.logo{font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1}
-.logo span{color:var(--accent)}
-.tagline{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:100%;max-width:440px;box-sizing:border-box}
-.card h2{font-size:22px;font-weight:700;margin-bottom:20px}
-.btn{width:100%;padding:14px 20px;border-radius:var(--radius);border:none;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px}
+.logo{font-size:42px;font-weight:800;letter-spacing:-2px;line-height:0.9;display:flex;flex-direction:column;align-items:center;gap:0}
+.logo span{color:var(--accent);display:block}
+.tagline{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;width:100%;max-width:440px;box-sizing:border-box}
+.card h2{font-size:20px;font-weight:700;margin-bottom:16px}
+.btn{width:100%;padding:13px 20px;border-radius:var(--radius);border:none;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px}
 .btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important}
 .btn-primary{background:var(--accent);color:#0a0a0f}
 .btn-primary:not(:disabled):hover{background:#f0dd55;transform:translateY(-1px)}
@@ -64,110 +53,36 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
 .btn-secondary:hover{background:var(--surface2);border-color:var(--muted)}
 .btn-danger{background:var(--accent2);color:#fff}
 .btn-danger:hover{background:#f06050}
-.btn-chaos{background:var(--chaos);color:#fff;border:none;position:relative;overflow:hidden}
-.btn-chaos:not(:disabled):hover{background:#ff1a1a;transform:translateY(-1px)}
-.btn-chaos.active-chaos{background:var(--chaos);box-shadow:0 0 20px rgba(255,45,45,0.4);border:2px solid rgba(255,100,100,0.6)}
+.btn-ooo{background:var(--ooo);color:#fff}
+.btn-ooo:hover{background:#b99ffb;transform:translateY(-1px)}
 .btn-sm{padding:8px 16px;font-size:13px;width:auto}
 input,select{width:100%;max-width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:15px;outline:none;transition:border 0.15s;margin-bottom:12px;box-sizing:border-box}
 input:focus,select:focus{border-color:var(--accent)}
 input::placeholder{color:var(--muted)}
-label{font-size:13px;color:var(--muted);margin-bottom:6px;display:block;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
+label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
 select option{background:var(--surface2)}
-.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;margin:16px 0}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;margin:14px 0}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.code-display{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;letter-spacing:8px;color:var(--accent);text-align:center;padding:20px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;user-select:none}
+.code-display{font-family:'DM Mono',monospace;font-size:38px;font-weight:500;letter-spacing:8px;color:var(--accent);text-align:center;padding:16px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;user-select:none}
 .code-display:hover{border-color:var(--accent)}
 .code-hint{font-size:11px;color:var(--muted);text-align:center;font-family:'DM Mono',monospace;margin-top:6px}
-.player-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.player-list{display:flex;flex-direction:column;gap:8px;margin:8px 0}
 .player-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);font-size:14px;animation:fadeIn 0.25s ease}
 .player-dot{width:8px;height:8px;border-radius:50%;background:var(--safe);flex-shrink:0}
 .player-dot.host{background:var(--accent)}
+.player-dot.offline{background:var(--muted)}
 .player-name{flex:1}
 .player-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:3px 8px;background:var(--surface3);border-radius:6px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes chaos-pulse{0%,100%{box-shadow:0 0 10px rgba(255,45,45,0.3)}50%{box-shadow:0 0 25px rgba(255,45,45,0.7)}}
 .live-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--safe);display:flex;align-items:center;gap:4px}
 .live-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
-.chaos-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--chaos);display:flex;align-items:center;gap:4px;font-weight:700;letter-spacing:1px}
-.chaos-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--chaos);animation:pulse 1s infinite}
- 
-/* Chaos mode toggle in lobby */
-.chaos-toggle-wrap{margin:16px 0;padding:16px;background:rgba(255,45,45,0.05);border:1px solid rgba(255,45,45,0.2);border-radius:var(--radius);transition:all 0.2s}
-.chaos-toggle-wrap.chaos-on{background:rgba(255,45,45,0.1);border-color:rgba(255,45,45,0.5);animation:chaos-pulse 2s infinite}
-.chaos-toggle-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.chaos-title{font-size:16px;font-weight:800;color:var(--chaos);letter-spacing:1px;text-transform:uppercase}
-.chaos-desc{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6}
-.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
-.toggle-switch input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--surface3);border-radius:24px;transition:0.2s;border:1px solid var(--border)}
-.toggle-slider:before{position:absolute;content:'';height:16px;width:16px;left:3px;bottom:3px;background:var(--muted);border-radius:50%;transition:0.2s}
-.toggle-switch input:checked + .toggle-slider{background:var(--chaos);border-color:var(--chaos)}
-.toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px);background:#fff}
- 
-/* Spy count selector */
-.spy-count-wrap{margin:12px 0}
-.spy-count-row{display:flex;align-items:center;gap:8px;margin-top:6px}
-.spy-count-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.spy-count-btn:hover{border-color:var(--accent);color:var(--accent)}
-.spy-count-display{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--text);min-width:32px;text-align:center}
-.spy-count-label{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
- 
-/* Reveal screen */
-.reveal-outer{display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;gap:16px}
-.reveal-tap{text-align:center;padding:60px 40px;background:var(--surface);border:2px dashed var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all 0.2s;width:100%}
-.reveal-tap:hover{border-color:var(--accent);background:var(--surface2)}
-.reveal-tap.chaos-reveal-tap:hover{border-color:var(--chaos)}
-.reveal-tap .hint{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);margin-bottom:16px;text-transform:uppercase;letter-spacing:2px}
-.reveal-tap .eye-icon{font-size:48px;margin-bottom:12px}
-.reveal-tap .reveal-cta{font-size:18px;font-weight:700;color:var(--text)}
-.role-card{width:100%;border-radius:var(--radius-lg);padding:36px 28px;text-align:center;animation:flipIn 0.4s ease}
-.role-card.spy-card{background:linear-gradient(135deg,#2a1015,#1a0a0f);border:2px solid var(--spy)}
-.role-card.safe-card{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
-.role-card.chaos-spy-card{background:linear-gradient(135deg,#2a0808,#1a0404);border:2px solid var(--chaos);animation:chaos-pulse 2s infinite,flipIn 0.4s ease}
-.role-card.chaos-innocent-card{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
-.role-card .role-label{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
-.role-card.spy-card .role-label,.role-card.chaos-spy-card .role-label{color:var(--spy)}
-.role-card.safe-card .role-label,.role-card.chaos-innocent-card .role-label{color:var(--safe)}
-.role-card .role-name{font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
-.role-card.spy-card .role-name{color:var(--spy)}
-.role-card.chaos-spy-card .role-name{color:var(--chaos)}
-.role-card.safe-card .role-name,.role-card.chaos-innocent-card .role-name{color:var(--safe)}
-.role-card .location-line{font-size:14px;color:var(--muted);margin-bottom:4px;font-family:'DM Mono',monospace}
-.role-card .location-name{font-size:22px;font-weight:700;color:var(--text)}
-.spy-warning{background:rgba(232,93,77,0.1);border:1px solid rgba(232,93,77,0.3);border-radius:var(--radius);padding:14px;font-size:13px;color:var(--spy);text-align:center}
-.chaos-warning{background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.4);border-radius:var(--radius);padding:14px;font-size:13px;color:var(--chaos);text-align:center;line-height:1.6}
- 
-.location-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
-.location-chip{padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center;transition:all 0.15s}
-.location-chip.current{border-color:var(--accent);color:var(--accent);background:rgba(232,212,77,0.08)}
-.timer-area{text-align:center;padding:20px 0}
-.timer-display{font-family:'DM Mono',monospace;font-size:56px;font-weight:500;letter-spacing:4px;color:var(--text);transition:color 0.3s}
-.timer-display.warning{color:var(--accent)}
-.timer-display.danger{color:var(--spy);animation:timer-pulse 1s infinite}
-@keyframes timer-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-.timer-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
-.tab-bar{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:16px}
-.tab-btn{flex:1;padding:8px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
-.tab-btn.active{background:var(--surface3);color:var(--text)}
-.tab-content{display:none}
-.tab-content.active{display:block}
 .notice{padding:12px 16px;border-radius:var(--radius);font-size:13px;font-family:'DM Mono',monospace;margin-bottom:12px}
 .notice.info{background:rgba(232,212,77,0.08);border:1px solid rgba(232,212,77,0.2);color:var(--accent)}
 .notice.error{background:rgba(232,93,77,0.08);border:1px solid rgba(232,93,77,0.2);color:var(--spy)}
+.notice.success{background:rgba(77,232,160,0.08);border:1px solid rgba(77,232,160,0.2);color:var(--safe)}
 .notice.chaos{background:rgba(255,45,45,0.08);border:1px solid rgba(255,45,45,0.3);color:var(--chaos)}
-.vote-list{display:flex;flex-direction:column;gap:8px}
-.vote-item{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;transition:all 0.15s}
-.vote-item:hover{border-color:var(--spy);background:rgba(232,93,77,0.05)}
-.vote-item.voted{border-color:var(--spy);background:rgba(232,93,77,0.1)}
-.result-banner{text-align:center;padding:32px 20px;border-radius:var(--radius-lg)}
-.result-banner.spy-wins{background:linear-gradient(135deg,#2a1015,#1a0a0f);border:2px solid var(--spy)}
-.result-banner.crew-wins{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
-.result-banner.chaos-spies-win{background:linear-gradient(135deg,#2a0808,#1a0404);border:2px solid var(--chaos);animation:chaos-pulse 2s infinite}
-.result-banner .result-emoji{font-size:48px;margin-bottom:8px}
-.result-banner h2{font-size:28px;font-weight:800;margin-bottom:8px}
-.result-banner.spy-wins h2,.result-banner.chaos-spies-win h2{color:var(--spy)}
-.result-banner.crew-wins h2{color:var(--safe)}
-.result-banner p{font-size:14px;color:var(--muted);font-family:'DM Mono',monospace}
+.notice.ooo{background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);color:var(--ooo)}
 .flex-row{display:flex;gap:8px}
 .flex-row .btn{flex:1}
 .back-btn{background:transparent;border:none;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:6px}
@@ -177,71 +92,214 @@ select option{background:var(--surface2)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes flipIn{from{opacity:0;transform:rotateY(-90deg)}to{opacity:1;transform:rotateY(0)}}
 .fadeIn{animation:fadeIn 0.3s ease forwards}
-.role-summary-wrap{position:relative;margin-bottom:12px}
-.role-summary-content{padding:14px;background:var(--surface2);border-radius:var(--radius);font-size:14px;text-align:center;line-height:1.6}
-.role-summary-hidden{padding:14px;background:var(--surface2);border-radius:var(--radius);font-size:14px;text-align:center;cursor:pointer;border:1px dashed var(--border);transition:all 0.15s}
+
+/* Game tiles on home */
+.game-tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:440px}
+.game-tile{padding:18px 12px;border-radius:var(--radius-lg);text-align:center;background:var(--surface);border:1px solid var(--border)}
+.game-tile-spyfall{border-color:rgba(232,212,77,0.25);background:rgba(232,212,77,0.04)}
+.game-tile-ooo{border-color:rgba(167,139,250,0.25);background:rgba(167,139,250,0.04)}
+.game-tile-icon{font-size:26px;margin-bottom:6px}
+.game-tile-name{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.game-tile-spyfall .game-tile-name{color:var(--accent)}
+.game-tile-ooo .game-tile-name{color:var(--ooo)}
+.game-tile-desc{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3px}
+.game-tile{cursor:pointer;transition:all 0.15s}
+.game-tile:hover{transform:translateY(-2px)}
+.game-tile-spyfall.selected{border-color:var(--accent);background:rgba(232,212,77,0.1);box-shadow:0 0 0 1px var(--accent)}
+.game-tile-ooo.selected{border-color:var(--ooo);background:rgba(167,139,250,0.12);box-shadow:0 0 0 1px var(--ooo)}
+.game-tile-selected-badge{font-size:10px;font-family:'DM Mono',monospace;margin-top:5px;font-weight:700;display:none}
+.game-tile-spyfall.selected .game-tile-selected-badge{display:block;color:var(--accent)}
+.game-tile-ooo.selected .game-tile-selected-badge{display:block;color:var(--ooo)}
+
+/* Mode tabs in lobby */
+.mode-tabs{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin:6px 0 12px}
+.mode-tab{flex:1;padding:10px 6px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.15s}
+.mode-tab.active-spyfall{background:rgba(232,212,77,0.15);color:var(--accent)}
+.mode-tab.active-ooo{background:rgba(167,139,250,0.15);color:var(--ooo)}
+
+/* Spy/rounds count */
+.count-wrap{margin:10px 0}
+.count-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.count-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.count-btn:hover{border-color:var(--accent);color:var(--accent)}
+.count-display{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--text);min-width:32px;text-align:center}
+.count-label{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* Chaos toggle */
+.chaos-toggle-wrap{margin:12px 0;padding:14px;background:rgba(255,45,45,0.05);border:1px solid rgba(255,45,45,0.2);border-radius:var(--radius);transition:all 0.2s}
+.chaos-toggle-wrap.chaos-on{background:rgba(255,45,45,0.1);border-color:rgba(255,45,45,0.5);animation:chaos-pulse 2s infinite}
+.chaos-toggle-header{display:flex;align-items:center;justify-content:space-between}
+.chaos-title{font-size:14px;font-weight:800;color:var(--chaos);letter-spacing:1px;text-transform:uppercase}
+.chaos-desc{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6;margin-top:4px}
+.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--surface3);border-radius:24px;transition:0.2s;border:1px solid var(--border)}
+.toggle-slider:before{position:absolute;content:'';height:16px;width:16px;left:3px;bottom:3px;background:var(--muted);border-radius:50%;transition:0.2s}
+.toggle-switch input:checked + .toggle-slider{background:var(--chaos);border-color:var(--chaos)}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px);background:#fff}
+
+/* Reveal */
+.reveal-outer{display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;gap:14px}
+.reveal-tap{text-align:center;padding:48px 32px;background:var(--surface);border:2px dashed var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all 0.2s;width:100%}
+.reveal-tap:hover{border-color:var(--accent);background:var(--surface2)}
+.reveal-tap.ooo-tap:hover{border-color:var(--ooo)}
+.reveal-tap .hint{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:2px}
+.reveal-tap .eye-icon{font-size:44px;margin-bottom:10px}
+.reveal-tap .reveal-cta{font-size:17px;font-weight:700;color:var(--text)}
+.role-card{width:100%;border-radius:var(--radius-lg);padding:32px 24px;text-align:center;animation:flipIn 0.4s ease}
+.role-card.spy-card{background:linear-gradient(135deg,#2a1015,#1a0a0f);border:2px solid var(--spy)}
+.role-card.safe-card{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.role-card.chaos-spy-card{background:linear-gradient(135deg,#2a0808,#1a0404);border:2px solid var(--chaos);animation:chaos-pulse 2s infinite,flipIn 0.4s ease}
+.role-card.chaos-innocent-card{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.role-card .role-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.role-card.spy-card .role-label,.role-card.chaos-spy-card .role-label{color:var(--spy)}
+.role-card.safe-card .role-label,.role-card.chaos-innocent-card .role-label{color:var(--safe)}
+.role-card .role-name{font-size:34px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.role-card.spy-card .role-name{color:var(--spy)}
+.role-card.chaos-spy-card .role-name{color:var(--chaos)}
+.role-card.safe-card .role-name,.role-card.chaos-innocent-card .role-name{color:var(--safe)}
+.role-card .location-line{font-size:13px;color:var(--muted);margin-bottom:4px;font-family:'DM Mono',monospace}
+.role-card .location-name{font-size:21px;font-weight:700;color:var(--text)}
+.spy-warning{background:rgba(232,93,77,0.1);border:1px solid rgba(232,93,77,0.3);border-radius:var(--radius);padding:12px;font-size:13px;color:var(--spy);text-align:center}
+.chaos-warning{background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.4);border-radius:var(--radius);padding:12px;font-size:13px;color:var(--chaos);text-align:center;line-height:1.6}
+
+/* Timer */
+.timer-area{text-align:center;padding:16px 0}
+.timer-display{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;letter-spacing:4px;color:var(--text);transition:color 0.3s}
+.timer-display.warning{color:var(--accent)}
+.timer-display.danger{color:var(--spy);animation:timer-pulse 1s infinite}
+@keyframes timer-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.timer-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+
+/* Tabs */
+.tab-bar{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:14px}
+.tab-btn{flex:1;padding:8px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.tab-btn.active{background:var(--surface3);color:var(--text)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Locations */
+.location-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.location-chip{padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center}
+.location-chip.current{border-color:var(--accent);color:var(--accent);background:rgba(232,212,77,0.08)}
+
+/* Vote */
+.vote-list{display:flex;flex-direction:column;gap:8px}
+.vote-item{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;transition:all 0.15s}
+.vote-item:hover{border-color:var(--spy);background:rgba(232,93,77,0.05)}
+.vote-item.voted{border-color:var(--spy);background:rgba(232,93,77,0.1)}
+.vote-item.ooo-voted{border-color:var(--ooo);background:rgba(167,139,250,0.1)}
+.vote-item:hover.ooo-vote{border-color:var(--ooo);background:rgba(167,139,250,0.05)}
+
+/* Role summary */
+.role-summary-wrap{position:relative;margin-bottom:10px}
+.role-summary-content{padding:12px;background:var(--surface2);border-radius:var(--radius);font-size:14px;text-align:center;line-height:1.6}
+.role-summary-hidden{padding:12px;background:var(--surface2);border-radius:var(--radius);font-size:14px;text-align:center;cursor:pointer;border:1px dashed var(--border);transition:all 0.15s}
 .role-summary-hidden:hover{border-color:var(--muted)}
-.hide-toggle-btn{margin-top:8px;padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;cursor:pointer;width:100%;transition:all 0.15s}
+.hide-toggle-btn{margin-top:8px;padding:7px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;cursor:pointer;width:100%;transition:all 0.15s}
 .hide-toggle-btn:hover{background:var(--surface2);color:var(--text)}
- 
+
+/* Result banners */
+.result-banner{text-align:center;padding:28px 20px;border-radius:var(--radius-lg)}
+.result-banner.spy-wins{background:linear-gradient(135deg,#2a1015,#1a0a0f);border:2px solid var(--spy)}
+.result-banner.crew-wins{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.result-banner.chaos-spies-win{background:linear-gradient(135deg,#2a0808,#1a0404);border:2px solid var(--chaos);animation:chaos-pulse 2s infinite}
+.result-banner.ooo-caught{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.result-banner.ooo-escaped{background:linear-gradient(135deg,#1a0f2a,#100a1a);border:2px solid var(--ooo)}
+.result-banner .result-emoji{font-size:44px;margin-bottom:8px}
+.result-banner h2{font-size:26px;font-weight:800;margin-bottom:8px}
+.result-banner.spy-wins h2,.result-banner.chaos-spies-win h2{color:var(--spy)}
+.result-banner.crew-wins h2,.result-banner.ooo-caught h2{color:var(--safe)}
+.result-banner.ooo-escaped h2{color:var(--ooo)}
+.result-banner p{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* Chaos banner in game */
+.chaos-mode-banner{padding:7px 12px;background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.3);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--chaos);font-weight:700;letter-spacing:2px;margin-bottom:10px;animation:chaos-pulse 2s infinite}
+.ooo-mode-banner{padding:7px 12px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--ooo);font-weight:700;letter-spacing:2px;margin-bottom:10px}
+
+/* OOO specific */
+.ooo-question-box{padding:18px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:var(--radius);font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.5;text-align:center}
+.round-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.answer-item{padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;animation:fadeIn 0.25s ease}
+.answer-name{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.answer-text{font-size:15px;font-weight:600;color:var(--text)}
+.scoreboard-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px}
+.scoreboard-item.me{border-color:var(--accent)}
+.scoreboard-rank{font-size:18px;min-width:28px;text-align:center}
+.scoreboard-name{flex:1;font-size:14px;font-weight:600}
+.scoreboard-pts{font-family:'DM Mono',monospace;font-size:16px;color:var(--accent);font-weight:500}
+
+/* Chat */
+.chat-wrap{margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
+.chat-label{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.chat-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
+.chat-messages{height:130px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.chat-msg{font-size:13px;line-height:1.5;animation:fadeIn 0.2s ease}
+.chat-name{font-weight:700;font-family:'DM Mono',monospace;font-size:11px;margin-right:6px}
+.chat-name.you{color:var(--safe)}
+.chat-name.other{color:var(--accent)}
+.chat-time{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:6px}
+.chat-empty{text-align:center;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;padding:16px 0}
+.chat-input-row{display:flex;gap:8px}
+.chat-input{flex:1;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;outline:none;transition:border 0.15s;margin-bottom:0;box-sizing:border-box}
+.chat-input:focus{border-color:var(--accent)}
+.chat-input::placeholder{color:var(--muted)}
+.chat-send-btn{padding:9px 14px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0}
+.chat-send-btn:hover{background:#f0dd55}
+
 /* Dev panel */
-.dev-panel{background:var(--surface);border:1px solid #2a2a3a;border-radius:var(--radius-lg);padding:20px}
+.dev-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px}
 .dev-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
-.dev-desc{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:14px;line-height:1.6}
+.dev-desc{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;line-height:1.6}
 .dev-section-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
 .dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.dev-btn{padding:9px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:left}
+.dev-btn{padding:9px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:left}
 .dev-btn:hover{border-color:var(--accent);color:var(--accent)}
 .dev-btn-chaos{border-color:rgba(255,45,45,0.3);color:var(--chaos)}
 .dev-btn-chaos:hover{border-color:var(--chaos);background:rgba(255,45,45,0.08)}
+.dev-btn-ooo{border-color:rgba(167,139,250,0.3);color:var(--ooo)}
+.dev-btn-ooo:hover{border-color:var(--ooo);background:rgba(167,139,250,0.08)}
 .dev-btn-neutral{color:var(--muted)}
 .dev-btn-neutral:hover{color:var(--text);border-color:var(--muted)}
- 
-/* Chat */
-.chat-wrap{margin-top:16px;border-top:1px solid var(--border);padding-top:16px}
-.chat-label{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.chat-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
-.chat-messages{height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
-.chat-messages::-webkit-scrollbar{width:4px}
-.chat-messages::-webkit-scrollbar-track{background:transparent}
-.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.chat-msg{font-size:13px;line-height:1.5;animation:fadeIn 0.2s ease}
-.chat-msg .chat-name{font-weight:700;color:var(--accent);font-family:'DM Mono',monospace;font-size:12px;margin-right:6px}
-.chat-msg .chat-name.host-name{color:var(--accent)}
-.chat-msg .chat-name.you-name{color:var(--safe)}
-.chat-msg .chat-text{color:var(--text)}
-.chat-msg .chat-time{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:6px}
-.chat-empty{text-align:center;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;padding:20px 0}
-.chat-input-row{display:flex;gap:8px}
-.chat-input{flex:1;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;outline:none;transition:border 0.15s;margin-bottom:0}
-.chat-input:focus{border-color:var(--accent)}
-.chat-input::placeholder{color:var(--muted)}
-.chat-send-btn{padding:10px 16px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0}
-.chat-send-btn:hover{background:#f0dd55}
- 
-/* Chaos mode game banner */
-.chaos-mode-banner{padding:8px 14px;background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.3);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--chaos);font-weight:700;letter-spacing:2px;margin-bottom:12px;animation:chaos-pulse 2s infinite}
 </style>
 </head>
 <body>
- 
+
 <!-- PASSWORD -->
 <div class="screen active" id="screen-password">
-  <div class="logo">SPY<span>FALL</span></div>
-  <div class="tagline">Private game — enter password</div>
+  <div class="logo">CHRISPY<span>GAMES</span></div>
+  <div class="tagline">Private — enter password</div>
   <div class="card fadeIn">
     <h2>Welcome</h2>
     <label>Password</label>
     <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off"/>
-    <div id="passwordError" class="notice error" style="display:none">Incorrect password. Try again.</div>
+    <div id="passwordError" class="notice error" style="display:none">Incorrect password.</div>
     <button class="btn btn-primary" onclick="checkPassword()">Enter</button>
   </div>
 </div>
- 
+
 <!-- HOME -->
 <div class="screen" id="screen-home">
-  <div class="logo">SPY<span>FALL</span></div>
-  <div class="tagline">The social deduction game</div>
+  <div style="text-align:center">
+    <div class="logo">CHRISPY<span>GAMES</span></div>
+    <div class="tagline">Party games for your crew</div>
+  </div>
+  <div class="game-tiles">
+    <div class="game-tile game-tile-spyfall selected" id="homeTileSpyfall" onclick="selectHomeMode('spyfall')">
+      <div class="game-tile-icon">🕵️</div>
+      <div class="game-tile-name">Spyfall</div>
+      <div class="game-tile-desc">Find the spy</div>
+      <div class="game-tile-selected-badge">✓ selected</div>
+    </div>
+    <div class="game-tile game-tile-ooo" id="homeTileOoo" onclick="selectHomeMode('ooo')">
+      <div class="game-tile-icon">🎭</div>
+      <div class="game-tile-name">Odd One Out</div>
+      <div class="game-tile-desc">Spot the odd answer</div>
+      <div class="game-tile-selected-badge">✓ selected</div>
+    </div>
+  </div>
   <div class="card fadeIn">
     <h2>Play</h2>
     <label>Your name</label>
@@ -255,8 +313,7 @@ select option{background:var(--surface2)}
       <button class="btn btn-secondary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
     </div>
   </div>
- 
-  <!-- DEV TEST PANEL -->
+  <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
     <button onclick="toggleDevPanel()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;letter-spacing:1px;text-transform:uppercase">
       <span id="devArrow">▶</span> Dev Tools
@@ -264,97 +321,102 @@ select option{background:var(--surface2)}
     <div id="devPanel" style="display:none;margin-top:8px">
       <div class="dev-panel">
         <div class="dev-title">🛠 Developer Test Panel</div>
-        <div class="dev-desc">Instantly simulate game states without needing other players.</div>
- 
-        <div class="dev-section-label">Quick Start</div>
+        <div class="dev-desc">Simulate game states instantly.</div>
+        <div class="dev-section-label">Spyfall</div>
         <div class="dev-grid">
-          <button class="dev-btn" onclick="devStartAs('crew')">👤 Play as Crew</button>
-          <button class="dev-btn" onclick="devStartAs('spy')">🕵️ Play as Spy</button>
+          <button class="dev-btn" onclick="devStartAs('crew')">👤 Crew</button>
+          <button class="dev-btn" onclick="devStartAs('spy')">🕵️ Spy</button>
           <button class="dev-btn dev-btn-chaos" onclick="devStartAs('chaos-innocent')">😇 Chaos Innocent</button>
           <button class="dev-btn dev-btn-chaos" onclick="devStartAs('chaos-spy')">⚡ Chaos Spy</button>
         </div>
- 
-        <div class="dev-section-label" style="margin-top:12px">Jump to Screen</div>
+        <div class="dev-section-label" style="margin-top:10px">Odd One Out</div>
+        <div class="dev-grid">
+          <button class="dev-btn dev-btn-ooo" onclick="devOOO('normal')">🎭 Normal Q</button>
+          <button class="dev-btn dev-btn-ooo" onclick="devOOO('odd')">❓ Odd Q</button>
+          <button class="dev-btn dev-btn-ooo" onclick="devOOO('answers')">📋 Answers</button>
+          <button class="dev-btn dev-btn-ooo" onclick="devOOO('result')">🏆 Result</button>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
         <div class="dev-grid">
           <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('lobby')">Lobby</button>
           <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('waiting')">Waiting</button>
-          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('reveal')">Role Reveal</button>
-          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('game')">Game</button>
-          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('result-crew')">Result: Crew Win</button>
-          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('result-spy')">Result: Spy Win</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('game')">SF Game</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('result-crew')">SF Crew Win</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('result-spy')">SF Spy Win</button>
         </div>
- 
-        <div class="dev-section-label" style="margin-top:12px">Options</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
-          <label style="font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0;font-family:'DM Mono',monospace">Spy count:</label>
-          <select id="devSpyCount" style="width:auto;margin-bottom:0;padding:6px 10px;font-size:13px">
-            <option value="1">1 spy</option>
-            <option value="2">2 spies</option>
-            <option value="3">3 spies</option>
-          </select>
-          <label style="font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0;font-family:'DM Mono',monospace">Chaos:</label>
-          <input type="checkbox" id="devChaosMode" style="width:auto;margin-bottom:0;padding:0;width:16px;height:16px"/>
-        </div>
- 
         <div id="devStatus" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--safe);display:none"></div>
       </div>
     </div>
   </div>
 </div>
- 
+
 <!-- LOBBY -->
 <div class="screen scrollable" id="screen-lobby">
   <div style="width:100%;max-width:440px">
     <button class="back-btn" onclick="leaveGame()">← Leave game</button>
-    <div style="height:16px"></div>
+    <div style="height:14px"></div>
     <div class="card fadeIn">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-        <h2 style="flex:1;font-size:20px;font-weight:700">Game Lobby</h2>
-        <div class="live-badge" id="lobbyLiveBadge">LIVE</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <h2 style="flex:1;font-size:19px;font-weight:700">Game Lobby</h2>
+        <div class="live-badge">LIVE</div>
       </div>
-      <label>Share this code with friends</label>
+      <label>Share code</label>
       <div class="code-display" onclick="copyCode()" id="gameCodeDisplay">----</div>
-      <div class="code-hint">tap to copy · share with friends to join</div>
-      <div style="height:20px"></div>
+      <div class="code-hint">tap to copy · share with friends</div>
+      <div style="height:16px"></div>
       <label>Players (<span id="lobbyCount">1</span>)</label>
       <div class="player-list" id="playerList"></div>
       <div style="height:8px"></div>
- 
-      <!-- SPY COUNT -->
-      <div class="spy-count-wrap">
-        <label>Number of spies</label>
-        <div class="spy-count-row">
-          <button class="spy-count-btn" onclick="changeSpyCount(-1)">−</button>
-          <div class="spy-count-display" id="spyCountDisplay">1</div>
-          <button class="spy-count-btn" onclick="changeSpyCount(1)">+</button>
-          <div class="spy-count-label" id="spyCountLabel">max for your group size</div>
-        </div>
+      <!-- GAME MODE -->
+      <label>Game Mode</label>
+      <div class="mode-tabs">
+        <button class="mode-tab" id="modeTabSpyfall" onclick="setGameMode('spyfall')">🕵️ SPYFALL</button>
+        <button class="mode-tab" id="modeTabOoo" onclick="setGameMode('ooo')">🎭 ODD ONE OUT</button>
       </div>
- 
-      <!-- CHAOS MODE TOGGLE -->
-      <div class="chaos-toggle-wrap" id="chaosModeWrap">
-        <div class="chaos-toggle-header">
-          <div>
-            <div class="chaos-title">⚡ CHAOS MODE</div>
-            <div class="chaos-desc" style="margin-top:4px">Everyone is a SPY lying about the location.<br>One INNOCENT must catch them all.</div>
+      <!-- SPYFALL SETTINGS -->
+      <div id="spyfallSettings">
+        <div class="count-wrap">
+          <label>Number of spies</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeSpyCount(-1)">−</button>
+            <div class="count-display" id="spyCountDisplay">1</div>
+            <button class="count-btn" onclick="changeSpyCount(1)">+</button>
+            <div class="count-label" id="spyCountLabel">max for group size</div>
           </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="chaosModeToggle" onchange="toggleChaosMode()"/>
-            <span class="toggle-slider"></span>
-          </label>
+        </div>
+        <div class="chaos-toggle-wrap" id="chaosModeWrap">
+          <div class="chaos-toggle-header">
+            <div>
+              <div class="chaos-title">⚡ CHAOS MODE</div>
+              <div class="chaos-desc">Everyone is a SPY lying about location.<br>One INNOCENT must catch them all.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="chaosModeToggle" onchange="toggleChaosMode()"/>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
       </div>
- 
+      <!-- OOO SETTINGS -->
+      <div id="oooSettings" style="display:none">
+        <div class="count-wrap">
+          <label>Number of rounds</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeOOORounds(-1)">−</button>
+            <div class="count-display" id="oooRoundsDisplay">3</div>
+            <button class="count-btn" onclick="changeOOORounds(1)">+</button>
+            <div class="count-label" id="oooRoundsLabel">rounds</div>
+          </div>
+        </div>
+        <div class="notice ooo" style="margin-top:4px">Everyone gets a question and types their answer. One person secretly gets a different question. Find the odd one out!</div>
+      </div>
       <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 3 players to start</div>
       <div style="height:8px"></div>
       <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>Start Game</button>
- 
-      <!-- LOBBY CHAT -->
+      <!-- CHAT -->
       <div class="chat-wrap">
         <div class="chat-label">Lobby Chat</div>
-        <div class="chat-messages" id="lobbyChatMessages">
-          <div class="chat-empty">No messages yet. Say something!</div>
-        </div>
+        <div class="chat-messages" id="lobbyChatMessages"><div class="chat-empty">No messages yet...</div></div>
         <div class="chat-input-row">
           <input class="chat-input" id="lobbyChatInput" type="text" placeholder="Type a message..." maxlength="120" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
           <button class="chat-send-btn" onclick="sendChat()">Send</button>
@@ -363,32 +425,29 @@ select option{background:var(--surface2)}
     </div>
   </div>
 </div>
- 
+
 <!-- WAITING -->
 <div class="screen scrollable" id="screen-waiting">
   <div style="width:100%;max-width:440px">
     <button class="back-btn" onclick="leaveGame()">← Leave game</button>
-    <div style="height:16px"></div>
+    <div style="height:14px"></div>
     <div class="card fadeIn">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-        <h2 style="flex:1;font-size:20px;font-weight:700">Waiting for host</h2>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <h2 style="flex:1;font-size:19px;font-weight:700">Waiting for host</h2>
         <div class="live-badge">LIVE</div>
       </div>
       <label>Game code</label>
       <div class="code-display" id="waitingCodeDisplay" onclick="copyCode()">----</div>
       <div class="code-hint">tap to copy</div>
-      <div style="height:20px"></div>
+      <div style="height:16px"></div>
       <label>Players (<span id="waitingCount">...</span>)</label>
       <div class="player-list" id="waitingPlayerList"></div>
-      <div style="height:12px"></div>
-      <div class="notice info" style="margin-bottom:0" id="waitingNotice">Waiting for the host to start the game...</div>
- 
-      <!-- WAITING CHAT -->
+      <div style="height:10px"></div>
+      <div class="notice info" style="margin-bottom:0" id="waitingNotice">Waiting for the host to start...</div>
+      <!-- CHAT -->
       <div class="chat-wrap">
         <div class="chat-label">Lobby Chat</div>
-        <div class="chat-messages" id="waitingChatMessages">
-          <div class="chat-empty">No messages yet. Say something!</div>
-        </div>
+        <div class="chat-messages" id="waitingChatMessages"><div class="chat-empty">No messages yet...</div></div>
         <div class="chat-input-row">
           <input class="chat-input" id="waitingChatInput" type="text" placeholder="Type a message..." maxlength="120" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
           <button class="chat-send-btn" onclick="sendChat()">Send</button>
@@ -397,13 +456,13 @@ select option{background:var(--surface2)}
     </div>
   </div>
 </div>
- 
-<!-- ROLE REVEAL -->
+
+<!-- SPYFALL: REVEAL -->
 <div class="screen scrollable" id="screen-reveal">
   <div class="reveal-outer">
     <div style="text-align:center;width:100%">
       <button class="back-btn" onclick="devBackHome()" style="margin-bottom:8px">← Back to home</button>
-      <div class="logo" style="font-size:28px;margin-bottom:4px">SPY<span style="color:var(--accent)">FALL</span></div>
+      <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
       <div class="tagline" id="revealTagline">Game has started</div>
     </div>
     <div id="revealTap" class="reveal-tap">
@@ -419,11 +478,11 @@ select option{background:var(--surface2)}
     </div>
   </div>
 </div>
- 
-<!-- GAME -->
+
+<!-- SPYFALL: GAME -->
 <div class="screen game-screen" id="screen-game">
   <div style="width:100%;max-width:440px;box-sizing:border-box">
-    <button class="back-btn" onclick="leaveGame()" style="margin-bottom:12px">← Leave game</button>
+    <button class="back-btn" onclick="leaveGame()" style="margin-bottom:10px">← Leave game</button>
     <div class="card fadeIn">
       <div id="chaosModeGameBanner" class="chaos-mode-banner" style="display:none">⚡ CHAOS MODE ACTIVE ⚡</div>
       <div class="tab-bar">
@@ -448,76 +507,156 @@ select option{background:var(--surface2)}
           <button class="btn btn-secondary" id="timerToggleBtn" onclick="toggleTimer()">Pause</button>
           <button class="btn btn-danger" style="flex:0.7" onclick="endGameEarly()">End Round</button>
         </div>
-        <div id="spyGuessSection" style="display:none;margin-top:20px">
-          <div class="notice info" style="margin-bottom:12px">You don't know the location — guess it now to win if you figure it out!</div>
-          <label>Guess the location</label>
+        <div id="spyGuessSection" style="display:none;margin-top:16px">
+          <div class="notice info" style="margin-bottom:10px">You're the spy — guess the location to win!</div>
           <select id="spyGuessSelect"><option value="">-- Select a location --</option></select>
           <button class="btn btn-primary" onclick="spyGuessLocation()">Submit Guess</button>
         </div>
       </div>
       <div class="tab-content" id="tab-locations">
-        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;font-family:'DM Mono',monospace;line-height:1.6" id="locationsTabDesc">
-          All possible locations this round. The highlighted one is the real location (hidden from the spy).
-        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-family:'DM Mono',monospace;line-height:1.6" id="locationsTabDesc">All possible locations. Highlighted = real location.</div>
         <div class="location-grid" id="locationGrid"></div>
       </div>
       <div class="tab-content" id="tab-vote">
-        <div class="notice info" id="voteNotice">Suspect someone? Tap their name to accuse them. A majority vote reveals the result.</div>
-        <div style="height:12px"></div>
+        <div class="notice info" id="voteNotice">Suspect someone? Tap to accuse. Majority vote reveals result.</div>
+        <div style="height:10px"></div>
         <div class="vote-list" id="voteList"></div>
-        <div id="voteStatus" style="margin-top:12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+        <div id="voteStatus" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
       </div>
     </div>
   </div>
 </div>
- 
-<!-- RESULT -->
+
+<!-- SPYFALL: RESULT -->
 <div class="screen scrollable" id="screen-result">
-  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:16px">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
     <button class="back-btn" onclick="devBackHome()">← Back to home</button>
     <div id="resultBanner" class="fadeIn"></div>
     <div class="card fadeIn">
-      <h2 style="margin-bottom:16px" id="resultTitle">The spy was...</h2>
-      <div id="resultRevealBox" style="padding:20px;background:var(--surface2);border-radius:var(--radius);text-align:center">
-        <div style="font-size:36px;margin-bottom:8px">🕵️</div>
-        <div style="font-size:24px;font-weight:800;color:var(--spy)" id="spyNameResult">---</div>
-        <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px" id="locationResult">---</div>
-      </div>
+      <h2 style="margin-bottom:14px" id="resultTitle">The spy was...</h2>
+      <div id="resultRevealBox" style="padding:18px;background:var(--surface2);border-radius:var(--radius);text-align:center"></div>
     </div>
     <button class="btn btn-primary" onclick="playAgain()">Play Again</button>
     <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
   </div>
 </div>
- 
+
+<!-- OOO: QUESTION -->
+<div class="screen scrollable" id="screen-ooo-question">
+  <div style="width:100%;max-width:440px">
+    <div style="text-align:center;margin-bottom:14px">
+      <button class="back-btn" onclick="devBackHome()" style="margin-bottom:8px">← Back to home</button>
+      <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
+      <div style="font-size:11px;color:var(--ooo);font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-top:4px">ODD ONE OUT</div>
+      <div class="round-badge" id="oooRoundBadge">Round 1 of 3</div>
+    </div>
+    <!-- Before submit -->
+    <div id="oooPreSubmit">
+      <div id="oooQuestionTap" class="reveal-tap ooo-tap" onclick="revealOOOQuestion()">
+        <div class="hint">Your question</div>
+        <div class="eye-icon">🎭</div>
+        <div class="reveal-cta">Tap to see your question</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:8px">Make sure nobody else is watching</div>
+      </div>
+      <div id="oooQuestionContent" style="display:none">
+        <div class="card fadeIn">
+          <div class="ooo-question-box" id="oooQuestionText"></div>
+          <label>Your answer</label>
+          <input id="oooAnswerInput" type="text" placeholder="Type your answer..." maxlength="80" autocomplete="off" onkeydown="if(event.key==='Enter')submitOOOAnswer()"/>
+          <button class="btn btn-ooo" id="oooSubmitBtn" onclick="submitOOOAnswer()">Submit Answer</button>
+        </div>
+      </div>
+    </div>
+    <!-- After submit -->
+    <div id="oooPostSubmit" style="display:none">
+      <div class="card fadeIn">
+        <div class="notice success" style="margin-bottom:14px">✓ Answer submitted!</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;font-family:'DM Mono',monospace">Waiting for everyone else...</div>
+        <div id="oooSubmittedList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OOO: ANSWERS + VOTE -->
+<div class="screen scrollable" id="screen-ooo-answers">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div style="text-align:center">
+      <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
+      <div style="font-size:11px;color:var(--ooo);font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-top:4px">ALL ANSWERS IN</div>
+      <div class="round-badge" id="oooAnswersRoundBadge">Round 1 of 3</div>
+    </div>
+    <div class="card fadeIn">
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">The question was</div>
+      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.4" id="oooRevealQuestion">---</div>
+      <div id="oooAnswersList"></div>
+    </div>
+    <div class="card fadeIn">
+      <div class="timer-area" style="padding:10px 0">
+        <div class="timer-display" id="oooVoteTimerDisplay">01:00</div>
+        <div class="timer-label">to vote</div>
+      </div>
+      <div class="notice ooo" id="oooVoteNotice" style="margin-bottom:10px">Who gave the odd answer? Tap to vote.</div>
+      <div class="vote-list" id="oooVoteList"></div>
+      <div id="oooVoteStatus" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+    </div>
+  </div>
+</div>
+
+<!-- OOO: RESULT -->
+<div class="screen scrollable" id="screen-ooo-result">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <button class="back-btn" onclick="devBackHome()">← Back to home</button>
+    <div id="oooResultBanner" class="fadeIn"></div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">The odd one out was...</h2>
+      <div id="oooImpostorReveal" style="padding:18px;background:var(--surface2);border-radius:var(--radius);text-align:center;margin-bottom:14px"></div>
+      <div style="padding:12px;background:var(--surface2);border-radius:var(--radius);margin-bottom:8px">
+        <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Everyone's question</div>
+        <div style="font-size:14px;color:var(--text)" id="oooNormalQReveal"></div>
+      </div>
+      <div style="padding:12px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:var(--radius)">
+        <div style="font-size:11px;color:var(--ooo);font-family:'DM Mono',monospace;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Their question</div>
+        <div style="font-size:14px;color:var(--text)" id="oooOddQReveal"></div>
+      </div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Scoreboard</h2>
+      <div id="oooScoreboardList"></div>
+      <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:10px">Crew: +2pts for catch · Odd one out: +3pts for escaping</div>
+    </div>
+    <div id="oooNextRoundBtn" style="display:none"><button class="btn btn-ooo" onclick="oooNextRound()">Next Round →</button></div>
+    <div id="oooEndGameBtn" style="display:none"><button class="btn btn-primary" onclick="oooEndGame()">🎉 End Game</button></div>
+    <div id="oooWaitingForHost" style="display:none"><div class="notice ooo">Waiting for host to continue...</div></div>
+    <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+  </div>
+</div>
+
 <script>
 // =====================================================
-// PASSWORD GATE
+// PASSWORD
 // =====================================================
 const SITE_PASSWORD = 'boyznight@111';
-(function() {
-  if (sessionStorage.getItem('sf_unlocked') === '1') {
+(function(){
+  if(sessionStorage.getItem('sf_unlocked')==='1'){
     document.getElementById('screen-password').classList.remove('active');
     document.getElementById('screen-home').classList.add('active');
   }
 })();
-function checkPassword() {
-  const val = document.getElementById('passwordInput').value;
-  if (val === SITE_PASSWORD) {
-    sessionStorage.setItem('sf_unlocked', '1');
+function checkPassword(){
+  const v=document.getElementById('passwordInput').value;
+  if(v===SITE_PASSWORD){
+    sessionStorage.setItem('sf_unlocked','1');
     document.getElementById('screen-password').classList.remove('active');
     document.getElementById('screen-home').classList.add('active');
   } else {
-    const err = document.getElementById('passwordError');
-    err.style.display = 'block';
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('passwordInput').focus();
-    setTimeout(() => err.style.display = 'none', 3000);
+    const e=document.getElementById('passwordError');e.style.display='block';
+    document.getElementById('passwordInput').value='';
+    setTimeout(()=>e.style.display='none',3000);
   }
 }
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.querySelector('.screen.active')?.id === 'screen-password') checkPassword();
-});
- 
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.querySelector('.screen.active')?.id==='screen-password')checkPassword();});
+
 // =====================================================
 // GAME DATA
 // =====================================================
@@ -546,66 +685,103 @@ const ALL_LOCATIONS = [
   {name:'Macarthur Square',    roles:['Eshay','Retail Worker','Police Officer','Bowling Expert','Event Cinemas Janitor','Nandos Chef']},
   {name:'World Gym',           roles:['Roid Head','Cleaner','BBL Baddie','Personal Trainer','Receptionist','Eshay']},
 ];
+
+const OOO_QUESTIONS = [
+  {normal:"Name something you'd find at a beach",odd:"Name something that would ruin a beach day"},
+  {normal:"Name something people do at a birthday party",odd:"Name something that would ruin a birthday party"},
+  {normal:"Name a popular pizza topping",odd:"Name something you'd never put on a pizza"},
+  {normal:"Name something you'd take on a camping trip",odd:"Name something useless on a camping trip"},
+  {normal:"Name something you'd find in a kitchen",odd:"Name something that doesn't belong in a kitchen"},
+  {normal:"Name something people do on a first date",odd:"Name something that would immediately end a first date"},
+  {normal:"Name something associated with summer",odd:"Name something associated with winter"},
+  {normal:"Name a reason to call in sick to work",odd:"Name a reason to go to work even when sick"},
+  {normal:"Name something you'd find at a gym",odd:"Name something you'd never expect to find at a gym"},
+  {normal:"Name something you do before going to bed",odd:"Name something you do right after waking up"},
+  {normal:"Name something people put in their coffee",odd:"Name something you'd never put in coffee"},
+  {normal:"Name something you'd see at a wedding",odd:"Name something that would ruin a wedding"},
+  {normal:"Name something kids love",odd:"Name something kids hate"},
+  {normal:"Name something a chef uses in the kitchen",odd:"Name something a chef would never use in the kitchen"},
+  {normal:"Name something that makes you happy",odd:"Name something that immediately ruins your mood"},
+  {normal:"Name something you'd find at a supermarket",odd:"Name something you'd never find at a supermarket"},
+  {normal:"Name something you do on a lazy Sunday",odd:"Name something you'd do on a stressful Monday morning"},
+  {normal:"Name a popular tourist attraction",odd:"Name somewhere tourists would avoid"},
+  {normal:"Name something you'd take on a long flight",odd:"Name something that would make a long flight worse"},
+  {normal:"Name something you'd find at a house party",odd:"Name something that would kill the vibe at a party"},
+];
+
 const LOCATIONS_PER_GAME = 12;
-const TIMER_DURATION = 8 * 60;
-const CHAOS_TIMER_DURATION = 6 * 60;
- 
+const TIMER_DURATION = 8*60;
+const CHAOS_TIMER_DURATION = 6*60;
+const OOO_VOTE_DURATION = 60;
+
 // =====================================================
 // STATE
 // =====================================================
 let myId = localStorage.getItem('sf_myId');
-if (!myId) { myId = Math.random().toString(36).slice(2,12); localStorage.setItem('sf_myId', myId); }
-let gameCode=null, amHost=false, gameRef=null, gameListener=null, localGame=null, timerInterval=null;
-let roleVisible=true, revealVisible=true;
-let localSpyCount=1, localChaosMode=false;
- 
+if(!myId){myId=Math.random().toString(36).slice(2,12);localStorage.setItem('sf_myId',myId);}
+let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
+let timerInterval=null,oooVoteTimerInterval=null;
+let roleVisible=true,revealVisible=true;
+let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3;
+let chatListener=null;
+
 // =====================================================
 // UTILS
 // =====================================================
-const randInt = n => Math.floor(Math.random()*n);
-const pick    = arr => arr[randInt(arr.length)];
-const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=randInt(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
-const genCode = () => { const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; return Array.from({length:4},()=>c[randInt(c.length)]).join(''); };
+const randInt=n=>Math.floor(Math.random()*n);
+const pick=arr=>arr[randInt(arr.length)];
+const shuffle=arr=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=randInt(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const genCode=()=>{const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:4},()=>c[randInt(c.length)]).join('');};
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');}
 function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
 function setLoading(btnId,loading,text){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${text}`:text;}
 function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
- 
+
 // =====================================================
-// SPY COUNT CONTROLS (host only)
+// GAME MODE (lobby, host)
 // =====================================================
-function maxSpies(n) {
-  if (n <= 4) return 1;
-  if (n <= 7) return 2;
-  return 3;
+function setGameMode(mode){
+  localGameMode=mode;
+  updateModeUI(mode);
+  if(gameCode)updateGame(gameCode,{mode});
 }
-function changeSpyCount(delta) {
-  const game = localGame;
-  const n = game ? Object.keys(game.players||{}).length : 3;
-  const max = maxSpies(n);
-  localSpyCount = Math.min(max, Math.max(1, localSpyCount + delta));
+function updateModeUI(mode){
+  document.getElementById('modeTabSpyfall').className='mode-tab'+(mode==='spyfall'?' active-spyfall':'');
+  document.getElementById('modeTabOoo').className='mode-tab'+(mode==='ooo'?' active-ooo':'');
+  document.getElementById('spyfallSettings').style.display=mode==='spyfall'?'block':'none';
+  document.getElementById('oooSettings').style.display=mode==='ooo'?'block':'none';
+  document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':'Start Game';
+}
+function changeOOORounds(delta){
+  localOOORounds=Math.min(10,Math.max(1,localOOORounds+delta));
+  document.getElementById('oooRoundsDisplay').textContent=localOOORounds;
+  document.getElementById('oooRoundsLabel').textContent=`round${localOOORounds!==1?'s':''}`;
+  if(gameCode)updateGame(gameCode,{oooTotalRounds:localOOORounds});
+}
+
+// =====================================================
+// SPY COUNT / CHAOS
+// =====================================================
+function maxSpies(n){if(n<=4)return 1;if(n<=7)return 2;return 3;}
+function changeSpyCount(delta){
+  const n=localGame?Object.keys(localGame.players||{}).length:3;
+  localSpyCount=Math.min(maxSpies(n),Math.max(1,localSpyCount+delta));
   updateSpyCountUI(n);
-  if (gameCode) updateGame(gameCode, { spyCount: localSpyCount });
+  if(gameCode)updateGame(gameCode,{spyCount:localSpyCount});
 }
-function updateSpyCountUI(n) {
-  const max = maxSpies(n);
-  localSpyCount = Math.min(localSpyCount, max);
-  document.getElementById('spyCountDisplay').textContent = localSpyCount;
-  document.getElementById('spyCountLabel').textContent = `of ${max} max for ${n} players`;
+function updateSpyCountUI(n){
+  const max=maxSpies(n);localSpyCount=Math.min(localSpyCount,max);
+  document.getElementById('spyCountDisplay').textContent=localSpyCount;
+  document.getElementById('spyCountLabel').textContent=`of ${max} max for ${n} players`;
 }
- 
-// =====================================================
-// CHAOS MODE TOGGLE (host only)
-// =====================================================
-function toggleChaosMode() {
-  localChaosMode = document.getElementById('chaosModeToggle').checked;
-  const wrap = document.getElementById('chaosModeWrap');
-  wrap.classList.toggle('chaos-on', localChaosMode);
-  if (gameCode) updateGame(gameCode, { chaosMode: localChaosMode });
+function toggleChaosMode(){
+  localChaosMode=document.getElementById('chaosModeToggle').checked;
+  document.getElementById('chaosModeWrap').classList.toggle('chaos-on',localChaosMode);
+  if(gameCode)updateGame(gameCode,{chaosMode:localChaosMode});
 }
- 
+
 // =====================================================
-// FIREBASE HELPERS
+// FIREBASE
 // =====================================================
 function gameRefFor(code){return db.ref('games/'+code);}
 function listenToGame(code,callback){
@@ -615,14 +791,14 @@ function listenToGame(code,callback){
 }
 function stopListening(){if(gameListener&&gameRef){gameRef.off('value',gameListener);gameListener=null;}}
 function updateGame(code,updates){return gameRefFor(code).update(updates);}
- 
+
 // =====================================================
 // PRESENCE
 // =====================================================
 function setupPresence(){
   if(!gameCode)return;
   const ref=gameRefFor(gameCode).child('players/'+myId+'/online');
-  ref.set(true); ref.onDisconnect().set(false);
+  ref.set(true);ref.onDisconnect().set(false);
   gameRefFor(gameCode).child('players/'+myId).onDisconnect().update({online:false});
 }
 function watchPresence(game){
@@ -643,9 +819,9 @@ async function handlePlayerLeft(leftId,game){
     }
   }
 }
- 
+
 // =====================================================
-// CREATE GAME
+// CREATE / JOIN
 // =====================================================
 async function createGame(){
   const name=document.getElementById('playerName').value.trim();
@@ -653,18 +829,16 @@ async function createGame(){
   setLoading('createBtn',true,'Creating...');
   const code=genCode();gameCode=code;amHost=true;
   const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  const game={code,status:'lobby',hostId:myId,locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
+  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
     setupPresence();showScreen('lobby');listenToGame(code,onGameUpdate);setupChat(code);
+    updateModeUI(localGameMode);
+    if(localGameMode!=='spyfall')updateGame(code,{mode:localGameMode});
   }catch(e){showError('homeError','Could not connect to Firebase. Check your config.');console.error(e);}
   setLoading('createBtn',false,'Create New Game');
 }
- 
-// =====================================================
-// JOIN GAME
-// =====================================================
 async function joinGame(){
   const name=document.getElementById('playerName').value.trim();
   if(!name)return showError('homeError','Please enter your name');
@@ -673,8 +847,8 @@ async function joinGame(){
   setLoading('joinBtn',true,'...');
   try{
     const snap=await gameRefFor(code).once('value');const game=snap.val();
-    if(!game){setLoading('joinBtn',false,'Join');return showError('homeError','Game not found — check the code');}
-    if(game.status!=='lobby'){setLoading('joinBtn',false,'Join');return showError('homeError','That game has already started');}
+    if(!game){setLoading('joinBtn',false,'Join');return showError('homeError','Game not found');}
+    if(game.status!=='lobby'){setLoading('joinBtn',false,'Join');return showError('homeError','Game already started');}
     gameCode=code;amHost=false;
     const existing=game.players&&game.players[myId];
     if(!existing)await gameRefFor(code).child('players/'+myId).set({id:myId,name,isHost:false,joinedAt:Date.now(),online:true});
@@ -684,7 +858,7 @@ async function joinGame(){
   }catch(e){showError('homeError','Connection error — check your Firebase config');console.error(e);}
   setLoading('joinBtn',false,'Join');
 }
- 
+
 // =====================================================
 // GAME UPDATE LISTENER
 // =====================================================
@@ -692,31 +866,60 @@ function onGameUpdate(game){
   const cur=document.querySelector('.screen.active')?.id;
   if(game.hostId===myId&&!amHost)amHost=true;
   if(amHost)watchPresence(game);
- 
+
+  const oooScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result'];
+  const sfScreens=['screen-game','screen-result'];
+  const allGameScreens=[...oooScreens,...sfScreens];
+
+  // LOBBY
   if(game.status==='lobby'){
-    if(cur==='screen-lobby'){renderLobby(game);}
+    if(cur==='screen-lobby')renderLobby(game);
     if(cur==='screen-waiting'){
       renderWaiting(game);
       if(game.hostId===myId){renderLobby(game);showScreen('lobby');}
-      // Show chaos mode notice in waiting room
       const notice=document.getElementById('waitingNotice');
-      if(game.chaosMode){notice.className='notice chaos';notice.textContent='⚡ Host has enabled CHAOS MODE!';}
-      else{notice.className='notice info';notice.textContent='Waiting for the host to start the game...';}
+      if(game.mode==='ooo'){notice.className='notice ooo';notice.textContent=`🎭 Mode: Odd One Out — ${game.oooTotalRounds||3} rounds`;}
+      else if(game.chaosMode){notice.className='notice chaos';notice.textContent='⚡ Host enabled CHAOS MODE!';}
+      else{notice.className='notice info';notice.textContent='Waiting for the host to start...';}
     }
+    if(allGameScreens.includes(cur)){
+      clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);
+      if(amHost||game.hostId===myId){renderLobby(game);showScreen('lobby');}
+      else{renderWaiting(game);showScreen('waiting');}
+    }
+    return;
   }
+
+  // OOO
+  if(game.mode==='ooo'&&game.status==='playing'){
+    if(game.oooPhase==='question'){
+      if(cur!=='screen-ooo-question')enterOOOQuestionScreen(game);
+      else updateOOOWaitingState(game);
+    } else if(game.oooPhase==='answers'){
+      if(cur!=='screen-ooo-answers')showOOOAnswers(game);
+      else{updateOOOAnswers(game);if(amHost)checkAllVoted(game);}
+    } else if(game.oooPhase==='result'){
+      if(cur!=='screen-ooo-result')showOOOResult(game);
+    }
+    return;
+  }
+  if(game.mode==='ooo'&&game.status==='result'){
+    if(cur!=='screen-ooo-result')showOOOResult(game);
+    return;
+  }
+
+  // SPYFALL
   if(game.status==='playing'){
-    if(cur==='screen-lobby'||cur==='screen-waiting'||cur==='screen-home')enterRevealScreen(game);
+    if(['screen-lobby','screen-waiting','screen-home'].includes(cur))enterRevealScreen(game);
     else if(cur==='screen-game')renderGame(game);
   }
-  if(game.status==='result'){if(cur!=='screen-result')showResultScreen(game);}
-  if(game.status==='lobby'&&(cur==='screen-result'||cur==='screen-game')){
-    if(amHost||game.hostId===myId){renderLobby(game);showScreen('lobby');}
-    else{renderWaiting(game);showScreen('waiting');}
+  if(game.status==='result'&&game.mode!=='ooo'){
+    if(cur!=='screen-result')showResultScreen(game);
   }
 }
- 
+
 // =====================================================
-// LOBBY
+// LOBBY / WAITING RENDER
 // =====================================================
 function renderLobby(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
@@ -726,72 +929,50 @@ function renderLobby(game){
   const ok=n>=3;
   document.getElementById('startBtn').disabled=!ok;
   document.getElementById('minPlayersNotice').style.display=ok?'none':'block';
-  // Sync spy count from Firebase if changed by another host action
-  if(game.spyCount&&game.spyCount!==localSpyCount){localSpyCount=game.spyCount;}
+  if(game.spyCount&&game.spyCount!==localSpyCount)localSpyCount=game.spyCount;
   updateSpyCountUI(n);
-  // Sync chaos toggle
-  if(game.chaosMode!==undefined){
-    localChaosMode=game.chaosMode;
-    document.getElementById('chaosModeToggle').checked=localChaosMode;
-    document.getElementById('chaosModeWrap').classList.toggle('chaos-on',localChaosMode);
-  }
-  // In chaos mode, force spy count to 1 (one innocent only makes sense)
-  const spyCountWrap=document.querySelector('.spy-count-wrap');
-  if(localChaosMode){spyCountWrap.style.opacity='0.4';spyCountWrap.style.pointerEvents='none';}
-  else{spyCountWrap.style.opacity='1';spyCountWrap.style.pointerEvents='auto';}
+  if(game.chaosMode!==undefined){localChaosMode=game.chaosMode;document.getElementById('chaosModeToggle').checked=localChaosMode;document.getElementById('chaosModeWrap').classList.toggle('chaos-on',localChaosMode);}
+  if(game.mode&&game.mode!==localGameMode){localGameMode=game.mode;updateModeUI(game.mode);}
+  if(game.oooTotalRounds&&game.oooTotalRounds!==localOOORounds){localOOORounds=game.oooTotalRounds;document.getElementById('oooRoundsDisplay').textContent=localOOORounds;document.getElementById('oooRoundsLabel').textContent=`round${localOOORounds!==1?'s':''}`;}
+  const spyCountWrap=document.querySelector('.count-wrap');
+  if(localChaosMode&&spyCountWrap){spyCountWrap.style.opacity='0.4';spyCountWrap.style.pointerEvents='none';}
+  else if(spyCountWrap){spyCountWrap.style.opacity='1';spyCountWrap.style.pointerEvents='auto';}
+  document.getElementById('startBtn').textContent=localGameMode==='ooo'?'Start Odd One Out':'Start Game';
 }
- 
 function renderWaiting(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   document.getElementById('waitingCount').textContent=players.length;
   document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item"><div class="player-dot ${p.isHost?'host':''}"></div><div class="player-name">${esc(p.name)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
 }
- 
+
 // =====================================================
-// START GAME
+// START GAME (dispatcher)
 // =====================================================
 async function startGame(){
   const game=localGame;if(!game)return;
-  const players=Object.values(game.players||{});
-  if(players.length<3)return;
+  if(localGameMode==='ooo'||game.mode==='ooo'){await startOOOGame();return;}
+  // Spyfall
+  const players=Object.values(game.players||{});if(players.length<3)return;
   const isChaos=localChaosMode;
   const locName=pick(game.locations);
   const locObj=ALL_LOCATIONS.find(l=>l.name===locName)||ALL_LOCATIONS[0];
   const shuffledRoles=shuffle(locObj.roles);
-  const roles={};
-  let spyIds=[];
-  let innocentId=null;
- 
+  const roles={};let spyIds=[],innocentId=null;
   if(isChaos){
-    // One random INNOCENT who knows the location. Everyone else is a SPY who doesn't.
-    const innocentIdx=randInt(players.length);
-    innocentId=players[innocentIdx].id;
-    players.forEach((p,i)=>{
-      if(p.id===innocentId){roles[p.id]='__INNOCENT__';}
-      else{roles[p.id]='__CHAOS_SPY__';}
-    });
+    const idx=randInt(players.length);innocentId=players[idx].id;
+    players.forEach(p=>{roles[p.id]=p.id===innocentId?'__INNOCENT__':'__CHAOS_SPY__';});
     spyIds=players.filter(p=>p.id!==innocentId).map(p=>p.id);
   } else {
-    const count=Math.min(localSpyCount, maxSpies(players.length));
-    const shuffledPlayers=shuffle([...players]);
-    spyIds=shuffledPlayers.slice(0,count).map(p=>p.id);
-    players.forEach((p,i)=>{
-      roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];
-    });
+    const count=Math.min(localSpyCount,maxSpies(players.length));
+    const sp=shuffle([...players]);spyIds=sp.slice(0,count).map(p=>p.id);
+    players.forEach((p,i)=>{roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});
   }
- 
   const duration=isChaos?CHAOS_TIMER_DURATION:TIMER_DURATION;
-  await updateGame(gameCode,{
-    status:'playing',spyIds,innocentId,
-    spyId:spyIds[0]||null, // keep for backwards compat
-    currentLocation:locObj.name,roles,
-    timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:duration,
-    votes:{},result:null,spyGuess:null,chaosMode:isChaos,spyCount:spyIds.length,
-  });
+  await updateGame(gameCode,{status:'playing',mode:'spyfall',spyIds,innocentId,spyId:spyIds[0]||null,currentLocation:locObj.name,roles,timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:duration,votes:{},result:null,spyGuess:null,chaosMode:isChaos,spyCount:spyIds.length});
 }
- 
+
 // =====================================================
-// REVEAL SCREEN
+// SPYFALL: REVEAL
 // =====================================================
 function enterRevealScreen(game){
   revealVisible=true;
@@ -800,75 +981,27 @@ function enterRevealScreen(game){
   const isSpy=spyIds.includes(myId);
   const isInnocent=game.innocentId===myId;
   const myRole=game.roles&&game.roles[myId];
- 
   document.getElementById('revealTap').style.display='block';
   document.getElementById('revealCard').style.display='none';
   document.getElementById('revealActions').style.display='none';
-  document.getElementById('revealTagline').textContent=isChaos?'⚡ CHAOS MODE — Game has started':'Game has started';
-  document.getElementById('revealTap').className='reveal-tap'+(isChaos?' chaos-reveal-tap':'');
+  document.getElementById('revealTagline').textContent=isChaos?'⚡ CHAOS MODE':'Spyfall — Game started';
+  document.getElementById('revealTap').className='reveal-tap';
   showScreen('reveal');
- 
   document.getElementById('revealTap').onclick=()=>{
     document.getElementById('revealTap').style.display='none';
     const card=document.getElementById('revealCard');
- 
     if(isChaos){
-      if(isInnocent){
-        // Chaos innocent — knows location, tries to catch spies
-        card.innerHTML=`
-          <div class="role-card chaos-innocent-card">
-            <div class="role-label">✓ You are the INNOCENT</div>
-            <div class="role-name" style="color:var(--safe)">INNOCENT</div>
-            <div class="location-line" style="margin-top:16px">The location is</div>
-            <div class="location-name">${esc(game.currentLocation)}</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:8px">Everyone else is lying. Catch them out.</div>
-          </div>
-          <div class="chaos-warning" style="margin-top:12px">
-            🎯 You are outnumbered. Everyone else is a spy bluffing about the location.<br>Vote to identify a spy to win.
-          </div>`;
-      } else {
-        // Chaos spy — doesn't know location, has to bluff
-        card.innerHTML=`
-          <div class="role-card chaos-spy-card">
-            <div class="role-label">⚡ You are a SPY</div>
-            <div class="role-name">SPY</div>
-            <div style="font-size:14px;color:var(--muted);margin-top:8px">You do NOT know the location.</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:4px">Lie convincingly. Blend in. Don't get caught.</div>
-          </div>
-          <div class="chaos-warning" style="margin-top:12px">
-            🤫 The INNOCENT knows the location. Your whole team is bluffing.<br>Make the Innocent vote for the wrong person to win.
-          </div>`;
-      }
+      if(isInnocent){card.innerHTML=`<div class="role-card chaos-innocent-card"><div class="role-label">✓ You are the INNOCENT</div><div class="role-name" style="color:var(--safe)">INNOCENT</div><div class="location-line" style="margin-top:14px">You are at</div><div class="location-name">${esc(game.currentLocation)}</div></div><div class="chaos-warning" style="margin-top:10px">🎯 Everyone else is bluffing. Vote to catch a spy.</div>`;}
+      else{card.innerHTML=`<div class="role-card chaos-spy-card"><div class="role-label">⚡ You are a SPY</div><div class="role-name">SPY</div><div style="font-size:14px;color:var(--muted);margin-top:8px">You do NOT know the location.</div></div><div class="chaos-warning" style="margin-top:10px">🤫 Bluff convincingly. Make the Innocent vote wrong.</div>`;}
     } else {
-      if(isSpy){
-        card.innerHTML=`
-          <div class="role-card spy-card">
-            <div class="role-label">⚠ You are the spy</div>
-            <div class="role-name">SPY</div>
-            <div style="font-size:14px;color:var(--muted);margin-top:8px">You do not know the location.</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:4px">Blend in. Ask questions. Don't get caught.</div>
-          </div>
-          <div class="spy-warning" style="margin-top:12px">
-            🎯 Listen carefully. Figure out where everyone is.<br>You can guess the location at any time to win.
-          </div>`;
-      } else {
-        card.innerHTML=`
-          <div class="role-card safe-card">
-            <div class="role-label">✓ You are not the spy</div>
-            <div class="role-name">${esc(myRole)}</div>
-            <div class="location-line" style="margin-top:16px">You are at</div>
-            <div class="location-name">${esc(game.currentLocation)}</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:8px">Find the spy without revealing the location.</div>
-          </div>`;
-      }
+      if(isSpy){card.innerHTML=`<div class="role-card spy-card"><div class="role-label">⚠ You are the spy</div><div class="role-name">SPY</div><div style="font-size:14px;color:var(--muted);margin-top:8px">You do not know the location.</div></div><div class="spy-warning" style="margin-top:10px">🎯 Figure out where everyone is. Guess the location to win.</div>`;}
+      else{card.innerHTML=`<div class="role-card safe-card"><div class="role-label">✓ You are not the spy</div><div class="role-name">${esc(myRole)}</div><div class="location-line" style="margin-top:14px">You are at</div><div class="location-name">${esc(game.currentLocation)}</div></div>`;}
     }
- 
     card.style.display='block';
     document.getElementById('revealActions').style.display='flex';
     document.getElementById('hideRoleBtn').textContent='🙈 Hide my role';
   };
 }
- 
 function toggleHideRole(){
   revealVisible=!revealVisible;
   const card=document.getElementById('revealCard');
@@ -876,102 +1009,55 @@ function toggleHideRole(){
   if(revealVisible){card.style.opacity='1';card.style.filter='none';card.style.pointerEvents='auto';btn.textContent='🙈 Hide my role';}
   else{card.style.opacity='0.05';card.style.filter='blur(8px)';card.style.pointerEvents='none';btn.textContent='👁 Show my role';}
 }
- 
 function goToGame(){if(!localGame)return;roleVisible=true;initGameScreen(localGame);showScreen('game');}
- 
+
 // =====================================================
-// GAME SCREEN
+// SPYFALL: GAME SCREEN
 // =====================================================
 function initGameScreen(game){
   const isChaos=game.chaosMode;
   const spyIds=game.spyIds||[game.spyId];
   const isSpy=spyIds.includes(myId);
   const isInnocent=game.innocentId===myId;
-  // In chaos mode, the spy doesn't know location — show locations tab but no highlight
-  const showLocationHighlight=isChaos?isInnocent:!isSpy;
- 
+  const showHighlight=isChaos?isInnocent:!isSpy;
   document.getElementById('chaosModeGameBanner').style.display=isChaos?'block':'none';
-  document.getElementById('locationGrid').innerHTML=game.locations.map(loc=>`<div class="location-chip ${showLocationHighlight&&loc===game.currentLocation?'current':''}">${esc(loc)}</div>`).join('');
- 
-  if(isChaos){
-    document.getElementById('locationsTabDesc').textContent=isInnocent?'The highlighted location is where everyone claims to be. Only you know the truth.':'All possible locations. You do NOT know which one is real — that\'s your job to figure out.';
-  } else {
-    document.getElementById('locationsTabDesc').textContent='All possible locations this round. The highlighted one is the real location (hidden from the spy).';
-  }
- 
+  document.getElementById('locationGrid').innerHTML=game.locations.map(loc=>`<div class="location-chip ${showHighlight&&loc===game.currentLocation?'current':''}">${esc(loc)}</div>`).join('');
+  document.getElementById('locationsTabDesc').textContent=isChaos?(isInnocent?'Highlighted = real location. Only you know.':'All locations. You don\'t know which is real.'):'All possible locations. Highlighted = real (hidden from spy).';
   const sel=document.getElementById('spyGuessSelect');
   sel.innerHTML='<option value="">-- Select a location --</option>'+game.locations.map(l=>`<option value="${l}">${esc(l)}</option>`).join('');
- 
-  // Spy guess: in normal mode shown to spies. In chaos mode shown to chaos spies (not innocent).
   const showGuess=isChaos?(isSpy&&!isInnocent):isSpy;
   document.getElementById('spyGuessSection').style.display=showGuess?'block':'none';
- 
-  // Vote notice
-  if(isChaos){
-    document.getElementById('voteNotice').className='notice chaos';
-    document.getElementById('voteNotice').textContent=isInnocent?'⚡ You are the Innocent — vote to identify a spy. Majority rules.':'⚡ Make the Innocent vote for the wrong person. Blend in.';
-  } else {
-    document.getElementById('voteNotice').className='notice info';
-    document.getElementById('voteNotice').textContent='Suspect someone? Tap their name to accuse them. A majority vote reveals the result.';
-  }
- 
+  if(isChaos){document.getElementById('voteNotice').className='notice chaos';document.getElementById('voteNotice').textContent=isInnocent?'⚡ You are the Innocent — vote to catch a spy.':'⚡ Blend in. Make the Innocent vote wrong.';}
+  else{document.getElementById('voteNotice').className='notice info';document.getElementById('voteNotice').textContent='Suspect someone? Tap to accuse. Majority vote reveals result.';}
   document.getElementById('timerControls').style.display=amHost?'flex':'none';
   updateRoleSummary(game);
   clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{if(localGame&&localGame.status==='playing')tickTimer(localGame);},500);
+  timerInterval=setInterval(()=>{if(localGame&&localGame.status==='playing'&&localGame.mode!=='ooo')tickTimer(localGame);},500);
   renderGame(game);
 }
- 
-function renderGame(game){
-  tickTimer(game);updateVoteList(game);updateTimerBtn(game);
-  document.getElementById('timerControls').style.display=amHost?'flex':'none';
-}
- 
+function renderGame(game){tickTimer(game);updateVoteList(game);updateTimerBtn(game);document.getElementById('timerControls').style.display=amHost?'flex':'none';}
 function updateRoleSummary(game){
-  const isChaos=game.chaosMode;
-  const spyIds=game.spyIds||[game.spyId];
-  const isSpy=spyIds.includes(myId);
-  const isInnocent=game.innocentId===myId;
-  const el=document.getElementById('myRoleSummary');
+  const isChaos=game.chaosMode;const spyIds=game.spyIds||[game.spyId];const isSpy=spyIds.includes(myId);const isInnocent=game.innocentId===myId;const el=document.getElementById('myRoleSummary');
   if(isChaos){
-    if(isInnocent){
-      el.innerHTML=`<span style="color:var(--safe);font-weight:700">✓ You are the INNOCENT</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Location: ${esc(game.currentLocation)}</span>`;
-    } else {
-      el.innerHTML=`<span style="color:var(--chaos);font-weight:700">⚡ You are a SPY</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Bluff about the location — you don't know it</span>`;
-    }
+    if(isInnocent)el.innerHTML=`<span style="color:var(--safe);font-weight:700">✓ INNOCENT</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Location: ${esc(game.currentLocation)}</span>`;
+    else el.innerHTML=`<span style="color:var(--chaos);font-weight:700">⚡ SPY</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Bluff — you don't know the location</span>`;
   } else {
-    if(isSpy){
-      el.innerHTML=`<span style="color:var(--spy);font-weight:700">🕵️ You are the SPY</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Guess the location to win if accused</span>`;
-    } else {
-      const role=game.roles&&game.roles[myId];
-      el.innerHTML=`<span style="color:var(--safe);font-weight:700">${esc(role)}</span><span style="color:var(--muted);font-size:13px"> at </span><span style="font-weight:700">${esc(game.currentLocation)}</span>`;
-    }
+    if(isSpy)el.innerHTML=`<span style="color:var(--spy);font-weight:700">🕵️ SPY</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Guess the location to win if caught</span>`;
+    else{const role=game.roles&&game.roles[myId];el.innerHTML=`<span style="color:var(--safe);font-weight:700">${esc(role)}</span><span style="color:var(--muted);font-size:13px"> at </span><span style="font-weight:700">${esc(game.currentLocation)}</span>`;}
   }
 }
- 
 function toggleGameRoleVisibility(){
-  roleVisible=!roleVisible;
-  const summary=document.getElementById('myRoleSummary');
-  const hidden=document.getElementById('myRoleHidden');
-  const btn=document.getElementById('hideGameRoleBtn');
-  if(roleVisible){summary.style.display='block';hidden.style.display='none';btn.textContent='🙈 Hide my role';}
-  else{summary.style.display='none';hidden.style.display='block';btn.textContent='👁 Show my role';}
+  roleVisible=!roleVisible;const s=document.getElementById('myRoleSummary');const h=document.getElementById('myRoleHidden');const b=document.getElementById('hideGameRoleBtn');
+  if(roleVisible){s.style.display='block';h.style.display='none';b.textContent='🙈 Hide my role';}
+  else{s.style.display='none';h.style.display='block';b.textContent='👁 Show my role';}
 }
-function revealRoleSummary(){
-  roleVisible=true;
-  document.getElementById('myRoleSummary').style.display='block';
-  document.getElementById('myRoleHidden').style.display='none';
-  document.getElementById('hideGameRoleBtn').textContent='🙈 Hide my role';
-}
- 
+function revealRoleSummary(){roleVisible=true;document.getElementById('myRoleSummary').style.display='block';document.getElementById('myRoleHidden').style.display='none';document.getElementById('hideGameRoleBtn').textContent='🙈 Hide my role';}
 function tickTimer(game){
   if(!game.timerStart)return;
   const elapsed=game.timerRunning?Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0):(game.timerOffset||0);
   const remaining=Math.max(0,game.timerDuration-elapsed);
-  const m=Math.floor(remaining/60).toString().padStart(2,'0');
-  const s=(remaining%60).toString().padStart(2,'0');
-  const el=document.getElementById('timerDisplay');
-  el.textContent=`${m}:${s}`;
+  const m=Math.floor(remaining/60).toString().padStart(2,'0');const s=(remaining%60).toString().padStart(2,'0');
+  const el=document.getElementById('timerDisplay');el.textContent=`${m}:${s}`;
   el.className='timer-display'+(remaining<60?' danger':remaining<120?' warning':'');
   if(remaining===0&&game.timerRunning&&amHost)resolveGame('timeout');
 }
@@ -981,68 +1067,45 @@ async function toggleTimer(){
   if(game.timerRunning){const e=Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0);await updateGame(gameCode,{timerRunning:false,timerOffset:e});}
   else{await updateGame(gameCode,{timerRunning:true,timerStart:Date.now(),timerOffset:game.timerOffset||0});}
 }
- 
+
 // =====================================================
-// VOTING
+// SPYFALL: VOTE + RESOLVE
 // =====================================================
 function updateVoteList(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const myVote=game.votes&&game.votes[myId];
   const voteCounts={};Object.values(game.votes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const n=players.length;const majority=Math.ceil(n/2);
-  document.getElementById('voteList').innerHTML=players.filter(p=>p.id!==myId).map(p=>{
-    const vc=voteCounts[p.id]||0;
-    return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')">
-      <div style="font-size:20px">🕵️</div>
-      <div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>
-      ${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${majority} needed</div>`:''}
-      ${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}
-    </div>`;
-  }).join('');
-  document.getElementById('voteStatus').textContent=`${Object.keys(game.votes||{}).length} of ${n} have voted`;
+  document.getElementById('voteList').innerHTML=players.filter(p=>p.id!==myId).map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')"><div style="font-size:20px">🕵️</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${majority}</div>`:''}${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('voteStatus').textContent=`${Object.keys(game.votes||{}).length} of ${n} voted`;
 }
- 
 async function castVote(targetId){
   const game=localGame;if(!game||game.status!=='playing')return;
   await gameRefFor(gameCode).child('votes/'+myId).set(targetId);
-  const votes={...(game.votes||{}),[myId]:targetId};
-  const n=Object.keys(game.players||{}).length;const majority=Math.ceil(n/2);const counts={};
-  Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
-  for(const[pid,cnt]of Object.entries(counts)){
-    if(cnt>=majority&&amHost){await resolveGame('vote',pid);return;}
+  if(amHost){
+    const votes={...(game.votes||{}),[myId]:targetId};
+    const n=Object.keys(game.players||{}).length;const majority=Math.ceil(n/2);const counts={};
+    Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+    for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority){await resolveGame('vote',pid);return;}}
   }
 }
- 
-// =====================================================
-// RESOLVE GAME
-// =====================================================
 async function resolveGame(reason,accusedId=null){
-  const game=localGame;if(!game||game.status!=='playing')return;
-  const isChaos=game.chaosMode;
-  const spyIds=game.spyIds||[game.spyId];
+  const game=localGame;if(!game||game.status!=='playing'||game.mode==='ooo')return;
+  const isChaos=game.chaosMode;const spyIds=game.spyIds||[game.spyId];
   let spyWins=false,description='';
- 
   if(isChaos){
-    // In chaos mode: spies win if innocent can't catch one. Innocent wins if they vote correctly.
-    if(reason==='timeout'){spyWins=true;description='Time ran out — the spies fooled the Innocent!';}
-    else if(reason==='vote'){
-      if(spyIds.includes(accusedId)){spyWins=false;description='The Innocent correctly identified a spy!';}
-      else{spyWins=true;description='Wrong person accused — the spies win!';}
-    }
+    if(reason==='timeout'){spyWins=true;description='Time ran out — spies fooled the Innocent!';}
+    else if(reason==='vote'){if(spyIds.includes(accusedId)){spyWins=false;description='Innocent correctly identified a spy!';}else{spyWins=true;description='Wrong person accused — spies win!';}}
     else if(reason==='early'){spyWins=false;description='Round ended early.';}
   } else {
     if(reason==='timeout'){spyWins=true;description='Time ran out — spy escaped!';}
-    else if(reason==='vote'){
-      if(spyIds.includes(accusedId)){spyWins=false;description='Correct! A spy was caught by majority vote.';}
-      else{spyWins=true;description='Wrong person accused — the spy wins!';}
-    }
-    else if(reason==='spy_guess_correct'){spyWins=true;description='The spy correctly guessed the location!';}
-    else if(reason==='spy_guess_wrong'){spyWins=false;description='The spy guessed the wrong location!';}
-    else if(reason==='early'){spyWins=false;description='Round ended early by the host.';}
+    else if(reason==='vote'){if(spyIds.includes(accusedId)){spyWins=false;description='Correct! A spy was caught!';}else{spyWins=true;description='Wrong person — spy wins!';}}
+    else if(reason==='spy_guess_correct'){spyWins=true;description='Spy correctly guessed the location!';}
+    else if(reason==='spy_guess_wrong'){spyWins=false;description='Spy guessed the wrong location!';}
+    else if(reason==='early'){spyWins=false;description='Round ended early.';}
   }
   await updateGame(gameCode,{status:'result',timerRunning:false,result:{spyWins,description,reason,accusedId}});
 }
- 
 async function spyGuessLocation(){
   const guess=document.getElementById('spyGuessSelect').value;if(!guess)return;
   const game=localGame;if(!game)return;
@@ -1051,44 +1114,193 @@ async function spyGuessLocation(){
   else await resolveGame('spy_guess_wrong');
 }
 async function endGameEarly(){if(!confirm('End the round now?'))return;await resolveGame('early');}
- 
+
 // =====================================================
-// RESULT SCREEN
+// SPYFALL: RESULT
 // =====================================================
 function showResultScreen(game){
   clearInterval(timerInterval);
-  const r=game.result;
-  const isChaos=game.chaosMode;
-  const spyIds=game.spyIds||[game.spyId];
+  const r=game.result;const isChaos=game.chaosMode;const spyIds=game.spyIds||[game.spyId];
   const innocentPlayer=game.innocentId&&game.players&&game.players[game.innocentId];
   const spyPlayers=spyIds.map(id=>game.players&&game.players[id]).filter(Boolean);
- 
+  document.getElementById('resultTitle').textContent=isChaos?'The Innocent was...':(spyIds.length>1?'The spies were...':'The spy was...');
   if(isChaos){
-    document.getElementById('resultTitle').textContent='The Innocent was...';
-    document.getElementById('resultRevealBox').innerHTML=`
-      <div style="font-size:36px;margin-bottom:8px">🎭</div>
-      <div style="font-size:24px;font-weight:800;color:var(--safe)">${esc(innocentPlayer?.name||'Unknown')}</div>
-      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation)}</div>
-      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">The spies: ${spyPlayers.map(p=>esc(p.name)).join(', ')}</div>`;
+    document.getElementById('resultRevealBox').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎭</div><div style="font-size:22px;font-weight:800;color:var(--safe)">${esc(innocentPlayer?.name||'Unknown')}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation)}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">Spies: ${spyPlayers.map(p=>esc(p.name)).join(', ')}</div>`;
   } else {
-    document.getElementById('resultTitle').textContent=spyIds.length>1?'The spies were...':'The spy was...';
-    document.getElementById('resultRevealBox').innerHTML=`
-      <div style="font-size:36px;margin-bottom:8px">🕵️</div>
-      <div style="font-size:24px;font-weight:800;color:var(--spy)">${spyPlayers.map(p=>esc(p.name)).join(' & ')||'Unknown'}</div>
-      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation||'?')}</div>`;
+    document.getElementById('resultRevealBox').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🕵️</div><div style="font-size:22px;font-weight:800;color:var(--spy)">${spyPlayers.map(p=>esc(p.name)).join(' & ')||'Unknown'}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation||'?')}</div>`;
   }
- 
   const banner=document.getElementById('resultBanner');
   if(isChaos){
-    if(r.spyWins){banner.innerHTML=`<div class="result-banner chaos-spies-win"><div class="result-emoji">⚡</div><h2>Spies Win!</h2><p>${esc(r.description)}</p></div>`;}
-    else{banner.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Innocent Wins!</h2><p>${esc(r.description)}</p></div>`;}
+    if(r.spyWins)banner.innerHTML=`<div class="result-banner chaos-spies-win"><div class="result-emoji">⚡</div><h2>Spies Win!</h2><p>${esc(r.description)}</p></div>`;
+    else banner.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Innocent Wins!</h2><p>${esc(r.description)}</p></div>`;
   } else {
-    if(r.spyWins){banner.innerHTML=`<div class="result-banner spy-wins"><div class="result-emoji">🕵️</div><h2>Spy Wins!</h2><p>${esc(r.description)}</p></div>`;}
-    else{banner.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Crew Wins!</h2><p>${esc(r.description)}</p></div>`;}
+    if(r.spyWins)banner.innerHTML=`<div class="result-banner spy-wins"><div class="result-emoji">🕵️</div><h2>Spy Wins!</h2><p>${esc(r.description)}</p></div>`;
+    else banner.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Crew Wins!</h2><p>${esc(r.description)}</p></div>`;
   }
   showScreen('result');
 }
- 
+
+// =====================================================
+// ODD ONE OUT: START
+// =====================================================
+async function startOOOGame(){
+  const game=localGame;if(!game)return;
+  const players=Object.values(game.players||{});if(players.length<3)return;
+  const usedQ=game.oooLastQuestion||'';
+  const available=OOO_QUESTIONS.filter(q=>q.normal!==usedQ);
+  const q=pick(available.length>0?available:OOO_QUESTIONS);
+  const imposterId=players[randInt(players.length)].id;
+  const scores=game.oooScores||{};
+  players.forEach(p=>{if(scores[p.id]===undefined)scores[p.id]=0;});
+  await updateGame(gameCode,{
+    status:'playing',mode:'ooo',oooPhase:'question',
+    oooRound:(game.oooRound||0)+1,oooTotalRounds:game.oooTotalRounds||localOOORounds||3,
+    oooQuestionNormal:q.normal,oooQuestionOdd:q.odd,oooLastQuestion:q.normal,
+    oooImposterId:imposterId,oooAnswers:{},oooVotes:{},oooVoteStart:null,oooResult:null,oooScores:scores,
+  });
+}
+
+// =====================================================
+// ODD ONE OUT: QUESTION SCREEN
+// =====================================================
+function enterOOOQuestionScreen(game){
+  document.getElementById('oooRoundBadge').textContent=`Round ${game.oooRound} of ${game.oooTotalRounds}`;
+  document.getElementById('oooPreSubmit').style.display='block';
+  document.getElementById('oooPostSubmit').style.display='none';
+  document.getElementById('oooQuestionTap').style.display='block';
+  document.getElementById('oooQuestionContent').style.display='none';
+  document.getElementById('oooAnswerInput').value='';
+  const oooSubmitBtn=document.getElementById('oooSubmitBtn');
+  if(oooSubmitBtn){oooSubmitBtn.disabled=false;oooSubmitBtn.textContent='Submit Answer';}
+  if(game.oooAnswers&&game.oooAnswers[myId])showOOOWaitingState(game);
+  showScreen('ooo-question');
+}
+function updateOOOWaitingState(game){
+  if(game.oooAnswers&&game.oooAnswers[myId])showOOOWaitingState(game);
+}
+function showOOOWaitingState(game){
+  document.getElementById('oooPreSubmit').style.display='none';
+  document.getElementById('oooPostSubmit').style.display='block';
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const answers=game.oooAnswers||{};
+  document.getElementById('oooSubmittedList').innerHTML=players.map(p=>`<div class="player-item"><div class="player-dot ${answers[p.id]?'':'offline'}"></div><div class="player-name">${esc(p.name)}</div>${answers[p.id]?'<div class="player-badge" style="color:var(--safe)">✓ answered</div>':'<div class="player-badge">thinking...</div>'}</div>`).join('');
+}
+function revealOOOQuestion(){
+  const game=localGame;if(!game)return;
+  const isOdd=game.oooImposterId===myId;
+  const question=isOdd?game.oooQuestionOdd:game.oooQuestionNormal;
+  document.getElementById('oooQuestionTap').style.display='none';
+  document.getElementById('oooQuestionText').textContent=question;
+  document.getElementById('oooQuestionContent').style.display='block';
+  setTimeout(()=>document.getElementById('oooAnswerInput').focus(),100);
+}
+async function submitOOOAnswer(){
+  const answer=document.getElementById('oooAnswerInput').value.trim();
+  if(!answer||!gameCode)return;
+  const btn=document.getElementById('oooSubmitBtn');btn.disabled=true;btn.textContent='Submitting...';
+  await gameRefFor(gameCode).child('oooAnswers/'+myId).set(answer);
+  const game=localGame;
+  const totalPlayers=Object.keys(game.players||{}).length;
+  const answers={...(game.oooAnswers||{}),[myId]:answer};
+  showOOOWaitingState({...game,oooAnswers:answers});
+  document.getElementById('oooPreSubmit').style.display='none';
+  document.getElementById('oooPostSubmit').style.display='block';
+  if(Object.keys(answers).length>=totalPlayers){
+    await updateGame(gameCode,{oooPhase:'answers',oooVoteStart:Date.now()});
+  }
+}
+
+// =====================================================
+// ODD ONE OUT: ANSWERS + VOTE
+// =====================================================
+function showOOOAnswers(game){
+  clearInterval(oooVoteTimerInterval);
+  document.getElementById('oooAnswersRoundBadge').textContent=`Round ${game.oooRound} of ${game.oooTotalRounds}`;
+  document.getElementById('oooRevealQuestion').textContent=game.oooQuestionNormal;
+  updateOOOAnswers(game);
+  showScreen('ooo-answers');
+  oooVoteTimerInterval=setInterval(()=>{if(localGame&&localGame.oooPhase==='answers')tickOOOVoteTimer(localGame);},500);
+}
+function updateOOOAnswers(game){
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const answers=game.oooAnswers||{};
+  const myVote=game.oooVotes&&game.oooVotes[myId];
+  const voteCounts={};Object.values(game.oooVotes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  const n=players.length;const majority=Math.ceil(n/2);
+  document.getElementById('oooAnswersList').innerHTML=players.map(p=>`<div class="answer-item"><div class="answer-name">${esc(p.name)}</div><div class="answer-text">${esc(answers[p.id]||'...')}</div></div>`).join('');
+  document.getElementById('oooVoteList').innerHTML=players.filter(p=>p.id!==myId).map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'ooo-voted':''}" onclick="castOOOVote('${p.id}')"><div style="font-size:20px">🎭</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo)">${vc}/${majority}</div>`:''}${myVote===p.id?'<div style="color:var(--ooo);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('oooVoteStatus').textContent=`${Object.keys(game.oooVotes||{}).length} of ${n} voted`;
+  if(amHost)checkAllVoted(game);
+}
+function checkAllVoted(game){
+  const n=Object.keys(game.players||{}).length;
+  if(Object.keys(game.oooVotes||{}).length>=n&&game.oooPhase==='answers')resolveOOORound(game);
+}
+function tickOOOVoteTimer(game){
+  if(!game.oooVoteStart)return;
+  const elapsed=Math.floor((Date.now()-game.oooVoteStart)/1000);
+  const remaining=Math.max(0,OOO_VOTE_DURATION-elapsed);
+  const m=Math.floor(remaining/60).toString().padStart(2,'0');const s=(remaining%60).toString().padStart(2,'0');
+  const el=document.getElementById('oooVoteTimerDisplay');if(!el)return;
+  el.textContent=`${m}:${s}`;
+  el.className='timer-display'+(remaining<10?' danger':remaining<20?' warning':'');
+  if(remaining===0&&amHost){clearInterval(oooVoteTimerInterval);resolveOOORound(game);}
+}
+async function castOOOVote(targetId){
+  const game=localGame;if(!game||game.oooPhase!=='answers')return;
+  // Update local state immediately (makes dev mode work + shows checkmark without waiting for Firebase)
+  if(!localGame.oooVotes)localGame.oooVotes={};
+  localGame.oooVotes[myId]=targetId;
+  updateOOOAnswers(localGame);
+  try{await gameRefFor(gameCode).child('oooVotes/'+myId).set(targetId);}catch(e){}
+  if(amHost){
+    const n=Object.keys(localGame.players||{}).length;
+    if(Object.keys(localGame.oooVotes).length>=n)await resolveOOORound(localGame);
+  }
+}
+async function resolveOOORound(game){
+  if(!game||game.oooPhase!=='answers')return;
+  const votes=game.oooVotes||{};
+  const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  let maxVotes=0,accusedId=null;
+  for(const[pid,cnt]of Object.entries(voteCounts)){if(cnt>maxVotes){maxVotes=cnt;accusedId=pid;}}
+  const caught=accusedId===game.oooImposterId;
+  const scores={...(game.oooScores||{})};
+  const players=Object.values(game.players||{});
+  if(caught){players.forEach(p=>{if(p.id!==game.oooImposterId)scores[p.id]=(scores[p.id]||0)+2;});}
+  else{scores[game.oooImposterId]=(scores[game.oooImposterId]||0)+3;}
+  const impostorName=game.players&&game.players[game.oooImposterId]?.name||'Unknown';
+  const description=caught?`${impostorName} was caught!`:`${impostorName} blended in and escaped!`;
+  const result={caught,description,accusedId};
+  localGame.oooPhase='result';localGame.oooScores=scores;localGame.oooResult=result;
+  try{await updateGame(gameCode,{oooPhase:'result',oooScores:scores,oooResult:result});}catch(e){}
+  showOOOResult(localGame);
+}
+
+// =====================================================
+// ODD ONE OUT: RESULT
+// =====================================================
+function showOOOResult(game){
+  clearInterval(oooVoteTimerInterval);
+  const r=game.oooResult||{};
+  const impostorPlayer=game.players&&game.players[game.oooImposterId];
+  document.getElementById('oooImpostorReveal').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎭</div><div style="font-size:22px;font-weight:800;color:var(--ooo)">${esc(impostorPlayer?.name||'Unknown')}</div>`;
+  document.getElementById('oooNormalQReveal').textContent=game.oooQuestionNormal||'';
+  document.getElementById('oooOddQReveal').textContent=game.oooQuestionOdd||'';
+  const banner=document.getElementById('oooResultBanner');
+  if(r.caught)banner.innerHTML=`<div class="result-banner ooo-caught"><div class="result-emoji">🎉</div><h2>Caught!</h2><p>${esc(r.description)}</p></div>`;
+  else banner.innerHTML=`<div class="result-banner ooo-escaped"><div class="result-emoji">🎭</div><h2>Escaped!</h2><p>${esc(r.description)}</p></div>`;
+  const players=Object.values(game.players||{}).sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
+  document.getElementById('oooScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||`#${i+1}`}</div><div class="scoreboard-name">${esc(p.name)}${p.id===game.oooImposterId?' 🎭':''}</div><div class="scoreboard-pts">${game.oooScores[p.id]||0} pts</div></div>`).join('');
+  const isLastRound=game.oooRound>=game.oooTotalRounds||game.status==='result';
+  document.getElementById('oooNextRoundBtn').style.display=(!isLastRound&&amHost)?'block':'none';
+  document.getElementById('oooEndGameBtn').style.display=(isLastRound&&amHost)?'block':'none';
+  document.getElementById('oooWaitingForHost').style.display=!amHost?'block':'none';
+  showScreen('ooo-result');
+}
+async function oooNextRound(){await startOOOGame();}
+async function oooEndGame(){await updateGame(gameCode,{status:'result',oooPhase:'gameover'});}
+
 // =====================================================
 // PLAY AGAIN / LEAVE
 // =====================================================
@@ -1096,305 +1308,137 @@ async function playAgain(){
   if(!amHost){showScreen('waiting');return;}
   const game=localGame;if(!game)return;
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,chat:null});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},chat:null});
 }
- 
 async function leaveGame(){
-  clearInterval(timerInterval);stopListening();stopChat();
+  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);stopListening();stopChat();
   if(gameCode){
     try{
       const snap=await gameRefFor(gameCode).once('value');const game=snap.val();
       if(game){
         if(game.status==='lobby'){
           await gameRefFor(gameCode).child('players/'+myId).remove();
-          if(game.hostId===myId){
-            const rem=Object.values(game.players||{}).filter(p=>p.id!==myId).sort((a,b)=>a.joinedAt-b.joinedAt);
-            if(rem.length>0){const nh=rem[0];await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);await gameRefFor(gameCode).child('hostId').set(nh.id);}
-          }
-        }else{await gameRefFor(gameCode).child('players/'+myId+'/online').set(false);}
+          if(game.hostId===myId){const rem=Object.values(game.players||{}).filter(p=>p.id!==myId).sort((a,b)=>a.joinedAt-b.joinedAt);if(rem.length>0){const nh=rem[0];await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);await gameRefFor(gameCode).child('hostId').set(nh.id);}}
+        } else {await gameRefFor(gameCode).child('players/'+myId+'/online').set(false);}
       }
     }catch(e){console.error(e);}
   }
-  gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;
+  gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;
   showScreen('home');
 }
- 
+
 // =====================================================
 // CHAT
 // =====================================================
-let chatListener = null;
- 
-function setupChat(code) {
-  if (chatListener) db.ref('games/'+code+'/chat').off('value', chatListener);
-  chatListener = db.ref('games/'+code+'/chat').on('value', snap => {
-    const data = snap.val();
-    const messages = data ? Object.values(data).sort((a,b) => a.ts - b.ts) : [];
-    renderChat(messages);
+function setupChat(code){
+  if(chatListener)db.ref('games/'+code+'/chat').off('value',chatListener);
+  chatListener=db.ref('games/'+code+'/chat').on('value',snap=>{
+    const data=snap.val();const messages=data?Object.values(data).sort((a,b)=>a.ts-b.ts):[];renderChat(messages);
   });
 }
- 
-function stopChat() {
-  if (chatListener && gameCode) {
-    db.ref('games/'+gameCode+'/chat').off('value', chatListener);
-    chatListener = null;
-  }
-}
- 
-function renderChat(messages) {
-  const containers = ['lobbyChatMessages', 'waitingChatMessages'];
-  containers.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (messages.length === 0) {
-      el.innerHTML = '<div class="chat-empty">No messages yet. Say something!</div>';
-      return;
-    }
-    el.innerHTML = messages.map(m => {
-      const isMe = m.uid === myId;
-      const time = new Date(m.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-      return `<div class="chat-msg">
-        <span class="chat-name ${isMe ? 'you-name' : ''}">${esc(m.name)}</span>
-        <span class="chat-text">${esc(m.text)}</span>
-        <span class="chat-time">${time}</span>
-      </div>`;
-    }).join('');
-    el.scrollTop = el.scrollHeight;
+function stopChat(){if(chatListener&&gameCode){db.ref('games/'+gameCode+'/chat').off('value',chatListener);chatListener=null;}}
+function renderChat(messages){
+  ['lobbyChatMessages','waitingChatMessages'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    if(messages.length===0){el.innerHTML='<div class="chat-empty">No messages yet...</div>';return;}
+    el.innerHTML=messages.map(m=>{const isMe=m.uid===myId;const time=new Date(m.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});return`<div class="chat-msg"><span class="chat-name ${isMe?'you':'other'}">${esc(m.name)}</span><span style="color:var(--text)">${esc(m.text)}</span><span class="chat-time">${time}</span></div>`;}).join('');
+    el.scrollTop=el.scrollHeight;
   });
 }
- 
-async function sendChat() {
-  const cur = document.querySelector('.screen.active')?.id;
-  const inputId = cur === 'screen-lobby' ? 'lobbyChatInput' : 'waitingChatInput';
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  const text = input.value.trim();
-  if (!text || !gameCode) return;
-  input.value = '';
- 
-  const game = localGame;
-  const player = game && game.players && game.players[myId];
-  const name = player ? player.name : 'Unknown';
- 
-  const msgRef = db.ref('games/'+gameCode+'/chat').push();
-  await msgRef.set({ uid: myId, name, text, ts: Date.now() });
+async function sendChat(){
+  const cur=document.querySelector('.screen.active')?.id;
+  const inputId=cur==='screen-lobby'?'lobbyChatInput':'waitingChatInput';
+  const input=document.getElementById(inputId);if(!input)return;
+  const text=input.value.trim();if(!text||!gameCode)return;
+  input.value='';
+  const game=localGame;const player=game&&game.players&&game.players[myId];const name=player?player.name:'Unknown';
+  await db.ref('games/'+gameCode+'/chat').push().set({uid:myId,name,text,ts:Date.now()});
 }
- 
+
 // =====================================================
-// DEV TEST PANEL
+// DEV PANEL
 // =====================================================
-function toggleDevPanel() {
-  const panel = document.getElementById('devPanel');
-  const arrow = document.getElementById('devArrow');
-  const open = panel.style.display === 'none';
-  if (open) {
-    if (sessionStorage.getItem('sf_dev_unlocked') !== '1') {
-      const pw = prompt('Enter dev password:');
-      if (pw !== 'chrispyiscool@123!') {
-        alert('Incorrect password.');
-        return;
-      }
-      sessionStorage.setItem('sf_dev_unlocked', '1');
+function toggleDevPanel(){
+  const panel=document.getElementById('devPanel');const arrow=document.getElementById('devArrow');const open=panel.style.display==='none';
+  if(open){
+    if(sessionStorage.getItem('sf_dev_unlocked')!=='1'){
+      const pw=prompt('Enter dev password:');
+      if(pw!=='chrispyiscool@123!'){alert('Incorrect password.');return;}
+      sessionStorage.setItem('sf_dev_unlocked','1');
     }
   }
-  panel.style.display = open ? 'block' : 'none';
-  arrow.textContent = open ? '▼' : '▶';
+  panel.style.display=open?'block':'none';arrow.textContent=open?'▼':'▶';
 }
- 
-function devShowStatus(msg) {
-  const el = document.getElementById('devStatus');
-  el.textContent = '✓ ' + msg;
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 3000);
+function devShowStatus(msg){const el=document.getElementById('devStatus');el.textContent='✓ '+msg;el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
+function devMockGame(overrides={}){
+  const spyCount=1;const chaosMode=overrides.chaosMode||false;
+  const loc=ALL_LOCATIONS[randInt(ALL_LOCATIONS.length)];const shuffledRoles=shuffle(loc.roles);
+  const mockPlayers={[myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},'dev_p4':{id:'dev_p4',name:'Player 4',isHost:false,joinedAt:Date.now()+3,online:true}};
+  const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
+  if(!locations.includes(loc.name))locations[0]=loc.name;
+  const base={code:'DEV0',status:'playing',hostId:myId,mode:'spyfall',locations,currentLocation:loc.name,roles:{},spyId:null,spyIds:[],innocentId:null,spyGuess:null,votes:{},result:null,timerStart:Date.now(),timerDuration:TIMER_DURATION,timerRunning:true,timerOffset:0,spyCount,chaosMode,players:mockPlayers,oooScores:{},createdAt:Date.now()};
+  const playerIds=Object.keys(mockPlayers);
+  if(chaosMode){base.innocentId=overrides.forceInnocent?myId:'dev_p2';playerIds.forEach(id=>{base.roles[id]=id===base.innocentId?'__INNOCENT__':'__CHAOS_SPY__';});base.spyIds=playerIds.filter(id=>id!==base.innocentId);}
+  else{let spyIds=overrides.forceSpy?[myId]:['dev_p2'];base.spyIds=spyIds;base.spyId=spyIds[0];playerIds.forEach((id,i)=>{base.roles[id]=spyIds.includes(id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});}
+  return{...base,...overrides};
 }
- 
-function devMockGame(overrides = {}) {
-  const spyCount = parseInt(document.getElementById('devSpyCount').value) || 1;
-  const chaosMode = document.getElementById('devChaosMode').checked;
-  const loc = ALL_LOCATIONS[randInt(ALL_LOCATIONS.length)];
-  const shuffledRoles = shuffle(loc.roles);
- 
-  const mockPlayers = {
-    [myId]: { id: myId, name: 'You (Dev)', isHost: true, joinedAt: Date.now(), online: true },
-    'dev_p2': { id: 'dev_p2', name: 'Player 2', isHost: false, joinedAt: Date.now()+1, online: true },
-    'dev_p3': { id: 'dev_p3', name: 'Player 3', isHost: false, joinedAt: Date.now()+2, online: true },
-    'dev_p4': { id: 'dev_p4', name: 'Player 4', isHost: false, joinedAt: Date.now()+3, online: true },
-  };
- 
-  const locations = shuffle(ALL_LOCATIONS).slice(0, LOCATIONS_PER_GAME).map(l => l.name);
-  if (!locations.includes(loc.name)) locations[0] = loc.name;
- 
-  const base = {
-    code: 'DEV0',
-    status: 'playing',
-    hostId: myId,
-    locations,
-    currentLocation: loc.name,
-    roles: {},
-    spyId: null,
-    spyIds: [],
-    innocentId: null,
-    spyGuess: null,
-    votes: {},
-    result: null,
-    timerStart: Date.now(),
-    timerDuration: TIMER_DURATION,
-    timerRunning: true,
-    timerOffset: 0,
-    spyCount,
-    chaosMode,
-    players: mockPlayers,
-    createdAt: Date.now(),
-  };
- 
-  const playerIds = Object.keys(mockPlayers);
- 
-  if (chaosMode) {
-    base.innocentId = overrides.forceInnocent ? myId : (overrides.forceSpy ? 'dev_p2' : myId);
-    playerIds.forEach(id => {
-      base.roles[id] = id === base.innocentId ? '__INNOCENT__' : '__CHAOS_SPY__';
-    });
-    base.spyIds = playerIds.filter(id => id !== base.innocentId);
-  } else {
-    let spyIds = [];
-    if (overrides.forceSpy) {
-      spyIds = [myId];
-      for (let i = 1; i < spyCount; i++) spyIds.push(playerIds[i] || playerIds[0]);
-    } else {
-      spyIds = playerIds.slice(1, 1 + spyCount);
-    }
-    base.spyIds = spyIds;
-    base.spyId = spyIds[0];
-    playerIds.forEach((id, i) => {
-      base.roles[id] = spyIds.includes(id) ? '__SPY__' : shuffledRoles[i % shuffledRoles.length];
-    });
-  }
- 
-  return { ...base, ...overrides };
-}
- 
-function devStartAs(role) {
-  // Ensure name is set
-  const nameInput = document.getElementById('playerName');
-  if (!nameInput.value.trim()) nameInput.value = 'Dev';
- 
-  gameCode = 'DEV0';
-  amHost = true;
- 
+function devStartAs(role){
+  const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
+  gameCode='DEV0';amHost=true;
   let game;
-  const chaosMode = document.getElementById('devChaosMode').checked;
- 
-  if (role === 'crew') {
-    game = devMockGame({ chaosMode: false });
-    // make sure myId is not a spy
-    game.spyIds = ['dev_p2'];
-    game.spyId = 'dev_p2';
-    game.roles[myId] = game.locations[0] ? shuffle(ALL_LOCATIONS.find(l=>l.name===game.currentLocation)?.roles||['Crew Member'])[0] : 'Crew Member';
-  } else if (role === 'spy') {
-    game = devMockGame({ chaosMode: false, forceSpy: true });
-  } else if (role === 'chaos-innocent') {
-    game = devMockGame({ chaosMode: true, forceInnocent: true });
-    document.getElementById('devChaosMode').checked = true;
-  } else if (role === 'chaos-spy') {
-    game = devMockGame({ chaosMode: true, forceSpy: true });
-    game.innocentId = 'dev_p2';
-    game.roles[myId] = '__CHAOS_SPY__';
-    game.roles['dev_p2'] = '__INNOCENT__';
-    game.spyIds = ['dev_p3', 'dev_p4', myId];
-    document.getElementById('devChaosMode').checked = true;
-  }
- 
-  localGame = game;
-  enterRevealScreen(game);
-  devShowStatus(`Started as ${role} — tap to reveal your role`);
+  if(role==='crew'){game=devMockGame({chaosMode:false});game.spyIds=['dev_p2'];game.spyId='dev_p2';const loc=ALL_LOCATIONS.find(l=>l.name===game.currentLocation);game.roles[myId]=shuffle(loc?.roles||['Crew Member'])[0];}
+  else if(role==='spy'){game=devMockGame({chaosMode:false,forceSpy:true});}
+  else if(role==='chaos-innocent'){game=devMockGame({chaosMode:true,forceInnocent:true});}
+  else if(role==='chaos-spy'){game=devMockGame({chaosMode:true});game.innocentId='dev_p2';game.spyIds=['dev_p3','dev_p4',myId];game.roles[myId]='__CHAOS_SPY__';game.roles['dev_p2']='__INNOCENT__';}
+  localGame=game;enterRevealScreen(game);devShowStatus(`Started as ${role}`);
 }
- 
-function devGoScreen(screen) {
-  const nameInput = document.getElementById('playerName');
-  if (!nameInput.value.trim()) nameInput.value = 'Dev';
- 
-  gameCode = 'DEV0';
-  amHost = true;
- 
-  if (screen === 'lobby') {
-    const mockGame = {
-      code: 'DEV0', status: 'lobby', hostId: myId, locations: shuffle(ALL_LOCATIONS).slice(0,12).map(l=>l.name),
-      players: {
-        [myId]: {id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},
-        'dev_p2': {id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},
-        'dev_p3': {id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},
-      },
-      spyCount:1, chaosMode:false, createdAt:Date.now()
-    };
-    localGame = mockGame;
-    document.getElementById('gameCodeDisplay').textContent = 'DEV0';
-    renderLobby(mockGame);
-    showScreen('lobby');
- 
-  } else if (screen === 'waiting') {
-    const mockGame = {
-      code: 'DEV0', status: 'lobby', hostId: 'dev_p2',
-      players: {
-        [myId]: {id:myId,name:'You (Dev)',isHost:false,joinedAt:Date.now(),online:true},
-        'dev_p2': {id:'dev_p2',name:'Host Player',isHost:true,joinedAt:Date.now()-1,online:true},
-        'dev_p3': {id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+1,online:true},
-      },
-      chaosMode:false, createdAt:Date.now()
-    };
-    localGame = mockGame;
-    amHost = false;
-    document.getElementById('waitingCodeDisplay').textContent = 'DEV0';
-    renderWaiting(mockGame);
-    showScreen('waiting');
- 
-  } else if (screen === 'reveal') {
-    const game = devMockGame({});
-    localGame = game;
-    enterRevealScreen(game);
- 
-  } else if (screen === 'game') {
-    const game = devMockGame({});
-    localGame = game;
-    initGameScreen(game);
-    showScreen('game');
- 
-  } else if (screen === 'result-crew') {
-    const game = devMockGame({});
-    game.status = 'result';
-    game.timerRunning = false;
-    game.result = { spyWins: false, description: 'Correct! A spy was caught by majority vote.', reason: 'vote', accusedId: 'dev_p2' };
-    localGame = game;
-    showResultScreen(game);
- 
-  } else if (screen === 'result-spy') {
-    const game = devMockGame({ forceSpy: true });
-    game.status = 'result';
-    game.timerRunning = false;
-    game.result = { spyWins: true, description: 'Time ran out — spy escaped!', reason: 'timeout', accusedId: null };
-    localGame = game;
-    showResultScreen(game);
+function devOOO(type){
+  const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
+  gameCode='DEV0';amHost=true;
+  const q=OOO_QUESTIONS[0];
+  const mockPlayers={[myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},'dev_p4':{id:'dev_p4',name:'Player 4',isHost:false,joinedAt:Date.now()+3,online:true}};
+  const base={code:'DEV0',status:'playing',mode:'ooo',hostId:myId,oooRound:1,oooTotalRounds:3,oooQuestionNormal:q.normal,oooQuestionOdd:q.odd,oooImposterId:type==='odd'?myId:'dev_p2',oooAnswers:{},oooVotes:{},oooVoteStart:null,oooResult:null,oooScores:{[myId]:4,'dev_p2':2,'dev_p3':6,'dev_p4':0},players:mockPlayers};
+  localGame=base;
+  if(type==='normal'||type==='odd'){enterOOOQuestionScreen(base);devShowStatus(`OOO: ${type==='odd'?'You are the odd one out':'You have normal question'}`);}
+  else if(type==='answers'){
+    base.oooPhase='answers';base.oooVoteStart=Date.now();
+    base.oooAnswers={[myId]:'The beach',dev_p2:'Sunscreen',dev_p3:'Sandcastles',dev_p4:'A broken flip flop'};
+    base.oooVotes={};
+    localGame=base;showOOOAnswers(base);devShowStatus('OOO: Answers — vote to test resolve, or let timer hit 0');
+  } else if(type==='result'){
+    base.oooPhase='result';base.oooResult={caught:true,description:'dev_p2 was caught!'};
+    localGame=base;showOOOResult(base);devShowStatus('OOO: Result screen');
   }
- 
+}
+function devGoScreen(screen){
+  const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
+  gameCode='DEV0';amHost=true;
+  if(screen==='lobby'){
+    const mockGame={code:'DEV0',status:'lobby',hostId:myId,mode:'spyfall',locations:shuffle(ALL_LOCATIONS).slice(0,12).map(l=>l.name),players:{[myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true}},spyCount:1,chaosMode:false,oooTotalRounds:3,createdAt:Date.now()};
+    localGame=mockGame;document.getElementById('gameCodeDisplay').textContent='DEV0';renderLobby(mockGame);showScreen('lobby');
+  } else if(screen==='waiting'){
+    const mockGame={code:'DEV0',status:'lobby',hostId:'dev_p2',mode:'spyfall',players:{[myId]:{id:myId,name:'You (Dev)',isHost:false,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Host Player',isHost:true,joinedAt:Date.now()-1,online:true}},chaosMode:false,createdAt:Date.now()};
+    localGame=mockGame;amHost=false;document.getElementById('waitingCodeDisplay').textContent='DEV0';renderWaiting(mockGame);showScreen('waiting');
+  } else if(screen==='game'){const game=devMockGame({});localGame=game;initGameScreen(game);showScreen('game');}
+  else if(screen==='result-crew'){const game=devMockGame({});game.status='result';game.timerRunning=false;game.result={spyWins:false,description:'Correct! A spy was caught!',reason:'vote',accusedId:'dev_p2'};localGame=game;showResultScreen(game);}
+  else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
- 
-function devBackHome() {
-  clearInterval(timerInterval);
-  stopListening();
-  stopChat();
-  gameCode = null;
-  amHost = false;
-  localGame = null;
-  localSpyCount = 1;
-  localChaosMode = false;
-  showScreen('home');
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);stopListening();stopChat();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;showScreen('home');}
+
+// =====================================================
+// HOME MODE SELECT
+// =====================================================
+function selectHomeMode(mode){
+  localGameMode=mode;
+  document.getElementById('homeTileSpyfall').classList.toggle('selected',mode==='spyfall');
+  document.getElementById('homeTileOoo').classList.toggle('selected',mode==='ooo');
 }
- 
+
 // =====================================================
 // UI HELPERS
 // =====================================================
-function switchTab(tab){
-  ['timer','locations','vote'].forEach((t,i)=>{document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);document.getElementById('tab-'+t).classList.toggle('active',t===tab);});
-}
+function switchTab(tab){['timer','locations','vote'].forEach((t,i)=>{document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);document.getElementById('tab-'+t).classList.toggle('active',t===tab);});}
 function copyCode(){
   const code=gameCode||'----';
   navigator.clipboard?.writeText(code).then(()=>{['gameCodeDisplay','waitingCodeDisplay'].forEach(id=>{const el=document.getElementById(id);if(el&&el.closest('.screen.active')){const orig=el.textContent;el.textContent='COPIED!';setTimeout(()=>el.textContent=orig,1200);}});});
