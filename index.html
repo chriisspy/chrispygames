@@ -219,6 +219,12 @@ select option{background:var(--surface2)}
 .answer-text{font-size:15px;font-weight:600;color:var(--text)}
 .scoreboard-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px}
 .scoreboard-item.me{border-color:var(--accent)}
+.voting-locked .vote-item{opacity:0.3;pointer-events:none;cursor:not-allowed}
+.discuss-timer-wrap{text-align:center;padding:10px 0 4px}
+.discuss-timer{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;letter-spacing:4px;color:var(--ooo);transition:color 0.3s}
+.discuss-timer.ending{color:var(--accent);animation:timer-pulse 1s infinite}
+.discuss-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+.vote-locked-notice{text-align:center;padding:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo);border:1px dashed rgba(167,139,250,0.4);border-radius:var(--radius);margin-bottom:10px}
 .scoreboard-rank{font-size:18px;min-width:28px;text-align:center}
 .scoreboard-name{flex:1;font-size:14px;font-weight:600}
 .scoreboard-pts{font-family:'DM Mono',monospace;font-size:16px;color:var(--accent);font-weight:500}
@@ -588,7 +594,7 @@ select option{background:var(--surface2)}
     <div class="card fadeIn">
       <div class="timer-area" style="padding:10px 0">
         <div class="timer-display" id="oooVoteTimerDisplay">01:00</div>
-        <div class="timer-label">to vote</div>
+        <div class="timer-label" id="oooTimerLabel">to discuss</div>
       </div>
       <div class="notice ooo" id="oooVoteNotice" style="margin-bottom:10px">Who gave the odd answer? Tap to vote.</div>
       <div class="vote-list" id="oooVoteList"></div>
@@ -755,6 +761,7 @@ const LOCATIONS_PER_GAME = 12;
 const TIMER_DURATION = 8*60;
 const CHAOS_TIMER_DURATION = 6*60;
 const OOO_VOTE_DURATION = 60;
+const OOO_DISCUSS_DURATION = 30;
 
 // =====================================================
 // STATE
@@ -1248,7 +1255,7 @@ async function submitOOOAnswer(){
   document.getElementById('oooPreSubmit').style.display='none';
   document.getElementById('oooPostSubmit').style.display='block';
   if(Object.keys(answers).length>=totalPlayers){
-    await updateGame(gameCode,{oooPhase:'answers',oooVoteStart:Date.now()});
+    await updateGame(gameCode,{oooPhase:'answers',oooVoteStart:Date.now()+(OOO_DISCUSS_DURATION*1000)});
   }
 }
 
@@ -1275,21 +1282,47 @@ function updateOOOAnswers(game){
   if(amHost)checkAllVoted(game);
 }
 function checkAllVoted(game){
+  if(game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
   const n=Object.keys(game.players||{}).length;
   if(Object.keys(game.oooVotes||{}).length>=n&&game.oooPhase==='answers')resolveOOORound(game);
 }
 function tickOOOVoteTimer(game){
   if(!game.oooVoteStart)return;
-  const elapsed=Math.floor((Date.now()-game.oooVoteStart)/1000);
+  const now=Date.now();
+  const el=document.getElementById('oooVoteTimerDisplay');
+  const label=document.getElementById('oooTimerLabel');
+  const voteNotice=document.getElementById('oooVoteNotice');
+  const voteList=document.getElementById('oooVoteList');
+  const voteStatus=document.getElementById('oooVoteStatus');
+  if(!el)return;
+  if(now<game.oooVoteStart){
+    // DISCUSS PHASE
+    const remaining=Math.ceil((game.oooVoteStart-now)/1000);
+    const s=remaining.toString().padStart(2,'0');
+    el.textContent=`00:${s}`;
+    el.className='timer-display'+(remaining<10?' warning':'');
+    if(label)label.textContent='to discuss';
+    if(voteNotice){voteNotice.className='notice info';voteNotice.textContent='Read the answers and discuss...';}
+    if(voteList){voteList.style.opacity='0.25';voteList.style.pointerEvents='none';}
+    if(voteStatus)voteStatus.textContent='Voting opens in '+remaining+'s';
+    return;
+  }
+  // VOTE PHASE
+  if(label)label.textContent='to vote';
+  if(voteNotice){voteNotice.className='notice ooo';voteNotice.textContent='Who gave the odd answer? Tap to vote.';}
+  if(voteList){voteList.style.opacity='1';voteList.style.pointerEvents='auto';}
+  const elapsed=Math.floor((now-game.oooVoteStart)/1000);
   const remaining=Math.max(0,OOO_VOTE_DURATION-elapsed);
   const m=Math.floor(remaining/60).toString().padStart(2,'0');const s=(remaining%60).toString().padStart(2,'0');
-  const el=document.getElementById('oooVoteTimerDisplay');if(!el)return;
   el.textContent=`${m}:${s}`;
   el.className='timer-display'+(remaining<10?' danger':remaining<20?' warning':'');
+  if(voteStatus)voteStatus.textContent='';
   if(remaining===0&&amHost){clearInterval(oooVoteTimerInterval);resolveOOORound(game);}
 }
 async function castOOOVote(targetId){
   const game=localGame;if(!game||game.oooPhase!=='answers')return;
+  if(game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
+  if(Date.now()<game.oooVoteStart)return;
   // Update local state immediately (makes dev mode work + shows checkmark without waiting for Firebase)
   if(!localGame.oooVotes)localGame.oooVotes={};
   localGame.oooVotes[myId]=targetId;
@@ -1443,7 +1476,7 @@ function devOOO(type){
   localGame=base;
   if(type==='normal'||type==='odd'){enterOOOQuestionScreen(base);devShowStatus(`OOO: ${type==='odd'?'You are the odd one out':'You have normal question'}`);}
   else if(type==='answers'){
-    base.oooPhase='answers';base.oooVoteStart=Date.now();
+    base.oooPhase='answers';base.oooVoteStart=Date.now()+(8*1000);
     base.oooAnswers={[myId]:'The beach',dev_p2:'Sunscreen',dev_p3:'Sandcastles',dev_p4:'A broken flip flop'};
     base.oooVotes={};
     localGame=base;showOOOAnswers(base);devShowStatus('OOO: Answers — vote to test resolve, or let timer hit 0');
