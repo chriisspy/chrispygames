@@ -278,7 +278,7 @@ select option{background:var(--surface2)}
 <div class="screen" id="screen-home">
   <div style="text-align:center">
     <div class="logo">CHRISPY<span>GAMES</span></div>
-    <div class="tagline">Party games for your crew</div>
+    <div class="tagline">Party games for the boys</div>
   </div>
   <div class="game-tiles">
     <div class="game-tile game-tile-spyfall selected" id="homeTileSpyfall" onclick="selectHomeMode('spyfall')">
@@ -649,7 +649,7 @@ function checkPassword(){
     setTimeout(()=>e.style.display='none',3000);
   }
 }
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.querySelector('.screen.active')?.id==='screen-password')checkPassword();});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(document.querySelector('.screen.active')||{}).id==='screen-password')checkPassword();});
 
 // =====================================================
 // GAME DATA
@@ -904,7 +904,7 @@ async function joinGame(){
 // GAME UPDATE LISTENER
 // =====================================================
 function onGameUpdate(game){
-  const cur=document.querySelector('.screen.active')?.id;
+  const cur=(document.querySelector('.screen.active')||{}).id;
   if(game.hostId===myId&&!amHost)amHost=true;
   if(amHost)watchPresence(game);
 
@@ -1166,7 +1166,7 @@ function showResultScreen(game){
   const spyPlayers=spyIds.map(id=>game.players&&game.players[id]).filter(Boolean);
   document.getElementById('resultTitle').textContent=isChaos?'The Innocent was...':(spyIds.length>1?'The spies were...':'The spy was...');
   if(isChaos){
-    document.getElementById('resultRevealBox').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎭</div><div style="font-size:22px;font-weight:800;color:var(--safe)">${esc(innocentPlayer?.name||'Unknown')}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation)}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">Spies: ${spyPlayers.map(p=>esc(p.name)).join(', ')}</div>`;
+    document.getElementById('resultRevealBox').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎭</div><div style="font-size:22px;font-weight:800;color:var(--safe)">${esc((innocentPlayer&&innocentPlayer.name)||'Unknown')}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation)}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">Spies: ${spyPlayers.map(p=>esc(p.name)).join(', ')}</div>`;
   } else {
     document.getElementById('resultRevealBox').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🕵️</div><div style="font-size:22px;font-weight:800;color:var(--spy)">${spyPlayers.map(p=>esc(p.name)).join(' & ')||'Unknown'}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation||'?')}</div>`;
   }
@@ -1310,7 +1310,7 @@ async function resolveOOORound(game){
   const players=Object.values(game.players||{});
   if(caught){players.forEach(p=>{if(p.id!==game.oooImposterId)scores[p.id]=(scores[p.id]||0)+2;});}
   else{scores[game.oooImposterId]=(scores[game.oooImposterId]||0)+3;}
-  const impostorName=game.players&&game.players[game.oooImposterId]?.name||'Unknown';
+  const impostorName=(game.players&&game.players[game.oooImposterId]&&game.players[game.oooImposterId].name)||'Unknown';
   const description=caught?`${impostorName} was caught!`:`${impostorName} blended in and escaped!`;
   const result={caught,description,accusedId};
   localGame.oooPhase='result';localGame.oooScores=scores;localGame.oooResult=result;
@@ -1325,7 +1325,7 @@ function showOOOResult(game){
   clearInterval(oooVoteTimerInterval);
   const r=game.oooResult||{};
   const impostorPlayer=game.players&&game.players[game.oooImposterId];
-  document.getElementById('oooImpostorReveal').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎭</div><div style="font-size:22px;font-weight:800;color:var(--ooo)">${esc(impostorPlayer?.name||'Unknown')}</div>`;
+  document.getElementById('oooImpostorReveal').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎭</div><div style="font-size:22px;font-weight:800;color:var(--ooo)">${esc((impostorPlayer&&impostorPlayer.name)||'Unknown')}</div>`;
   document.getElementById('oooNormalQReveal').textContent=game.oooQuestionNormal||'';
   document.getElementById('oooOddQReveal').textContent=game.oooQuestionOdd||'';
   const banner=document.getElementById('oooResultBanner');
@@ -1387,7 +1387,7 @@ function renderChat(messages){
   });
 }
 async function sendChat(){
-  const cur=document.querySelector('.screen.active')?.id;
+  const cur=(document.querySelector('.screen.active')||{}).id;
   const inputId=cur==='screen-lobby'?'lobbyChatInput':'waitingChatInput';
   const input=document.getElementById(inputId);if(!input)return;
   const text=input.value.trim();if(!text||!gameCode)return;
@@ -1427,7 +1427,7 @@ function devStartAs(role){
   const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
   gameCode='DEV0';amHost=true;
   let game;
-  if(role==='crew'){game=devMockGame({chaosMode:false});game.spyIds=['dev_p2'];game.spyId='dev_p2';const loc=ALL_LOCATIONS.find(l=>l.name===game.currentLocation);game.roles[myId]=shuffle(loc?.roles||['Crew Member'])[0];}
+  if(role==='crew'){game=devMockGame({chaosMode:false});game.spyIds=['dev_p2'];game.spyId='dev_p2';const loc=ALL_LOCATIONS.find(l=>l.name===game.currentLocation);game.roles[myId]=shuffle((loc&&loc.roles)||['Crew Member'])[0];}
   else if(role==='spy'){game=devMockGame({chaosMode:false,forceSpy:true});}
   else if(role==='chaos-innocent'){game=devMockGame({chaosMode:true,forceInnocent:true});}
   else if(role==='chaos-spy'){game=devMockGame({chaosMode:true});game.innocentId='dev_p2';game.spyIds=['dev_p3','dev_p4',myId];game.roles[myId]='__CHAOS_SPY__';game.roles['dev_p2']='__INNOCENT__';}
@@ -1482,7 +1482,7 @@ function selectHomeMode(mode){
 function switchTab(tab){['timer','locations','vote'].forEach((t,i)=>{document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);document.getElementById('tab-'+t).classList.toggle('active',t===tab);});}
 function copyCode(){
   const code=gameCode||'----';
-  navigator.clipboard?.writeText(code).then(()=>{['gameCodeDisplay','waitingCodeDisplay'].forEach(id=>{const el=document.getElementById(id);if(el&&el.closest('.screen.active')){const orig=el.textContent;el.textContent='COPIED!';setTimeout(()=>el.textContent=orig,1200);}});});
+  navigator.clipboard&&navigator.clipboard.writeText(code).then(()=>{['gameCodeDisplay','waitingCodeDisplay'].forEach(id=>{const el=document.getElementById(id);if(el&&el.closest('.screen.active')){const orig=el.textContent;el.textContent='COPIED!';setTimeout(()=>el.textContent=orig,1200);}});});
 }
 document.getElementById('joinCode').addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});
 document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});
