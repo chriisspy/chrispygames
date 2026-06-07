@@ -30,7 +30,7 @@ body.no-scroll{overflow:hidden;height:100%;touch-action:none;}
   --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--surface3:#252532;
   --accent:#e8d44d;--accent2:#e85d4d;--text:#f0eff5;--muted:#7a7a8c;
   --border:#2a2a3a;--spy:#e85d4d;--safe:#4de8a0;--chaos:#ff2d2d;--ooo:#a78bfa;
-  --mafia:#c0392b;--detective:#3498db;--doctor:#27ae60;--town:#95a5a6;
+  --mafia:#c0392b;--doctor:#27ae60;--town:#95a5a6;
   --radius:12px;--radius-lg:20px;
 }
 body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh}
@@ -177,7 +177,6 @@ select option{background:var(--surface2)}
 .playing-card-wrap{perspective:1000px;width:100%;max-width:280px;margin:0 auto;animation:cardFlip 0.5s ease forwards}
 .playing-card{width:100%;aspect-ratio:2.5/3.5;border-radius:16px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
 .playing-card.card-mafia{background:linear-gradient(145deg,#1a0505 0%,#2d0a0a 40%,#1a0505 100%);border:2px solid #8b0000}
-.playing-card.card-detective{background:linear-gradient(145deg,#020d1a 0%,#051e3a 40%,#020d1a 100%);border:2px solid #1a5276}
 .playing-card.card-doctor{background:linear-gradient(145deg,#021a08 0%,#053d12 40%,#021a08 100%);border:2px solid #1a5e2a}
 .playing-card.card-town{background:linear-gradient(145deg,#0f0f14 0%,#1c1c28 40%,#0f0f14 100%);border:2px solid #3d3d5c}
 .card-corner{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:1}
@@ -186,20 +185,17 @@ select option{background:var(--surface2)}
 .card-corner-rank{font-family:'DM Mono',monospace;font-size:22px;font-weight:700}
 .card-corner-suit{font-size:18px;line-height:1}
 .card-mafia .card-corner-rank{color:#e74c3c}
-.card-detective .card-corner-rank{color:#3498db}
 .card-doctor .card-corner-rank{color:#27ae60}
 .card-town .card-corner-rank{color:#7f8c8d}
 .card-center{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:20px 0 10px}
 .card-center-icon{font-size:64px;margin-bottom:12px;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5))}
 .card-role-name{font-size:22px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
 .card-mafia .card-role-name{color:#e74c3c}
-.card-detective .card-role-name{color:#3498db}
 .card-doctor .card-role-name{color:#27ae60}
 .card-town .card-role-name{color:#95a5a6}
 .card-role-desc{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);margin-top:6px;text-align:center;line-height:1.5;letter-spacing:0.5px}
 .card-inner-border{position:absolute;inset:8px;border-radius:10px;pointer-events:none}
 .card-mafia .card-inner-border{border:1px solid rgba(139,0,0,0.4)}
-.card-detective .card-inner-border{border:1px solid rgba(26,82,118,0.4)}
 .card-doctor .card-inner-border{border:1px solid rgba(26,94,42,0.4)}
 .card-town .card-inner-border{border:1px solid rgba(61,61,92,0.4)}
 /* Card suit pattern overlay */
@@ -282,7 +278,6 @@ select option{background:var(--surface2)}
 .mafia-phase-banner{padding:10px 14px;border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;letter-spacing:2px;margin-bottom:12px}
 .mafia-phase-banner.day{background:rgba(232,212,77,0.08);border:1px solid rgba(232,212,77,0.3);color:var(--accent)}
 .mafia-phase-banner.night{background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.3);color:#e74c3c;animation:mafia-pulse 2s infinite}
-.mafia-phase-banner.night-action{background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.3);color:var(--detective)}
 .player-status-grid{display:flex;flex-direction:column;gap:6px;margin:8px 0}
 .player-status-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);font-size:14px}
 .player-status-item.dead-player{opacity:0.4;border-style:dashed}
@@ -291,7 +286,6 @@ select option{background:var(--surface2)}
 .status-dot.alive{background:var(--safe)}
 .status-dot.dead{background:var(--spy)}
 .mafia-action-box{padding:16px;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.3);border-radius:var(--radius);margin:10px 0}
-.detective-action-box{padding:16px;background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.3);border-radius:var(--radius);margin:10px 0}
 .doctor-action-box{padding:16px;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.3);border-radius:var(--radius);margin:10px 0}
 .night-waiting-box{padding:16px;background:var(--surface2);border:1px dashed var(--border);border-radius:var(--radius);text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;margin:10px 0}
 .mafia-log{display:flex;flex-direction:column;gap:6px;margin:8px 0}
@@ -308,7 +302,6 @@ select option{background:var(--surface2)}
 .mafia-tab-content.active{display:block}
 .host-controls-box{padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-top:10px}
 .host-controls-title{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-.detective-result-box{padding:14px;background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.3);border-radius:var(--radius);text-align:center;margin-top:10px;font-size:14px}
 
 /* Chat */
 .chat-wrap{margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
@@ -432,7 +425,6 @@ select option{background:var(--surface2)}
         <div class="dev-section-label" style="margin-top:10px">Mafia</div>
         <div class="dev-grid">
           <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('mafia')">🔴 As Mafia</button>
-          <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('detective')">🔵 As Detective</button>
           <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('doctor')">💚 As Doctor</button>
           <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('town')">⬜ As Town</button>
         </div>
@@ -521,7 +513,19 @@ select option{background:var(--surface2)}
             <div class="count-label" id="mafiaCountLabel">mafia members</div>
           </div>
         </div>
-        <div class="notice mafia" style="margin-top:4px">🃏 Roles: Mafia, Townspeople, Doctor (saves one per night), Detective (investigates one per night). Mafia win when they equal or outnumber Town. Town wins by eliminating all Mafia.</div>
+        <div class="chaos-toggle-wrap" id="doctorToggleWrap" style="background:rgba(39,174,96,0.05);border-color:rgba(39,174,96,0.2)">
+          <div class="chaos-toggle-header">
+            <div>
+              <div class="chaos-title" style="color:var(--doctor)">💚 DOCTOR ROLE</div>
+              <div class="chaos-desc">One player can save someone from death each night.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="doctorToggle" checked onchange="toggleDoctorRole()"/>
+              <span class="toggle-slider" style=""></span>
+            </label>
+          </div>
+        </div>
+        <div class="notice mafia" style="margin-top:4px">🃏 Roles: Mafia, Townspeople, and optionally Doctor. Mafia win when they equal or outnumber Town. Town wins by eliminating all Mafia.</div>
       </div>
       <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 4 players to start Mafia</div>
       <div style="height:8px"></div>
@@ -826,20 +830,11 @@ select option{background:var(--surface2)}
               <div id="mafiaSaveStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:var(--doctor);text-align:center"></div>
             </div>
           </div>
-          <!-- Detective: pick investigate target -->
-          <div id="mafiaInvestSection" style="display:none">
-            <div class="detective-action-box">
-              <div style="font-size:13px;font-weight:700;color:var(--detective);margin-bottom:10px">🔵 DETECTIVE — Investigate a player</div>
-              <div class="vote-list" id="mafiaInvestList"></div>
-              <div id="mafiaInvestStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:var(--detective);text-align:center"></div>
-              <div id="detectiveResult" class="detective-result-box" style="display:none"></div>
-            </div>
-          </div>
           <!-- Town + waiting -->
           <div id="mafiaNightWaiting" class="night-waiting-box" style="display:none">
             <div style="font-size:28px;margin-bottom:8px">🌙</div>
             <div>Night is falling...</div>
-            <div style="font-size:11px;margin-top:6px;color:var(--border)">Mafia, Doctor and Detective are acting</div>
+            <div style="font-size:11px;margin-top:6px;color:var(--border)">Mafia and Doctor are acting</div>
           </div>
         </div>
 
@@ -1072,9 +1067,8 @@ if(!myId){myId=Math.random().toString(36).slice(2,12);localStorage.setItem('sf_m
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null;
 let roleVisible=true,revealVisible=true,mafiaCardVisible=true;
-let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1;
+let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true;
 let chatListener=null;
-let mafiaDetectiveResult=null; // store detective investigation result locally
 
 // =====================================================
 // UTILS
@@ -1113,6 +1107,13 @@ function changeOOORounds(delta){
   document.getElementById('oooRoundsDisplay').textContent=localOOORounds;
   document.getElementById('oooRoundsLabel').textContent=`round${localOOORounds!==1?'s':''}`;
   if(gameCode)updateGame(gameCode,{oooTotalRounds:localOOORounds});
+}
+function toggleDoctorRole(){
+  localDoctorEnabled=document.getElementById('doctorToggle').checked;
+  const wrap=document.getElementById('doctorToggleWrap');
+  wrap.style.background=localDoctorEnabled?'rgba(39,174,96,0.05)':'rgba(30,30,40,0.5)';
+  wrap.style.borderColor=localDoctorEnabled?'rgba(39,174,96,0.2)':'rgba(42,42,58,0.8)';
+  if(gameCode)updateGame(gameCode,{doctorEnabled:localDoctorEnabled});
 }
 function maxMafia(n){return Math.max(1,Math.floor((n-1)/3));}
 function changeMafiaCount(delta){
@@ -1197,7 +1198,7 @@ async function createGame(){
   setLoading('createBtn',true,'Creating...');
   const code=genCode();gameCode=code;amHost=true;
   const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaInvestVote:null,mafiaLog:[],mafiaResult:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
+  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
@@ -1326,6 +1327,13 @@ function renderLobby(game){
   updateSpyCountUI(n);
   if(game.mafiaCount&&game.mafiaCount!==localMafiaCount)localMafiaCount=game.mafiaCount;
   updateMafiaCountUI(n);
+  if(game.doctorEnabled!==undefined&&game.doctorEnabled!==localDoctorEnabled){
+    localDoctorEnabled=game.doctorEnabled;
+    document.getElementById('doctorToggle').checked=localDoctorEnabled;
+    const wrap=document.getElementById('doctorToggleWrap');
+    wrap.style.background=localDoctorEnabled?'rgba(39,174,96,0.05)':'rgba(30,30,40,0.5)';
+    wrap.style.borderColor=localDoctorEnabled?'rgba(39,174,96,0.2)':'rgba(42,42,58,0.8)';
+  }
   if(game.chaosMode!==undefined){localChaosMode=game.chaosMode;document.getElementById('chaosModeToggle').checked=localChaosMode;document.getElementById('chaosModeWrap').classList.toggle('chaos-on',localChaosMode);}
   if(game.mode&&game.mode!==localGameMode){localGameMode=game.mode;updateModeUI(game.mode);}
   if(game.oooTotalRounds&&game.oooTotalRounds!==localOOORounds){localOOORounds=game.oooTotalRounds;document.getElementById('oooRoundsDisplay').textContent=localOOORounds;document.getElementById('oooRoundsLabel').textContent=`round${localOOORounds!==1?'s':''}`;}
@@ -1377,22 +1385,21 @@ async function startMafiaGame(){
   const count=Math.min(localMafiaCount,maxMafia(players.length));
   const shuffled=shuffle([...players]);
   const mafiaIds=shuffled.slice(0,count).map(p=>p.id);
-  // Assign special roles to non-mafia
   const nonMafia=shuffled.slice(count);
   const mafiaRoles={};
   mafiaIds.forEach(id=>{mafiaRoles[id]='mafia';});
-  // Always assign doctor and detective if enough players
-  let assigned=0;
+  const useDoctor=localDoctorEnabled&&nonMafia.length>1;
+  let doctorAssigned=false;
   nonMafia.forEach(p=>{
-    if(assigned===0){mafiaRoles[p.id]='detective';assigned++;}
-    else if(assigned===1){mafiaRoles[p.id]='doctor';assigned++;}
+    if(!doctorAssigned&&useDoctor){mafiaRoles[p.id]='doctor';doctorAssigned=true;}
     else{mafiaRoles[p.id]='town';}
   });
   await updateGame(gameCode,{
     status:'playing',mode:'mafia',
     mafiaRoles,mafiaIds,
     mafiaPhase:'day',mafiaDay:1,
-    mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaInvestVote:null,
+    doctorEnabled:localDoctorEnabled,
+    mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,
     mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],
     mafiaResult:null,mafiaCount:count,
     votes:{},result:null,
@@ -1405,7 +1412,6 @@ async function startMafiaGame(){
 function getMafiaCardHTML(role){
   const configs={
     mafia:{cls:'card-mafia',rank:'M',suit:'♠',icon:'🔴',name:'MAFIA',desc:'Kill one each night.\nBlend in during the day.'},
-    detective:{cls:'card-detective',rank:'D',suit:'♦',icon:'🔵',name:'DETECTIVE',desc:'Investigate one player\neach night.'},
     doctor:{cls:'card-doctor',rank:'Dr',suit:'♥',icon:'💚',name:'DOCTOR',desc:'Save one player\nfrom death each night.'},
     town:{cls:'card-town',rank:'T',suit:'♣',icon:'⬜',name:'TOWNSPERSON',desc:'Vote wisely by day.\nEliminate all Mafia.'},
   };
@@ -1456,8 +1462,6 @@ function enterMafiaReveal(game){
       extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:#e74c3c;margin-bottom:6px">YOUR MAFIA TEAM</div><div style="font-family:'DM Mono',monospace;font-size:14px">${teammates.map(n=>esc(n)).join(', ')}</div></div>`;
     } else if(role==='mafia'){
       extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;color:#e74c3c;font-family:'DM Mono',monospace">You are the only Mafia member. Blend in.</div></div>`;
-    } else if(role==='detective'){
-      extra=`<div class="detective-action-box" style="margin-top:12px"><div style="font-size:12px;color:var(--detective);font-family:'DM Mono',monospace">Each night you can investigate one player and learn if they are Mafia.</div></div>`;
     } else if(role==='doctor'){
       extra=`<div class="doctor-action-box" style="margin-top:12px"><div style="font-size:12px;color:var(--doctor);font-family:'DM Mono',monospace">Each night you can protect one player from being killed by Mafia.</div></div>`;
     }
@@ -1504,9 +1508,9 @@ function renderMafiaGame(game){
   document.getElementById('mafiaDeadBanner').style.display=amDead?'block':'none';
 
   // My role summary
-  const roleColors={mafia:'#e74c3c',detective:'var(--detective)',doctor:'var(--doctor)',town:'var(--muted)'};
-  const roleIcons={mafia:'🔴',detective:'🔵',doctor:'💚',town:'⬜'};
-  const roleLabel={mafia:'MAFIA',detective:'DETECTIVE',doctor:'DOCTOR',town:'TOWNSPERSON'};
+  const roleColors={mafia:'#e74c3c',doctor:'var(--doctor)',town:'var(--muted)'};
+  const roleIcons={mafia:'🔴',doctor:'💚',town:'⬜'};
+  const roleLabel={mafia:'MAFIA',doctor:'DOCTOR',town:'TOWNSPERSON'};
   document.getElementById('mafiaRoleSummary').innerHTML=`<span style="color:${roleColors[myRole]};font-weight:700">${roleIcons[myRole]} ${roleLabel[myRole]}</span>`;
 
   // Players tab
@@ -1580,10 +1584,8 @@ function renderMafiaDayVote(game,alivePlayers,amDead){
 }
 
 function renderMafiaNight(game,alivePlayers,myRole,amDead,mafiaIds){
-  // Hide all sections first
   document.getElementById('mafiaKillSection').style.display='none';
   document.getElementById('mafiaSaveSection').style.display='none';
-  document.getElementById('mafiaInvestSection').style.display='none';
   document.getElementById('mafiaNightWaiting').style.display='none';
 
   if(amDead){document.getElementById('mafiaNightWaiting').style.display='block';return;}
@@ -1591,8 +1593,7 @@ function renderMafiaNight(game,alivePlayers,myRole,amDead,mafiaIds){
   const killVotes=game.mafiaKillVotes||{};
   const myKillVote=killVotes[myId];
   const saveVote=game.mafiaSaveVote;
-  const investVote=game.mafiaInvestVote;
-  const targets=alivePlayers.filter(p=>!mafiaIds.includes(p.id));// mafia can't kill themselves
+  const targets=alivePlayers.filter(p=>!mafiaIds.includes(p.id));
 
   if(myRole==='mafia'){
     document.getElementById('mafiaKillSection').style.display='block';
@@ -1608,18 +1609,6 @@ function renderMafiaNight(game,alivePlayers,myRole,amDead,mafiaIds){
     const allAlive=alivePlayers;
     document.getElementById('mafiaSaveList').innerHTML=allAlive.map(p=>`<div class="vote-item ${saveVote===p.id?'voted':''}" onclick="castMafiaSaveVote('${p.id}')"><div style="font-size:20px">💊</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' (me)':''}</div>${saveVote===p.id?'<div style="color:var(--doctor);font-size:13px">✓</div>':''}</div>`).join('');
     document.getElementById('mafiaSaveStatus').textContent=saveVote?'Saved — waiting for dawn':'Choose who to protect';
-  } else if(myRole==='detective'){
-    document.getElementById('mafiaInvestSection').style.display='block';
-    const investTargets=alivePlayers.filter(p=>p.id!==myId);
-    document.getElementById('mafiaInvestList').innerHTML=investTargets.map(p=>`<div class="vote-item ${investVote===p.id?'voted':''}" onclick="castMafiaInvestVote('${p.id}')"><div style="font-size:20px">🔍</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>${investVote===p.id?'<div style="color:var(--detective);font-size:13px">✓</div>':''}</div>`).join('');
-    document.getElementById('mafiaInvestStatus').textContent=investVote?'Investigating — waiting for dawn':'Choose who to investigate';
-    // Show detective result if we have one locally
-    const drEl=document.getElementById('detectiveResult');
-    if(mafiaDetectiveResult&&mafiaDetectiveResult.gameCode===gameCode&&mafiaDetectiveResult.day===game.mafiaDay){
-      drEl.style.display='block';
-      const isMafia=mafiaDetectiveResult.isMafia;
-      drEl.innerHTML=`<div style="font-size:20px;margin-bottom:6px">${isMafia?'🔴':'🟢'}</div><div style="font-weight:700;color:${isMafia?'#e74c3c':'var(--safe)'}">${esc(mafiaDetectiveResult.name)} is ${isMafia?'MAFIA':'NOT MAFIA'}</div>`;
-    } else {drEl.style.display='none';}
   } else {
     document.getElementById('mafiaNightWaiting').style.display='block';
   }
@@ -1640,17 +1629,6 @@ async function castMafiaSaveVote(targetId){
   if(!gameCode||!localGame||localGame.mafiaPhase!=='night')return;
   await gameRefFor(gameCode).child('mafiaSaveVote').set(targetId);
 }
-async function castMafiaInvestVote(targetId){
-  if(!gameCode||!localGame||localGame.mafiaPhase!=='night')return;
-  await gameRefFor(gameCode).child('mafiaInvestVote').set(targetId);
-  // Immediately show result locally
-  const role=(localGame.mafiaRoles&&localGame.mafiaRoles[targetId])||'town';
-  const isMafia=role==='mafia';
-  const name=(localGame.players&&localGame.players[targetId]&&localGame.players[targetId].name)||'?';
-  mafiaDetectiveResult={gameCode,day:localGame.mafiaDay,targetId,name,isMafia};
-  renderMafiaGame(localGame);
-}
-
 // DAY VOTE RESOLUTION (host)
 async function resolveMafiaDayVote(game,votes,alivePlayers){
   const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
@@ -1677,20 +1655,17 @@ async function resolveMafiaDayVote(game,votes,alivePlayers){
 async function mafiaAdvancePhase(){
   const game=localGame;if(!game)return;
   if(game.mafiaPhase==='day'){
-    await updateGame(gameCode,{mafiaPhase:'night',mafiaKillVotes:{},mafiaSaveVote:null,mafiaInvestVote:null});
+    await updateGame(gameCode,{mafiaPhase:'night',mafiaKillVotes:{},mafiaSaveVote:null});
   }
 }
 async function mafiaAdvanceToDawn(){
   const game=localGame;if(!game)return;
   if(game.mafiaPhase!=='night')return;
-  // Resolve night actions
   const killVotes=game.mafiaKillVotes||{};
   const saveVote=game.mafiaSaveVote;
-  const investVote=game.mafiaInvestVote;
   const eliminated={...(game.mafiaEliminated||{})};
   const log=[...(game.mafiaLog||[])];
 
-  // Pick kill target (majority of mafia votes)
   const killCounts={};Object.values(killVotes).forEach(v=>{killCounts[v]=(killCounts[v]||0)+1;});
   let killTarget=null;
   if(Object.keys(killCounts).length>0){
@@ -1713,7 +1688,7 @@ async function mafiaAdvanceToDawn(){
 }
 async function mafiaAdvanceToDay(){
   const game=localGame;if(!game)return;
-  await updateGame(gameCode,{mafiaPhase:'day',mafiaDay:(game.mafiaDay||1)+1,mafiaKillVotes:{},mafiaSaveVote:null,mafiaInvestVote:null,mafiaVotes:{},mafiaPhaseTimer:Date.now()});
+  await updateGame(gameCode,{mafiaPhase:'day',mafiaDay:(game.mafiaDay||1)+1,mafiaKillVotes:{},mafiaSaveVote:null,mafiaVotes:{},mafiaPhaseTimer:Date.now()});
   checkMafiaWin(localGame);
 }
 
@@ -1755,7 +1730,7 @@ function showMafiaResult(game){
   document.getElementById('mafiaResultReveal').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🔴</div><div style="font-size:20px;font-weight:800;color:#e74c3c">${mafiaPlayers.map(p=>esc(p.name)).join(', ')||'Unknown'}</div>`;
   // Show all roles
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
-  const roleLabel={mafia:'🔴 MAFIA',detective:'🔵 DETECTIVE',doctor:'💚 DOCTOR',town:'⬜ TOWN'};
+  const roleLabel={mafia:'🔴 MAFIA',doctor:'💚 DOCTOR',town:'⬜ TOWN'};
   document.getElementById('mafiaFinalRoles').innerHTML=players.map(p=>{
     const role=(game.mafiaRoles&&game.mafiaRoles[p.id])||'town';
     return`<div class="player-item"><div class="player-name">${esc(p.name)}</div><div class="player-badge">${roleLabel[role]||role}</div></div>`;
@@ -2314,7 +2289,7 @@ async function returnToLobby(){
   if(!amHost)return;
   const game=localGame;if(!game)return;
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaInvestVote:null,mafiaResult:null,chat:null});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaResult:null,chat:null});
 }
 async function leaveGame(){
   clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);stopListening();stopChat();
@@ -2329,7 +2304,7 @@ async function leaveGame(){
       }
     }catch(e){console.error(e);}
   }
-  gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;mafiaDetectiveResult=null;
+  gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;
   showScreen('home');
 }
 
@@ -2420,10 +2395,10 @@ function devMafiaTest(role){
   const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
   gameCode='DEV0';amHost=true;
   const mockPlayers={[myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},'dev_p4':{id:'dev_p4',name:'Player 4',isHost:false,joinedAt:Date.now()+3,online:true},'dev_p5':{id:'dev_p5',name:'Player 5',isHost:false,joinedAt:Date.now()+4,online:true}};
-  const mafiaRoles={[myId]:role,dev_p2:role==='mafia'?'mafia':'town',dev_p3:'town',dev_p4:role==='detective'?'town':'detective',dev_p5:role==='doctor'?'town':'doctor'};
+  const mafiaRoles={[myId]:role,dev_p2:role==='mafia'?'mafia':'town',dev_p3:'town',dev_p4:role==='doctor'?'town':'doctor',dev_p5:'town'};
   const mafiaIds=Object.entries(mafiaRoles).filter(([,r])=>r==='mafia').map(([id])=>id);
-  const game={code:'DEV0',status:'playing',mode:'mafia',hostId:myId,mafiaRoles,mafiaIds,mafiaPhase:'day',mafiaDay:1,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaInvestVote:null,mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],mafiaResult:null,players:mockPlayers,createdAt:Date.now()};
-  localGame=game;mafiaDetectiveResult=null;enterMafiaReveal(game);devShowStatus(`Mafia: you are ${role}`);
+  const game={code:'DEV0',status:'playing',mode:'mafia',hostId:myId,mafiaRoles,mafiaIds,mafiaPhase:'day',mafiaDay:1,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],mafiaResult:null,players:mockPlayers,createdAt:Date.now()};
+  localGame=game;enterMafiaReveal(game);devShowStatus(`Mafia: you are ${role}`);
 }
 function devGoScreen(screen){
   const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
@@ -2439,7 +2414,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);stopListening();stopChat();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;mafiaDetectiveResult=null;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);stopListening();stopChat();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;showScreen('home');}
 
 // =====================================================
 // HOME MODE SELECT
