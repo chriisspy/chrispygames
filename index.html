@@ -1110,7 +1110,7 @@ function initGameScreen(game){
   const isInnocent=game.innocentId===myId;
   const showHighlight=isChaos?isInnocent:!isSpy;
   document.getElementById('chaosModeGameBanner').style.display=isChaos?'block':'none';
-  document.getElementById('locationGrid').innerHTML=game.locations.map(loc=>`<div class="location-chip ${showHighlight&&loc===game.currentLocation?'current':''}">${esc(loc)}</div>`).join('');
+document.getElementById('locationGrid').innerHTML=game.locations.map(loc=>`<div class="location-chip">${esc(loc)}</div>`).join('');
   document.getElementById('locationsTabDesc').textContent=isChaos?(isInnocent?'Highlighted = real location. Only you know.':'All locations. You don\'t know which is real.'):'All possible locations. Highlighted = real (hidden from spy).';
   const sel=document.getElementById('spyGuessSelect');
   sel.innerHTML='<option value="">-- Select a location --</option>'+game.locations.map(l=>`<option value="${l}">${esc(l)}</option>`).join('');
@@ -1130,12 +1130,14 @@ function renderGame(game){
   if(amHost&&game.status==='playing'&&game.mode!=='ooo'&&!game.tiePhase){
     const votes=game.votes||{};
     const n=Object.keys(game.players||{}).length;
-    const majority=Math.ceil(n/2);
-    const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
-    for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority){resolveGame('vote',pid);return;}}
-    if(Object.keys(votes).length>=n&&n>0&&!game.tiePhase)handleSpyfallTie(votes,game);
+    if(Object.keys(votes).length>=n&&n>0){
+      const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+      const majority=Math.ceil(n/2);
+      let resolved=false;
+      for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority){resolveGame('vote',pid);resolved=true;break;}}
+      if(!resolved)handleSpyfallTie(votes,game);
+    }
   }
-}
 function updateRoleSummary(game){
   const isChaos=game.chaosMode;const spyIds=game.spyIds||[game.spyId];const isSpy=spyIds.includes(myId);const isInnocent=game.innocentId===myId;const el=document.getElementById('myRoleSummary');
   if(isChaos){
@@ -1147,12 +1149,11 @@ function updateRoleSummary(game){
   }
 }
 function toggleGameRoleVisibility(){
-  roleVisible=!roleVisible;const s=document.getElementById('myRoleSummary');const h=document.getElementById('myRoleHidden');const b=document.getElementById('hideGameRoleBtn');
-  if(roleVisible){s.style.display='block';h.style.display='none';b.textContent='🙈 Hide my role';}
-  else{s.style.display='none';h.style.display='block';b.textContent='👁 Show my role';}
+  roleVisible=!roleVisible;const s=document.getElementById('myRoleSummary');const h=document.getElementById('myRoleHidden');const b=document.getElementById('hideGameRoleBtn');const sg=document.getElementById('spyGuessSection');
+  if(roleVisible){s.style.display='block';h.style.display='none';b.textContent='🙈 Hide my role';if(sg&&sg.dataset.spyVisible==='true')sg.style.display='block';}
+  else{s.style.display='none';h.style.display='block';b.textContent='👁 Show my role';if(sg){sg.dataset.spyVisible=sg.style.display!=='none'?'true':'false';sg.style.display='none';}}
 }
-function revealRoleSummary(){roleVisible=true;document.getElementById('myRoleSummary').style.display='block';document.getElementById('myRoleHidden').style.display='none';document.getElementById('hideGameRoleBtn').textContent='🙈 Hide my role';}
-function tickTimer(game){
+function revealRoleSummary(){roleVisible=true;document.getElementById('myRoleSummary').style.display='block';document.getElementById('myRoleHidden').style.display='none';document.getElementById('hideGameRoleBtn').textContent='🙈 Hide my role';const sg=document.getElementById('spyGuessSection');if(sg&&sg.dataset.spyVisible==='true')sg.style.display='block';}function tickTimer(game){
   if(!game.timerStart)return;
   const elapsed=game.timerRunning?Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0):(game.timerOffset||0);
   const remaining=Math.max(0,game.timerDuration-elapsed);
@@ -1185,14 +1186,18 @@ async function castVote(targetId){
   await gameRefFor(gameCode).child('votes/'+myId).set(targetId);
   if(amHost){
     const votes={...(game.votes||{}),[myId]:targetId};
-    const n=Object.keys(game.players||{}).length;const majority=Math.ceil(n/2);const counts={};
-    Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
-    for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority){if(game.tiePhase)await updateGame(gameCode,{tiePhase:false});await resolveGame('vote',pid);return;}}
+    const n=Object.keys(game.players||{}).length;
     if(Object.keys(votes).length>=n){
-      if(game.tiePhase)await resolveSpyfallTieVotes(votes,game);
-      else await handleSpyfallTie(votes,game);
+      const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+      const majority=Math.ceil(n/2);
+      if(game.tiePhase){
+        await resolveSpyfallTieVotes(votes,game);
+      } else {
+        let resolved=false;
+        for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority){await resolveGame('vote',pid);resolved=true;break;}}
+        if(!resolved)await handleSpyfallTie(votes,game);
+      }
     }
-  }
 }
 async function resolveGame(reason,accusedId=null){
   const game=localGame;if(!game||game.status!=='playing'||game.mode==='ooo')return;
