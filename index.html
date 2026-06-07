@@ -797,12 +797,11 @@ select option{background:var(--surface2)}
   </div>
 </div>
 
-<!-- MAFIA: GAME -->
+<!-- MAFIA: GAME (day phase) -->
 <div class="screen scrollable" id="screen-mafia-game">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px">
     <button class="back-btn" onclick="leaveGame()">← Leave game</button>
 
-    <!-- Dead spectator banner -->
     <div id="mafiaDeadBanner" class="dead-spectator-banner" style="display:none">
       <div style="font-size:32px;margin-bottom:8px">💀</div>
       <div style="font-size:18px;font-weight:800;color:var(--spy);margin-bottom:4px">You are dead</div>
@@ -812,73 +811,116 @@ select option{background:var(--surface2)}
     <div class="card fadeIn">
       <div id="mafiaPhaseDisplay" class="mafia-phase-banner day">☀️ DAY 1 — DISCUSSION</div>
 
+      <!-- Day timer -->
+      <div class="timer-area" id="mafiaDayTimerArea" style="padding:10px 0 6px">
+        <div class="timer-display" id="mafiaDayTimerDisplay">03:00</div>
+        <div class="timer-label">until night</div>
+      </div>
+
       <div class="mafia-tab-bar">
         <button class="mafia-tab-btn active" onclick="switchMafiaTab('game')">Game</button>
         <button class="mafia-tab-btn" onclick="switchMafiaTab('players')">Players</button>
         <button class="mafia-tab-btn" onclick="switchMafiaTab('log')">Log</button>
       </div>
 
-      <!-- GAME TAB -->
       <div class="mafia-tab-content active" id="mafia-tab-game">
-        <!-- My role reminder -->
         <div id="mafiaRoleSummary" class="role-summary-content" style="margin-bottom:12px"></div>
-
-        <!-- DAY: vote to eliminate -->
         <div id="mafiaVoteSection">
           <div class="notice info" id="mafiaVoteNotice" style="margin-bottom:10px">Who do you think is Mafia? Vote to eliminate.</div>
           <div class="vote-list" id="mafiaVoteList"></div>
           <div id="mafiaVoteStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
         </div>
-
-        <!-- NIGHT: role actions -->
-        <div id="mafiaNightSection" style="display:none">
-          <!-- Mafia: pick kill target -->
-          <div id="mafiaKillSection" style="display:none">
-            <div class="mafia-action-box">
-              <div style="font-size:13px;font-weight:700;color:#e74c3c;margin-bottom:10px">🔴 MAFIA — Choose your target</div>
-              <div class="vote-list" id="mafiaKillList"></div>
-              <div id="mafiaKillStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c;text-align:center"></div>
-            </div>
-          </div>
-          <!-- Doctor: pick save target -->
-          <div id="mafiaSaveSection" style="display:none">
-            <div class="doctor-action-box">
-              <div style="font-size:13px;font-weight:700;color:var(--doctor);margin-bottom:10px">💚 DOCTOR — Choose who to save</div>
-              <div class="vote-list" id="mafiaSaveList"></div>
-              <div id="mafiaSaveStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:var(--doctor);text-align:center"></div>
-            </div>
-          </div>
-          <!-- Town + waiting -->
-          <div id="mafiaNightWaiting" class="night-waiting-box" style="display:none">
-            <div style="font-size:28px;margin-bottom:8px">🌙</div>
-            <div>Night is falling...</div>
-            <div style="font-size:11px;margin-top:6px;color:var(--border)">Mafia and Doctor are acting</div>
-          </div>
-        </div>
-
-        <!-- HOST CONTROLS -->
-        <div id="mafiaHostControls" class="host-controls-box" style="display:none">
+        <div id="mafiaHostControls" class="host-controls-box" style="display:none;margin-top:12px">
           <div class="host-controls-title">⚙ Host Controls</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <button id="mafiaAdvanceBtn" class="btn btn-primary" onclick="mafiaAdvancePhase()">Advance to Night →</button>
+            <button id="mafiaAdvanceBtn" class="btn btn-primary" onclick="mafiaAdvancePhase()">End Day Early →</button>
             <button class="btn btn-danger" onclick="mafiaEndGame()">End Game</button>
           </div>
         </div>
       </div>
 
-      <!-- PLAYERS TAB -->
       <div class="mafia-tab-content" id="mafia-tab-players">
         <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px">💀 = eliminated</div>
         <div class="player-status-grid" id="mafiaPlayerStatusList"></div>
       </div>
 
-      <!-- LOG TAB -->
       <div class="mafia-tab-content" id="mafia-tab-log">
         <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px">Game events</div>
         <div class="mafia-log" id="mafiaGameLog"></div>
       </div>
-
     </div>
+  </div>
+</div>
+
+<!-- MAFIA: NIGHT — MAFIA DECISION ("Will you kill?") -->
+<div class="screen" id="screen-mafia-night-mafia">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <div style="text-align:center">
+      <div style="font-size:11px;font-family:'DM Mono',monospace;letter-spacing:3px;color:#e74c3c;text-transform:uppercase;margin-bottom:8px">🌙 Night Phase</div>
+      <div style="font-size:28px;font-weight:800;color:var(--text);margin-bottom:4px">Will you kill someone<br>this round?</div>
+      <div class="timer-display" id="mafiaKillDecisionTimer" style="font-size:36px;margin:12px 0;color:#e74c3c">—</div>
+    </div>
+
+    <!-- Mafia private chat (2 mafia only) -->
+    <div id="mafiaPrivateChatWrap" style="display:none;width:100%">
+      <div style="font-size:11px;color:#e74c3c;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#e74c3c;display:inline-block;animation:pulse 2s infinite"></span>Mafia only chat</div>
+      <div class="chat-messages" id="mafiaPrivateChatMessages" style="border-color:rgba(192,57,43,0.4)"><div class="chat-empty">Chat with your partner...</div></div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="mafiaPrivateChatInput" type="text" placeholder="Message your partner..." maxlength="120" autocomplete="off" style="border-color:rgba(192,57,43,0.3)" onkeydown="if(event.key==='Enter')sendMafiaPrivateChat()"/>
+        <button class="chat-send-btn" style="background:#e74c3c" onclick="sendMafiaPrivateChat()">Send</button>
+      </div>
+    </div>
+
+    <!-- Partner vote status (2 mafia) -->
+    <div id="mafiaPartnerVoteStatus" style="display:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+
+    <div id="mafiaKillYesNoSection" style="width:100%;display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-danger" id="mafiaKillYesBtn" onclick="mafiaVoteKillDecision('yes')">YES — kill someone</button>
+      <button class="btn btn-secondary" id="mafiaKillNoBtn" onclick="mafiaVoteKillDecision('no')">NO — spare them tonight</button>
+    </div>
+
+    <!-- Kill target list (shown after YES) -->
+    <div id="mafiaKillTargetSection" style="display:none;width:100%">
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px;text-align:center">Choose your target — <span id="mafiaKillTargetTimer" style="color:#e74c3c">01:00</span></div>
+      <div class="vote-list" id="mafiaKillTargetList"></div>
+      <div id="mafiaKillTargetStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c;text-align:center"></div>
+    </div>
+
+    <!-- Waiting for partner / submitted state -->
+    <div id="mafiaKillWaiting" style="display:none;text-align:center">
+      <div style="font-size:13px;font-family:'DM Mono',monospace;color:var(--muted)" id="mafiaKillWaitingText">Waiting for your partner...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAFIA: NIGHT — DOCTOR SAVE -->
+<div class="screen" id="screen-mafia-night-doctor">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <div style="text-align:center">
+      <div style="font-size:11px;font-family:'DM Mono',monospace;letter-spacing:3px;color:var(--doctor);text-transform:uppercase;margin-bottom:8px">🌙 Night Phase</div>
+      <div style="font-size:28px;font-weight:800;color:var(--text);margin-bottom:4px">Choose someone<br>to protect</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:4px">You have <span id="mafiaSaveTimerDisplay" style="color:var(--doctor);font-weight:700">01:00</span> to decide</div>
+    </div>
+    <div class="doctor-action-box" style="width:100%">
+      <div style="font-size:13px;font-weight:700;color:var(--doctor);margin-bottom:10px">💚 Who will you save tonight?</div>
+      <div class="vote-list" id="mafiaSaveList"></div>
+      <div id="mafiaSaveStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:var(--doctor);text-align:center"></div>
+    </div>
+    <div id="mafiaSaveSubmitted" style="display:none;text-align:center">
+      <div style="font-size:13px;font-family:'DM Mono',monospace;color:var(--doctor)">✓ Protection chosen — waiting for dawn...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAFIA: NIGHT — TOWN WAITING -->
+<div class="screen" id="screen-mafia-night-town">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:80vh">
+    <div style="font-size:64px" id="mafiaWaitIcon">🌙</div>
+    <div style="text-align:center">
+      <div style="font-size:24px;font-weight:800;color:var(--text);margin-bottom:8px">You must wait<br>until dawn.</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace" id="mafiaWaitSubtext">The night is unfolding...</div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--border);text-align:center;margin-top:8px">No peeking 👀</div>
   </div>
 </div>
 
@@ -1008,6 +1050,7 @@ const ALL_LOCATIONS = [
 ];
 
 const OOO_QUESTIONS = [
+  {normal:"Where would you hate to swim?",odd:"Where would you love to swim?"},
   {normal:"What would you find at a funeral?",odd:"What would make a funeral awkward?"},
   {normal:"What should people do after a breakup?",odd:"What should you never do after a breakup?"},
   {normal:"What's something good to say on a first date?",odd:"What should you never say on a first date?"},
@@ -1082,6 +1125,9 @@ const TIMER_DURATION = 8*60;
 const CHAOS_TIMER_DURATION = 6*60;
 const OOO_VOTE_DURATION = 60;
 const OOO_DISCUSS_DURATION = 30;
+const MAFIA_DAY_TIMER_FIRST = 3*60;
+const MAFIA_DAY_TIMER_REST = 5*60;
+const MAFIA_NIGHT_TIMER = 60;
 
 // =====================================================
 // STATE
@@ -1089,10 +1135,13 @@ const OOO_DISCUSS_DURATION = 30;
 let myId = localStorage.getItem('sf_myId');
 if(!myId){myId=Math.random().toString(36).slice(2,12);localStorage.setItem('sf_myId',myId);}
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
-let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null;
+let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
 let roleVisible=true,revealVisible=true,mafiaCardVisible=true;
 let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true;
-let chatListener=null;
+let chatListener=null,mafiaPrivateChatListener=null;
+// Night phase local state
+let mafiaKillDecision=null; // 'yes'|'no' — local kill decision before committing
+let mafiaPartnerDecision=null; // what the other mafia said
 
 // =====================================================
 // UTILS
@@ -1139,7 +1188,7 @@ function toggleDoctorRole(){
   wrap.style.borderColor=localDoctorEnabled?'rgba(39,174,96,0.2)':'rgba(42,42,58,0.8)';
   if(gameCode)updateGame(gameCode,{doctorEnabled:localDoctorEnabled});
 }
-function maxMafia(n){return Math.min(2,Math.floor(n/2));}
+function maxMafia(n){return Math.max(1,Math.floor((n-1)/3));}
 function changeMafiaCount(delta){
   const n=localGame?Object.keys(localGame.players||{}).length:4;
   localMafiaCount=Math.min(maxMafia(n),Math.max(1,localMafiaCount+delta));
@@ -1260,7 +1309,7 @@ function onGameUpdate(game){
   if(game.hostId===myId&&!amHost)amHost=true;
   if(amHost)watchPresence(game);
 
-  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-dawn','screen-mafia-result'];
+  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result'];
 
   // LOBBY
   if(game.status==='lobby'){
@@ -1284,18 +1333,30 @@ function onGameUpdate(game){
 
   // MAFIA
   if(game.mode==='mafia'&&game.status==='playing'){
-    if(cur==='screen-mafia-reveal'){renderMafiaGame(game);return;}
-    // When phase becomes dawn, show the story screen
-    if(game.mafiaPhase==='dawn'&&cur!=='screen-mafia-dawn'&&cur!=='screen-mafia-reveal'){
-      showMafiaDawnStory(game);return;
-    }
-    if(cur==='screen-mafia-dawn'){
-      // Stay on dawn screen until host taps continue; update alive count
-      renderMafiaDawnAliveCount(game);
+    if(cur==='screen-mafia-reveal'){return;} // stay on reveal until player taps
+    const mafiaScreens=['screen-mafia-game','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn'];
+    const phase=game.mafiaPhase;
+    // Enter from lobby/waiting/other
+    if(!mafiaScreens.includes(cur)&&cur!=='screen-mafia-reveal'){enterMafiaReveal(game);return;}
+    // Dawn transition
+    if(phase==='dawn'){
+      if(cur!=='screen-mafia-dawn'){showMafiaDawnStory(game);}
+      else{renderMafiaDawnAliveCount(game);}
       return;
     }
-    if(cur!=='screen-mafia-reveal'&&cur!=='screen-mafia-game'){enterMafiaReveal(game);return;}
-    renderMafiaGame(game);
+    // Night transition
+    if(phase==='night'){
+      const nightScreens=['screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town'];
+      if(!nightScreens.includes(cur)){enterMafiaNight(game);return;}
+      updateMafiaNightScreens(game);
+      return;
+    }
+    // Day
+    if(phase==='day'){
+      if(cur!=='screen-mafia-game'){showScreen('mafia-game');}
+      renderMafiaGame(game);
+      return;
+    }
     return;
   }
   if(game.mode==='mafia'&&game.status==='result'){
@@ -1432,7 +1493,9 @@ async function startMafiaGame(){
     mafiaRoles,mafiaIds,
     mafiaPhase:'day',mafiaDay:1,
     doctorEnabled:localDoctorEnabled,
-    mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,
+    mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},
+    mafiaDayTimerStart:Date.now(),mafiaDayTimerDuration:MAFIA_DAY_TIMER_FIRST,
+    mafiaNightStart:null,
     mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],
     mafiaResult:null,mafiaCount:count,
     votes:{},result:null,
@@ -1514,76 +1577,38 @@ function toggleMafiaHideRole(){
 function goToMafiaGame(){if(!localGame)return;renderMafiaGame(localGame);showScreen('mafia-game');}
 
 // =====================================================
-// MAFIA: GAME SCREEN RENDER
+// MAFIA: DAY SCREEN RENDER
 // =====================================================
 function renderMafiaGame(game){
   if(!game||game.mode!=='mafia')return;
-  const cur=(document.querySelector('.screen.active')||{}).id;
-  if(cur==='screen-mafia-reveal')return; // don't auto-advance from reveal
-
-  const phase=game.mafiaPhase||'day';
   const day=game.mafiaDay||1;
   const eliminated=game.mafiaEliminated||{};
   const myRole=(game.mafiaRoles&&game.mafiaRoles[myId])||'town';
   const amDead=!!eliminated[myId];
-  const mafiaIds=game.mafiaIds||[];
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const alivePlayers=players.filter(p=>!eliminated[p.id]);
-  const deadPlayers=players.filter(p=>!!eliminated[p.id]);
 
-  // Phase banner
-  const phaseBanner=document.getElementById('mafiaPhaseDisplay');
-  if(phase==='day'){phaseBanner.className='mafia-phase-banner day';phaseBanner.textContent=`☀️ DAY ${day} — VOTE TO ELIMINATE`;}
-  else if(phase==='night'){phaseBanner.className='mafia-phase-banner night';phaseBanner.textContent=`🌙 NIGHT ${day} — MAFIA IS HUNTING`;}
-  else if(phase==='dawn'){phaseBanner.className='mafia-phase-banner day';phaseBanner.textContent=`🌅 DAWN — NIGHT RESULTS`;}
-
-  // Dead banner
+  document.getElementById('mafiaPhaseDisplay').className='mafia-phase-banner day';
+  document.getElementById('mafiaPhaseDisplay').textContent=`☀️ DAY ${day} — DISCUSSION`;
   document.getElementById('mafiaDeadBanner').style.display=amDead?'block':'none';
 
-  // My role summary
   const roleColors={mafia:'#e74c3c',doctor:'var(--doctor)',town:'var(--muted)'};
   const roleIcons={mafia:'🔴',doctor:'💚',town:'⬜'};
   const roleLabel={mafia:'MAFIA',doctor:'DOCTOR',town:'TOWNSPERSON'};
   document.getElementById('mafiaRoleSummary').innerHTML=`<span style="color:${roleColors[myRole]};font-weight:700">${roleIcons[myRole]} ${roleLabel[myRole]}</span>`;
 
-  // Players tab
   document.getElementById('mafiaPlayerStatusList').innerHTML=players.map(p=>{
     const isDead=!!eliminated[p.id];
     return`<div class="player-status-item ${isDead?'dead-player':''}"><div class="status-dot ${isDead?'dead':'alive'}"></div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${isDead?`<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--spy)">💀 eliminated</div>`:''}</div>`;
   }).join('');
 
-  // Log tab
   const log=game.mafiaLog||[];
-  document.getElementById('mafiaGameLog').innerHTML=log.slice().reverse().map(l=>`<div class="mafia-log-item ${l.type||'system'}">${esc(l.text)}</div>`).join('')||'<div style="color:var(--muted);font-size:13px;font-family:\'DM Mono\',monospace">No events yet.</div>';
+  document.getElementById('mafiaGameLog').innerHTML=log.slice().reverse().map(l=>`<div class="mafia-log-item ${l.type||'system'}">${esc(l.text)}</div>`).join('')||'<div style="color:var(--muted);font-size:13px;font-family:'DM Mono',monospace">No events yet.</div>';
 
-  // Show/hide sections based on phase
-  const voteSection=document.getElementById('mafiaVoteSection');
-  const nightSection=document.getElementById('mafiaNightSection');
-  voteSection.style.display=phase==='day'?'block':'none';
-  nightSection.style.display=phase==='night'?'block':'none';
-
-  if(phase==='day'){
-    renderMafiaDayVote(game,alivePlayers,amDead);
-  } else if(phase==='night'){
-    renderMafiaNight(game,alivePlayers,myRole,amDead,mafiaIds);
-  }
-
-  // Host controls
-  const hc=document.getElementById('mafiaHostControls');
-  hc.style.display=amHost?'block':'none';
-  if(amHost){
-    const advBtn=document.getElementById('mafiaAdvanceBtn');
-    if(phase==='day'){
-      advBtn.textContent='Advance to Night →';
-      advBtn.onclick=()=>mafiaAdvancePhase();
-    } else if(phase==='night'){
-      advBtn.textContent='Advance to Dawn →';
-      advBtn.onclick=()=>mafiaAdvanceToDawn();
-    }
-  }
-
-  // Check win condition (host only)
-  if(amHost&&phase==='day')checkMafiaWin(game);
+  renderMafiaDayVote(game,alivePlayers,amDead);
+  document.getElementById('mafiaHostControls').style.display=amHost?'block':'none';
+  startMafiaDayTimer(game);
+  if(amHost)checkMafiaWin(game);
 }
 
 function renderMafiaDayVote(game,alivePlayers,amDead){
@@ -1591,66 +1616,247 @@ function renderMafiaDayVote(game,alivePlayers,amDead){
   const myVote=votes[myId];
   const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const n=alivePlayers.length;
-  const noticeEl=document.getElementById('mafiaVoteNotice');
-  noticeEl.className='notice mafia';
-  noticeEl.textContent=amDead?'You are dead — spectating only.':'Vote to eliminate a player.';
+  document.getElementById('mafiaVoteNotice').className='notice mafia';
+  document.getElementById('mafiaVoteNotice').textContent=amDead?'You are dead — spectating only.':'Vote to eliminate a player.';
   document.getElementById('mafiaVoteList').innerHTML=alivePlayers.map(p=>{
     const vc=voteCounts[p.id]||0;
-    return`<div class="vote-item ${myVote===p.id?'mafia-voted':''} ${amDead?'dead':''}" onclick="${amDead?'':'castMafiaVote(\''+p.id+'\')'}"><div style="font-size:20px">👤</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
+    return`<div class="vote-item ${myVote===p.id?'mafia-voted':''} ${amDead?'dead':''}" onclick="${amDead?'':'castMafiaVote(''+p.id+'')'}"><div style="font-size:20px">👤</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
   }).join('');
   document.getElementById('mafiaVoteStatus').textContent=`${Object.keys(votes).length} of ${n} voted`;
+  if(amHost&&Object.keys(votes).length>=n&&n>0)resolveMafiaDayVote(game,votes,alivePlayers);
+}
 
-  // Host: auto-resolve when all alive players voted
-  if(amHost&&Object.keys(votes).length>=n&&n>0){
-    resolveMafiaDayVote(game,votes,alivePlayers);
+// =====================================================
+// MAFIA: DAY TIMER
+// =====================================================
+function startMafiaDayTimer(game){
+  clearInterval(mafiaTimerInterval);
+  const start=game.mafiaDayTimerStart;
+  const duration=game.mafiaDayTimerDuration||MAFIA_DAY_TIMER_FIRST;
+  if(!start)return;
+  mafiaTimerInterval=setInterval(()=>{
+    const g=localGame;
+    if(!g||g.mafiaPhase!=='day'){clearInterval(mafiaTimerInterval);return;}
+    const elapsed=Math.floor((Date.now()-start)/1000);
+    const remaining=Math.max(0,duration-elapsed);
+    const m=Math.floor(remaining/60).toString().padStart(2,'0');
+    const s=(remaining%60).toString().padStart(2,'0');
+    const el=document.getElementById('mafiaDayTimerDisplay');
+    if(el){el.textContent=`${m}:${s}`;el.className='timer-display'+(remaining<30?' danger':remaining<60?' warning':'');}
+    if(remaining===0){clearInterval(mafiaTimerInterval);if(amHost)mafiaAdvancePhase();}
+  },500);
+}
+
+// =====================================================
+// MAFIA: NIGHT ENTRY
+// =====================================================
+function enterMafiaNight(game){
+  clearInterval(mafiaTimerInterval);
+  clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;
+  stopMafiaPrivateChat();
+  mafiaKillDecision=null;
+  const myRole=(game.mafiaRoles&&game.mafiaRoles[myId])||'town';
+  const eliminated=game.mafiaEliminated||{};
+  const amDead=!!eliminated[myId];
+  if(amDead){showScreen('mafia-night-town');renderMafiaTownWait(game);return;}
+  if(myRole==='mafia'){showScreen('mafia-night-mafia');renderMafiaNightMafia(game);return;}
+  if(myRole==='doctor'){showScreen('mafia-night-doctor');renderMafiaNightDoctor(game);return;}
+  showScreen('mafia-night-town');renderMafiaTownWait(game);
+}
+
+function updateMafiaNightScreens(game){
+  const cur=(document.querySelector('.screen.active')||{}).id;
+  if(cur==='screen-mafia-night-mafia')renderMafiaNightMafia(game);
+  else if(cur==='screen-mafia-night-doctor')renderMafiaNightDoctor(game);
+  else if(cur==='screen-mafia-night-town')renderMafiaTownWait(game);
+}
+
+// =====================================================
+// MAFIA: NIGHT — MAFIA SCREEN
+// =====================================================
+function renderMafiaNightMafia(game){
+  const mafiaIds=game.mafiaIds||[];
+  const eliminated=game.mafiaEliminated||{};
+  const aliveMafia=mafiaIds.filter(id=>!eliminated[id]);
+  const isTwoMafia=aliveMafia.length>=2;
+  const killDecisions=game.mafiaKillDecisions||{};
+  const myDecision=killDecisions[myId];
+  const partnerIds=aliveMafia.filter(id=>id!==myId);
+  const partnerDecision=partnerIds.length>0?killDecisions[partnerIds[0]]:null;
+
+  document.getElementById('mafiaPrivateChatWrap').style.display=isTwoMafia?'block':'none';
+  if(isTwoMafia)setupMafiaPrivateChat(game);
+
+  const pvs=document.getElementById('mafiaPartnerVoteStatus');
+  if(isTwoMafia&&pvs){pvs.style.display='block';pvs.textContent=!partnerDecision?'Your partner hasn't decided yet...':`Your partner voted: ${partnerDecision.toUpperCase()}`;}
+  else if(pvs){pvs.style.display='none';}
+
+  startMafiaNightDecisionTimer(game);
+
+  if(myDecision){
+    document.getElementById('mafiaKillYesNoSection').style.display='none';
+    document.getElementById('mafiaKillTargetSection').style.display='none';
+    document.getElementById('mafiaKillWaiting').style.display='block';
+    document.getElementById('mafiaKillWaitingText').textContent=myDecision==='yes'?'Waiting for everyone to act...':'You chose to spare them tonight. Waiting for dawn...';
+    return;
+  }
+
+  const showingTarget=document.getElementById('mafiaKillTargetSection').style.display==='block';
+  if(!showingTarget){
+    document.getElementById('mafiaKillYesNoSection').style.display='flex';
+    document.getElementById('mafiaKillTargetSection').style.display='none';
+    document.getElementById('mafiaKillWaiting').style.display='none';
+  }
+  if(showingTarget){
+    const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+    const targets=players.filter(p=>!mafiaIds.includes(p.id)&&!eliminated[p.id]);
+    const myKillVote=(game.mafiaKillVotes||{})[myId];
+    document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>`<div class="vote-item ${myKillVote===p.id?'mafia-voted':''}" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>${myKillVote===p.id?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`).join('');
+    document.getElementById('mafiaKillTargetStatus').textContent=(game.mafiaKillVotes||{})[myId]?'Target selected — waiting for others...':'Choose your target';
   }
 }
 
-function renderMafiaNight(game,alivePlayers,myRole,amDead,mafiaIds){
-  document.getElementById('mafiaKillSection').style.display='none';
-  document.getElementById('mafiaSaveSection').style.display='none';
-  document.getElementById('mafiaNightWaiting').style.display='none';
+let mafiaDecisionTimerInterval=null;
 
-  if(amDead){document.getElementById('mafiaNightWaiting').style.display='block';return;}
+function startMafiaNightDecisionTimer(game){
+  if(mafiaDecisionTimerInterval)return;
+  const nightStart=game.mafiaNightStart;
+  if(!nightStart)return;
+  mafiaDecisionTimerInterval=setInterval(()=>{
+    const g=localGame;if(!g||g.mafiaPhase!=='night'){clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;return;}
+    const elapsed=Math.floor((Date.now()-nightStart)/1000);
+    const remaining=Math.max(0,MAFIA_NIGHT_TIMER-elapsed);
+    const m=Math.floor(remaining/60).toString().padStart(2,'0');
+    const s=(remaining%60).toString().padStart(2,'0');
+    const timeStr=`${m}:${s}`;
+    const kdEl=document.getElementById('mafiaKillDecisionTimer');if(kdEl){kdEl.textContent=timeStr;kdEl.style.color=remaining<20?'var(--spy)':'#e74c3c';}
+    const sdEl=document.getElementById('mafiaSaveTimerDisplay');if(sdEl){sdEl.textContent=timeStr;sdEl.style.color=remaining<20?'var(--spy)':'var(--doctor)';}
+    if(remaining===0){clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;if(amHost)mafiaAdvanceToDawn();}
+  },500);
+}
 
-  const killVotes=game.mafiaKillVotes||{};
-  const myKillVote=killVotes[myId];
-  const saveVote=game.mafiaSaveVote;
-  const targets=alivePlayers.filter(p=>!mafiaIds.includes(p.id));
+async function mafiaVoteKillDecision(decision){
+  if(!gameCode||!localGame)return;
+  const game=localGame;
+  const mafiaIds=game.mafiaIds||[];
+  const eliminated=game.mafiaEliminated||{};
+  const aliveMafia=mafiaIds.filter(id=>!eliminated[id]);
+  const isTwoMafia=aliveMafia.length>=2;
 
-  if(myRole==='mafia'){
-    document.getElementById('mafiaKillSection').style.display='block';
-    const killCounts={};Object.values(killVotes).forEach(v=>{killCounts[v]=(killCounts[v]||0)+1;});
-    document.getElementById('mafiaKillList').innerHTML=targets.map(p=>{
-      const vc=killCounts[p.id]||0;
-      return`<div class="vote-item ${myKillVote===p.id?'mafia-voted':''}" onclick="castMafiaKillVote('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c">${vc}</div>`:''}${myKillVote===p.id?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
-    }).join('');
-    const mafiaVoters=mafiaIds.filter(id=>!(game.mafiaEliminated&&game.mafiaEliminated[id]));
-    document.getElementById('mafiaKillStatus').textContent=`${Object.keys(killVotes).length} of ${mafiaVoters.length} mafia voted`;
-  } else if(myRole==='doctor'){
-    document.getElementById('mafiaSaveSection').style.display='block';
-    const allAlive=alivePlayers;
-    document.getElementById('mafiaSaveList').innerHTML=allAlive.map(p=>`<div class="vote-item ${saveVote===p.id?'voted':''}" onclick="castMafiaSaveVote('${p.id}')"><div style="font-size:20px">💊</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' (me)':''}</div>${saveVote===p.id?'<div style="color:var(--doctor);font-size:13px">✓</div>':''}</div>`).join('');
-    document.getElementById('mafiaSaveStatus').textContent=saveVote?'Saved — waiting for dawn':'Choose who to protect';
+  if(isTwoMafia){
+    await gameRefFor(gameCode).child('mafiaKillDecisions/'+myId).set(decision);
+    mafiaKillDecision=decision;
+    const decisions={...(game.mafiaKillDecisions||{}),[myId]:decision};
+    const allDecided=aliveMafia.every(id=>decisions[id]);
+    if(allDecided){
+      const anyYes=aliveMafia.some(id=>decisions[id]==='yes');
+      if(anyYes){showKillTargetList(game);}
+      else{if(amHost)await mafiaAdvanceToDawn();}
+    } else {renderMafiaNightMafia(game);}
   } else {
-    document.getElementById('mafiaNightWaiting').style.display='block';
+    if(decision==='yes'){showKillTargetList(game);}
+    else{mafiaKillDecision='no';await gameRefFor(gameCode).child('mafiaKillDecisions/'+myId).set('no');if(amHost)await mafiaAdvanceToDawn();}
   }
+}
+
+function showKillTargetList(game){
+  document.getElementById('mafiaKillYesNoSection').style.display='none';
+  document.getElementById('mafiaKillTargetSection').style.display='block';
+  document.getElementById('mafiaKillWaiting').style.display='none';
+  const mafiaIds=game.mafiaIds||[];
+  const eliminated=game.mafiaEliminated||{};
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const targets=players.filter(p=>!mafiaIds.includes(p.id)&&!eliminated[p.id]);
+  document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>`<div class="vote-item" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div></div>`).join('');
+  document.getElementById('mafiaKillTargetStatus').textContent='Choose your target';
+}
+
+async function selectKillTarget(targetId){
+  if(!gameCode||!localGame)return;
+  await gameRefFor(gameCode).child('mafiaKillVotes/'+myId).set(targetId);
+  await gameRefFor(gameCode).child('mafiaKillDecisions/'+myId).set('yes');
+  document.getElementById('mafiaKillTargetSection').style.display='none';
+  document.getElementById('mafiaKillWaiting').style.display='block';
+  document.getElementById('mafiaKillWaitingText').textContent='Target locked in. Waiting for dawn...';
+  const game=localGame;
+  const mafiaIds=game.mafiaIds||[];
+  const eliminated=game.mafiaEliminated||{};
+  const aliveMafia=mafiaIds.filter(id=>!eliminated[id]);
+  if(aliveMafia.length===1&&amHost)await mafiaAdvanceToDawn();
+}
+
+function setupMafiaPrivateChat(game){
+  if(mafiaPrivateChatListener)return;
+  const chatKey='mafiaPrivateChat_'+gameCode+'_'+game.mafiaDay;
+  mafiaPrivateChatListener=db.ref('games/'+gameCode+'/'+chatKey).on('value',snap=>{
+    const data=snap.val();
+    const messages=data?Object.values(data).sort((a,b)=>a.ts-b.ts):[];
+    const el=document.getElementById('mafiaPrivateChatMessages');if(!el)return;
+    if(messages.length===0){el.innerHTML='<div class="chat-empty">Chat with your partner...</div>';return;}
+    el.innerHTML=messages.map(m=>{const isMe=m.uid===myId;const time=new Date(m.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});return`<div class="chat-msg"><span class="chat-name ${isMe?'you':'other'}">${esc(m.name)}</span><span style="color:var(--text)">${esc(m.text)}</span><span class="chat-time">${time}</span></div>`;}).join('');
+    el.scrollTop=el.scrollHeight;
+  });
+}
+function stopMafiaPrivateChat(){
+  if(mafiaPrivateChatListener&&gameCode&&localGame){
+    const chatKey='mafiaPrivateChat_'+gameCode+'_'+(localGame.mafiaDay||1);
+    db.ref('games/'+gameCode+'/'+chatKey).off('value',mafiaPrivateChatListener);
+  }
+  mafiaPrivateChatListener=null;
+}
+async function sendMafiaPrivateChat(){
+  const input=document.getElementById('mafiaPrivateChatInput');if(!input)return;
+  const text=input.value.trim();if(!text||!gameCode||!localGame)return;
+  input.value='';
+  const game=localGame;const player=game.players&&game.players[myId];const name=player?player.name:'Unknown';
+  const chatKey='mafiaPrivateChat_'+gameCode+'_'+game.mafiaDay;
+  await db.ref('games/'+gameCode+'/'+chatKey).push().set({uid:myId,name,text,ts:Date.now()});
+}
+
+// =====================================================
+// MAFIA: NIGHT — DOCTOR SCREEN
+// =====================================================
+function renderMafiaNightDoctor(game){
+  const eliminated=game.mafiaEliminated||{};
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const alivePlayers=players.filter(p=>!eliminated[p.id]);
+  const saveVote=game.mafiaSaveVote;
+  const mafiaIds=game.mafiaIds||[];
+  const aliveMafia=mafiaIds.filter(id=>!eliminated[id]);
+  startMafiaNightDecisionTimer(game);
+  if(saveVote){
+    document.getElementById('mafiaSaveList').style.display='none';
+    document.getElementById('mafiaSaveStatus').style.display='none';
+    document.getElementById('mafiaSaveSubmitted').style.display='block';
+    return;
+  }
+  document.getElementById('mafiaSaveSubmitted').style.display='none';
+  document.getElementById('mafiaSaveList').style.display='block';
+  document.getElementById('mafiaSaveStatus').style.display='block';
+  document.getElementById('mafiaSaveList').innerHTML=alivePlayers.map(p=>`<div class="vote-item ${saveVote===p.id?'voted':''}" onclick="castMafiaSaveVote('${p.id}')"><div style="font-size:20px">💊</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' (me)':''}</div>${saveVote===p.id?'<div style="color:var(--doctor);font-size:13px">✓</div>':''}</div>`).join('');
+  document.getElementById('mafiaSaveStatus').textContent='Choose who to protect tonight';
+}
+
+// =====================================================
+// MAFIA: NIGHT — TOWN WAITING
+// =====================================================
+function renderMafiaTownWait(game){
+  const eliminated=game.mafiaEliminated||{};
+  const amDead=!!eliminated[myId];
+  document.getElementById('mafiaWaitIcon').textContent=amDead?'💀':'🌙';
+  document.getElementById('mafiaWaitSubtext').textContent=amDead?'You're dead — no peeking!':'The night is unfolding...';
 }
 
 // MAFIA VOTES
 async function castMafiaVote(targetId){
   if(!gameCode||!localGame||localGame.mafiaPhase!=='day')return;
-  const elim=localGame.mafiaEliminated||{};
-  if(elim[myId])return;
+  const elim=localGame.mafiaEliminated||{};if(elim[myId])return;
   await gameRefFor(gameCode).child('mafiaVotes/'+myId).set(targetId);
-}
-async function castMafiaKillVote(targetId){
-  if(!gameCode||!localGame||localGame.mafiaPhase!=='night')return;
-  await gameRefFor(gameCode).child('mafiaKillVotes/'+myId).set(targetId);
 }
 async function castMafiaSaveVote(targetId){
   if(!gameCode||!localGame||localGame.mafiaPhase!=='night')return;
   await gameRefFor(gameCode).child('mafiaSaveVote').set(targetId);
+  renderMafiaNightDoctor(localGame);
 }
 // DAY VOTE RESOLUTION (host)
 async function resolveMafiaDayVote(game,votes,alivePlayers){
@@ -1678,7 +1884,7 @@ async function resolveMafiaDayVote(game,votes,alivePlayers){
 async function mafiaAdvancePhase(){
   const game=localGame;if(!game)return;
   if(game.mafiaPhase==='day'){
-    await updateGame(gameCode,{mafiaPhase:'night',mafiaKillVotes:{},mafiaSaveVote:null});
+    await updateGame(gameCode,{mafiaPhase:'night',mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaNightStart:Date.now()});
   }
 }
 async function mafiaAdvanceToDawn(){
@@ -1715,8 +1921,15 @@ async function mafiaAdvanceToDawn(){
 }
 async function mafiaAdvanceToDay(){
   const game=localGame;if(!game)return;
+  clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;
+  stopMafiaPrivateChat();
   showScreen('mafia-game');
-  await updateGame(gameCode,{mafiaPhase:'day',mafiaDay:(game.mafiaDay||1)+1,mafiaKillVotes:{},mafiaSaveVote:null,mafiaVotes:{},mafiaPhaseTimer:Date.now()});
+  await updateGame(gameCode,{
+    mafiaPhase:'day',mafiaDay:(game.mafiaDay||1)+1,
+    mafiaKillVotes:{},mafiaSaveVote:null,mafiaVotes:{},mafiaKillDecisions:{},
+    mafiaDayTimerStart:Date.now(),mafiaDayTimerDuration:MAFIA_DAY_TIMER_REST,
+    mafiaNightStart:null,
+  });
   checkMafiaWin(localGame);
 }
 
@@ -2377,7 +2590,7 @@ async function returnToLobby(){
   await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaResult:null,chat:null});
 }
 async function leaveGame(){
-  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);stopListening();stopChat();
+  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();
   if(gameCode){
     try{
       const snap=await gameRefFor(gameCode).once('value');const game=snap.val();
@@ -2482,7 +2695,7 @@ function devMafiaTest(role){
   const mockPlayers={[myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},'dev_p4':{id:'dev_p4',name:'Player 4',isHost:false,joinedAt:Date.now()+3,online:true},'dev_p5':{id:'dev_p5',name:'Player 5',isHost:false,joinedAt:Date.now()+4,online:true}};
   const mafiaRoles={[myId]:role,dev_p2:role==='mafia'?'mafia':'town',dev_p3:'town',dev_p4:role==='doctor'?'town':'doctor',dev_p5:'town'};
   const mafiaIds=Object.entries(mafiaRoles).filter(([,r])=>r==='mafia').map(([id])=>id);
-  const game={code:'DEV0',status:'playing',mode:'mafia',hostId:myId,mafiaRoles,mafiaIds,mafiaPhase:'day',mafiaDay:1,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],mafiaResult:null,players:mockPlayers,createdAt:Date.now()};
+  const game={code:'DEV0',status:'playing',mode:'mafia',hostId:myId,mafiaRoles,mafiaIds,mafiaPhase:'day',mafiaDay:1,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaDayTimerStart:Date.now(),mafiaDayTimerDuration:MAFIA_DAY_TIMER_FIRST,mafiaNightStart:null,mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],mafiaResult:null,players:mockPlayers,createdAt:Date.now()};
   localGame=game;enterMafiaReveal(game);devShowStatus(`Mafia: you are ${role}`);
 }
 function devGoScreen(screen){
@@ -2499,7 +2712,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);stopListening();stopChat();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;showScreen('home');}
 
 // =====================================================
 // HOME MODE SELECT
