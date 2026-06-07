@@ -327,7 +327,25 @@ select option{background:var(--surface2)}
 .chaos-mode-banner{padding:7px 12px;background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.3);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--chaos);font-weight:700;letter-spacing:2px;margin-bottom:10px;animation:chaos-pulse 2s infinite}
 .ooo-mode-banner{padding:7px 12px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--ooo);font-weight:700;letter-spacing:2px;margin-bottom:10px}
 
-/* Dev panel */
+/* Dawn story screen */
+@keyframes dawnFadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dawnGlow{0%,100%{text-shadow:0 0 20px rgba(232,212,77,0.3)}50%{text-shadow:0 0 40px rgba(232,212,77,0.7)}}
+.dawn-screen-bg{min-height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 30%,rgba(232,212,77,0.04) 0%,transparent 70%)}
+.dawn-eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;animation:dawnFadeIn 0.6s ease forwards}
+.dawn-title{font-size:38px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;animation:dawnFadeIn 0.6s ease 0.1s both}
+.dawn-title.death{color:var(--spy)}
+.dawn-title.saved{color:var(--safe)}
+.dawn-title.quiet{color:var(--accent)}
+.dawn-icon{font-size:64px;margin-bottom:20px;animation:dawnFadeIn 0.5s ease both}
+.dawn-story-text{font-size:16px;color:var(--muted);line-height:1.7;text-align:center;max-width:320px;margin:0 auto 8px;animation:dawnFadeIn 0.6s ease 0.2s both}
+.dawn-story-text strong{color:var(--text);font-weight:700}
+.dawn-story-text em{color:var(--spy);font-style:normal;font-weight:700}
+.dawn-story-text.saved-name em{color:var(--safe)}
+.dawn-divider{width:48px;height:2px;background:var(--border);margin:24px auto;animation:dawnFadeIn 0.6s ease 0.3s both}
+.dawn-day-label{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;animation:dawnFadeIn 0.6s ease 0.35s both}
+.dawn-continue-btn{animation:dawnFadeIn 0.6s ease 0.4s both;width:100%;max-width:320px}
+.dawn-alive-count{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:12px;animation:dawnFadeIn 0.6s ease 0.45s both}
+
 .dev-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px}
 .dev-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
 .dev-desc{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;line-height:1.6}
@@ -864,6 +882,13 @@ select option{background:var(--surface2)}
   </div>
 </div>
 
+<!-- MAFIA: DAWN STORY -->
+<div class="screen" id="screen-mafia-dawn">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:0">
+    <div id="dawnStoryWrap" style="width:100%;text-align:center"></div>
+  </div>
+</div>
+
 <!-- MAFIA: RESULT -->
 <div class="screen scrollable" id="screen-mafia-result">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
@@ -983,7 +1008,6 @@ const ALL_LOCATIONS = [
 ];
 
 const OOO_QUESTIONS = [
-  {normal:"Where would you hate to swim?",odd:"Where would you love to swim?"},
   {normal:"What would you find at a funeral?",odd:"What would make a funeral awkward?"},
   {normal:"What should people do after a breakup?",odd:"What should you never do after a breakup?"},
   {normal:"What's something good to say on a first date?",odd:"What should you never say on a first date?"},
@@ -1115,7 +1139,7 @@ function toggleDoctorRole(){
   wrap.style.borderColor=localDoctorEnabled?'rgba(39,174,96,0.2)':'rgba(42,42,58,0.8)';
   if(gameCode)updateGame(gameCode,{doctorEnabled:localDoctorEnabled});
 }
-function maxMafia(n){return Math.max(1,Math.floor((n-1)/3));}
+function maxMafia(n){return Math.min(2,Math.floor(n/2));}
 function changeMafiaCount(delta){
   const n=localGame?Object.keys(localGame.players||{}).length:4;
   localMafiaCount=Math.min(maxMafia(n),Math.max(1,localMafiaCount+delta));
@@ -1236,7 +1260,7 @@ function onGameUpdate(game){
   if(game.hostId===myId&&!amHost)amHost=true;
   if(amHost)watchPresence(game);
 
-  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-result'];
+  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-dawn','screen-mafia-result'];
 
   // LOBBY
   if(game.status==='lobby'){
@@ -1261,6 +1285,15 @@ function onGameUpdate(game){
   // MAFIA
   if(game.mode==='mafia'&&game.status==='playing'){
     if(cur==='screen-mafia-reveal'){renderMafiaGame(game);return;}
+    // When phase becomes dawn, show the story screen
+    if(game.mafiaPhase==='dawn'&&cur!=='screen-mafia-dawn'&&cur!=='screen-mafia-reveal'){
+      showMafiaDawnStory(game);return;
+    }
+    if(cur==='screen-mafia-dawn'){
+      // Stay on dawn screen until host taps continue; update alive count
+      renderMafiaDawnAliveCount(game);
+      return;
+    }
     if(cur!=='screen-mafia-reveal'&&cur!=='screen-mafia-game'){enterMafiaReveal(game);return;}
     renderMafiaGame(game);
     return;
@@ -1526,10 +1559,10 @@ function renderMafiaGame(game){
   // Show/hide sections based on phase
   const voteSection=document.getElementById('mafiaVoteSection');
   const nightSection=document.getElementById('mafiaNightSection');
-  voteSection.style.display=(phase==='day'||phase==='dawn')?'block':'none';
+  voteSection.style.display=phase==='day'?'block':'none';
   nightSection.style.display=phase==='night'?'block':'none';
 
-  if(phase==='day'||phase==='dawn'){
+  if(phase==='day'){
     renderMafiaDayVote(game,alivePlayers,amDead);
   } else if(phase==='night'){
     renderMafiaNight(game,alivePlayers,myRole,amDead,mafiaIds);
@@ -1546,9 +1579,6 @@ function renderMafiaGame(game){
     } else if(phase==='night'){
       advBtn.textContent='Advance to Dawn →';
       advBtn.onclick=()=>mafiaAdvanceToDawn();
-    } else if(phase==='dawn'){
-      advBtn.textContent='Start Day '+(day+1)+' →';
-      advBtn.onclick=()=>mafiaAdvanceToDay();
     }
   }
 
@@ -1562,13 +1592,6 @@ function renderMafiaDayVote(game,alivePlayers,amDead){
   const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const n=alivePlayers.length;
   const noticeEl=document.getElementById('mafiaVoteNotice');
-  if(game.mafiaPhase==='dawn'){
-    noticeEl.className='notice info';
-    noticeEl.textContent='Discuss the results. Host will advance when ready.';
-    document.getElementById('mafiaVoteList').innerHTML='';
-    document.getElementById('mafiaVoteStatus').textContent='';
-    return;
-  }
   noticeEl.className='notice mafia';
   noticeEl.textContent=amDead?'You are dead — spectating only.':'Vote to eliminate a player.';
   document.getElementById('mafiaVoteList').innerHTML=alivePlayers.map(p=>{
@@ -1672,11 +1695,15 @@ async function mafiaAdvanceToDawn(){
     killTarget=Object.entries(killCounts).sort((a,b)=>b[1]-a[1])[0][0];
   }
 
+  let dawnEliminated=null,dawnSaved=null;
+
   if(killTarget){
     const killName=(game.players&&game.players[killTarget]&&game.players[killTarget].name)||'?';
     if(saveVote===killTarget){
+      dawnSaved=killTarget;
       log.push({text:`Night ${game.mafiaDay}: The Mafia targeted ${killName}, but the Doctor saved them!`,type:'saved',ts:Date.now()});
     } else {
+      dawnEliminated=killTarget;
       eliminated[killTarget]=true;
       log.push({text:`Night ${game.mafiaDay}: ${killName} was killed by the Mafia.`,type:'death',ts:Date.now()});
     }
@@ -1684,12 +1711,70 @@ async function mafiaAdvanceToDawn(){
     log.push({text:`Night ${game.mafiaDay}: The Mafia couldn't agree on a target. No one died.`,type:'system',ts:Date.now()});
   }
 
-  await updateGame(gameCode,{mafiaPhase:'dawn',mafiaEliminated:eliminated,mafiaLog:log,mafiaVotes:{}});
+  await updateGame(gameCode,{mafiaPhase:'dawn',mafiaEliminated:eliminated,mafiaLog:log,mafiaVotes:{},mafiaDawnEliminated:dawnEliminated,mafiaDawnSaved:dawnSaved});
 }
 async function mafiaAdvanceToDay(){
   const game=localGame;if(!game)return;
+  showScreen('mafia-game');
   await updateGame(gameCode,{mafiaPhase:'day',mafiaDay:(game.mafiaDay||1)+1,mafiaKillVotes:{},mafiaSaveVote:null,mafiaVotes:{},mafiaPhaseTimer:Date.now()});
   checkMafiaWin(localGame);
+}
+
+// DAWN STORY SCREEN
+function showMafiaDawnStory(game){
+  const eliminated=game.mafiaEliminated||{};
+  const players=game.players||{};
+  const dawnElimId=game.mafiaDawnEliminated;
+  const dawnSaved=game.mafiaDawnSaved;
+  const day=game.mafiaDay||1;
+  const allPlayers=Object.values(players);
+  const alivePlayers=allPlayers.filter(p=>!eliminated[p.id]);
+  const aliveCount=alivePlayers.length;
+
+  let icon,titleClass,title,storyHTML;
+
+  if(dawnElimId&&players[dawnElimId]){
+    // Someone was killed
+    const deadName=players[dawnElimId].name;
+    icon='☠️';titleClass='death';title='A body is found...';
+    storyHTML=`<p class="dawn-story-text">The town wakes to find <em>${esc(deadName)}</em> dead in the street.</p><p class="dawn-story-text" style="margin-top:8px;font-size:14px">The Mafia struck in the night.</p>`;
+  } else if(dawnSaved&&players[dawnSaved]){
+    // Doctor saved someone
+    const savedName=players[dawnSaved].name;
+    icon='🌿';titleClass='saved';title='The Doctor saves the day';
+    storyHTML=`<p class="dawn-story-text">The Mafia chose to target <em style="color:var(--spy)">${esc(savedName)}</em>,</p><p class="dawn-story-text saved-name">but the Doctor came to the rescue. <em>${esc(savedName)}</em> survives.</p>`;
+  } else {
+    // No kill, no doctor (mafia couldn't agree / no doctor)
+    icon='🌅';titleClass='quiet';title='A quiet night...';
+    storyHTML=`<p class="dawn-story-text">The town stirs. No one was found dead.</p><p class="dawn-story-text" style="margin-top:8px;font-size:14px">The Mafia couldn't agree on a target.</p>`;
+  }
+
+  const nextDay=day+1;
+  const hostControls=amHost
+    ?`<div class="dawn-day-label">Next up: Day ${nextDay}</div><button class="btn btn-primary dawn-continue-btn" onclick="mafiaAdvanceToDay()">Start Day ${nextDay} →</button>`
+    :`<div class="dawn-day-label" style="margin-top:8px">Waiting for host to continue...</div>`;
+
+  document.getElementById('dawnStoryWrap').innerHTML=`
+    <div class="dawn-screen-bg">
+      <div class="dawn-eyebrow">🌅 Dawn — Night ${day} Results</div>
+      <div class="dawn-icon">${icon}</div>
+      <div class="dawn-title ${titleClass}">${title}</div>
+      <div class="dawn-divider"></div>
+      ${storyHTML}
+      <div class="dawn-alive-count">${aliveCount} player${aliveCount!==1?'s':''} remain</div>
+      <div style="height:28px"></div>
+      ${hostControls}
+    </div>`;
+
+  showScreen('mafia-dawn');
+}
+
+function renderMafiaDawnAliveCount(game){
+  // Update alive count if it changes while on dawn screen
+  const eliminated=game.mafiaEliminated||{};
+  const aliveCount=Object.values(game.players||{}).filter(p=>!eliminated[p.id]).length;
+  const el=document.querySelector('.dawn-alive-count');
+  if(el)el.textContent=`${aliveCount} player${aliveCount!==1?'s':''} remain`;
 }
 
 // WIN CONDITION
