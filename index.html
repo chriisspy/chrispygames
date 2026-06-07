@@ -559,6 +559,7 @@ select option{background:var(--surface2)}
       <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 4 players to start Mafia</div>
       <div style="height:8px"></div>
       <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>Start Game</button>
+      <button id="devStartTestBtn" onclick="startDevGameTest()" style="display:none;background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;text-align:center;width:100%;padding:9px 0 0;letter-spacing:0.5px">Start dev game test</button>
       <div class="chat-wrap">
         <div class="chat-label">Lobby Chat</div>
         <div class="chat-messages" id="lobbyChatMessages"><div class="chat-empty">No messages yet...</div></div>
@@ -1448,6 +1449,7 @@ function renderLobby(game){
   if(localChaosMode&&spyCountWrap){spyCountWrap.style.opacity='0.4';spyCountWrap.style.pointerEvents='none';}
   else if(spyCountWrap){spyCountWrap.style.opacity='1';spyCountWrap.style.pointerEvents='auto';}
   document.getElementById('startBtn').textContent=localGameMode==='ooo'?'Start Odd One Out':localGameMode==='mafia'?'Start Mafia':'Start Game';
+  updateDevLobbyButton();
 }
 function renderWaiting(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
@@ -2660,6 +2662,36 @@ function toggleDevPanel(){
     }
   }
   panel.style.display=open?'block':'none';arrow.textContent=open?'▼':'▶';
+  updateDevLobbyButton();
+}
+function updateDevLobbyButton(){
+  const btn=document.getElementById('devStartTestBtn');
+  if(!btn)return;
+  const devUnlocked=sessionStorage.getItem('sf_dev_unlocked')==='1';
+  const inLobby=(document.querySelector('.screen.active')||{}).id==='screen-lobby';
+  btn.style.display=(devUnlocked&&inLobby&&amHost)?'block':'none';
+}
+async function startDevGameTest(){
+  if(sessionStorage.getItem('sf_dev_unlocked')!=='1')return;
+  if(!gameCode||!localGame||!amHost)return;
+  const now=Date.now();
+  const bots={};
+  for(let i=1;i<=5;i++){
+    bots['dev_bot_'+i]={id:'dev_bot_'+i,name:'Bot '+i,isHost:false,joinedAt:now+i,online:true,devBot:true};
+  }
+  const btn=document.getElementById('devStartTestBtn');
+  if(btn){btn.disabled=true;btn.textContent='Adding 5 bots...';}
+  try{
+    if(gameCode==='DEV0'){
+      localGame.players={...(localGame.players||{}),...bots};
+      renderLobby(localGame);
+    } else {
+      await gameRefFor(gameCode).child('players').update(bots);
+    }
+    if(btn)btn.textContent='5 dev bots added';
+    setTimeout(()=>{if(btn)btn.textContent='Start dev game test';},1800);
+  }catch(e){console.error(e);alert('Could not add dev bots.');}
+  if(btn)btn.disabled=false;
 }
 function devShowStatus(msg){const el=document.getElementById('devStatus');el.textContent='✓ '+msg;el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
 function devMockGame(overrides={}){
