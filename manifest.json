@@ -1,6 +1,6 @@
 {
   "name": "Chrispy Games",
-  "short_name": "Games",
+  "short_name": "Chrispy Games",
   "description": "Party games with the boys.",
   "start_url": "./index.html",
   "scope": "./",
