@@ -375,16 +375,14 @@ select option{background:var(--surface2)}
       <h2>Welcome</h2>
 
       <label>Password</label>
-      <input 
-        id="passwordInput" 
-        type="password" 
-        placeholder="Enter password..." 
+      <input
+        id="passwordInput"
+        type="password"
+        placeholder="Enter password..."
         autocomplete="off"
       />
 
-      <div id="passwordError" class="notice error" style="display:none">
-        Incorrect password.
-      </div>
+      <div id="passwordError" class="notice error" style="display:none">Incorrect password.</div>
 
       <button class="btn btn-primary" type="submit">Enter</button>
     </form>
@@ -1615,7 +1613,7 @@ function renderMafiaGame(game){
   }).join('');
 
   const log=game.mafiaLog||[];
-  document.getElementById('mafiaGameLog').innerHTML=log.slice().reverse().map(l=>`<div class="mafia-log-item ${l.type||'system'}">${esc(l.text)}</div>`).join('')||'<div style="color:var(--muted);font-size:13px;font-family:'DM Mono',monospace">No events yet.</div>';
+  document.getElementById('mafiaGameLog').innerHTML=log.slice().reverse().map(l=>`<div class="mafia-log-item ${l.type||'system'}">${esc(l.text)}</div>`).join('') || `<div style="color:var(--muted);font-size:13px;font-family:'DM Mono',monospace">No events yet.</div>`;
 
   renderMafiaDayVote(game,alivePlayers,amDead);
   document.getElementById('mafiaHostControls').style.display=amHost?'block':'none';
@@ -1632,7 +1630,7 @@ function renderMafiaDayVote(game,alivePlayers,amDead){
   document.getElementById('mafiaVoteNotice').textContent=amDead?'You are dead — spectating only.':'Vote to eliminate a player.';
   document.getElementById('mafiaVoteList').innerHTML=alivePlayers.map(p=>{
     const vc=voteCounts[p.id]||0;
-    return`<div class="vote-item ${myVote===p.id?'mafia-voted':''} ${amDead?'dead':''}" onclick="${amDead?'':'castMafiaVote(''+p.id+'')'}"><div style="font-size:20px">👤</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
+    return`<div class="vote-item ${myVote===p.id?'mafia-voted':''} ${amDead?'dead':''}" onclick="${amDead ? '' : `castMafiaVote('${p.id}')`}"><div style="font-size:20px">👤</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
   }).join('');
   document.getElementById('mafiaVoteStatus').textContent=`${Object.keys(votes).length} of ${n} voted`;
   if(amHost&&Object.keys(votes).length>=n&&n>0)resolveMafiaDayVote(game,votes,alivePlayers);
@@ -1700,7 +1698,7 @@ function renderMafiaNightMafia(game){
   if(isTwoMafia)setupMafiaPrivateChat(game);
 
   const pvs=document.getElementById('mafiaPartnerVoteStatus');
-  if(isTwoMafia&&pvs){pvs.style.display='block';pvs.textContent=!partnerDecision?'Your partner hasn't decided yet...':`Your partner voted: ${partnerDecision.toUpperCase()}`;}
+  if(isTwoMafia&&pvs){pvs.style.display='block';pvs.textContent=!partnerDecision?"Your partner hasn't decided yet...":`Your partner voted: ${partnerDecision.toUpperCase()}`;}
   else if(pvs){pvs.style.display='none';}
 
   startMafiaNightDecisionTimer(game);
@@ -1856,7 +1854,7 @@ function renderMafiaTownWait(game){
   const eliminated=game.mafiaEliminated||{};
   const amDead=!!eliminated[myId];
   document.getElementById('mafiaWaitIcon').textContent=amDead?'💀':'🌙';
-  document.getElementById('mafiaWaitSubtext').textContent=amDead?'You're dead — no peeking!':'The night is unfolding...';
+  document.getElementById('mafiaWaitSubtext').textContent=amDead?"You're dead — no peeking!":'The night is unfolding...';
 }
 
 // MAFIA VOTES
