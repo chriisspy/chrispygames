@@ -369,12 +369,25 @@ select option{background:var(--surface2)}
 <div class="screen active" id="screen-password">
   <div class="logo">CHRISPY<span>GAMES</span></div>
   <div class="tagline">Private — enter password</div>
+
   <div class="card fadeIn">
-    <h2>Welcome</h2>
-    <label>Password</label>
-    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off" onkeydown="if(event.key==='Enter')checkPassword()"/>
-    <div id="passwordError" class="notice error" style="display:none">Incorrect password.</div>
-    <button class="btn btn-primary" onclick="checkPassword()">Enter</button>
+    <form onsubmit="event.preventDefault(); checkPassword();">
+      <h2>Welcome</h2>
+
+      <label>Password</label>
+      <input 
+        id="passwordInput" 
+        type="password" 
+        placeholder="Enter password..." 
+        autocomplete="off"
+      />
+
+      <div id="passwordError" class="notice error" style="display:none">
+        Incorrect password.
+      </div>
+
+      <button class="btn btn-primary" type="submit">Enter</button>
+    </form>
   </div>
 </div>
 
@@ -1018,7 +1031,6 @@ function checkPassword(){
     setTimeout(()=>e.style.display='none',3000);
   }
 }
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(document.querySelector('.screen.active')||{}).id==='screen-password')checkPassword();});
 
 // =====================================================
 // GAME DATA
