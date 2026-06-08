@@ -1413,6 +1413,10 @@ function toggleChaosMode(){
 // FIREBASE
 // =====================================================
 function gameRefFor(code){return db.ref('games/'+code);}
+let serverTimeOffset=0;
+db.ref('.info/serverTimeOffset').on('value',snap=>{serverTimeOffset=snap.val()||0;});
+function syncedNow(){return Date.now()+serverTimeOffset;}
+function serverTimestamp(){return firebase.database.ServerValue.TIMESTAMP;}
 function listenToGame(code,callback){
   if(gameListener&&gameRef)gameRef.off('value',gameListener);
   gameRef=gameRefFor(code);
@@ -3156,7 +3160,7 @@ async function startFaGame(){
   await updateGame(gameCode,{
     status:'playing',mode:'fa',faPhase:'draw',
     faWord:word,faImposterId:imposterId,
-    faStrokes:[],faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:Date.now(),faLiveStroke:null,
+    faStrokes:[],faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:serverTimestamp(),faLiveStroke:null,
     faRound:1,faTotalRounds:totalRounds,
     faWordIndex:1,faTotalWords:totalWords,
     faScores:scores,faVotes:{},faGuess:null,faResult:null,
@@ -3265,7 +3269,7 @@ function updateFaDrawScreen(game){
   }
 
   if(amHost&&gameCode&&game.faPhase==='draw'&&!game.faTurnStartedAt){
-    gameRefFor(gameCode).child('faTurnStartedAt').set(Date.now());
+    gameRefFor(gameCode).child('faTurnStartedAt').set(serverTimestamp());
   }
 
   document.getElementById('faRoundBadge').textContent=`Word ${wordIndex}/${totalWords} · Round ${round}/${totalRounds}`;
@@ -3355,7 +3359,7 @@ function faOnTouchEnd(e){faOnUp(e);}
 
 function faSyncLiveStroke(force=false){
   if(!gameCode||!localGame||!faCurrentStroke.length)return;
-  const now=Date.now();
+  const now=syncedNow();
   if(!force&&now-faLiveStrokeThrottle<120)return;
   faLiveStrokeThrottle=now;
   const color=document.getElementById('faColorPicker').value;
@@ -3378,21 +3382,50 @@ function faUndoStroke(){
   updateFaDrawScreen(localGame);
 }
 
-async function faAdvanceTurn(game,submitted){
-  if(!gameCode||!game||game.faPhase!=='draw')return;
-  const tOrder=game.faTurnOrder||[];
-  if(!tOrder.length)return;
-  const currentIdx=game.faTurnIndex||0;
+function faApplyNextTurn(g,nextStartedAt){
+  const tOrder=g.faTurnOrder||[];
   const total=tOrder.length;
+  const currentIdx=g.faTurnIndex||0;
   const newIdx=currentIdx+1;
   const completedRound=Math.floor(newIdx/total);
-  const totalRounds=game.faTotalRounds||5;
-  const updates={faTurnIndex:newIdx,faTurnStartedAt:Date.now(),faLiveStroke:null};
+  const totalRounds=g.faTotalRounds||5;
+  g.faTurnIndex=newIdx;
+  g.faTurnStartedAt=nextStartedAt;
+  g.faLiveStroke=null;
+  g.faRound=Math.min(totalRounds,completedRound+1);
   if(completedRound>=totalRounds){
-    updates.faPhase='vote';
-    updates.faVotes={};
+    g.faPhase='vote';
+    g.faVotes={};
+    g.faLiveStroke=null;
   }
-  await updateGame(gameCode,updates);
+  return g;
+}
+
+async function faAdvanceTurnTransaction(expectedTurnIndex,expectedPlayerId,stroke){
+  if(!gameCode)return false;
+  let committed=false;
+  await gameRefFor(gameCode).transaction(g=>{
+    if(!g||g.mode!=='fa'||g.status!=='playing'||g.faPhase!=='draw')return g;
+    const tOrder=g.faTurnOrder||[];
+    if(!tOrder.length)return g;
+    const currentIdx=g.faTurnIndex||0;
+    const currentPlayerId=tOrder[currentIdx%tOrder.length];
+    if(currentIdx!==expectedTurnIndex)return g;
+    if(expectedPlayerId&&currentPlayerId!==expectedPlayerId)return g;
+
+    if(stroke){
+      const key=stroke.id||db.ref().push().key;
+      if(!g.faStrokes||Array.isArray(g.faStrokes))g.faStrokes={};
+      g.faStrokes[key]={...stroke,id:key,ts:syncedNow()};
+    }
+
+    committed=true;
+    return faApplyNextTurn(g,syncedNow());
+  },undefined,false);
+  if(committed){
+    await db.ref('games/'+gameCode+'/faLiveStroke').remove().catch(()=>{});
+  }
+  return committed;
 }
 
 async function faSkipTurnIfTimedOut(game){
@@ -3400,7 +3433,9 @@ async function faSkipTurnIfTimedOut(game){
   const turnKey=game.faTurnIndex||0;
   if(faTimeoutHandledFor===turnKey)return;
   faTimeoutHandledFor=turnKey;
-  await faAdvanceTurn(game,false);
+  const tOrder=game.faTurnOrder||[];
+  const currentPlayerId=tOrder.length?tOrder[turnKey%tOrder.length]:null;
+  await faAdvanceTurnTransaction(turnKey,currentPlayerId,null);
 }
 
 function startFaTurnTimer(game){
@@ -3412,8 +3447,8 @@ function startFaTurnTimer(game){
       if(faTurnTimerInterval){clearInterval(faTurnTimerInterval);faTurnTimerInterval=null;}
       return;
     }
-    const start=g.faTurnStartedAt||Date.now();
-    const elapsed=Math.floor((Date.now()-start)/1000);
+    const start=g.faTurnStartedAt||syncedNow();
+    const elapsed=Math.floor((syncedNow()-start)/1000);
     const remaining=Math.max(0,FA_TURN_DURATION-elapsed);
     const m=Math.floor(remaining/60).toString().padStart(2,'0');
     const s=(remaining%60).toString().padStart(2,'0');
@@ -3437,10 +3472,14 @@ async function faFinishStroke(){
   document.getElementById('faDrawBtn').style.display='none';
   const color=document.getElementById('faColorPicker').value;
   const size=parseInt(document.getElementById('faBrushSize').value)||6;
-  const stroke={playerId:myId,turnIndex:tIdx,color,size,points:faCurrentStroke,ts:Date.now()};
-  await db.ref('games/'+gameCode+'/faStrokes').push(stroke);
-  await db.ref('games/'+gameCode+'/faLiveStroke').remove();
-  await faAdvanceTurn(game,true);
+  const stroke={playerId:myId,turnIndex:tIdx,color,size,points:faCurrentStroke};
+  const ok=await faAdvanceTurnTransaction(tIdx,myId,stroke);
+  if(!ok){
+    faHasDrawn=false;
+    updateFaDrawScreen(localGame);
+  } else {
+    faCurrentStroke=[];
+  }
 }
 
 function faStrokesArray(strokes){
@@ -3654,7 +3693,7 @@ async function faNextWord(){
   faHasDrawn=false;faCurrentStroke=[];
   await updateGame(gameCode,{
     faPhase:'draw',faWord:word,faImposterId:imposterId,
-    faStrokes:[],faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:Date.now(),faLiveStroke:null,
+    faStrokes:[],faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:serverTimestamp(),faLiveStroke:null,
     faRound:1,faTotalRounds:totalRounds,
     faWordIndex:wordIndex+1,faVotes:{},faGuess:null,faResult:null,
     faAccusedId:null,faUsedWords:[...usedWords,word],
