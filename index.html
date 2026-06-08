@@ -1083,8 +1083,8 @@ select option{background:var(--surface2)}
     <!-- Canvas -->
     <div style="flex:1;position:relative;min-height:0">
       <canvas id="faCanvas" style="width:100%;height:100%;border-radius:var(--radius);background:#1a1a24;border:1px solid var(--border);display:block;touch-action:none"></canvas>
-      <div id="faCanvasOverlay" style="position:absolute;inset:0;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;pointer-events:none">
-        <div id="faCanvasOverlayText" style="background:rgba(10,10,15,0.85);padding:12px 20px;border-radius:var(--radius);font-size:14px;font-weight:700;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;display:none"></div>
+      <div id="faCanvasOverlay" style="position:absolute;inset:0;border-radius:var(--radius);display:flex;align-items:flex-end;justify-content:center;pointer-events:none;padding:0 10px 10px;box-sizing:border-box">
+        <div id="faCanvasOverlayText" style="background:rgba(10,10,15,0.85);padding:8px 14px;border-radius:var(--radius);font-size:12px;font-weight:700;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;display:none;max-width:100%"></div>
       </div>
     </div>
     <!-- Tools -->
@@ -1098,8 +1098,10 @@ select option{background:var(--surface2)}
         <input type="range" id="faBrushSize" min="2" max="24" value="6" style="flex:1;margin-bottom:0;padding:0;height:4px;background:var(--surface3);border:none;border-radius:2px;accent-color:var(--accent)"/>
         <div id="faBrushPreview" style="width:20px;height:20px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>
       </div>
-      <div id="faDrawBtn" style="margin-top:8px;display:none">
-        <button class="btn btn-primary" style="padding:10px" onclick="faFinishStroke()">Done drawing ✓</button>
+      <div id="faTurnTimer" style="margin-top:8px;text-align:center;font-family:'DM Mono',monospace;font-size:22px;color:#f97316;font-weight:500;letter-spacing:2px">00:30</div>
+      <div id="faDrawBtn" class="flex-row" style="margin-top:8px;display:none">
+        <button class="btn btn-secondary" style="padding:10px" onclick="faUndoStroke()">Undo</button>
+        <button class="btn btn-primary" style="padding:10px" onclick="faFinishStroke()">SUBMIT</button>
       </div>
     </div>
     <!-- Status bar -->
@@ -3094,8 +3096,9 @@ const FA_WORDS = [
   'Igloo','Treasure Chest','Thunderstorm','Quicksand','Palm Tree',
   'Black Hole','Avalanche','Puppet','Bonfire','Whirlpool'
 ];
+const FA_TURN_DURATION = 30;
 let faCanvas=null,faCtx=null,faIsDrawing=false,faHasDrawn=false,faWordHidden=false;
-let faStrokeListener=null,faCurrentStroke=[];
+let faStrokeListener=null,faLiveStrokeListener=null,faTurnTimerInterval=null,faCurrentStroke=[],faLastTurnIndex=null,faTimeoutHandledFor=null,faLiveStrokeThrottle=0;
 const FA_SWATCH_COLORS=['#e8d44d','#e85d4d','#4de8a0','#3498db','#a78bfa','#f97316','#ffffff','#000000'];
 
 function faCanvasCleanup(){
@@ -3111,7 +3114,12 @@ function faCanvasCleanup(){
     db.ref('games/'+gameCode+'/faStrokes').off('value',faStrokeListener);
     faStrokeListener=null;
   }
-  faCanvas=null;faCtx=null;faIsDrawing=false;faHasDrawn=false;faCurrentStroke=[];
+  if(faLiveStrokeListener&&gameCode){
+    db.ref('games/'+gameCode+'/faLiveStroke').off('value',faLiveStrokeListener);
+    faLiveStrokeListener=null;
+  }
+  if(faTurnTimerInterval){clearInterval(faTurnTimerInterval);faTurnTimerInterval=null;}
+  faCanvas=null;faCtx=null;faIsDrawing=false;faHasDrawn=false;faCurrentStroke=[];faLastTurnIndex=null;faTimeoutHandledFor=null;faLiveStrokeThrottle=0;
 }
 
 function faRoundsForPlayers(n){return n<=5?5:3;}
@@ -3148,7 +3156,7 @@ async function startFaGame(){
   await updateGame(gameCode,{
     status:'playing',mode:'fa',faPhase:'draw',
     faWord:word,faImposterId:imposterId,
-    faStrokes:[],faTurnOrder:turnOrder,faTurnIndex:0,
+    faStrokes:[],faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:Date.now(),faLiveStroke:null,
     faRound:1,faTotalRounds:totalRounds,
     faWordIndex:1,faTotalWords:totalWords,
     faScores:scores,faVotes:{},faGuess:null,faResult:null,
@@ -3193,13 +3201,19 @@ function setupFaCanvas(game){
   document.getElementById('faColorPicker').oninput=e=>{faSetColor(e.target.value);};
 
   // Replay existing strokes
-  replayFaStrokes(game.faStrokes||[]);
+  renderFaCanvas(game.faStrokes||[],game.faLiveStroke||null);
 
-  // Listen for new strokes in real time
+  // Listen for submitted strokes in real time
   faStrokeListener=db.ref('games/'+gameCode+'/faStrokes').on('value',snap=>{
     const data=snap.val();
-    const strokes=data?Object.values(data):[]; 
-    replayFaStrokes(strokes);
+    const strokes=data?Object.values(data):[];
+    renderFaCanvas(strokes,(localGame&&localGame.faLiveStroke)||null);
+  });
+
+  // Listen for the current in-progress stroke so everyone can see the canvas update during the turn
+  faLiveStrokeListener=db.ref('games/'+gameCode+'/faLiveStroke').on('value',snap=>{
+    const live=snap.val();
+    renderFaCanvas((localGame&&localGame.faStrokes)||[],live||null);
   });
 
   updateFaDrawScreen(game);
@@ -3227,15 +3241,27 @@ function faSetColor(hex){
 function updateFaDrawScreen(game){
   const tOrder=game.faTurnOrder||[];
   const tIdx=game.faTurnIndex||0;
-  const currentTurnId=tOrder[tIdx%tOrder.length];
+  const currentTurnId=tOrder.length?tOrder[tIdx%tOrder.length]:null;
   const isMyTurn=currentTurnId===myId;
-  const eliminated=game.mafiaEliminated||{};
   const currentPlayer=(game.players&&game.players[currentTurnId]&&game.players[currentTurnId].name)||'?';
   const round=game.faRound||1;
   const totalRounds=game.faTotalRounds||5;
   const wordIndex=game.faWordIndex||1;
   const totalWords=game.faTotalWords||3;
   const isImpostor=game.faImposterId===myId;
+
+  if(faLastTurnIndex!==tIdx){
+    faLastTurnIndex=tIdx;
+    faHasDrawn=false;
+    faIsDrawing=false;
+    faCurrentStroke=[];
+    faTimeoutHandledFor=null;
+    if(isMyTurn&&gameCode)db.ref('games/'+gameCode+'/faLiveStroke').remove().catch(()=>{});
+  }
+
+  if(amHost&&gameCode&&game.faPhase==='draw'&&!game.faTurnStartedAt){
+    gameRefFor(gameCode).child('faTurnStartedAt').set(Date.now());
+  }
 
   document.getElementById('faRoundBadge').textContent=`Word ${wordIndex}/${totalWords} · Round ${round}/${totalRounds}`;
   document.getElementById('faTurnIndicator').textContent=isMyTurn?'YOUR TURN':currentPlayer+"'s turn";
@@ -3246,36 +3272,33 @@ function updateFaDrawScreen(game){
   wordEl.textContent=isImpostor?'???':esc(game.faWord||'???');
   wordEl.style.color=isImpostor?'var(--spy)':'var(--accent)';
 
-  // Canvas enabled only on my turn and haven't drawn yet
+  // Everyone can see the canvas update, but only the active player can draw.
   const canDraw=isMyTurn&&!faHasDrawn;
-  faCanvas.style.cursor=canDraw?'crosshair':'not-allowed';
+  faCanvas.style.cursor=canDraw?'crosshair':'default';
+  faCanvas.style.pointerEvents=canDraw?'auto':'none';
 
-  // Overlay
+  // Bottom turn label
   const overlayText=document.getElementById('faCanvasOverlayText');
-  if(!isMyTurn){
-    overlayText.style.display='block';
-    overlayText.textContent=currentPlayer+"'s turn to draw...";
-    faCanvas.style.pointerEvents='none';
-  } else if(faHasDrawn){
-    overlayText.style.display='block';
-    overlayText.textContent='Stroke submitted — waiting for others...';
-    faCanvas.style.pointerEvents='none';
-  } else {
-    overlayText.style.display='none';
-    faCanvas.style.pointerEvents='auto';
-  }
+  overlayText.style.display='block';
+  overlayText.textContent=currentPlayer+"'s turn to draw...";
+  overlayText.style.color=isMyTurn?'var(--safe)':'var(--muted)';
 
-  // Draw button
+  // Undo + Submit controls
   const drawBtn=document.getElementById('faDrawBtn');
-  drawBtn.style.display=canDraw&&!faHasDrawn?'block':'none';
+  drawBtn.style.display=canDraw?'flex':'none';
+  const buttons=drawBtn.querySelectorAll('button');
+  if(buttons[0])buttons[0].disabled=!faCurrentStroke.length;
+  if(buttons[1])buttons[1].disabled=!faCurrentStroke.length;
 
   // Tools enabled only on my turn
   const toolsOpacity=canDraw?'1':'0.4';
   document.getElementById('faTools').style.opacity=toolsOpacity;
   document.getElementById('faTools').style.pointerEvents=canDraw?'auto':'none';
 
+  startFaTurnTimer(game);
+
   // Status
-  const total=tOrder.length;
+  const total=tOrder.length||1;
   const completedThisRound=tIdx%total;
   document.getElementById('faStatusBar').textContent=`${completedThisRound}/${total} drawn this round`;
 }
@@ -3294,6 +3317,7 @@ function faOnDown(e){
   const tIdx=localGame&&localGame.faTurnIndex||0;
   if(tOrder[tIdx%tOrder.length]!==myId)return;
   faIsDrawing=true;faCurrentStroke=[];
+  if(gameCode)db.ref('games/'+gameCode+'/faLiveStroke').remove().catch(()=>{});
   const pos=faGetPos(e);
   faCurrentStroke.push(pos);
   faCtx.beginPath();faCtx.moveTo(pos.x,pos.y);
@@ -3308,47 +3332,129 @@ function faOnMove(e){
   faCtx.strokeStyle=color;faCtx.lineWidth=size;
   const prev=faCurrentStroke[faCurrentStroke.length-2]||faCurrentStroke[0];
   faCtx.beginPath();faCtx.moveTo(prev.x,prev.y);faCtx.lineTo(pos.x,pos.y);faCtx.stroke();
+  faSyncLiveStroke();
   e.preventDefault();
 }
 function faOnUp(e){
   if(!faIsDrawing)return;
   faIsDrawing=false;
   if(faCurrentStroke.length>0){
-    document.getElementById('faDrawBtn').style.display='block';
+    document.getElementById('faDrawBtn').style.display='flex';
+    faSyncLiveStroke(true);
+    updateFaDrawScreen(localGame||{});
   }
 }
 function faOnTouchStart(e){e.preventDefault();faOnDown(e.touches[0]);}
 function faOnTouchMove(e){e.preventDefault();faOnMove(e.touches[0]);}
 function faOnTouchEnd(e){faOnUp(e);}
 
+function faSyncLiveStroke(force=false){
+  if(!gameCode||!localGame||!faCurrentStroke.length)return;
+  const now=Date.now();
+  if(!force&&now-faLiveStrokeThrottle<120)return;
+  faLiveStrokeThrottle=now;
+  const color=document.getElementById('faColorPicker').value;
+  const size=parseInt(document.getElementById('faBrushSize').value)||6;
+  const tOrder=localGame.faTurnOrder||[];
+  const tIdx=localGame.faTurnIndex||0;
+  const stroke={playerId:myId,turnIndex:tIdx,color,size,points:faCurrentStroke,ts:now};
+  db.ref('games/'+gameCode+'/faLiveStroke').set(stroke).catch(()=>{});
+}
+
+function faUndoStroke(){
+  if(!localGame||faHasDrawn)return;
+  const tOrder=localGame.faTurnOrder||[];
+  const tIdx=localGame.faTurnIndex||0;
+  if(tOrder[tIdx%tOrder.length]!==myId)return;
+  faIsDrawing=false;
+  faCurrentStroke=[];
+  if(gameCode)db.ref('games/'+gameCode+'/faLiveStroke').remove().catch(()=>{});
+  renderFaCanvas(localGame.faStrokes||[],null);
+  updateFaDrawScreen(localGame);
+}
+
+async function faAdvanceTurn(game,submitted){
+  if(!gameCode||!game||game.faPhase!=='draw')return;
+  const tOrder=game.faTurnOrder||[];
+  if(!tOrder.length)return;
+  const currentIdx=game.faTurnIndex||0;
+  const total=tOrder.length;
+  const newIdx=currentIdx+1;
+  const completedRound=Math.floor(newIdx/total);
+  const totalRounds=game.faTotalRounds||5;
+  const updates={faTurnIndex:newIdx,faTurnStartedAt:Date.now(),faLiveStroke:null};
+  if(completedRound>=totalRounds){
+    updates.faPhase='vote';
+    updates.faVotes={};
+  }
+  await updateGame(gameCode,updates);
+}
+
+async function faSkipTurnIfTimedOut(game){
+  if(!amHost||!gameCode||!game||game.faPhase!=='draw')return;
+  const turnKey=game.faTurnIndex||0;
+  if(faTimeoutHandledFor===turnKey)return;
+  faTimeoutHandledFor=turnKey;
+  await faAdvanceTurn(game,false);
+}
+
+function startFaTurnTimer(game){
+  if(faTurnTimerInterval){clearInterval(faTurnTimerInterval);faTurnTimerInterval=null;}
+  const el=document.getElementById('faTurnTimer');
+  const tick=()=>{
+    const g=localGame||game;
+    if(!g||g.faPhase!=='draw'){
+      if(faTurnTimerInterval){clearInterval(faTurnTimerInterval);faTurnTimerInterval=null;}
+      return;
+    }
+    const start=g.faTurnStartedAt||Date.now();
+    const elapsed=Math.floor((Date.now()-start)/1000);
+    const remaining=Math.max(0,FA_TURN_DURATION-elapsed);
+    const m=Math.floor(remaining/60).toString().padStart(2,'0');
+    const s=(remaining%60).toString().padStart(2,'0');
+    if(el){
+      el.textContent=`${m}:${s}`;
+      el.style.color=remaining<=10?'var(--spy)':'#f97316';
+    }
+    if(remaining===0)faSkipTurnIfTimedOut(g);
+  };
+  tick();
+  faTurnTimerInterval=setInterval(tick,500);
+}
+
 async function faFinishStroke(){
   if(!faCurrentStroke.length||faHasDrawn||!gameCode||!localGame)return;
+  const game=localGame;
+  const tOrder=game.faTurnOrder||[];
+  const tIdx=game.faTurnIndex||0;
+  if(tOrder[tIdx%tOrder.length]!==myId)return;
   faHasDrawn=true;
   document.getElementById('faDrawBtn').style.display='none';
   const color=document.getElementById('faColorPicker').value;
   const size=parseInt(document.getElementById('faBrushSize').value)||6;
-  const stroke={playerId:myId,color,size,points:faCurrentStroke,ts:Date.now()};
-  // Push stroke to Firebase
+  const stroke={playerId:myId,turnIndex:tIdx,color,size,points:faCurrentStroke,ts:Date.now()};
   await db.ref('games/'+gameCode+'/faStrokes').push(stroke);
-  // Advance turn (host does this)
-  if(amHost){
-    const game=localGame;
-    const tOrder=game.faTurnOrder||[];
-    const total=tOrder.length;
-    const newIdx=(game.faTurnIndex||0)+1;
-    const completedRound=Math.floor(newIdx/total);
-    const totalRounds=game.faTotalRounds||5;
-    if(completedRound>=totalRounds){
-      // All rounds done — go to vote
-      await updateGame(gameCode,{faTurnIndex:newIdx,faPhase:'vote',faVotes:{}});
-    } else {
-      await updateGame(gameCode,{faTurnIndex:newIdx});
-    }
+  await db.ref('games/'+gameCode+'/faLiveStroke').remove();
+  await faAdvanceTurn(game,true);
+}
+
+function faStrokesArray(strokes){
+  if(!strokes)return[];
+  return Array.isArray(strokes)?strokes:Object.values(strokes);
+}
+
+function renderFaCanvas(strokes,liveStroke){
+  const all=faStrokesArray(strokes);
+  if(liveStroke&&liveStroke.points&&liveStroke.points.length&&liveStroke.playerId){
+    const tIdx=localGame&&localGame.faTurnIndex;
+    if(liveStroke.turnIndex===undefined||liveStroke.turnIndex===tIdx)all.push(liveStroke);
   }
+  replayFaStrokes(all);
 }
 
 function replayFaStrokes(strokes){
   if(!faCtx||!faCanvas)return;
+  strokes=faStrokesArray(strokes);
   faCtx.fillStyle='#1a1a24';faCtx.fillRect(0,0,faCanvas.width,faCanvas.height);
   if(!strokes||!strokes.length)return;
   const sorted=[...strokes].sort((a,b)=>(a.ts||0)-(b.ts||0));
@@ -3543,7 +3649,7 @@ async function faNextWord(){
   faHasDrawn=false;faCurrentStroke=[];
   await updateGame(gameCode,{
     faPhase:'draw',faWord:word,faImposterId:imposterId,
-    faStrokes:[],faTurnOrder:turnOrder,faTurnIndex:0,
+    faStrokes:[],faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:Date.now(),faLiveStroke:null,
     faRound:1,faTotalRounds:totalRounds,
     faWordIndex:wordIndex+1,faVotes:{},faGuess:null,faResult:null,
     faAccusedId:null,faUsedWords:[...usedWords,word],
