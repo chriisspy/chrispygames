@@ -1233,7 +1233,6 @@ const ALL_LOCATIONS = [
   {name:'Gregory Hills Hotel', roles:['Chef','Footy Fan','Alcoholic','Waiter','Bartender']},
   {name:'Macarthur Square',    roles:['Eshay','Retail Worker','Police Officer','Bowling Expert','Event Cinemas Janitor','Nandos Chef']},
   {name:'World Gym',           roles:['Roid Head','Cleaner','BBL Baddie','Personal Trainer','Receptionist','Eshay']},
-  {name:'The Crusades',           roles:['Templar','Muslim','Pope Urban II','Medical Aid','Archer']},
 ];
 
 const OOO_QUESTIONS = [
@@ -1431,27 +1430,21 @@ function updateGame(code,updates){return gameRefFor(code).update(updates);}
 // =====================================================
 function setupPresence(){
   if(!gameCode)return;
-  const ref=gameRefFor(gameCode).child('players/'+myId+'/online');
-  ref.set(true);ref.onDisconnect().set(false);
-  gameRefFor(gameCode).child('players/'+myId).onDisconnect().update({online:false});
+  const playerRef=gameRefFor(gameCode).child('players/'+myId);
+  playerRef.update({online:true,lastSeen:serverTimestamp()});
+  // Do NOT mark the player offline on disconnect. Mobile Safari/PWA often disconnects
+  // Firebase when someone switches apps, and that was removing players from the lobby.
+  // Keep them in the lobby unless they explicitly tap "Leave game".
+  playerRef.onDisconnect().update({lastSeen:serverTimestamp()});
 }
 function watchPresence(game){
-  if(!amHost)return;
-  Object.values(game.players||{}).forEach(p=>{if(p.id!==myId&&p.online===false)handlePlayerLeft(p.id,game);});
+  // Intentionally no auto-removal for offline/backgrounded players.
+  // Mobile browsers can briefly disconnect when users switch apps.
+  // Players are removed only by the explicit leaveGame() flow.
 }
 async function handlePlayerLeft(leftId,game){
-  if(!amHost||!gameCode)return;
-  const snap=await gameRefFor(gameCode).once('value');const fg=snap.val();if(!fg)return;
-  if(fg.status==='lobby')await gameRefFor(gameCode).child('players/'+leftId).remove();
-  if(fg.hostId===leftId){
-    const rem=Object.values(fg.players||{}).filter(p=>p.id!==leftId).sort((a,b)=>a.joinedAt-b.joinedAt);
-    if(rem.length>0){
-      const nh=rem[0];
-      await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);
-      await gameRefFor(gameCode).child('hostId').set(nh.id);
-      if(nh.id===myId){amHost=true;}
-    }
-  }
+  // Kept for compatibility, but player removal should only happen through leaveGame().
+  return;
 }
 
 // =====================================================
