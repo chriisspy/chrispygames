@@ -942,7 +942,9 @@ select option{background:var(--surface2)}
     <div style="font-size:64px" id="mafiaWaitIcon">🌙</div>
     <div style="text-align:center">
       <div style="font-size:24px;font-weight:800;color:var(--text);margin-bottom:8px">You must wait<br>until dawn.</div>
-      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace" id="mafiaWaitSubtext">The night is unfolding...</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px" id="mafiaWaitSubtext">The night is unfolding...</div>
+      <div class="timer-display" id="mafiaTownTimerDisplay" style="font-size:44px;color:#e74c3c">00:30</div>
+      <div class="timer-label">until dawn</div>
     </div>
     <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--border);text-align:center;margin-top:8px">No peeking 👀</div>
   </div>
@@ -1803,6 +1805,7 @@ function startMafiaNightDecisionTimer(game){
     const timeStr=`${m}:${s}`;
     const kdEl=document.getElementById('mafiaKillDecisionTimer');if(kdEl){kdEl.textContent=timeStr;kdEl.style.color=remaining<20?'var(--spy)':'#e74c3c';}
     const sdEl=document.getElementById('mafiaSaveTimerDisplay');if(sdEl){sdEl.textContent=timeStr;sdEl.style.color=remaining<20?'var(--spy)':'var(--doctor)';}
+    const twEl=document.getElementById('mafiaTownTimerDisplay');if(twEl){twEl.textContent=timeStr;twEl.style.color=remaining<20?'var(--spy)':'#e74c3c';}
     if(remaining===0){clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;if(amHost)mafiaAdvanceToDawn();}
   },500);
 }
@@ -1923,6 +1926,7 @@ function renderMafiaNightDoctor(game){
 // MAFIA: NIGHT — TOWN WAITING
 // =====================================================
 function renderMafiaTownWait(game){
+  startMafiaNightDecisionTimer(game);
   const eliminated=game.mafiaEliminated||{};
   const amDead=!!eliminated[myId];
   document.getElementById('mafiaWaitIcon').textContent=amDead?'💀':'🌙';
