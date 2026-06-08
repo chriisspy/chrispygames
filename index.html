@@ -22,6 +22,22 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script>
+// Password check defined early so onclick handlers work on all platforms
+const SITE_PASSWORD = 'boysnight1';
+function checkPassword(){
+  const v=document.getElementById('passwordInput').value;
+  if(v===SITE_PASSWORD){
+    sessionStorage.setItem('sf_unlocked','1');
+    document.getElementById('screen-password').classList.remove('active');
+    document.getElementById('screen-home').classList.add('active');
+  } else {
+    const e=document.getElementById('passwordError');e.style.display='block';
+    document.getElementById('passwordInput').value='';
+    setTimeout(()=>e.style.display='none',3000);
+  }
+}
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{overflow-x:hidden;max-width:100vw}
@@ -372,9 +388,9 @@ select option{background:var(--surface2)}
   <div class="card fadeIn">
     <h2>Welcome</h2>
     <label>Password</label>
-    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off"/>
+    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off" onkeydown="if(event.key==='Enter')checkPassword()"/>
     <div id="passwordError" class="notice error" style="display:none">Incorrect password.</div>
-    <button class="btn btn-primary" id="passwordBtn">Enter</button>
+    <button class="btn btn-primary" onclick="checkPassword()">Enter</button>
   </div>
 </div>
 
@@ -1005,29 +1021,14 @@ select option{background:var(--surface2)}
 
 <script>
 // =====================================================
-// PASSWORD
+// PASSWORD INIT (check session on load)
 // =====================================================
-const SITE_PASSWORD = 'boysnight1';
 (function(){
   if(sessionStorage.getItem('sf_unlocked')==='1'){
     document.getElementById('screen-password').classList.remove('active');
     document.getElementById('screen-home').classList.add('active');
   }
 })();
-function checkPassword(){
-  const v=document.getElementById('passwordInput').value;
-  if(v===SITE_PASSWORD){
-    sessionStorage.setItem('sf_unlocked','1');
-    document.getElementById('screen-password').classList.remove('active');
-    document.getElementById('screen-home').classList.add('active');
-  } else {
-    const e=document.getElementById('passwordError');e.style.display='block';
-    document.getElementById('passwordInput').value='';
-    setTimeout(()=>e.style.display='none',3000);
-  }
-}
-document.getElementById('passwordBtn').addEventListener('click', checkPassword);
-document.getElementById('passwordInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkPassword(); });
 // =====================================================
 const ALL_LOCATIONS = [
   {name:'Airplane',            roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
