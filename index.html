@@ -1081,7 +1081,7 @@ select option{background:var(--surface2)}
       </div>
     </div>
     <!-- Canvas -->
-    <div style="flex:1;position:relative;min-height:0">
+    <div id="faCanvasWrap" style="width:100%;position:relative;aspect-ratio:1/1;max-height:430px;flex-shrink:0;overflow:hidden">
       <canvas id="faCanvas" style="width:100%;height:100%;border-radius:var(--radius);background:#1a1a24;border:1px solid var(--border);display:block;touch-action:none"></canvas>
       <div id="faCanvasOverlay" style="position:absolute;inset:0;border-radius:var(--radius);display:flex;align-items:flex-end;justify-content:center;pointer-events:none;padding:0 10px 10px;box-sizing:border-box">
         <div id="faCanvasOverlayText" style="background:rgba(10,10,15,0.85);padding:8px 14px;border-radius:var(--radius);font-size:12px;font-weight:700;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;display:none;max-width:100%"></div>
@@ -3178,9 +3178,14 @@ function enterFaDraw(game){
 function setupFaCanvas(game){
   faCanvas=document.getElementById('faCanvas');
   if(!faCanvas)return;
-  const container=faCanvas.parentElement;
-  faCanvas.width=container.offsetWidth;
-  faCanvas.height=container.offsetHeight;
+  const container=document.getElementById('faCanvasWrap')||faCanvas.parentElement;
+  const cssWidth=Math.round(container.getBoundingClientRect().width||container.offsetWidth||360);
+  const cssHeight=Math.round(Math.min(cssWidth,430));
+  container.style.height=cssHeight+'px';
+  faCanvas.style.width='100%';
+  faCanvas.style.height=cssHeight+'px';
+  faCanvas.width=cssWidth;
+  faCanvas.height=cssHeight;
   faCtx=faCanvas.getContext('2d');
   faCtx.fillStyle='#1a1a24';faCtx.fillRect(0,0,faCanvas.width,faCanvas.height);
   faCtx.lineCap='round';faCtx.lineJoin='round';
