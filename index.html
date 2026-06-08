@@ -1760,7 +1760,7 @@ function renderMafiaNightMafia(game){
   if(isTwoMafia)setupMafiaPrivateChat(game);
 
   const pvs=document.getElementById('mafiaPartnerVoteStatus');
-  if(isTwoMafia&&pvs){pvs.style.display='block';pvs.textContent=!partnerDecision?'Your partner hasn't decided yet...':`Your partner voted: ${partnerDecision.toUpperCase()}`;}
+  if(isTwoMafia&&pvs){pvs.style.display='block';pvs.textContent=!partnerDecision?"Your partner hasn't decided yet...":`Your partner voted: ${partnerDecision.toUpperCase()}`;}
   else if(pvs){pvs.style.display='none';}
 
   startMafiaNightDecisionTimer(game);
@@ -1926,7 +1926,7 @@ function renderMafiaTownWait(game){
   const eliminated=game.mafiaEliminated||{};
   const amDead=!!eliminated[myId];
   document.getElementById('mafiaWaitIcon').textContent=amDead?'💀':'🌙';
-  document.getElementById('mafiaWaitSubtext').textContent=amDead?'You're dead — no peeking!':'The night is unfolding...';
+  document.getElementById('mafiaWaitSubtext').textContent=amDead?"You're dead — no peeking!":'The night is unfolding...';
 }
 
 // MAFIA VOTES
