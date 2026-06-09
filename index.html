@@ -164,7 +164,7 @@ select option{background:var(--surface2)}
 .notice.mafia{background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.3);color:#e74c3c}
 .flex-row{display:flex;gap:8px}
 .flex-row .btn{flex:1}
-.back-btn{background:transparent;border:none;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:6px}
+.back-btn{background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:6px}
 .back-btn:hover{color:var(--text)}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -293,7 +293,7 @@ select option{background:var(--surface2)}
 
 /* Tabs */
 .tab-bar{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:14px}
-.tab-btn{flex:1;padding:8px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.tab-btn{flex:1;padding:8px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
 .tab-btn.active{background:var(--surface3);color:var(--text)}
 .tab-content{display:none}
 .tab-content.active{display:block}
@@ -402,7 +402,7 @@ select option{background:var(--surface2)}
 .chat-input{flex:1;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;outline:none;transition:border 0.15s;margin-bottom:0;box-sizing:border-box}
 .chat-input:focus{border-color:var(--accent)}
 .chat-input::placeholder{color:var(--muted)}
-.chat-send-btn{padding:9px 14px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0}
+.chat-send-btn{padding:9px 14px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0}
 .chat-send-btn:hover{background:#f0dd55}
 
 /* Chaos/mode banners in game */
@@ -1148,7 +1148,8 @@ select option{background:var(--surface2)}
     </div>
     <!-- Canvas -->
     <div id="faCanvasBox" style="width:100%;max-width:430px;aspect-ratio:1/1;height:auto;position:relative;flex:0 1 auto;margin:0 auto;overflow:hidden;border-radius:var(--radius);background:#1a1a24;border:1px solid var(--border)">
-      <canvas id="faCanvas" width="430" height="430" style="width:100%;height:100%;border-radius:var(--radius);background:#1a1a24;display:block;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none"></canvas>
+      <canvas id="faCanvas" width="430" height="430" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius);background:#1a1a24;display:block;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none"></canvas>
+      <canvas id="faLiveCanvas" width="430" height="430" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius);display:block;pointer-events:none;touch-action:none"></canvas>
       <div id="faCanvasOverlay" style="position:absolute;inset:0;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;pointer-events:none">
         <div id="faCanvasOverlayText" style="background:rgba(10,10,15,0.85);padding:12px 20px;border-radius:var(--radius);font-size:14px;font-weight:700;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;display:none"></div>
       </div>
@@ -1172,8 +1173,8 @@ select option{background:var(--surface2)}
       </div>
     </div>
     <!-- Status bar -->
-    <div id="faTurnTimerDisplay" style="flex-shrink:0;margin-top:8px;text-align:center;font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:var(--accent);letter-spacing:1px;line-height:1;text-shadow:0 0 18px rgba(232,212,77,0.28)">30</div>
-    <div id="faStatusBar" style="flex-shrink:0;margin-top:4px;text-align:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent)"></div>
+    <div id="faTurnTimerDisplay" style="flex-shrink:0;margin-top:8px;text-align:center;font-family:'DM Mono',monospace;font-size:34px;font-weight:800;color:var(--accent);letter-spacing:1px;line-height:1;text-shadow:0 0 18px rgba(232,212,77,0.28)">30</div>
+    <div id="faStatusBar" style="flex-shrink:0;margin-top:4px;text-align:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--accent)"></div>
   </div>
 </div>
 
@@ -3234,7 +3235,7 @@ const FA_TURN_SECONDS = 30;
 const FA_VOTE_SECONDS = 60;
 const FA_SWATCH_COLORS=['#e8d44d','#e85d4d','#4de8a0','#3498db','#a78bfa','#f97316','#ffffff','#000000'];
 
-let faCanvas=null,faCtx=null,faIsDrawing=false,faHasDrawn=false,faWordHidden=false,faLastTurnIndex=null;
+let faCanvas=null,faCtx=null,faLiveCanvas=null,faLiveCtx=null,faIsDrawing=false,faHasDrawn=false,faWordHidden=false,faLastTurnIndex=null;
 let faStrokeListener=null,faLiveStrokeListener=null,faLiveStrokes={},faCurrentStroke=[],faTurnTimerInterval=null,faVoteTimerInterval=null,faTimeoutHandledFor=null,faVoteResolving=false,faLastLiveUpdate=0;
 
 function faCanvasCleanup(){
@@ -3257,7 +3258,7 @@ function faCanvasCleanup(){
   }
   if(faTurnTimerInterval){clearInterval(faTurnTimerInterval);faTurnTimerInterval=null;}
   if(faVoteTimerInterval){clearInterval(faVoteTimerInterval);faVoteTimerInterval=null;}
-  faCanvas=null;faCtx=null;faIsDrawing=false;faHasDrawn=false;faLiveStrokes={};faCurrentStroke=[];faLastTurnIndex=null;faTimeoutHandledFor=null;faVoteResolving=false;faLastLiveUpdate=0;
+  faCanvas=null;faCtx=null;faLiveCanvas=null;faLiveCtx=null;faIsDrawing=false;faHasDrawn=false;faLiveStrokes={};faCurrentStroke=[];faLastTurnIndex=null;faTimeoutHandledFor=null;faVoteResolving=false;faLastLiveUpdate=0;
 }
 
 function faRoundsForPlayers(n){return n<=5?5:3;}
@@ -3310,14 +3311,24 @@ function enterFaDraw(game){
 
 function setupFaCanvas(game){
   faCanvas=document.getElementById('faCanvas');
+  faLiveCanvas=document.getElementById('faLiveCanvas');
   if(!faCanvas)return;
   faCanvas.width=FA_CANVAS_SIZE;
   faCanvas.height=FA_CANVAS_SIZE;
-  faCanvas.style.width=FA_CANVAS_SIZE+'px';
-  faCanvas.style.height=FA_CANVAS_SIZE+'px';
+  faCanvas.style.width='100%';
+  faCanvas.style.height='100%';
   faCtx=faCanvas.getContext('2d');
   faCtx.lineCap='round';faCtx.lineJoin='round';
+  if(faLiveCanvas){
+    faLiveCanvas.width=FA_CANVAS_SIZE;
+    faLiveCanvas.height=FA_CANVAS_SIZE;
+    faLiveCanvas.style.width='100%';
+    faLiveCanvas.style.height='100%';
+    faLiveCtx=faLiveCanvas.getContext('2d');
+    faLiveCtx.lineCap='round';faLiveCtx.lineJoin='round';
+  }
   faClearCanvas();
+  faClearLiveCanvas();
 
   const swatchWrap=document.getElementById('faColorSwatches');
   if(swatchWrap){
@@ -3333,11 +3344,12 @@ function setupFaCanvas(game){
   replayFaStrokes(faStrokesArray(game&&game.faStrokes));
   if(gameCode){
     faStrokeListener=db.ref('games/'+gameCode+'/faStrokes').on('value',snap=>{
+      if(localGame)localGame.faStrokes=snap.val()||{};
       replayFaStrokes(faStrokesArray(snap.val()));
     });
     faLiveStrokeListener=db.ref('games/'+gameCode+'/faLiveStroke').on('value',snap=>{
       faLiveStrokes=snap.val()||{};
-      replayFaStrokes(localGame&&localGame.faStrokes);
+      faRenderLiveStrokes();
     });
   }
 
@@ -3355,6 +3367,24 @@ function faClearCanvas(){
   if(!faCtx||!faCanvas)return;
   faCtx.fillStyle='#1a1a24';
   faCtx.fillRect(0,0,faCanvas.width,faCanvas.height);
+}
+function faClearLiveCanvas(){
+  if(!faLiveCtx||!faLiveCanvas)return;
+  faLiveCtx.clearRect(0,0,faLiveCanvas.width,faLiveCanvas.height);
+}
+function faDrawStrokeOnCtx(ctx,s){
+  if(!ctx||!s||!s.points||!s.points.length)return;
+  ctx.strokeStyle=s.color||'#fff';ctx.lineWidth=s.size||6;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(s.points[0].x,s.points[0].y);s.points.forEach(p=>ctx.lineTo(p.x,p.y));ctx.stroke();
+}
+function faRenderLiveStrokes(){
+  faClearLiveCanvas();
+  const currentIdx=localGame?(localGame.faTurnIndex||0):null;
+  Object.values(faLiveStrokes||{}).forEach(s=>{
+    if(!s||!s.points||!s.points.length)return;
+    if(currentIdx!==null&&s.turnIndex!==undefined&&s.turnIndex!==currentIdx)return;
+    faDrawStrokeOnCtx(faLiveCtx,s);
+  });
 }
 function faSetColor(hex){
   const picker=document.getElementById('faColorPicker');if(picker)picker.value=hex;
@@ -3386,7 +3416,7 @@ function updateFaDrawScreen(game){
 
   if(faLastTurnIndex!==tIdx){
     faLastTurnIndex=tIdx;
-    faHasDrawn=false;faIsDrawing=false;faCurrentStroke=[];faTimeoutHandledFor=null;faLastLiveUpdate=0;
+    faHasDrawn=false;faIsDrawing=false;faCurrentStroke=[];faTimeoutHandledFor=null;faLastLiveUpdate=0;faClearLiveCanvas();
   }
 
   const roundEl=document.getElementById('faRoundBadge');if(roundEl)roundEl.textContent=`Word ${wordIndex}/${totalWords} · Round ${Math.min(round,totalRounds)}/${totalRounds}`;
@@ -3462,22 +3492,23 @@ function faGetPos(e){
   return{x:(e.clientX-rect.left)*(FA_CANVAS_SIZE/rect.width),y:(e.clientY-rect.top)*(FA_CANVAS_SIZE/rect.height)};
 }
 function faOnDown(e){
-  const g=localGame;if(!faCanStartStroke(g)||!faCtx)return;
+  const g=localGame;if(!faCanStartStroke(g)||!faLiveCtx)return;
   faIsDrawing=true;faCurrentStroke=[];
   const pos=faGetPos(e);faCurrentStroke.push(pos);
-  faCtx.beginPath();faCtx.moveTo(pos.x,pos.y);
+  faClearLiveCanvas();
+  faLiveCtx.beginPath();faLiveCtx.moveTo(pos.x,pos.y);
   faBroadcastLiveStroke(true);
   faUpdateStrokeButtons();
   e.preventDefault();
 }
 function faOnMove(e){
-  if(!faIsDrawing||!faCtx)return;
+  if(!faIsDrawing||!faLiveCtx)return;
   const pos=faGetPos(e);faCurrentStroke.push(pos);
   const color=(document.getElementById('faColorPicker')||{}).value||'#e8d44d';
   const size=parseInt((document.getElementById('faBrushSize')||{}).value)||6;
-  faCtx.strokeStyle=color;faCtx.lineWidth=size;
+  faLiveCtx.strokeStyle=color;faLiveCtx.lineWidth=size;
   const prev=faCurrentStroke[faCurrentStroke.length-2]||faCurrentStroke[0];
-  faCtx.beginPath();faCtx.moveTo(prev.x,prev.y);faCtx.lineTo(pos.x,pos.y);faCtx.stroke();
+  faLiveCtx.beginPath();faLiveCtx.moveTo(prev.x,prev.y);faLiveCtx.lineTo(pos.x,pos.y);faLiveCtx.stroke();
   faBroadcastLiveStroke(false);
   faUpdateStrokeButtons();
   e.preventDefault();
@@ -3486,7 +3517,7 @@ function faOnUp(e){if(!faIsDrawing)return;faIsDrawing=false;faBroadcastLiveStrok
 function faBroadcastLiveStroke(force){
   if(!gameCode||!localGame||!faCurrentStroke.length||faHasDrawn)return;
   const now=Date.now();
-  if(!force&&now-faLastLiveUpdate<70)return;
+  if(!force&&now-faLastLiveUpdate<25)return;
   faLastLiveUpdate=now;
   const color=(document.getElementById('faColorPicker')||{}).value||'#e8d44d';
   const size=parseInt((document.getElementById('faBrushSize')||{}).value)||6;
@@ -3494,7 +3525,7 @@ function faBroadcastLiveStroke(force){
     playerId:myId,
     color,
     size,
-    points:faCurrentStroke,
+    points:faCurrentStroke.map(p=>({x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10})),
     ts:now,
     turnIndex:(localGame.faTurnIndex||0)
   }).catch(()=>{});
@@ -3510,6 +3541,7 @@ function faUndoStroke(){
   faIsDrawing=false;faCurrentStroke=[];faLastLiveUpdate=0;
   if(gameCode)db.ref('games/'+gameCode+'/faLiveStroke/'+myId).remove().catch(()=>{});
   replayFaStrokes(localGame&&localGame.faStrokes);
+  faRenderLiveStrokes();
   faUpdateStrokeButtons();
   updateFaDrawScreen(localGame);
 }
@@ -3526,7 +3558,7 @@ async function faFinishStroke(){
   const btnWrap=document.getElementById('faDrawBtn');if(btnWrap)btnWrap.style.display='none';
   const color=(document.getElementById('faColorPicker')||{}).value||'#e8d44d';
   const size=parseInt((document.getElementById('faBrushSize')||{}).value)||6;
-  const stroke={playerId:myId,color,size,points:faCurrentStroke,ts:Date.now(),turnIndex:expectedIdx};
+  const stroke={playerId:myId,color,size,points:faCurrentStroke.map(p=>({x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10})),ts:Date.now(),turnIndex:expectedIdx};
   await db.ref('games/'+gameCode+'/faStrokes').push(stroke);
   await db.ref('games/'+gameCode+'/faLiveStroke/'+myId).remove().catch(()=>{});
   faCurrentStroke=[];
@@ -3553,14 +3585,8 @@ function replayFaStrokes(strokes){
   if(!faCtx||!faCanvas)return;
   faClearCanvas();
   const permanent=faStrokesArray(strokes).sort((a,b)=>(a.ts||0)-(b.ts||0));
-  const live=Object.values(faLiveStrokes||{}).filter(s=>s&&s.points&&s.points.length);
-  const drawStroke=s=>{
-    if(!s.points||!s.points.length)return;
-    faCtx.strokeStyle=s.color||'#fff';faCtx.lineWidth=s.size||6;faCtx.lineCap='round';faCtx.lineJoin='round';
-    faCtx.beginPath();faCtx.moveTo(s.points[0].x,s.points[0].y);s.points.forEach(p=>faCtx.lineTo(p.x,p.y));faCtx.stroke();
-  };
-  permanent.forEach(drawStroke);
-  live.forEach(drawStroke);
+  permanent.forEach(s=>faDrawStrokeOnCtx(faCtx,s));
+  faRenderLiveStrokes();
 }
 function toggleFaWord(){
   faWordHidden=!faWordHidden;
