@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
@@ -20,6 +23,78 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+</script>
+
+<script>
+/* CHRISPY GAMES PASSWORD FIX V4
+   This is intentionally in the <head> so password entry still works even if the large game script below has an error. */
+(function () {
+  var SITE_PASSWORD = 'boysnight1';
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function (screen) {
+      screen.classList.remove('active');
+    });
+    var target = document.getElementById(id);
+    if (target) target.classList.add('active');
+  }
+
+  window.checkPassword = function checkPassword() {
+    var input = document.getElementById('passwordInput');
+    var error = document.getElementById('passwordError');
+    var value = input ? input.value.trim() : '';
+
+    if (value === SITE_PASSWORD) {
+      sessionStorage.setItem('sf_unlocked', '1');
+      if (error) error.style.display = 'none';
+      showScreen('screen-home');
+      setTimeout(function () {
+        var nameInput = document.getElementById('playerName');
+        if (nameInput) nameInput.focus();
+      }, 80);
+      return true;
+    }
+
+    if (error) {
+      error.style.display = 'block';
+      clearTimeout(window.__chrispyPasswordErrorTimer);
+      window.__chrispyPasswordErrorTimer = setTimeout(function () {
+        error.style.display = 'none';
+      }, 3000);
+    }
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+    return false;
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var input = document.getElementById('passwordInput');
+    var button = document.getElementById('passwordEnterBtn');
+
+    if (sessionStorage.getItem('sf_unlocked') === '1') {
+      showScreen('screen-home');
+    }
+
+    if (button) {
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        window.checkPassword();
+      });
+    }
+
+    if (input) {
+      input.addEventListener('keydown', function (event) {
+        var key = event.key || event.code;
+        if (key === 'Enter' || key === 'NumpadEnter' || key === 'Go' || key === 'Return') {
+          event.preventDefault();
+          window.checkPassword();
+        }
+      });
+    }
+  });
+})();
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 
@@ -369,77 +444,6 @@ select option{background:var(--surface2)}
 .dev-btn-neutral{color:var(--muted)}
 .dev-btn-neutral:hover{color:var(--text);border-color:var(--muted)}
 </style>
-
-<script>
-/* =====================================================
-   EARLY PASSWORD GATE
-   Keep this separate so the password works even if the main game script has an error.
-===================================================== */
-(function(){
-  var SITE_PASSWORD = 'boysnight1';
-
-  function showPasswordError(){
-    var error = document.getElementById('passwordError');
-    var input = document.getElementById('passwordInput');
-    if(error){
-      error.style.display = 'block';
-      window.setTimeout(function(){ error.style.display = 'none'; }, 3000);
-    }
-    if(input){
-      input.value = '';
-      input.focus();
-    }
-  }
-
-  function unlockSite(){
-    try { sessionStorage.setItem('sf_unlocked','1'); } catch(e) {}
-    var passwordScreen = document.getElementById('screen-password');
-    var homeScreen = document.getElementById('screen-home');
-    if(passwordScreen) passwordScreen.classList.remove('active');
-    if(homeScreen) homeScreen.classList.add('active');
-  }
-
-  window.checkPassword = function checkPassword(){
-    var input = document.getElementById('passwordInput');
-    var value = input ? input.value.trim() : '';
-    if(value === SITE_PASSWORD){
-      unlockSite();
-    } else {
-      showPasswordError();
-    }
-  };
-
-  function initPasswordGate(){
-    var unlocked = false;
-    try { unlocked = sessionStorage.getItem('sf_unlocked') === '1'; } catch(e) {}
-    if(unlocked) unlockSite();
-
-    var enterBtn = document.getElementById('passwordEnterBtn');
-    var input = document.getElementById('passwordInput');
-
-    if(enterBtn && !enterBtn.dataset.passwordBound){
-      enterBtn.dataset.passwordBound = '1';
-      enterBtn.addEventListener('click', window.checkPassword);
-    }
-    if(input && !input.dataset.passwordBound){
-      input.dataset.passwordBound = '1';
-      input.addEventListener('keydown', function(e){
-        var key = e.key || e.code;
-        if(key === 'Enter' || key === 'NumpadEnter' || key === 'Go' || key === 'Return'){
-          e.preventDefault();
-          window.checkPassword();
-        }
-      });
-    }
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', initPasswordGate);
-  } else {
-    initPasswordGate();
-  }
-})();
-</script>
 </head>
 <body>
 <!-- PASSWORD -->
@@ -449,9 +453,9 @@ select option{background:var(--surface2)}
   <div class="card fadeIn">
     <h2>Welcome</h2>
     <label>Password</label>
-    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off"/>
+    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off" onkeydown="var k=event.key||event.code;if(k==='Enter'||k==='NumpadEnter'||k==='Go'||k==='Return'){event.preventDefault();window.checkPassword();}"/>
     <div id="passwordError" class="notice error" style="display:none">Incorrect password.</div>
-    <button class="btn btn-primary" id="passwordEnterBtn">Enter</button>
+    <button class="btn btn-primary" id="passwordEnterBtn" onclick="event.preventDefault();window.checkPassword();">Enter</button>
   </div>
 </div>
 
@@ -1259,29 +1263,7 @@ select option{background:var(--surface2)}
 </div>
 
 <script>
-// =====================================================
-// =====================================================
-// PASSWORD
-// =====================================================
-const SITE_PASSWORD = 'boysnight1';
-function checkPassword(){
-  const v=document.getElementById('passwordInput').value;
-  if(v===SITE_PASSWORD){
-    sessionStorage.setItem('sf_unlocked','1');
-    document.getElementById('screen-password').classList.remove('active');
-    document.getElementById('screen-home').classList.add('active');
-  } else {
-    const e=document.getElementById('passwordError');e.style.display='block';
-    document.getElementById('passwordInput').value='';
-    setTimeout(()=>e.style.display='none',3000);
-  }
-}
-(function(){
-  if(sessionStorage.getItem('sf_unlocked')==='1'){
-    document.getElementById('screen-password').classList.remove('active');
-    document.getElementById('screen-home').classList.add('active');
-  }
-})();
+// PASSWORD FIX V4: password handling moved to an early <head> script so it cannot be broken by the main game script.
 // =====================================================
 const ALL_LOCATIONS = [
   {name:'Airplane',            roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
@@ -3736,18 +3718,24 @@ function showFaGameOver(game){
   if(el)el.textContent='Auto';
 })();
 
-const joinCodeEl=document.getElementById('joinCode');
-if(joinCodeEl)joinCodeEl.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});
-const playerNameEl=document.getElementById('playerName');
-if(playerNameEl)playerNameEl.addEventListener('keydown',e=>{if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});
+var joinCodeEl=document.getElementById('joinCode');
+if(joinCodeEl){joinCodeEl.addEventListener('input',function(e){e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});}
+var playerNameEl=document.getElementById('playerName');
+if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});}
+// Password listeners are handled by the early PASSWORD FIX V4 script in the <head>.
 </script>
 
 <script>
+  // CHRISPY FIX V4: temporarily unregister service workers so desktop browsers cannot keep serving an old broken index.html.
+  // Add your service-worker registration back later once the desktop issue is confirmed fixed.
   if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("service-worker.js?v=3")
-        .then(() => console.log("Service Worker registered"))
-        .catch(error => console.log("Service Worker registration failed:", error));
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.getRegistrations()
+        .then(function (registrations) {
+          registrations.forEach(function (registration) { registration.unregister(); });
+          console.log("Service workers cleared for fresh Chrispy Games load");
+        })
+        .catch(function (error) { console.log("Service worker cleanup failed:", error); });
     });
   }
 </script>
