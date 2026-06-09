@@ -545,6 +545,13 @@ select option{background:var(--surface2)}
           <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('doctor')">💚 As Doctor</button>
           <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('town')">⬜ As Town</button>
         </div>
+        <div class="dev-section-label" style="margin-top:10px">Blind Spot</div>
+        <div class="dev-grid">
+          <button class="dev-btn" style="border-color:rgba(6,182,212,0.3);color:#06b6d4" onclick="devBsTest('innocent')">✓ As Innocent</button>
+          <button class="dev-btn" style="border-color:rgba(6,182,212,0.3);color:#06b6d4" onclick="devBsTest('imposter')">🕵️ As Imposter</button>
+          <button class="dev-btn" style="border-color:rgba(6,182,212,0.3);color:#06b6d4" onclick="devBsTest('discussion')">💬 Discussion</button>
+          <button class="dev-btn" style="border-color:rgba(6,182,212,0.3);color:#06b6d4" onclick="devBsTest('result')">🏆 Result</button>
+        </div>
         <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
         <div class="dev-grid">
           <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('lobby')">Lobby</button>
@@ -3236,6 +3243,57 @@ function devMafiaTest(role){
   const mafiaIds=Object.entries(mafiaRoles).filter(([,r])=>r==='mafia').map(([id])=>id);
   const game={code:'DEV0',status:'playing',mode:'mafia',hostId:myId,mafiaRoles,mafiaIds,mafiaPhase:'day',mafiaDay:1,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaDayTimerStart:Date.now(),mafiaDayTimerDuration:MAFIA_DAY_TIMER_FIRST,mafiaNightStart:null,mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],mafiaResult:null,players:mockPlayers,createdAt:Date.now()};
   localGame=game;enterMafiaReveal(game);devShowStatus(`Mafia: you are ${role}`);
+}
+function devBsTest(variant){
+  const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
+  gameCode='DEV0';amHost=true;
+  const mockPlayers={
+    [myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},
+    'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},
+    'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},
+    'dev_p4':{id:'dev_p4',name:'Player 4',isHost:false,joinedAt:Date.now()+3,online:true},
+  };
+  const sampleSet=BS_CARD_SETS['Geography'][0];
+  const isImpostor=variant==='imposter';
+  const imposterId=isImpostor?myId:'dev_p2';
+  const base={
+    code:'DEV0',status:'playing',mode:'bs',hostId:myId,
+    bsCategory:'Geography',
+    bsCards:sampleSet.cards,
+    bsClues:sampleSet.clues,
+    bsImposterId:imposterId,
+    bsKnownCardIdx:0,
+    bsReady:{[myId]:true,'dev_p2':true,'dev_p3':true,'dev_p4':true},
+    bsRevealStart:Date.now()-5000,
+    bsDiscussStart:Date.now()-10000,
+    bsDiscussMinutes:5,
+    bsVotes:{},
+    bsGuesses:[],
+    bsCorrectGuesses:[],
+    bsIncorrectCount:0,
+    bsResult:null,
+    players:mockPlayers,
+    createdAt:Date.now(),
+  };
+  if(variant==='innocent'||variant==='imposter'){
+    base.bsPhase='reveal';
+    base.bsRevealStart=Date.now();
+    localGame=base;
+    enterBsReveal(base);
+    devShowStatus(`BS: You are ${isImpostor?'IMPOSTER':'INNOCENT'}`);
+  } else if(variant==='discussion'){
+    base.bsPhase='discussion';
+    base.bsDiscussStart=Date.now();
+    localGame=base;
+    enterBsGame(base);
+    devShowStatus('BS: Discussion phase');
+  } else if(variant==='result'){
+    base.bsPhase='result';
+    base.bsResult={winner:'innocents',reason:'voted_out',eliminatedId:'dev_p2'};
+    localGame=base;
+    showBsResult(base);
+    devShowStatus('BS: Result screen');
+  }
 }
 function devGoScreen(screen){
   const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
