@@ -373,7 +373,7 @@ select option{background:var(--surface2)}
 <script>
 /* =====================================================
    EARLY PASSWORD GATE
-   This runs before the body/main game script. Keep this separate so a later app-script error cannot break password entry.
+   Keep this separate so the password works even if the main game script has an error.
 ===================================================== */
 (function(){
   var SITE_PASSWORD = 'boysnight1';
@@ -401,7 +401,7 @@ select option{background:var(--surface2)}
 
   window.checkPassword = function checkPassword(){
     var input = document.getElementById('passwordInput');
-    var value = input ? input.value : '';
+    var value = input ? input.value.trim() : '';
     if(value === SITE_PASSWORD){
       unlockSite();
     } else {
@@ -424,7 +424,11 @@ select option{background:var(--surface2)}
     if(input && !input.dataset.passwordBound){
       input.dataset.passwordBound = '1';
       input.addEventListener('keydown', function(e){
-        if(e.key === 'Enter') window.checkPassword();
+        var key = e.key || e.code;
+        if(key === 'Enter' || key === 'NumpadEnter' || key === 'Go' || key === 'Return'){
+          e.preventDefault();
+          window.checkPassword();
+        }
       });
     }
   }
@@ -436,7 +440,6 @@ select option{background:var(--surface2)}
   }
 })();
 </script>
-
 </head>
 <body>
 <!-- PASSWORD -->
@@ -446,9 +449,9 @@ select option{background:var(--surface2)}
   <div class="card fadeIn">
     <h2>Welcome</h2>
     <label>Password</label>
-    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off" onkeydown="if(event.key==='Enter') window.checkPassword()"/>
+    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off"/>
     <div id="passwordError" class="notice error" style="display:none">Incorrect password.</div>
-    <button class="btn btn-primary" id="passwordEnterBtn" onclick="window.checkPassword()">Enter</button>
+    <button class="btn btn-primary" id="passwordEnterBtn">Enter</button>
   </div>
 </div>
 
@@ -1256,7 +1259,29 @@ select option{background:var(--surface2)}
 </div>
 
 <script>
-// PASSWORD GATE MOVED TO EARLY HEAD SCRIPT SO INLINE HANDLERS ALWAYS WORK
+// =====================================================
+// =====================================================
+// PASSWORD
+// =====================================================
+const SITE_PASSWORD = 'boysnight1';
+function checkPassword(){
+  const v=document.getElementById('passwordInput').value;
+  if(v===SITE_PASSWORD){
+    sessionStorage.setItem('sf_unlocked','1');
+    document.getElementById('screen-password').classList.remove('active');
+    document.getElementById('screen-home').classList.add('active');
+  } else {
+    const e=document.getElementById('passwordError');e.style.display='block';
+    document.getElementById('passwordInput').value='';
+    setTimeout(()=>e.style.display='none',3000);
+  }
+}
+(function(){
+  if(sessionStorage.getItem('sf_unlocked')==='1'){
+    document.getElementById('screen-password').classList.remove('active');
+    document.getElementById('screen-home').classList.add('active');
+  }
+})();
 // =====================================================
 const ALL_LOCATIONS = [
   {name:'Airplane',            roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
@@ -3711,14 +3736,16 @@ function showFaGameOver(game){
   if(el)el.textContent='Auto';
 })();
 
-const joinCodeEl=document.getElementById('joinCode');if(joinCodeEl)joinCodeEl.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});
-const playerNameEl=document.getElementById('playerName');if(playerNameEl)playerNameEl.addEventListener('keydown',e=>{if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});
+const joinCodeEl=document.getElementById('joinCode');
+if(joinCodeEl)joinCodeEl.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});
+const playerNameEl=document.getElementById('playerName');
+if(playerNameEl)playerNameEl.addEventListener('keydown',e=>{if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});
 </script>
 
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("service-worker.js")
+      navigator.serviceWorker.register("service-worker.js?v=3")
         .then(() => console.log("Service Worker registered"))
         .catch(error => console.log("Service Worker registration failed:", error));
     });
