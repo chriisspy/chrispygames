@@ -1194,7 +1194,7 @@ select option{background:var(--surface2)}
 // PASSWORD
 // =====================================================
 const SITE_PASSWORD = 'boysnight1';
-function checkPassword(){
+window.checkPassword = function(){
   const v=document.getElementById('passwordInput').value;
   if(v===SITE_PASSWORD){
     sessionStorage.setItem('sf_unlocked','1');
@@ -2492,7 +2492,7 @@ function initGameScreen(game){
   const isSpy=spyIds.includes(myId);
   document.getElementById('chaosModeGameBanner').style.display=isChaos?'block':'none';
   document.getElementById('locationGrid').innerHTML=game.locations.map(loc=>`<div class="location-chip">${esc(loc)}</div>`).join('');
-  document.getElementById('locationsTabDesc').textContent=isChaos?(spyIds.includes(myId)?'All locations. You don\'t know which is real.':'Highlighted = real location. Only you know.'):'All possible locations.';
+  document.getElementById('locationsTabDesc').textContent=isChaos?(spyIds.includes(myId)?"All locations. You don't know which is real.":'Highlighted = real location. Only you know.'):'All possible locations.';
   const sel=document.getElementById('spyGuessSelect');
   sel.innerHTML='<option value="">-- Select a location --</option>'+game.locations.map(l=>`<option value="${l}">${esc(l)}</option>`).join('');
   const showGuess=isChaos?(isSpy&&game.innocentId!==myId):isSpy;
