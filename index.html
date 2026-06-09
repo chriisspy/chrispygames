@@ -1189,28 +1189,55 @@ select option{background:var(--surface2)}
 
 <script>
 // =====================================================
-// =====================================================
-// PASSWORD
+// PASSWORD GATE
+// Kept separate from the main game script so login still works even if a later game script error occurs.
 // =====================================================
 const SITE_PASSWORD = 'boysnight1';
-function checkPassword(){
-  const v=document.getElementById('passwordInput').value;
-  if(v===SITE_PASSWORD){
+window.checkPassword = function checkPassword(){
+  const input = document.getElementById('passwordInput');
+  const error = document.getElementById('passwordError');
+  const passwordScreen = document.getElementById('screen-password');
+  const homeScreen = document.getElementById('screen-home');
+
+  if(!input || !passwordScreen || !homeScreen) return;
+
+  if(input.value === SITE_PASSWORD){
     sessionStorage.setItem('sf_unlocked','1');
-    document.getElementById('screen-password').classList.remove('active');
-    document.getElementById('screen-home').classList.add('active');
-  } else {
-    const e=document.getElementById('passwordError');e.style.display='block';
-    document.getElementById('passwordInput').value='';
-    setTimeout(()=>e.style.display='none',3000);
+    if(error) error.style.display = 'none';
+    passwordScreen.classList.remove('active');
+    homeScreen.classList.add('active');
+    return;
   }
-}
-(function(){
-  if(sessionStorage.getItem('sf_unlocked')==='1'){
-    document.getElementById('screen-password').classList.remove('active');
-    document.getElementById('screen-home').classList.add('active');
+
+  if(error){
+    error.style.display = 'block';
+    setTimeout(() => { error.style.display = 'none'; }, 3000);
   }
-})();
+  input.value = '';
+  input.focus();
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  const enterBtn = document.getElementById('passwordEnterBtn');
+  const input = document.getElementById('passwordInput');
+  const passwordScreen = document.getElementById('screen-password');
+  const homeScreen = document.getElementById('screen-home');
+
+  if(enterBtn) enterBtn.addEventListener('click', window.checkPassword);
+  if(input) input.addEventListener('keydown', e => {
+    if(e.key === 'Enter') window.checkPassword();
+  });
+
+  if(sessionStorage.getItem('sf_unlocked') === '1' && passwordScreen && homeScreen){
+    passwordScreen.classList.remove('active');
+    homeScreen.classList.add('active');
+  }
+});
+</script>
+
+<script>
+// =====================================================
+// MAIN GAME SCRIPT
 // =====================================================
 const ALL_LOCATIONS = [
   {name:'Airplane',            roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
@@ -3665,10 +3692,21 @@ function showFaGameOver(game){
   if(el)el.textContent='Auto';
 })();
 
-document.getElementById('joinCode').addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});
-document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});
-document.getElementById('passwordEnterBtn').addEventListener('click',()=>checkPassword());
-document.getElementById('passwordInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
+const joinCodeInput = document.getElementById('joinCode');
+if(joinCodeInput){
+  joinCodeInput.addEventListener('input', e => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  });
+}
+const playerNameInput = document.getElementById('playerName');
+if(playerNameInput){
+  playerNameInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){
+      const code = joinCodeInput ? joinCodeInput.value.trim() : '';
+      code ? joinGame() : createGame();
+    }
+  });
+}
 </script>
 
 <script>
