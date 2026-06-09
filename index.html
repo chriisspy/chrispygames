@@ -24,7 +24,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 </script>
-
 <script>
 /* CHRISPY GAMES PASSWORD FIX V4
    This is intentionally in the <head> so password entry still works even if the large game script below has an error. */
@@ -106,7 +105,7 @@ body.no-scroll{overflow:hidden;height:100%;touch-action:none;}
   --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--surface3:#252532;
   --accent:#e8d44d;--accent2:#e85d4d;--text:#f0eff5;--muted:#7a7a8c;
   --border:#2a2a3a;--spy:#e85d4d;--safe:#4de8a0;--chaos:#ff2d2d;--ooo:#a78bfa;
-  --mafia:#c0392b;--doctor:#27ae60;--town:#95a5a6;--fa:#f97316;
+  --mafia:#c0392b;--doctor:#27ae60;--town:#95a5a6;--fa:#f97316;--bs:#06b6d4;
   --radius:12px;--radius-lg:20px;
 }
 body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh}
@@ -190,6 +189,11 @@ select option{background:var(--surface2)}
 .game-tile-fa.selected{border-color:#f97316;background:rgba(249,115,22,0.12);box-shadow:0 0 0 1px #f97316}
 .game-tile-fa.selected .game-tile-selected-badge{display:block;color:#f97316}
 .mode-tab.active-fa{background:rgba(249,115,22,0.15);color:#f97316}
+.game-tile-bs{border-color:rgba(6,182,212,0.25);background:rgba(6,182,212,0.04)}
+.game-tile-bs .game-tile-name{color:#06b6d4}
+.game-tile-bs.selected{border-color:#06b6d4;background:rgba(6,182,212,0.12);box-shadow:0 0 0 1px #06b6d4}
+.game-tile-bs.selected .game-tile-selected-badge{display:block;color:#06b6d4}
+.mode-tab.active-bs{background:rgba(6,182,212,0.15);color:#06b6d4}
 .game-tile-desc{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3px}
 .game-tile{cursor:pointer;transition:all 0.15s}
 .game-tile:hover{transform:translateY(-2px)}
@@ -293,7 +297,7 @@ select option{background:var(--surface2)}
 
 /* Tabs */
 .tab-bar{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:14px}
-.tab-btn{flex:1;padding:8px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.tab-btn{flex:1;padding:8px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
 .tab-btn.active{background:var(--surface3);color:var(--text)}
 .tab-content{display:none}
 .tab-content.active{display:block}
@@ -402,7 +406,7 @@ select option{background:var(--surface2)}
 .chat-input{flex:1;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;outline:none;transition:border 0.15s;margin-bottom:0;box-sizing:border-box}
 .chat-input:focus{border-color:var(--accent)}
 .chat-input::placeholder{color:var(--muted)}
-.chat-send-btn{padding:9px 14px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0}
+.chat-send-btn{padding:9px 14px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0}
 .chat-send-btn:hover{background:#f0dd55}
 
 /* Chaos/mode banners in game */
@@ -491,6 +495,14 @@ select option{background:var(--surface2)}
       <div class="game-tile-selected-badge">✓ selected</div>
     </div>
   </div>
+  <div class="game-tiles" style="margin-top:10px">
+    <div class="game-tile game-tile-bs" id="homeTileBs" onclick="selectHomeMode('bs')">
+      <div class="game-tile-icon">🕵️</div>
+      <div class="game-tile-name">Blind Spot</div>
+      <div class="game-tile-desc">Find the imposter</div>
+      <div class="game-tile-selected-badge">✓ selected</div>
+    </div>
+  </div>
   <div class="card fadeIn">
     <h2>Play</h2>
     <label>Your name</label>
@@ -570,6 +582,7 @@ select option{background:var(--surface2)}
         <button class="mode-tab" id="modeTabOoo" onclick="setGameMode('ooo')">🎭 ODD ONE OUT</button>
         <button class="mode-tab" id="modeTabMafia" onclick="setGameMode('mafia')">🃏 MAFIA</button>
         <button class="mode-tab" id="modeTabFa" onclick="setGameMode('fa')">🎨 FAKE ARTIST</button>
+        <button class="mode-tab" id="modeTabBs" onclick="setGameMode('bs')">🕵️ BLIND SPOT</button>
       </div>
       <!-- SPYFALL SETTINGS -->
       <div id="spyfallSettings">
@@ -654,6 +667,22 @@ select option{background:var(--surface2)}
           </div>
         </div>
         <div class="notice" style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.3);color:#f97316;margin-top:4px">🎨 One person gets a different word. Everyone draws one stroke per round. Catch the Fake Artist!</div>
+      </div>
+      <!-- BS SETTINGS -->
+      <div id="bsSettings" style="display:none">
+        <div class="count-wrap">
+          <label>Category</label>
+          <div id="bsCategorySelect" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+        </div>
+        <div class="count-wrap">
+          <label>Discussion time</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeBsDiscuss(-1)">−</button>
+            <div class="count-display" id="bsDiscussDisplay">5 min</div>
+            <button class="count-btn" onclick="changeBsDiscuss(1)">+</button>
+          </div>
+        </div>
+        <div class="notice" style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.3);color:#06b6d4;margin-top:4px">🕵️ One player gets different cards. Find the Imposter before they guess all your cards!</div>
       </div>
       <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 4 players to start Mafia</div>
       <div style="height:8px"></div>
@@ -1125,7 +1154,6 @@ select option{background:var(--surface2)}
 <!-- FAKE ARTIST: DRAW -->
 <div class="screen" id="screen-fa-draw" style="padding:0;overflow:hidden;align-items:center;justify-content:center">
   <div style="width:100%;max-width:430px;display:flex;flex-direction:column;gap:0;height:100dvh;padding:8px;box-sizing:border-box;overflow:hidden">
-    <!-- Header -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-shrink:0">
       <button class="back-btn" onclick="leaveGame()" style="margin:0">← Leave</button>
       <div style="flex:1;text-align:center">
@@ -1133,7 +1161,6 @@ select option{background:var(--surface2)}
       </div>
       <div id="faTurnIndicator" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);text-align:right"></div>
     </div>
-    <!-- Word reveal -->
     <div id="faWordWrap" style="margin-bottom:8px;flex-shrink:0">
       <div id="faWordVisible" style="padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
         <div>
@@ -1146,7 +1173,6 @@ select option{background:var(--surface2)}
         <span style="color:var(--muted);font-size:13px">Word hidden — tap to peek</span>
       </div>
     </div>
-    <!-- Canvas -->
     <div id="faCanvasBox" style="width:100%;max-width:430px;aspect-ratio:1/1;height:auto;position:relative;flex:0 1 auto;margin:0 auto;overflow:hidden;border-radius:var(--radius);background:#1a1a24;border:1px solid var(--border)">
       <canvas id="faCanvas" width="430" height="430" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius);background:#1a1a24;display:block;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none"></canvas>
       <canvas id="faLiveCanvas" width="430" height="430" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius);display:block;pointer-events:none;touch-action:none"></canvas>
@@ -1154,7 +1180,6 @@ select option{background:var(--surface2)}
         <div id="faCanvasOverlayText" style="background:rgba(10,10,15,0.85);padding:12px 20px;border-radius:var(--radius);font-size:14px;font-weight:700;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;display:none"></div>
       </div>
     </div>
-    <!-- Tools -->
     <div id="faTools" style="flex-shrink:0;margin-top:8px;padding:10px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
         <div id="faColorSwatches" style="display:flex;gap:6px;flex-wrap:wrap;flex:1"></div>
@@ -1172,7 +1197,6 @@ select option{background:var(--surface2)}
         </div>
       </div>
     </div>
-    <!-- Status bar -->
     <div id="faTurnTimerDisplay" style="flex-shrink:0;margin-top:8px;text-align:center;font-family:'DM Mono',monospace;font-size:34px;font-weight:800;color:var(--accent);letter-spacing:1px;line-height:1;text-shadow:0 0 18px rgba(232,212,77,0.28)">30</div>
     <div id="faStatusBar" style="flex-shrink:0;margin-top:4px;text-align:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--accent)"></div>
   </div>
@@ -1385,7 +1409,7 @@ if(!myId){myId=Math.random().toString(36).slice(2,12);localStorage.setItem('sf_m
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
 let roleVisible=true,revealVisible=true,mafiaCardVisible=true;
-let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localFaWords=3,localFaRounds=0;
+let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localFaWords=3,localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;
 let chatListener=null,mafiaPrivateChatListener=null;
 // Night phase local state
 let mafiaKillDecision=null; // 'yes'|'no' — local kill decision before committing
@@ -1398,7 +1422,7 @@ const randInt=n=>Math.floor(Math.random()*n);
 const pick=arr=>arr[randInt(arr.length)];
 const shuffle=arr=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=randInt(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
 const genCode=()=>{const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:4},()=>c[randInt(c.length)]).join('');};
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const target=document.getElementById('screen-'+id);if(target)target.classList.add('active');document.body.classList.toggle('no-scroll',id==='game'||id==='fa-draw');}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');document.body.classList.toggle('no-scroll',id==='game');}
 function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
 function setLoading(btnId,loading,text){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${text}`:text;}
 function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -1416,14 +1440,17 @@ function updateModeUI(mode){
   document.getElementById('modeTabOoo').className='mode-tab'+(mode==='ooo'?' active-ooo':'');
   document.getElementById('modeTabMafia').className='mode-tab'+(mode==='mafia'?' active-mafia':'');
   document.getElementById('modeTabFa').className='mode-tab'+(mode==='fa'?' active-fa':'');
+  document.getElementById('modeTabBs').className='mode-tab'+(mode==='bs'?' active-bs':'');
   document.getElementById('spyfallSettings').style.display=mode==='spyfall'?'block':'none';
   document.getElementById('oooSettings').style.display=mode==='ooo'?'block':'none';
   document.getElementById('mafiaSettings').style.display=mode==='mafia'?'block':'none';
   document.getElementById('faSettings').style.display=mode==='fa'?'block':'none';
+  document.getElementById('bsSettings').style.display=mode==='bs'?'block':'none';
+  if(mode==='bs')renderBsCategorySelect();
   const minNotice=document.getElementById('minPlayersNotice');
   if(mode==='mafia'){minNotice.textContent='Need at least 4 players to start Mafia';}
   else{minNotice.textContent='Need at least 3 players to start';}
-  document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':mode==='mafia'?'Start Mafia':mode==='fa'?'Start Fake Artist':'Start Game';
+  document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':mode==='mafia'?'Start Mafia':mode==='fa'?'Start Fake Artist':mode==='bs'?'Start Blind Spot':'Start Game';
 }
 function changeOOORounds(delta){
   localOOORounds=Math.min(10,Math.max(1,localOOORounds+delta));
@@ -1521,7 +1548,7 @@ async function createGame(){
   setLoading('createBtn',true,'Creating...');
   const code=genCode();gameCode=code;amHost=true;
   const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faLiveStroke:{},faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
+  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
@@ -1559,7 +1586,7 @@ function onGameUpdate(game){
   if(game.hostId===myId&&!amHost)amHost=true;
   if(amHost)watchPresence(game);
 
-  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover'];
+  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result'];
 
   // LOBBY
   if(game.status==='lobby'){
@@ -1578,6 +1605,35 @@ function onGameUpdate(game){
       if(amHost||game.hostId===myId){renderLobby(game);showScreen('lobby');}
       else{renderWaiting(game);showScreen('waiting');}
     }
+    return;
+  }
+
+  // BLIND SPOT
+  if(game.mode==='bs'){
+    if(game.status==='lobby'){
+      if(cur==='screen-lobby')renderLobby(game);
+      if(cur==='screen-waiting')renderWaiting(game);
+      if(allGameScreens.includes(cur)){if(amHost){renderLobby(game);showScreen('lobby');}else{renderWaiting(game);showScreen('waiting');}}
+      return;
+    }
+    if(game.status==='playing'){
+      const phase=game.bsPhase;
+      if(phase==='reveal'){
+        if(cur!=='screen-bs-reveal'){enterBsReveal(game);}
+        else{renderBsReveal(game);if(!bsRevealTimerInterval)startBsRevealCountdown(game);}
+        return;
+      }
+      if(phase==='discussion'){
+        if(cur!=='screen-bs-game'){enterBsGame(game);}
+        else{renderBsGame(game);if(!bsDiscussTimerInterval)startBsDiscussTimer(game);}
+        return;
+      }
+      if(phase==='result'){
+        if(cur!=='screen-bs-result')showBsResult(game);
+        return;
+      }
+    }
+    if(game.status==='result'){if(cur!=='screen-bs-result')showBsResult(game);return;}
     return;
   }
 
@@ -1748,6 +1804,7 @@ async function startGame(){
   if(localGameMode==='ooo'||game.mode==='ooo'){await startOOOGame();return;}
   if(localGameMode==='mafia'||game.mode==='mafia'){await startMafiaGame();return;}
   if(localGameMode==='fa'||game.mode==='fa'){await startFaGame();return;}
+  if(localGameMode==='bs'||game.mode==='bs'){await startBsGame();return;}
   // Spyfall
   const players=Object.values(game.players||{});if(players.length<3)return;
   const isChaos=localChaosMode;
@@ -3047,7 +3104,7 @@ async function returnToLobby(){
   if(!amHost)return;
   const game=localGame;if(!game)return;
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faLiveStroke:{},faVotes:{},faGuess:null,faResult:null,chat:null});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,chat:null});
 }
 async function leaveGame(){
   clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();
@@ -3062,7 +3119,7 @@ async function leaveGame(){
       }
     }catch(e){console.error(e);}
   }
-  gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;faCanvasCleanup();
+  gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;faCanvasCleanup();bsCleanup();
   showScreen('home');
 }
 
@@ -3194,7 +3251,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
 
 
 
@@ -3208,6 +3265,7 @@ function selectHomeMode(mode){
   document.getElementById('homeTileOoo').classList.toggle('selected',mode==='ooo');
   document.getElementById('homeTileMafia').classList.toggle('selected',mode==='mafia');
   document.getElementById('homeTileFa').classList.toggle('selected',mode==='fa');
+  const bsTile=document.getElementById('homeTileBs');if(bsTile)bsTile.classList.toggle('selected',mode==='bs');
 }
 
 // =====================================================
@@ -3743,6 +3801,664 @@ function showFaGameOver(game){
   if(el)el.textContent='Auto';
 })();
 
+// =====================================================
+// BLIND SPOT: CARD SETS
+// =====================================================
+const BS_CARD_SETS = {
+  'Geography': [
+    {cards:['Eiffel Tower','Arc de Triomphe','Louvre'],clues:['France','Europe','Tourism']},
+    {cards:['Mount Everest','K2','Kilimanjaro'],clues:['Mountains','Altitude','Climbing']},
+    {cards:['Amazon River','Nile River','Mississippi River'],clues:['Rivers','Water','Long']},
+    {cards:['Sahara Desert','Gobi Desert','Atacama Desert'],clues:['Dry','Sand','Hot']},
+    {cards:['Sydney Opera House','Harbour Bridge','Bondi Beach'],clues:['Australia','Iconic','Coastal']},
+  ],
+  'Movies': [
+    {cards:['The Godfather','Goodfellas','Scarface'],clues:['Crime','Mafia','Classic']},
+    {cards:['Titanic','Avatar','Avengers: Endgame'],clues:['Blockbuster','Hollywood','Billion dollar']},
+    {cards:['The Dark Knight','Iron Man','Spider-Man'],clues:['Superhero','Comic','Action']},
+    {cards:['Toy Story','The Lion King','Finding Nemo'],clues:['Animated','Family','Disney']},
+    {cards:['Inception','Interstellar','The Matrix'],clues:['Mind-bending','Sci-fi','Philosophy']},
+  ],
+  'Actors': [
+    {cards:['Leonardo DiCaprio','Brad Pitt','Tom Hanks'],clues:['Hollywood','Oscar','Male']},
+    {cards:['Meryl Streep','Cate Blanchett','Natalie Portman'],clues:['Actress','Oscar','Female']},
+    {cards:['Will Smith','Denzel Washington','Jamie Foxx'],clues:['Actor','Acclaimed','Male']},
+    {cards:['Chris Evans','Chris Hemsworth','Chris Pratt'],clues:['Marvel','Action','Chris']},
+    {cards:['Robert De Niro','Al Pacino','Joe Pesci'],clues:['Italian-American','Crime films','Legendary']},
+  ],
+  'Foods': [
+    {cards:['Sushi','Ramen','Tempura'],clues:['Japanese','Asia','Restaurant']},
+    {cards:['Pizza','Pasta','Risotto'],clues:['Italian','Carbs','Delicious']},
+    {cards:['Tacos','Burritos','Guacamole'],clues:['Mexican','Spicy','Wrap']},
+    {cards:['Croissant','Baguette','Crème Brûlée'],clues:['French','Bakery','Fancy']},
+    {cards:['Burger','Hot Dog','Fries'],clues:['American','Fast food','Unhealthy']},
+  ],
+  'Sports': [
+    {cards:['LeBron James','Kobe Bryant','Michael Jordan'],clues:['Basketball','NBA','GOAT debate']},
+    {cards:['Cristiano Ronaldo','Lionel Messi','Neymar'],clues:['Football','Soccer','World class']},
+    {cards:['Roger Federer','Rafael Nadal','Novak Djokovic'],clues:['Tennis','Grand Slam','GOAT debate']},
+    {cards:['100m Sprint','Marathon','Long Jump'],clues:['Athletics','Olympics','Running']},
+    {cards:['Super Bowl','World Series','Stanley Cup'],clues:['Trophy','American sports','Championship']},
+  ],
+  'Animals': [
+    {cards:['Lion','Tiger','Leopard'],clues:['Big cat','Predator','Wild']},
+    {cards:['Dolphin','Whale','Shark'],clues:['Ocean','Marine','Swimming']},
+    {cards:['Eagle','Hawk','Falcon'],clues:['Bird','Predator','Sky']},
+    {cards:['Elephant','Rhino','Hippo'],clues:['Large','Africa','Heavy']},
+    {cards:['Cobra','Python','Anaconda'],clues:['Snake','Reptile','Dangerous']},
+  ],
+  'Music': [
+    {cards:['Michael Jackson','Prince','David Bowie'],clues:['Legend','Pop','Icon']},
+    {cards:['The Beatles','Rolling Stones','Led Zeppelin'],clues:['Classic rock','British','Band']},
+    {cards:['Eminem','Jay-Z','Kendrick Lamar'],clues:['Hip-hop','Rapper','Lyrical']},
+    {cards:['Beyoncé','Rihanna','Adele'],clues:['Female','Pop','Voice']},
+    {cards:['Grammy','Oscar','Emmy'],clues:['Award','Hollywood','Ceremony']},
+  ],
+  'Science': [
+    {cards:['Albert Einstein','Isaac Newton','Nikola Tesla'],clues:['Scientist','Physics','Genius']},
+    {cards:['Black Hole','Neutron Star','White Dwarf'],clues:['Space','Stellar','Astronomy']},
+    {cards:['DNA','RNA','Protein'],clues:['Biology','Cell','Molecule']},
+    {cards:['Periodic Table','Atom','Electron'],clues:['Chemistry','Science','Element']},
+    {cards:['Volcano','Earthquake','Tsunami'],clues:['Natural disaster','Earth','Destructive']},
+  ],
+  'History': [
+    {cards:['Julius Caesar','Napoleon Bonaparte','Alexander the Great'],clues:['Conqueror','Ancient','Empire']},
+    {cards:['World War I','World War II','Cold War'],clues:['War','20th century','Global conflict']},
+    {cards:['Cleopatra','Marie Antoinette','Queen Victoria'],clues:['Queen','Female ruler','Historical']},
+    {cards:['Colosseum','Great Wall of China','Machu Picchu'],clues:['Ancient','Wonder','Monument']},
+    {cards:['Moon Landing','Wright Brothers','Titanic Sinking'],clues:['Historic event','Famous','Changed history']},
+  ],
+  'Technology': [
+    {cards:['iPhone','Android','Nokia'],clues:['Phone','Mobile','Technology']},
+    {cards:['Facebook','Instagram','TikTok'],clues:['Social media','App','Followers']},
+    {cards:['Google','Amazon','Microsoft'],clues:['Tech giant','Company','Billion dollar']},
+    {cards:['Bitcoin','Ethereum','Dogecoin'],clues:['Crypto','Digital','Currency']},
+    {cards:['PlayStation','Xbox','Nintendo'],clues:['Gaming','Console','Controller']},
+  ],
+  'TV Shows': [
+    {cards:['Breaking Bad','The Wire','The Sopranos'],clues:['Drama','Crime','Acclaimed']},
+    {cards:['Friends','Seinfeld','The Office'],clues:['Comedy','Sitcom','Classic']},
+    {cards:['Game of Thrones','The Crown','Succession'],clues:['HBO','Drama','Power']},
+    {cards:['Stranger Things','Black Mirror','Westworld'],clues:['Sci-fi','Thriller','Netflix']},
+    {cards:['The Simpsons','Family Guy','South Park'],clues:['Animated','Adult','Comedy']},
+  ],
+  'Brands': [
+    {cards:['Nike','Adidas','Puma'],clues:['Sportswear','Shoe','Brand']},
+    {cards:['Ferrari','Lamborghini','Porsche'],clues:['Luxury car','Fast','Expensive']},
+    {cards:['Rolex','Patek Philippe','Audemars Piguet'],clues:['Watch','Luxury','Swiss']},
+    {cards:['Louis Vuitton','Gucci','Chanel'],clues:['Fashion','Luxury','Designer']},
+    {cards:["McDonald's",'KFC','Burger King'],clues:['Fast food','Chain','Franchise']},
+  ],
+  'Australian': [
+    {cards:['Tim Tams','Vegemite','Pavlova'],clues:['Australian food','Iconic','Local']},
+    {cards:['AFL','NRL','Cricket'],clues:['Australian sport','Popular','National']},
+    {cards:['Sydney','Melbourne','Brisbane'],clues:['Australian city','Capital','Urban']},
+    {cards:['Drop Bear','Kangaroo','Platypus'],clues:['Australian animal','Unique','Wildlife']},
+    {cards:['Bondi','Byron Bay','Noosa'],clues:['Australian beach','Surf','Holiday']},
+  ],
+  'Internet': [
+    {cards:['Reddit','4chan','Twitter'],clues:['Forum','Online','Community']},
+    {cards:['YouTube','Twitch','Kick'],clues:['Streaming','Video','Content']},
+    {cards:['ChatGPT','Gemini','Claude'],clues:['AI','Chatbot','Language model']},
+    {cards:['Discord','Slack','Teams'],clues:['Messaging','App','Chat']},
+    {cards:['Minecraft','Fortnite','Roblox'],clues:['Game','Online','Popular']},
+  ],
+  'Slang': [
+    {cards:['Rizz','Slay','No Cap'],clues:['Gen Z','Slang','Trendy']},
+    {cards:['Banger','Slaps','Fire'],clues:['Music slang','Good','Compliment']},
+    {cards:['Ghost','Breadcrumb','Situationship'],clues:['Dating','Relationship','Modern']},
+    {cards:["Ratio'd",'Caught in 4K','Rent Free'],clues:['Internet','Called out','Social media']},
+    {cards:['Big W','Big L','Cooked'],clues:['Australian slang','Result','Reaction']},
+  ],
+};
+const BS_CATEGORIES = Object.keys(BS_CARD_SETS);
+
+// Levenshtein distance for fuzzy matching
+function levenshtein(a, b) {
+  a = a.toLowerCase().trim();
+  b = b.toLowerCase().trim();
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, (_, i) => Array.from({length: n+1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+    dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+function bsFuzzyMatch(guess, target) {
+  const g = guess.toLowerCase().trim().replace(/[^a-z0-9 ]/g, '');
+  const t = target.toLowerCase().trim().replace(/[^a-z0-9 ]/g, '');
+  if (g === t) return true;
+  // Allow 1 typo for short words, 2 for longer
+  const threshold = t.length <= 5 ? 1 : 2;
+  if (levenshtein(g, t) <= threshold) return true;
+  // Also check if guess contains the target or vice versa
+  if (g.includes(t) || t.includes(g)) return true;
+  return false;
+}
+
+
+
+function renderBsCategorySelect(){
+  const el=document.getElementById('bsCategorySelect');if(!el)return;
+  el.innerHTML=BS_CATEGORIES.map(c=>`<div onclick="bsSelectCategory('${c}')" style="padding:6px 12px;border-radius:20px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;border:1px solid ${localBsCategory===c?'#06b6d4':'var(--border)'};background:${localBsCategory===c?'rgba(6,182,212,0.15)':'var(--surface2)'};color:${localBsCategory===c?'#06b6d4':'var(--muted)'}">${c}</div>`).join('');
+}
+function bsSelectCategory(cat){
+  localBsCategory=cat;
+  renderBsCategorySelect();
+  if(gameCode)updateGame(gameCode,{bsCategory:cat});
+}
+
+// =====================================================
+// BLIND SPOT: STATE
+// =====================================================
+let bsDiscussTimerInterval=null,bsRevealTimerInterval=null,bsRefresherUsed=false,bsCardsVisible=false,bsRefresherTimeout=null;
+
+function changeBsDiscuss(delta){
+  const options=[3,5,10,15];
+  let idx=options.indexOf(localBsDiscussMinutes);
+  idx=Math.max(0,Math.min(options.length-1,idx+delta));
+  localBsDiscussMinutes=options[idx];
+  const el=document.getElementById('bsDiscussDisplay');
+  if(el)el.textContent=localBsDiscussMinutes+' min';
+  if(gameCode)updateGame(gameCode,{bsDiscussMinutes:localBsDiscussMinutes});
+}
+
+// =====================================================
+// BLIND SPOT: START
+// =====================================================
+async function startBsGame(){
+  const game=localGame;if(!game)return;
+  const players=Object.values(game.players||{});if(players.length<4)return;
+  const cat=localBsCategory||BS_CATEGORIES[0];
+  const sets=BS_CARD_SETS[cat]||[];
+  if(!sets.length)return;
+  const set=sets[Math.floor(Math.random()*sets.length)];
+  const imposter=players[Math.floor(Math.random()*players.length)];
+  // Pick which card the imposter knows
+  const knownIdx=Math.floor(Math.random()*3);
+  const scores={};players.forEach(p=>{scores[p.id]=0;});
+  await updateGame(gameCode,{
+    status:'playing',mode:'bs',
+    bsPhase:'reveal',
+    bsCategory:cat,
+    bsCards:set.cards,
+    bsClues:set.clues,
+    bsImposterId:imposter.id,
+    bsKnownCardIdx:knownIdx,
+    bsReady:{},
+    bsRevealStart:serverTimestamp(),
+    bsDiscussStart:null,
+    bsDiscussMinutes:localBsDiscussMinutes,
+    bsVotes:{},
+    bsGuesses:[],
+    bsCorrectGuesses:[],
+    bsIncorrectCount:0,
+    bsResult:null,
+    votes:{},result:null,
+  });
+}
+
+// =====================================================
+// BLIND SPOT: REVEAL SCREEN
+// =====================================================
+function enterBsReveal(game){
+  bsRefresherUsed=false;bsCardsVisible=false;
+  showScreen('bs-reveal');
+  renderBsReveal(game);
+  startBsRevealCountdown(game);
+}
+
+function renderBsReveal(game){
+  const isImpostor=game.bsImposterId===myId;
+  const cards=game.bsCards||[];
+  const clues=game.bsClues||[];
+  const knownIdx=game.bsKnownCardIdx||0;
+
+  const roleBadge=document.getElementById('bsRoleBadge');
+  if(roleBadge){
+    if(isImpostor){
+      roleBadge.style.background='rgba(232,93,77,0.12)';
+      roleBadge.style.border='1px solid rgba(232,93,77,0.4)';
+      roleBadge.style.color='var(--spy)';
+      roleBadge.textContent='🕵️ You are the IMPOSTER';
+    } else {
+      roleBadge.style.background='rgba(6,182,212,0.08)';
+      roleBadge.style.border='1px solid rgba(6,182,212,0.3)';
+      roleBadge.style.color='#06b6d4';
+      roleBadge.textContent='✓ You are INNOCENT';
+    }
+  }
+
+  const cardEmojis=['🎴','🃏','🀄'];
+  const cardsEl=document.getElementById('bsRevealCards');
+  if(!cardsEl)return;
+
+  if(isImpostor){
+    // Show known card with emoji, unknown cards as grey with clues only
+    cardsEl.innerHTML=cards.map((c,i)=>{
+      if(i===knownIdx){
+        return`<div style="padding:16px;background:var(--surface2);border:2px solid rgba(6,182,212,0.5);border-radius:var(--radius);display:flex;align-items:center;gap:12px">
+          <div style="font-size:32px">${cardEmojis[i]}</div>
+          <div><div style="font-size:11px;color:#06b6d4;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Known Card</div><div style="font-size:18px;font-weight:800;color:var(--text)">${esc(c)}</div></div>
+        </div>`;
+      } else {
+        const clue=clues[i]||clues[i%clues.length]||'?';
+        return`<div style="padding:16px;background:rgba(232,93,77,0.06);border:1px solid rgba(232,93,77,0.25);border-radius:var(--radius)">
+          <div style="font-size:11px;color:var(--spy);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Unknown — Clue only</div>
+          <div style="font-size:15px;font-weight:700;color:var(--spy)">🔍 ${esc(clue)}</div>
+        </div>`;
+      }
+    }).join('');
+  } else {
+    cardsEl.innerHTML=cards.map((c,i)=>`
+      <div style="padding:16px;background:var(--surface2);border:2px solid rgba(6,182,212,0.4);border-radius:var(--radius);display:flex;align-items:center;gap:12px">
+        <div style="font-size:32px">${cardEmojis[i]}</div>
+        <div><div style="font-size:11px;color:#06b6d4;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Card ${i+1}</div><div style="font-size:18px;font-weight:800;color:var(--text)">${esc(c)}</div></div>
+      </div>`).join('');
+  }
+
+  updateBsReadyCount(game);
+}
+
+function updateBsReadyCount(game){
+  const ready=Object.keys(game.bsReady||{}).length;
+  const total=Object.keys(game.players||{}).length;
+  const alreadyReady=!!(game.bsReady&&game.bsReady[myId]);
+  document.getElementById('bsReadyBtn').style.display=alreadyReady?'none':'block';
+  document.getElementById('bsRevealReadySection').style.display=alreadyReady?'none':'block';
+  document.getElementById('bsAlreadyReady').style.display=alreadyReady?'block':'none';
+  const readyEl=document.getElementById('bsReadyCountConfirmed');
+  if(readyEl)readyEl.textContent=`${ready} of ${total} ready`;
+  const countEl=document.getElementById('bsReadyCount');
+  if(countEl)countEl.textContent=`${ready} of ${total} ready`;
+}
+
+function startBsRevealCountdown(game){
+  if(bsRevealTimerInterval){clearInterval(bsRevealTimerInterval);bsRevealTimerInterval=null;}
+  const start=game.bsRevealStart;if(!start)return;
+  const tick=()=>{
+    const g=localGame||game;
+    if(!g||g.bsPhase!=='reveal'){clearInterval(bsRevealTimerInterval);bsRevealTimerInterval=null;return;}
+    const elapsed=Math.floor((syncedNow()-start)/1000);
+    const remaining=Math.max(0,30-elapsed);
+    const el=document.getElementById('bsRevealCountdown');
+    if(el)el.textContent=remaining;
+    // Check if all ready
+    const ready=Object.keys(g.bsReady||{}).length;
+    const total=Object.keys(g.players||{}).length;
+    if((remaining===0||ready>=total)&&amHost){
+      clearInterval(bsRevealTimerInterval);bsRevealTimerInterval=null;
+      bsStartDiscussion();
+    }
+  };
+  tick();
+  bsRevealTimerInterval=setInterval(tick,500);
+}
+
+async function bsPressReady(){
+  if(!gameCode||!localGame)return;
+  await gameRefFor(gameCode).child('bsReady/'+myId).set(true);
+}
+
+async function bsStartDiscussion(){
+  if(!amHost||!gameCode||!localGame)return;
+  await updateGame(gameCode,{bsPhase:'discussion',bsDiscussStart:serverTimestamp()});
+}
+
+// =====================================================
+// BLIND SPOT: DISCUSSION SCREEN
+// =====================================================
+function enterBsGame(game){
+  bsCardsVisible=false;
+  showScreen('bs-game');
+  renderBsGame(game);
+  startBsDiscussTimer(game);
+}
+
+function renderBsGame(game){
+  const isImpostor=game.bsImposterId===myId;
+  const cards=game.bsCards||[];
+  const clues=game.bsClues||[];
+  const knownIdx=game.bsKnownCardIdx||0;
+  const correctGuesses=game.bsCorrectGuesses||[];
+  const incorrectCount=game.bsIncorrectCount||0;
+  const maxIncorrect=5;
+  const cat=game.bsCategory||'';
+
+  document.getElementById('bsCategoryBadge').textContent='Category: '+cat;
+
+  // Role badge
+  const rb=document.getElementById('bsGameRoleBadge');
+  if(rb){
+    if(isImpostor){
+      rb.style.background='rgba(232,93,77,0.1)';
+      rb.style.border='1px solid rgba(232,93,77,0.3)';
+      rb.style.color='var(--spy)';
+      rb.textContent=`🕵️ IMPOSTER — ${correctGuesses.length}/3 cards found`;
+    } else {
+      rb.style.background='rgba(6,182,212,0.08)';
+      rb.style.border='1px solid rgba(6,182,212,0.3)';
+      rb.style.color='#06b6d4';
+      rb.textContent='✓ INNOCENT — find the imposter';
+    }
+  }
+
+  // Vote list
+  renderBsVoteList(game);
+
+  // Show/hide imposter tools
+  const guessSection=document.getElementById('bsImpostorGuessSection');
+  if(guessSection)guessSection.style.display=isImpostor?'block':'none';
+
+  if(isImpostor){
+    const gp=document.getElementById('bsGuessProgress');
+    const gl=document.getElementById('bsGuessesLeft');
+    if(gp)gp.textContent=`Correct: ${correctGuesses.length} / 3`;
+    if(gl){
+      const remaining=maxIncorrect-incorrectCount;
+      gl.textContent=remaining>0?`Wrong guesses: ${incorrectCount} / ${maxIncorrect} (${remaining} left)`:`No guesses left!`;
+      gl.style.color=remaining<=1?'var(--spy)':'var(--muted)';
+    }
+  }
+
+  // Show refresher for innocents, view cards for imposter
+  const refresherBtn=document.getElementById('bsRefresherBtn');
+  const viewBtn=document.getElementById('bsViewCardsBtn');
+  if(isImpostor){
+    if(viewBtn)viewBtn.style.display='block';
+    if(refresherBtn)refresherBtn.style.display='none';
+  } else {
+    if(viewBtn)viewBtn.style.display='none';
+    if(refresherBtn){
+      refresherBtn.style.display='block';
+      refresherBtn.disabled=bsRefresherUsed;
+      refresherBtn.style.opacity=bsRefresherUsed?'0.4':'1';
+      refresherBtn.textContent=bsRefresherUsed?'🔄 Refresher used':'🔄 Refresher ×1';
+    }
+  }
+}
+
+function renderBsVoteList(game){
+  const votes=game.bsVotes||{};
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const myVote=votes[myId];
+  const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+
+  const listEl=document.getElementById('bsVoteList');
+  if(listEl)listEl.innerHTML=players.map(p=>{
+    const vc=voteCounts[p.id]||0;
+    const isMyVote=myVote===p.id;
+    const clickable=p.id!==myId;
+    return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isMyVote?'rgba(6,182,212,0.1)':'var(--surface2)'};border:1px solid ${isMyVote?'rgba(6,182,212,0.5)':'var(--border)'};border-radius:var(--radius);cursor:${clickable?'pointer':'default'}" onclick="${clickable?`bsCastVote('${p.id}')`:''}"}>
+      <div style="flex:1;font-size:13px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>
+      ${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#06b6d4;min-width:20px;text-align:center">${vc}</div>`:'<div style="min-width:20px"></div>'}
+      ${isMyVote?'<div style="color:#06b6d4;font-size:12px">✓</div>':''}
+    </div>`;
+  }).join('');
+
+  const total=players.length;
+  const voted=Object.keys(votes).length;
+  const statusEl=document.getElementById('bsVoteStatus');
+  if(statusEl)statusEl.textContent=`${voted} of ${total} voted`;
+
+  // Auto-resolve when all voted
+  if(amHost&&voted>=total&&total>0)bsResolveVote(game);
+}
+
+async function bsCastVote(targetId){
+  if(!gameCode||!localGame||localGame.bsPhase!=='discussion')return;
+  const currentVote=(localGame.bsVotes||{})[myId];
+  if(currentVote===targetId){
+    await gameRefFor(gameCode).child('bsVotes/'+myId).remove();
+  } else {
+    await gameRefFor(gameCode).child('bsVotes/'+myId).set(targetId);
+  }
+}
+
+function startBsDiscussTimer(game){
+  if(bsDiscussTimerInterval){clearInterval(bsDiscussTimerInterval);bsDiscussTimerInterval=null;}
+  const start=game.bsDiscussStart;if(!start)return;
+  const duration=(game.bsDiscussMinutes||5)*60;
+  const tick=()=>{
+    const g=localGame||game;
+    if(!g||g.bsPhase!=='discussion'){clearInterval(bsDiscussTimerInterval);bsDiscussTimerInterval=null;return;}
+    const elapsed=Math.floor((syncedNow()-start)/1000);
+    const remaining=Math.max(0,duration-elapsed);
+    const m=Math.floor(remaining/60).toString().padStart(2,'0');
+    const s=(remaining%60).toString().padStart(2,'0');
+    const el=document.getElementById('bsDiscussTimer');
+    if(el){el.textContent=`${m}:${s}`;el.style.color=remaining<60?'var(--spy)':remaining<120?'var(--accent)':'var(--text)';}
+    if(remaining===0&&amHost){clearInterval(bsDiscussTimerInterval);bsDiscussTimerInterval=null;bsResolveVote(localGame||g);}
+  };
+  tick();
+  bsDiscussTimerInterval=setInterval(tick,500);
+}
+
+// View cards button
+function bsShowCards(){
+  const game=localGame;if(!game)return;
+  const isImpostor=game.bsImposterId===myId;
+  const cards=game.bsCards||[];
+  const clues=game.bsClues||[];
+  const knownIdx=game.bsKnownCardIdx||0;
+  const correctGuesses=game.bsCorrectGuesses||[];
+  const overlay=document.getElementById('bsCardOverlay');
+  const content=document.getElementById('bsCardOverlayContent');
+  if(!overlay||!content)return;
+
+  if(bsCardsVisible){
+    overlay.style.display='none';
+    bsCardsVisible=false;
+    document.getElementById('bsViewCardsBtn').textContent='👁 View Cards';
+    return;
+  }
+
+  bsCardsVisible=true;
+  document.getElementById('bsViewCardsBtn').textContent='✕ Hide Cards';
+
+  const cardEmojis=['🎴','🃏','🀄'];
+  if(isImpostor){
+    content.innerHTML=cards.map((c,i)=>{
+      const isKnown=i===knownIdx||correctGuesses.includes(c);
+      if(isKnown){
+        return`<div style="padding:14px;background:var(--surface2);border:2px solid rgba(6,182,212,0.4);border-radius:var(--radius);display:flex;align-items:center;gap:10px">
+          <div style="font-size:28px">${cardEmojis[i]}</div>
+          <div style="font-size:15px;font-weight:800;color:var(--text)">${esc(c)}</div>
+        </div>`;
+      } else {
+        const clue=clues[i]||clues[i%clues.length]||'?';
+        return`<div style="padding:14px;background:rgba(232,93,77,0.06);border:1px solid rgba(232,93,77,0.2);border-radius:var(--radius)">
+          <div style="font-size:11px;color:var(--spy);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Unknown</div>
+          <div style="font-size:14px;font-weight:700;color:var(--spy)">🔍 ${esc(clue)}</div>
+        </div>`;
+      }
+    }).join('');
+  } else {
+    content.innerHTML=cards.map((c,i)=>`
+      <div style="padding:14px;background:var(--surface2);border:1px solid rgba(6,182,212,0.3);border-radius:var(--radius);display:flex;align-items:center;gap:10px">
+        <div style="font-size:28px">${cardEmojis[i]}</div>
+        <div style="font-size:15px;font-weight:800;color:var(--text)">${esc(c)}</div>
+      </div>`).join('');
+  }
+  overlay.style.display='block';
+}
+
+// Refresher for innocents
+function bsUseRefresher(){
+  if(bsRefresherUsed||!localGame)return;
+  const game=localGame;
+  const cards=game.bsCards||[];
+  const overlay=document.getElementById('bsCardOverlay');
+  const content=document.getElementById('bsCardOverlayContent');
+  if(!overlay||!content)return;
+  bsRefresherUsed=true;
+  const btn=document.getElementById('bsRefresherBtn');
+  if(btn){btn.disabled=true;btn.style.opacity='0.4';btn.textContent='🔄 Refresher used';}
+  const cardEmojis=['🎴','🃏','🀄'];
+  content.innerHTML=cards.map((c,i)=>`
+    <div style="padding:14px;background:var(--surface2);border:2px solid rgba(6,182,212,0.4);border-radius:var(--radius);display:flex;align-items:center;gap:10px">
+      <div style="font-size:28px">${cardEmojis[i]}</div>
+      <div style="font-size:15px;font-weight:800;color:var(--text)">${esc(c)}</div>
+    </div>`).join('');
+  overlay.style.display='block';
+  if(bsRefresherTimeout)clearTimeout(bsRefresherTimeout);
+  bsRefresherTimeout=setTimeout(()=>{overlay.style.display='none';bsCardsVisible=false;if(btn)btn.textContent='🔄 Refresher used';},3000);
+}
+
+// Imposter guess
+async function bsSubmitGuess(){
+  if(!gameCode||!localGame)return;
+  const game=localGame;
+  if(game.bsImposterId!==myId)return;
+  const input=document.getElementById('bsGuessInput');
+  if(!input)return;
+  const guess=input.value.trim();
+  if(!guess)return;
+  input.value='';
+
+  const cards=game.bsCards||[];
+  const knownIdx=game.bsKnownCardIdx||0;
+  const correctGuesses=game.bsCorrectGuesses||[];
+  const incorrectCount=game.bsIncorrectCount||0;
+
+  // Check against unguessed cards (not the known card, not already guessed)
+  let matched=null;
+  for(let i=0;i<cards.length;i++){
+    if(i===knownIdx)continue;
+    if(correctGuesses.includes(cards[i]))continue;
+    if(bsFuzzyMatch(guess,cards[i])){matched=cards[i];break;}
+  }
+
+  if(matched){
+    const newCorrect=[...correctGuesses,matched];
+    // Check win condition: all 3 cards found
+    const allFound=newCorrect.length>=(cards.length-1); // knows 1 already, needs remaining 2
+    const guessEntry={guess,matched,correct:true,ts:Date.now()};
+    const newGuesses=[...(game.bsGuesses||[]),guessEntry];
+    if(allFound){
+      await updateGame(gameCode,{
+        bsCorrectGuesses:newCorrect,
+        bsGuesses:newGuesses,
+        bsPhase:'result',
+        bsResult:{winner:'imposter',reason:'guessed_all'},
+      });
+    } else {
+      await updateGame(gameCode,{bsCorrectGuesses:newCorrect,bsGuesses:newGuesses});
+    }
+  } else {
+    const newIncorrect=incorrectCount+1;
+    const guessEntry={guess,correct:false,ts:Date.now()};
+    const newGuesses=[...(game.bsGuesses||[]),guessEntry];
+    if(newIncorrect>=5){
+      await updateGame(gameCode,{
+        bsIncorrectCount:newIncorrect,
+        bsGuesses:newGuesses,
+        bsPhase:'result',
+        bsResult:{winner:'innocents',reason:'guess_limit'},
+      });
+    } else {
+      await updateGame(gameCode,{bsIncorrectCount:newIncorrect,bsGuesses:newGuesses});
+    }
+  }
+}
+
+// Vote resolution
+async function bsResolveVote(game){
+  if(!amHost||!game)return;
+  const votes=game.bsVotes||{};
+  const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const maxV=Math.max(...Object.values(counts),0);
+  const topIds=Object.entries(counts).filter(([,c])=>c===maxV).map(([id])=>id);
+  if(topIds.length===1){
+    const eliminated=topIds[0];
+    const winner=eliminated===game.bsImposterId?'innocents':'imposter';
+    const reason=winner==='innocents'?'voted_out':'wrong_elimination';
+    await updateGame(gameCode,{bsPhase:'result',bsResult:{winner,reason,eliminatedId:eliminated}});
+  } else {
+    // Tie — extend 60 seconds
+    const tieStart=Date.now();
+    await gameRefFor(gameCode).update({bsDiscussStart:tieStart,bsDiscussMinutes:1,bsTie:true});
+  }
+}
+
+// =====================================================
+// BLIND SPOT: RESULT SCREEN
+// =====================================================
+function showBsResult(game){
+  if(bsDiscussTimerInterval){clearInterval(bsDiscussTimerInterval);bsDiscussTimerInterval=null;}
+  if(bsRevealTimerInterval){clearInterval(bsRevealTimerInterval);bsRevealTimerInterval=null;}
+
+  const r=game.bsResult||{};
+  const imposterPlayer=game.players&&game.players[game.bsImposterId];
+  const imposterName=(imposterPlayer&&imposterPlayer.name)||'Unknown';
+  const cards=game.bsCards||[];
+  const clues=game.bsClues||[];
+  const guesses=game.bsGuesses||[];
+  const votes=game.bsVotes||{};
+
+  // Banner
+  const bannerEl=document.getElementById('bsResultBanner');
+  if(r.winner==='innocents'){
+    const reason=r.reason==='guess_limit'?'Imposter ran out of guesses!':'Imposter was voted out!';
+    bannerEl.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Innocents Win!</h2><p>${reason}</p></div>`;
+  } else {
+    bannerEl.innerHTML=`<div class="result-banner" style="background:linear-gradient(135deg,#1a0505,#0f0202);border:2px solid var(--spy)"><div class="result-emoji">🕵️</div><h2 style="color:var(--spy)">Imposter Wins!</h2><p>All cards identified!</p></div>`;
+  }
+
+  // Imposter reveal
+  document.getElementById('bsResultImposter').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🕵️</div><div style="font-size:20px;font-weight:800;color:var(--spy)">${esc(imposterName)}</div>`;
+
+  // Cards
+  const cardEmojis=['🎴','🃏','🀄'];
+  const knownIdx=game.bsKnownCardIdx||0;
+  document.getElementById('bsResultCards').innerHTML=cards.map((c,i)=>`
+    <div style="padding:12px 14px;background:${i===knownIdx?'rgba(6,182,212,0.08)':'var(--surface2)'};border:1px solid ${i===knownIdx?'rgba(6,182,212,0.3)':'var(--border)'};border-radius:var(--radius);display:flex;align-items:center;gap:10px">
+      <div style="font-size:24px">${cardEmojis[i]}</div>
+      <div style="flex:1;font-size:14px;font-weight:700">${esc(c)}</div>
+      ${i===knownIdx?`<div style="font-family:'DM Mono',monospace;font-size:10px;color:#06b6d4;text-transform:uppercase">imposter knew</div>`:''}
+    </div>`).join('');
+
+  // Clues
+  document.getElementById('bsResultClues').innerHTML=clues.map(cl=>`<div style="padding:8px 12px;background:rgba(232,93,77,0.08);border:1px solid rgba(232,93,77,0.2);border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:13px;color:var(--spy)">🔍 ${esc(cl)}</div>`).join('');
+
+  // Guesses
+  const guessEl=document.getElementById('bsResultGuesses');
+  if(!guesses.length){
+    guessEl.innerHTML=`<div style="color:var(--muted);font-size:13px;font-family:'DM Mono',monospace">No guesses made</div>`;
+  } else {
+    guessEl.innerHTML=guesses.map(g=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius);border:1px solid ${g.correct?'rgba(77,232,160,0.3)':'rgba(232,93,77,0.3)'};margin-bottom:6px">
+      <div style="font-size:16px">${g.correct?'✅':'❌'}</div>
+      <div style="flex:1;font-size:13px;font-family:'DM Mono',monospace">${esc(g.guess)}${g.correct&&g.matched?` → ${esc(g.matched)}`:''}</div>
+    </div>`).join('');
+  }
+
+  // Final votes
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  document.getElementById('bsResultVotes').innerHTML=players.map(p=>{
+    const vc=voteCounts[p.id]||0;
+    const isElim=r.eliminatedId===p.id;
+    return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isElim?'rgba(232,93,77,0.08)':'var(--surface2)'};border:1px solid ${isElim?'rgba(232,93,77,0.3)':'var(--border)'};border-radius:var(--radius);margin-bottom:6px">
+      <div style="flex:1;font-size:13px;font-weight:600">${esc(p.name)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:${vc>0?'#06b6d4':'var(--muted)'}">${vc}</div>
+      ${isElim?"<div style='font-size:11px;color:var(--spy);font-family:DM Mono,monospace'>eliminated</div>":""}
+    </div>`;
+  }).join('');
+
+  document.getElementById('bsResultHostBtns').style.display=amHost?'flex':'none';
+  document.getElementById('bsResultNonHostBtns').style.display=!amHost?'flex':'none';
+  showScreen('bs-result');
+}
+
+// =====================================================
+// BLIND SPOT: CLEANUP
+// =====================================================
+function bsCleanup(){
+  if(bsDiscussTimerInterval){clearInterval(bsDiscussTimerInterval);bsDiscussTimerInterval=null;}
+  if(bsRevealTimerInterval){clearInterval(bsRevealTimerInterval);bsRevealTimerInterval=null;}
+  if(bsRefresherTimeout){clearTimeout(bsRefresherTimeout);bsRefresherTimeout=null;}
+  bsRefresherUsed=false;bsCardsVisible=false;
+}
+
 var joinCodeEl=document.getElementById('joinCode');
 if(joinCodeEl){joinCodeEl.addEventListener('input',function(e){e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});}
 var playerNameEl=document.getElementById('playerName');
@@ -3752,7 +4468,6 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
 
 <script>
   // CHRISPY FIX V4: temporarily unregister service workers so desktop browsers cannot keep serving an old broken index.html.
-  // Add your service-worker registration back later once the desktop issue is confirmed fixed.
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
       navigator.serviceWorker.getRegistrations()
@@ -3764,6 +4479,114 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
     });
   }
 </script>
+
+
+<!-- BLIND SPOT: REVEAL -->
+<div class="screen scrollable" id="screen-bs-reveal">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px;padding-bottom:20px">
+    <div style="text-align:center">
+      <div style="font-size:11px;color:#06b6d4;font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">🕵️ BLIND SPOT</div>
+      <div style="font-size:22px;font-weight:800;color:var(--text)" id="bsRevealTitle">Study your cards</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px" id="bsRevealSubtitle">Memorise them — they disappear when discussion starts</div>
+    </div>
+    <!-- Role badge -->
+    <div id="bsRoleBadge" style="padding:12px 16px;border-radius:var(--radius);text-align:center;font-weight:800;font-size:15px"></div>
+    <!-- Cards -->
+    <div id="bsRevealCards" style="display:flex;flex-direction:column;gap:10px"></div>
+    <!-- Countdown -->
+    <div style="text-align:center;margin-top:4px">
+      <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px">Auto-advancing in</div>
+      <div id="bsRevealCountdown" style="font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:#06b6d4">30</div>
+    </div>
+    <!-- Ready button -->
+    <div id="bsRevealReadySection">
+      <button class="btn btn-primary" id="bsReadyBtn" onclick="bsPressReady()" style="background:#06b6d4;color:#000">I AM READY</button>
+      <div id="bsReadyCount" style="text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:8px">0 / 0 ready</div>
+    </div>
+    <div id="bsAlreadyReady" style="display:none;text-align:center;padding:14px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.3);border-radius:var(--radius)">
+      <div style="font-size:16px;font-weight:800;color:#06b6d4">✓ You're ready!</div>
+      <div id="bsReadyCountConfirmed" style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">Waiting for others...</div>
+    </div>
+  </div>
+</div>
+
+<!-- BLIND SPOT: GAME (discussion) -->
+<div class="screen" id="screen-bs-game">
+  <div style="width:100%;max-width:440px;height:100dvh;display:flex;flex-direction:column;padding:12px;box-sizing:border-box;gap:8px">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <div style="flex:1">
+        <div style="font-size:10px;color:#06b6d4;font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase">🕵️ BLIND SPOT</div>
+        <div id="bsCategoryBadge" style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace"></div>
+      </div>
+      <div style="text-align:right">
+        <div id="bsDiscussTimer" style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--text)">05:00</div>
+        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">remaining</div>
+      </div>
+    </div>
+    <!-- Role + imposter progress -->
+    <div id="bsGameRoleBadge" style="padding:8px 12px;border-radius:var(--radius);font-size:13px;font-weight:700;flex-shrink:0"></div>
+    <!-- Vote list -->
+    <div style="flex-shrink:0">
+      <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">LIVE VOTES</div>
+      <div id="bsVoteList" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div id="bsVoteStatus" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;text-align:center"></div>
+    </div>
+    <!-- Imposter guess section -->
+    <div id="bsImpostorGuessSection" style="display:none;flex-shrink:0">
+      <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">IMPOSTER TOOLS</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input id="bsGuessInput" type="text" placeholder="Guess a card..." maxlength="40" autocomplete="off" style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')bsSubmitGuess()"/>
+        <button onclick="bsSubmitGuess()" style="background:#06b6d4;color:#000;border:none;padding:8px 14px;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Guess</button>
+      </div>
+      <div id="bsGuessProgress" style="font-family:'DM Mono',monospace;font-size:12px;color:#06b6d4;margin-bottom:6px"></div>
+      <div id="bsGuessesLeft" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)"></div>
+    </div>
+    <!-- Action buttons -->
+    <div style="flex-shrink:0;display:flex;gap:8px">
+      <button id="bsViewCardsBtn" onclick="bsShowCards()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer">👁 View Cards</button>
+      <button id="bsRefresherBtn" onclick="bsUseRefresher()" style="flex:1;background:var(--surface2);border:1px solid rgba(6,182,212,0.4);color:#06b6d4;padding:10px;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:none">🔄 Refresher ×1</button>
+    </div>
+    <!-- Card overlay (shown on view cards) -->
+    <div id="bsCardOverlay" style="display:none;flex:1;overflow-y:auto">
+      <div id="bsCardOverlayContent" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BLIND SPOT: RESULT -->
+<div class="screen scrollable" id="screen-bs-result">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div id="bsResultBanner" class="fadeIn"></div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">The Imposter was...</h2>
+      <div id="bsResultImposter" style="padding:18px;background:var(--surface2);border-radius:var(--radius);text-align:center;margin-bottom:12px"></div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">The full card set</div>
+        <div id="bsResultCards" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Imposter's Clues</h2>
+      <div id="bsResultClues" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Guess History</h2>
+      <div id="bsResultGuesses"></div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Final Votes</h2>
+      <div id="bsResultVotes"></div>
+    </div>
+    <div id="bsResultHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" onclick="returnToLobby()" style="background:#06b6d4;color:#000">Return to Lobby</button>
+    </div>
+    <div id="bsResultNonHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <div class="notice" style="background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.3);color:#06b6d4">Waiting for host...</div>
+      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
