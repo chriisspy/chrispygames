@@ -381,7 +381,7 @@ select option{background:var(--surface2)}
     <label>Password</label>
     <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off"/>
     <div id="passwordError" class="notice error" style="display:none">Incorrect password.</div>
-    <button class="btn btn-primary" onclick="checkPassword()">Enter</button>
+    <button class="btn btn-primary" id="passwordEnterBtn">Enter</button>
   </div>
 </div>
 
@@ -3668,6 +3668,7 @@ function showFaGameOver(game){
 
 document.getElementById('joinCode').addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});
 document.getElementById('playerName').addEventListener('keydown',e=>{if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});
+document.getElementById('passwordEnterBtn').addEventListener('click',checkPassword);
 document.getElementById('passwordInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
 </script>
 
