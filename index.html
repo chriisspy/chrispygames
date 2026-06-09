@@ -1172,7 +1172,8 @@ select option{background:var(--surface2)}
       </div>
     </div>
     <!-- Status bar -->
-    <div id="faStatusBar" style="flex-shrink:0;margin-top:6px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)"></div>
+    <div id="faTurnTimerDisplay" style="flex-shrink:0;margin-top:8px;text-align:center;font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:var(--accent);letter-spacing:1px;line-height:1;text-shadow:0 0 18px rgba(232,212,77,0.28)">30</div>
+    <div id="faStatusBar" style="flex-shrink:0;margin-top:4px;text-align:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--accent)"></div>
   </div>
 </div>
 
@@ -1519,7 +1520,7 @@ async function createGame(){
   setLoading('createBtn',true,'Creating...');
   const code=genCode();gameCode=code;amHost=true;
   const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
+  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faLiveStroke:{},faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
@@ -3045,7 +3046,7 @@ async function returnToLobby(){
   if(!amHost)return;
   const game=localGame;if(!game)return;
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,chat:null});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faLiveStroke:{},faVotes:{},faGuess:null,faResult:null,chat:null});
 }
 async function leaveGame(){
   clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();
@@ -3234,7 +3235,7 @@ const FA_VOTE_SECONDS = 60;
 const FA_SWATCH_COLORS=['#e8d44d','#e85d4d','#4de8a0','#3498db','#a78bfa','#f97316','#ffffff','#000000'];
 
 let faCanvas=null,faCtx=null,faIsDrawing=false,faHasDrawn=false,faWordHidden=false,faLastTurnIndex=null;
-let faStrokeListener=null,faCurrentStroke=[],faTurnTimerInterval=null,faVoteTimerInterval=null,faTimeoutHandledFor=null,faVoteResolving=false;
+let faStrokeListener=null,faLiveStrokeListener=null,faLiveStrokes={},faCurrentStroke=[],faTurnTimerInterval=null,faVoteTimerInterval=null,faTimeoutHandledFor=null,faVoteResolving=false,faLastLiveUpdate=0;
 
 function faCanvasCleanup(){
   if(faCanvas){
@@ -3250,9 +3251,13 @@ function faCanvasCleanup(){
     db.ref('games/'+gameCode+'/faStrokes').off('value',faStrokeListener);
     faStrokeListener=null;
   }
+  if(faLiveStrokeListener&&gameCode){
+    db.ref('games/'+gameCode+'/faLiveStroke').off('value',faLiveStrokeListener);
+    faLiveStrokeListener=null;
+  }
   if(faTurnTimerInterval){clearInterval(faTurnTimerInterval);faTurnTimerInterval=null;}
   if(faVoteTimerInterval){clearInterval(faVoteTimerInterval);faVoteTimerInterval=null;}
-  faCanvas=null;faCtx=null;faIsDrawing=false;faHasDrawn=false;faCurrentStroke=[];faLastTurnIndex=null;faTimeoutHandledFor=null;faVoteResolving=false;
+  faCanvas=null;faCtx=null;faIsDrawing=false;faHasDrawn=false;faLiveStrokes={};faCurrentStroke=[];faLastTurnIndex=null;faTimeoutHandledFor=null;faVoteResolving=false;faLastLiveUpdate=0;
 }
 
 function faRoundsForPlayers(n){return n<=5?5:3;}
@@ -3287,7 +3292,7 @@ async function startFaGame(){
   await updateGame(gameCode,{
     status:'playing',mode:'fa',faPhase:'draw',
     faWord:word,faImposterId:imposterId,
-    faStrokes:{},faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:firebase.database.ServerValue.TIMESTAMP,
+    faStrokes:{},faLiveStroke:{},faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:firebase.database.ServerValue.TIMESTAMP,
     faRound:1,faTotalRounds:totalRounds,
     faWordIndex:1,faTotalWords:totalWords,
     faScores:scores,faVotes:{},faGuess:null,faResult:null,faAccusedId:null,
@@ -3324,10 +3329,15 @@ function setupFaCanvas(game){
   const picker=document.getElementById('faColorPicker');
   if(picker){picker.oninput=e=>faSetColor(e.target.value);}
 
+  faLiveStrokes=game&&game.faLiveStroke?game.faLiveStroke:{};
   replayFaStrokes(faStrokesArray(game&&game.faStrokes));
   if(gameCode){
     faStrokeListener=db.ref('games/'+gameCode+'/faStrokes').on('value',snap=>{
       replayFaStrokes(faStrokesArray(snap.val()));
+    });
+    faLiveStrokeListener=db.ref('games/'+gameCode+'/faLiveStroke').on('value',snap=>{
+      faLiveStrokes=snap.val()||{};
+      replayFaStrokes(localGame&&localGame.faStrokes);
     });
   }
 
@@ -3376,7 +3386,7 @@ function updateFaDrawScreen(game){
 
   if(faLastTurnIndex!==tIdx){
     faLastTurnIndex=tIdx;
-    faHasDrawn=false;faIsDrawing=false;faCurrentStroke=[];faTimeoutHandledFor=null;
+    faHasDrawn=false;faIsDrawing=false;faCurrentStroke=[];faTimeoutHandledFor=null;faLastLiveUpdate=0;
   }
 
   const roundEl=document.getElementById('faRoundBadge');if(roundEl)roundEl.textContent=`Word ${wordIndex}/${totalWords} · Round ${Math.min(round,totalRounds)}/${totalRounds}`;
@@ -3427,9 +3437,15 @@ function startFaTurnTimer(game){
     const currentPlayer=(g.players&&g.players[currentTurnId]&&g.players[currentTurnId].name)||'?';
     const statusEl=document.getElementById('faStatusBar');
     const order=g.faTurnOrder||[];const total=order.length||1;const completed=(g.faTurnIndex||0)%total;
+    const timerEl=document.getElementById('faTurnTimerDisplay');
+    if(timerEl){
+      timerEl.textContent=String(remaining).padStart(2,'0');
+      timerEl.style.color=remaining<=5?'var(--spy)':'var(--accent)';
+      timerEl.style.transform=remaining<=5?'scale(1.08)':'scale(1)';
+    }
     if(statusEl){
-      statusEl.textContent=`${currentTurnId===myId?'Your turn':currentPlayer+"'s turn"} · ${remaining}s left · ${completed}/${total} drawn this round`;
-      statusEl.style.color=remaining<=5?'var(--spy)':remaining<=10?'var(--accent)':'var(--muted)';
+      statusEl.textContent=`${currentTurnId===myId?'YOUR TURN':currentPlayer+"'s turn"} · ${completed}/${total} drawn this round`;
+      statusEl.style.color=remaining<=5?'var(--spy)':'var(--accent)';
     }
     if(remaining<=0&&amHost&&faTimeoutHandledFor!==(g.faTurnIndex||0)){
       faTimeoutHandledFor=g.faTurnIndex||0;
@@ -3450,6 +3466,7 @@ function faOnDown(e){
   faIsDrawing=true;faCurrentStroke=[];
   const pos=faGetPos(e);faCurrentStroke.push(pos);
   faCtx.beginPath();faCtx.moveTo(pos.x,pos.y);
+  faBroadcastLiveStroke(true);
   faUpdateStrokeButtons();
   e.preventDefault();
 }
@@ -3461,10 +3478,28 @@ function faOnMove(e){
   faCtx.strokeStyle=color;faCtx.lineWidth=size;
   const prev=faCurrentStroke[faCurrentStroke.length-2]||faCurrentStroke[0];
   faCtx.beginPath();faCtx.moveTo(prev.x,prev.y);faCtx.lineTo(pos.x,pos.y);faCtx.stroke();
+  faBroadcastLiveStroke(false);
   faUpdateStrokeButtons();
   e.preventDefault();
 }
-function faOnUp(e){if(!faIsDrawing)return;faIsDrawing=false;faUpdateStrokeButtons();updateFaDrawScreen(localGame);if(e&&e.preventDefault)e.preventDefault();}
+function faOnUp(e){if(!faIsDrawing)return;faIsDrawing=false;faBroadcastLiveStroke(true);faUpdateStrokeButtons();updateFaDrawScreen(localGame);if(e&&e.preventDefault)e.preventDefault();}
+function faBroadcastLiveStroke(force){
+  if(!gameCode||!localGame||!faCurrentStroke.length||faHasDrawn)return;
+  const now=Date.now();
+  if(!force&&now-faLastLiveUpdate<70)return;
+  faLastLiveUpdate=now;
+  const color=(document.getElementById('faColorPicker')||{}).value||'#e8d44d';
+  const size=parseInt((document.getElementById('faBrushSize')||{}).value)||6;
+  db.ref('games/'+gameCode+'/faLiveStroke/'+myId).set({
+    playerId:myId,
+    color,
+    size,
+    points:faCurrentStroke,
+    ts:now,
+    turnIndex:(localGame.faTurnIndex||0)
+  }).catch(()=>{});
+}
+
 function faUpdateStrokeButtons(){
   const hasStroke=faCurrentStroke.length>0&&!faHasDrawn;
   const undo=document.getElementById('faUndoBtn');if(undo)undo.disabled=!hasStroke;
@@ -3472,7 +3507,8 @@ function faUpdateStrokeButtons(){
 }
 function faUndoStroke(){
   if(!faCurrentStroke.length||faHasDrawn)return;
-  faIsDrawing=false;faCurrentStroke=[];
+  faIsDrawing=false;faCurrentStroke=[];faLastLiveUpdate=0;
+  if(gameCode)db.ref('games/'+gameCode+'/faLiveStroke/'+myId).remove().catch(()=>{});
   replayFaStrokes(localGame&&localGame.faStrokes);
   faUpdateStrokeButtons();
   updateFaDrawScreen(localGame);
@@ -3492,6 +3528,8 @@ async function faFinishStroke(){
   const size=parseInt((document.getElementById('faBrushSize')||{}).value)||6;
   const stroke={playerId:myId,color,size,points:faCurrentStroke,ts:Date.now(),turnIndex:expectedIdx};
   await db.ref('games/'+gameCode+'/faStrokes').push(stroke);
+  await db.ref('games/'+gameCode+'/faLiveStroke/'+myId).remove().catch(()=>{});
+  faCurrentStroke=[];
   await faAdvanceTurn(expectedIdx,false);
 }
 
@@ -3514,12 +3552,15 @@ async function faAdvanceTurn(expectedIdx,fromTimeout){
 function replayFaStrokes(strokes){
   if(!faCtx||!faCanvas)return;
   faClearCanvas();
-  const sorted=faStrokesArray(strokes).sort((a,b)=>(a.ts||0)-(b.ts||0));
-  sorted.forEach(s=>{
+  const permanent=faStrokesArray(strokes).sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const live=Object.values(faLiveStrokes||{}).filter(s=>s&&s.points&&s.points.length);
+  const drawStroke=s=>{
     if(!s.points||!s.points.length)return;
     faCtx.strokeStyle=s.color||'#fff';faCtx.lineWidth=s.size||6;faCtx.lineCap='round';faCtx.lineJoin='round';
     faCtx.beginPath();faCtx.moveTo(s.points[0].x,s.points[0].y);s.points.forEach(p=>faCtx.lineTo(p.x,p.y));faCtx.stroke();
-  });
+  };
+  permanent.forEach(drawStroke);
+  live.forEach(drawStroke);
 }
 function toggleFaWord(){
   faWordHidden=!faWordHidden;
@@ -3657,7 +3698,7 @@ async function faNextWord(){
   const usedWords=game.faUsedWords||[];const available=FA_WORDS.filter(w=>!usedWords.includes(w));const word=pick(available.length>0?available:FA_WORDS);
   faHasDrawn=false;faCurrentStroke=[];
   faVoteResolving=false;
-  await updateGame(gameCode,{faPhase:'draw',faWord:word,faImposterId:imposterId,faStrokes:{},faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:firebase.database.ServerValue.TIMESTAMP,faRound:1,faTotalRounds:totalRounds,faWordIndex:wordIndex+1,faVotes:{},faVoteStartedAt:null,faVoteEndReason:null,faGuess:null,faResult:null,faAccusedId:null,faUsedWords:[...usedWords,word]});
+  await updateGame(gameCode,{faPhase:'draw',faWord:word,faImposterId:imposterId,faStrokes:{},faLiveStroke:{},faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:firebase.database.ServerValue.TIMESTAMP,faRound:1,faTotalRounds:totalRounds,faWordIndex:wordIndex+1,faVotes:{},faVoteStartedAt:null,faVoteEndReason:null,faGuess:null,faResult:null,faAccusedId:null,faUsedWords:[...usedWords,word]});
 }
 function showFaGameOver(game){
   const players=Object.values(game.players||{}).sort((a,b)=>((game.faScores&&game.faScores[b.id])||0)-((game.faScores&&game.faScores[a.id])||0));
