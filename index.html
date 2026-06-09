@@ -3138,6 +3138,9 @@ function devGoScreen(screen){
 }
 function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;showScreen('home');}
 
+
+
+
 // =====================================================
 // HOME MODE SELECT
 // =====================================================
@@ -3169,7 +3172,7 @@ const FA_WORDS = [
   'Igloo','Treasure Chest','Thunderstorm','Quicksand','Palm Tree',
   'Black Hole','Avalanche','Puppet','Bonfire','Whirlpool'
 ];
-let faCanvas=null,faCtx=null,faIsDrawing=false,faHasDrawn=false,faWordHidden=false;
+let faCanvas=null,faCtx=null,faIsDrawing=false,faHasDrawn=false,faWordHidden=false,faLastTurnIndex=null;
 let faStrokeListener=null,faCurrentStroke=[];
 const FA_SWATCH_COLORS=['#e8d44d','#e85d4d','#4de8a0','#3498db','#a78bfa','#f97316','#ffffff','#000000'];
 
@@ -3186,7 +3189,7 @@ function faCanvasCleanup(){
     db.ref('games/'+gameCode+'/faStrokes').off('value',faStrokeListener);
     faStrokeListener=null;
   }
-  faCanvas=null;faCtx=null;faIsDrawing=false;faHasDrawn=false;faCurrentStroke=[];
+  faCanvas=null;faCtx=null;faIsDrawing=false;faHasDrawn=false;faCurrentStroke=[];faLastTurnIndex=null;
 }
 
 function faRoundsForPlayers(n){return n<=5?5:3;}
@@ -3302,15 +3305,28 @@ function faSetColor(hex){
 function updateFaDrawScreen(game){
   const tOrder=game.faTurnOrder||[];
   const tIdx=game.faTurnIndex||0;
-  const currentTurnId=tOrder[tIdx%tOrder.length];
+  const currentTurnId=tOrder.length?tOrder[tIdx%tOrder.length]:null;
   const isMyTurn=currentTurnId===myId;
-  const eliminated=game.mafiaEliminated||{};
   const currentPlayer=(game.players&&game.players[currentTurnId]&&game.players[currentTurnId].name)||'?';
   const round=game.faRound||1;
   const totalRounds=game.faTotalRounds||5;
   const wordIndex=game.faWordIndex||1;
   const totalWords=game.faTotalWords||3;
   const isImpostor=game.faImposterId===myId;
+
+  // Reset local draw state whenever the turn advances
+  if(faLastTurnIndex!==tIdx){
+    faLastTurnIndex=tIdx;
+    faHasDrawn=false;
+    faIsDrawing=false;
+    faCurrentStroke=[];
+    faTimeoutHandledFor=null;
+    // Clear any in-progress live stroke from previous drawer
+    if(gameCode)db.ref('games/'+gameCode+'/faLiveStroke').remove().catch(()=>{});
+  }
+
+  // Start turn timer for new turn
+  startFaTurnTimer(game);
 
   document.getElementById('faRoundBadge').textContent=`Word ${wordIndex}/${totalWords} · Round ${round}/${totalRounds}`;
   document.getElementById('faTurnIndicator').textContent=isMyTurn?'YOUR TURN':currentPlayer+"'s turn";
@@ -3321,38 +3337,47 @@ function updateFaDrawScreen(game){
   wordEl.textContent=isImpostor?'???':esc(game.faWord||'???');
   wordEl.style.color=isImpostor?'var(--spy)':'var(--accent)';
 
-  // Canvas enabled only on my turn and haven't drawn yet
+  // Canvas interaction — everyone can watch, only current player can draw
   const canDraw=isMyTurn&&!faHasDrawn;
-  faCanvas.style.cursor=canDraw?'crosshair':'not-allowed';
-
-  // Overlay
-  const overlayText=document.getElementById('faCanvasOverlayText');
-  if(!isMyTurn){
-    overlayText.style.display='block';
-    overlayText.textContent=currentPlayer+"'s turn to draw...";
-    faCanvas.style.pointerEvents='none';
-  } else if(faHasDrawn){
-    overlayText.style.display='block';
-    overlayText.textContent='Stroke submitted — waiting for others...';
-    faCanvas.style.pointerEvents='none';
-  } else {
-    overlayText.style.display='none';
-    faCanvas.style.pointerEvents='auto';
+  if(faCanvas){
+    faCanvas.style.cursor=canDraw?'crosshair':'default';
+    faCanvas.style.pointerEvents=canDraw?'auto':'none';
   }
 
-  // Draw button
+  // Bottom overlay label — always visible showing whose turn it is
+  const overlayText=document.getElementById('faCanvasOverlayText');
+  if(overlayText){
+    overlayText.style.display='block';
+    if(faHasDrawn){
+      overlayText.textContent='Stroke submitted — waiting for others...';
+      overlayText.style.color='var(--muted)';
+    } else {
+      overlayText.textContent=isMyTurn?'✏️ Your turn — draw now!':currentPlayer+"'s turn to draw...";
+      overlayText.style.color=isMyTurn?'var(--safe)':'var(--muted)';
+    }
+  }
+
+  // Draw button — only shown when it's my turn and I haven't drawn
   const drawBtn=document.getElementById('faDrawBtn');
-  drawBtn.style.display=canDraw&&!faHasDrawn?'block':'none';
+  if(drawBtn){
+    drawBtn.style.display=canDraw?'flex':'none';
+    const buttons=drawBtn.querySelectorAll('button');
+    if(buttons[0])buttons[0].disabled=!faCurrentStroke.length;
+    if(buttons[1])buttons[1].disabled=!faCurrentStroke.length;
+  }
 
   // Tools enabled only on my turn
-  const toolsOpacity=canDraw?'1':'0.4';
-  document.getElementById('faTools').style.opacity=toolsOpacity;
-  document.getElementById('faTools').style.pointerEvents=canDraw?'auto':'none';
+  const toolsEl=document.getElementById('faTools');
+  if(toolsEl){
+    toolsEl.style.opacity=canDraw?'1':'0.4';
+    toolsEl.style.pointerEvents=canDraw?'auto':'none';
+  }
 
-  // Status
-  const total=tOrder.length;
+  // Status bar
+  const total=tOrder.length||1;
   const completedThisRound=tIdx%total;
-  document.getElementById('faStatusBar').textContent=`${completedThisRound}/${total} drawn this round`;
+  const statusEl=document.getElementById('faStatusBar');
+  if(statusEl)statusEl.textContent=`${completedThisRound}/${total} drawn this round`;
 }
 
 function faGetPos(e){
