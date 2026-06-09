@@ -369,6 +369,74 @@ select option{background:var(--surface2)}
 .dev-btn-neutral{color:var(--muted)}
 .dev-btn-neutral:hover{color:var(--text);border-color:var(--muted)}
 </style>
+
+<script>
+/* =====================================================
+   EARLY PASSWORD GATE
+   This runs before the body/main game script. Keep this separate so a later app-script error cannot break password entry.
+===================================================== */
+(function(){
+  var SITE_PASSWORD = 'boysnight1';
+
+  function showPasswordError(){
+    var error = document.getElementById('passwordError');
+    var input = document.getElementById('passwordInput');
+    if(error){
+      error.style.display = 'block';
+      window.setTimeout(function(){ error.style.display = 'none'; }, 3000);
+    }
+    if(input){
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  function unlockSite(){
+    try { sessionStorage.setItem('sf_unlocked','1'); } catch(e) {}
+    var passwordScreen = document.getElementById('screen-password');
+    var homeScreen = document.getElementById('screen-home');
+    if(passwordScreen) passwordScreen.classList.remove('active');
+    if(homeScreen) homeScreen.classList.add('active');
+  }
+
+  window.checkPassword = function checkPassword(){
+    var input = document.getElementById('passwordInput');
+    var value = input ? input.value : '';
+    if(value === SITE_PASSWORD){
+      unlockSite();
+    } else {
+      showPasswordError();
+    }
+  };
+
+  function initPasswordGate(){
+    var unlocked = false;
+    try { unlocked = sessionStorage.getItem('sf_unlocked') === '1'; } catch(e) {}
+    if(unlocked) unlockSite();
+
+    var enterBtn = document.getElementById('passwordEnterBtn');
+    var input = document.getElementById('passwordInput');
+
+    if(enterBtn && !enterBtn.dataset.passwordBound){
+      enterBtn.dataset.passwordBound = '1';
+      enterBtn.addEventListener('click', window.checkPassword);
+    }
+    if(input && !input.dataset.passwordBound){
+      input.dataset.passwordBound = '1';
+      input.addEventListener('keydown', function(e){
+        if(e.key === 'Enter') window.checkPassword();
+      });
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initPasswordGate);
+  } else {
+    initPasswordGate();
+  }
+})();
+</script>
+
 </head>
 <body>
 <!-- PASSWORD -->
@@ -378,9 +446,9 @@ select option{background:var(--surface2)}
   <div class="card fadeIn">
     <h2>Welcome</h2>
     <label>Password</label>
-    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off"/>
+    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off" onkeydown="if(event.key==='Enter') window.checkPassword()"/>
     <div id="passwordError" class="notice error" style="display:none">Incorrect password.</div>
-    <button class="btn btn-primary" id="passwordEnterBtn">Enter</button>
+    <button class="btn btn-primary" id="passwordEnterBtn" onclick="window.checkPassword()">Enter</button>
   </div>
 </div>
 
@@ -1188,56 +1256,7 @@ select option{background:var(--surface2)}
 </div>
 
 <script>
-// =====================================================
-// PASSWORD GATE
-// Kept separate from the main game script so login still works even if a later game script error occurs.
-// =====================================================
-const SITE_PASSWORD = 'boysnight1';
-window.checkPassword = function checkPassword(){
-  const input = document.getElementById('passwordInput');
-  const error = document.getElementById('passwordError');
-  const passwordScreen = document.getElementById('screen-password');
-  const homeScreen = document.getElementById('screen-home');
-
-  if(!input || !passwordScreen || !homeScreen) return;
-
-  if(input.value === SITE_PASSWORD){
-    sessionStorage.setItem('sf_unlocked','1');
-    if(error) error.style.display = 'none';
-    passwordScreen.classList.remove('active');
-    homeScreen.classList.add('active');
-    return;
-  }
-
-  if(error){
-    error.style.display = 'block';
-    setTimeout(() => { error.style.display = 'none'; }, 3000);
-  }
-  input.value = '';
-  input.focus();
-};
-
-window.addEventListener('DOMContentLoaded', () => {
-  const enterBtn = document.getElementById('passwordEnterBtn');
-  const input = document.getElementById('passwordInput');
-  const passwordScreen = document.getElementById('screen-password');
-  const homeScreen = document.getElementById('screen-home');
-
-  if(enterBtn) enterBtn.addEventListener('click', window.checkPassword);
-  if(input) input.addEventListener('keydown', e => {
-    if(e.key === 'Enter') window.checkPassword();
-  });
-
-  if(sessionStorage.getItem('sf_unlocked') === '1' && passwordScreen && homeScreen){
-    passwordScreen.classList.remove('active');
-    homeScreen.classList.add('active');
-  }
-});
-</script>
-
-<script>
-// =====================================================
-// MAIN GAME SCRIPT
+// PASSWORD GATE MOVED TO EARLY HEAD SCRIPT SO INLINE HANDLERS ALWAYS WORK
 // =====================================================
 const ALL_LOCATIONS = [
   {name:'Airplane',            roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
@@ -3692,21 +3711,8 @@ function showFaGameOver(game){
   if(el)el.textContent='Auto';
 })();
 
-const joinCodeInput = document.getElementById('joinCode');
-if(joinCodeInput){
-  joinCodeInput.addEventListener('input', e => {
-    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  });
-}
-const playerNameInput = document.getElementById('playerName');
-if(playerNameInput){
-  playerNameInput.addEventListener('keydown', e => {
-    if(e.key === 'Enter'){
-      const code = joinCodeInput ? joinCodeInput.value.trim() : '';
-      code ? joinGame() : createGame();
-    }
-  });
-}
+const joinCodeEl=document.getElementById('joinCode');if(joinCodeEl)joinCodeEl.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});
+const playerNameEl=document.getElementById('playerName');if(playerNameEl)playerNameEl.addEventListener('keydown',e=>{if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});
 </script>
 
 <script>
