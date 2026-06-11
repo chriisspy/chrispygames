@@ -447,11 +447,43 @@ select option{background:var(--surface2)}
 .dev-btn-mafia:hover{border-color:#e74c3c;background:rgba(192,57,43,0.08)}
 .dev-btn-neutral{color:var(--muted)}
 .dev-btn-neutral:hover{color:var(--text);border-color:var(--muted)}
+.dev-preview-wrap{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.dev-preview-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)}
+.dev-preview-sample{font-size:14px;font-weight:800;min-width:92px;color:var(--text)}
+.dev-preview-value{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:right;word-break:break-all}
+.dev-frame-preview{display:flex;align-items:center;gap:10px}
 
 .av{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border);background:var(--surface3)}
 .av-sm{width:26px;height:26px}
 .av-lg{width:44px;height:44px}
 .av-placeholder{width:32px;height:32px;border-radius:50%;background:var(--surface3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+/* ===== CUSTOM DROPDOWNS + SHOP MODAL ===== */
+.custom-mode-wrap{width:100%;max-width:440px}
+.custom-mode-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.3px}
+.custom-mode-toggle:hover{border-color:var(--accent);background:var(--surface2)}
+.custom-mode-toggle-text{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.custom-mode-kicker{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:500}
+.custom-mode-current{font-size:15px;color:var(--text);font-weight:800}
+.custom-mode-arrow{font-family:'DM Mono',monospace;color:var(--accent);transition:transform 0.15s}
+.custom-mode-wrap.open .custom-mode-arrow{transform:rotate(90deg)}
+.custom-mode-menu{display:none;margin-top:8px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 18px 50px rgba(0,0,0,0.35)}
+.custom-mode-wrap.open .custom-mode-menu{display:flex;flex-direction:column;gap:8px;animation:fadeIn 0.18s ease}
+.custom-mode-option{width:100%;display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);text-align:left;cursor:pointer;transition:all 0.15s}
+.custom-mode-option:hover{border-color:var(--accent);transform:translateY(-1px)}
+.custom-mode-option.selected,.custom-mode-option.active-spyfall,.custom-mode-option.active-ooo,.custom-mode-option.active-mafia,.custom-mode-option.active-fa,.custom-mode-option.active-bs{background:rgba(232,212,77,0.06);border-color:var(--accent)}
+.custom-mode-icon{font-size:22px;width:28px;text-align:center;flex-shrink:0}
+.custom-mode-name{font-size:13px;font-weight:800;color:var(--text);letter-spacing:1px;text-transform:uppercase}
+.custom-mode-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;text-transform:none;letter-spacing:0}
+.home-shop-btn{width:100%;max-width:440px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius-lg);padding:14px 16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px}
+.home-shop-btn:hover{background:#f0dd55;transform:translateY(-1px)}
+.shop-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9998;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
+.shop-modal-backdrop.open{display:flex}
+.shop-modal{width:100%;max-width:440px;max-height:88dvh;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:0 24px 80px rgba(0,0,0,0.65);animation:fadeIn 0.2s ease}
+.shop-modal-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.shop-modal-header h2{flex:1;font-size:22px;font-weight:800;margin:0}
+.shop-close-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'DM Mono',monospace;font-size:16px;cursor:pointer}
+.shop-close-btn:hover{color:var(--text);border-color:var(--accent)}
 
 /* ===== COINS + SHOP ===== */
 .coin-pill{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;background:rgba(232,212,77,0.08);border:1px solid rgba(232,212,77,0.25);border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);margin-bottom:12px}
@@ -488,40 +520,23 @@ select option{background:var(--surface2)}
     <div class="logo">CHRISPY<span>GAMES</span></div>
     <div class="tagline">Party games for the boys</div>
   </div>
-  <div class="game-tiles">
-    <div class="game-tile game-tile-spyfall selected" id="homeTileSpyfall" onclick="selectHomeMode('spyfall')">
-      <div class="game-tile-icon">🕵️</div>
-      <div class="game-tile-name">Spyfall</div>
-      <div class="game-tile-desc">Find the spy</div>
-      <div class="game-tile-selected-badge">✓ selected</div>
-    </div>
-    <div class="game-tile game-tile-ooo" id="homeTileOoo" onclick="selectHomeMode('ooo')">
-      <div class="game-tile-icon">🎭</div>
-      <div class="game-tile-name">Odd One Out</div>
-      <div class="game-tile-desc">Spot the odd answer</div>
-      <div class="game-tile-selected-badge">✓ selected</div>
-    </div>
-    <div class="game-tile game-tile-mafia" id="homeTileMafia" onclick="selectHomeMode('mafia')">
-      <div class="game-tile-icon">🃏</div>
-      <div class="game-tile-name">Mafia</div>
-      <div class="game-tile-desc">Civilians vs Mafia</div>
-      <div class="game-tile-selected-badge">✓ selected</div>
-    </div>
-    <div class="game-tile game-tile-fa" id="homeTileFa" onclick="selectHomeMode('fa')">
-      <div class="game-tile-icon">🎨</div>
-      <div class="game-tile-name">Fake Artist</div>
-      <div class="game-tile-desc">Draw the imposter</div>
-      <div class="game-tile-selected-badge">✓ selected</div>
+  <div class="custom-mode-wrap" id="homeModeDropdown">
+    <button class="custom-mode-toggle" onclick="toggleModeDropdown('homeModeDropdown')">
+      <span class="custom-mode-toggle-text">
+        <span class="custom-mode-kicker">Select Game Mode</span>
+        <span class="custom-mode-current" id="homeModeCurrent">🕵️ Spyfall</span>
+      </span>
+      <span class="custom-mode-arrow">▶</span>
+    </button>
+    <div class="custom-mode-menu">
+      <button class="custom-mode-option selected" id="homeTileSpyfall" onclick="selectHomeMode('spyfall')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Spyfall</span><span class="custom-mode-desc">Find the spy</span></span></button>
+      <button class="custom-mode-option" id="homeTileOoo" onclick="selectHomeMode('ooo')"><span class="custom-mode-icon">🎭</span><span><span class="custom-mode-name">Odd One Out</span><span class="custom-mode-desc">Spot the odd answer</span></span></button>
+      <button class="custom-mode-option" id="homeTileMafia" onclick="selectHomeMode('mafia')"><span class="custom-mode-icon">🃏</span><span><span class="custom-mode-name">Mafia</span><span class="custom-mode-desc">Civilians vs Mafia</span></span></button>
+      <button class="custom-mode-option" id="homeTileFa" onclick="selectHomeMode('fa')"><span class="custom-mode-icon">🎨</span><span><span class="custom-mode-name">Fake Artist</span><span class="custom-mode-desc">Draw the imposter</span></span></button>
+      <button class="custom-mode-option" id="homeTileBs" onclick="selectHomeMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
     </div>
   </div>
-  <div class="game-tiles" style="margin-top:10px">
-    <div class="game-tile game-tile-bs" id="homeTileBs" onclick="selectHomeMode('bs')">
-      <div class="game-tile-icon">🕵️</div>
-      <div class="game-tile-name">Blind Spot</div>
-      <div class="game-tile-desc">Find the imposter</div>
-      <div class="game-tile-selected-badge">✓ selected</div>
-    </div>
-  </div>
+  <button class="home-shop-btn" onclick="openShopModal()">🪙 Shop</button>
   <div class="card fadeIn">
     <h2>Play</h2>
     <label>Your name</label>
@@ -538,10 +553,15 @@ select option{background:var(--surface2)}
       <button class="btn btn-secondary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
     </div>
   </div>
-  <div class="card fadeIn" id="shopCard">
-    <h2>Shop</h2>
-    <div class="coin-pill">🪙 <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
-    <div class="shop-grid" id="shopItems"></div>
+  <div class="shop-modal-backdrop" id="shopModalBackdrop" onclick="closeShopModal(event)">
+    <div class="shop-modal" onclick="event.stopPropagation()">
+      <div class="shop-modal-header">
+        <h2>Shop</h2>
+        <button class="shop-close-btn" onclick="closeShopModal()">×</button>
+      </div>
+      <div class="coin-pill">🪙 <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
+      <div class="shop-grid" id="shopItems"></div>
+    </div>
   </div>
   <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
@@ -579,6 +599,39 @@ select option{background:var(--surface2)}
           <button class="dev-btn" style="border-color:rgba(6,182,212,0.3);color:#06b6d4" onclick="devBsTest('discussion')">💬 Discussion</button>
           <button class="dev-btn" style="border-color:rgba(6,182,212,0.3);color:#06b6d4" onclick="devBsTest('result')">🏆 Result</button>
         </div>
+
+        <div class="dev-section-label" style="margin-top:10px">Set Coins</div>
+        <div class="dev-preview-wrap">
+          <div class="dev-desc" style="margin-bottom:8px">Set your saved coin balance for testing shop items.</div>
+          <div class="flex-row">
+            <input id="devCoinInput" type="number" min="0" placeholder="Coins..." style="margin-bottom:0;font-family:'DM Mono',monospace"/>
+            <button class="btn btn-primary btn-sm" onclick="devSetCoins()">Set</button>
+          </div>
+          <div class="dev-grid" style="margin-top:8px">
+            <button class="dev-btn dev-btn-neutral" onclick="devSetCoins(0)">0</button>
+            <button class="dev-btn dev-btn-neutral" onclick="devSetCoins(500)">500</button>
+            <button class="dev-btn dev-btn-neutral" onclick="devSetCoins(1000)">1000</button>
+            <button class="dev-btn dev-btn-neutral" onclick="devSetCoins(9999)">9999</button>
+          </div>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Name Animation Previews</div>
+        <div class="dev-preview-wrap">
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:pulse 2s infinite">Chris</div><div class="dev-preview-value">value: pulse</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:chaos-pulse 2s infinite;color:#ff2d2d">Chris</div><div class="dev-preview-value">value: chaos-pulse</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:mafia-pulse 2s infinite;color:#e74c3c">Chris</div><div class="dev-preview-value">value: mafia-pulse</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:timer-pulse 1s infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: timer-pulse</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:dawnGlow 2s infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: dawnGlow</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:fadeIn 1.2s infinite">Chris</div><div class="dev-preview-value">value: fadeIn</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:flipIn 1.4s infinite">Chris</div><div class="dev-preview-value">value: flipIn</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:cardFlip 1.4s infinite">Chris</div><div class="dev-preview-value">value: cardFlip</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:dawnFadeIn 1.4s infinite">Chris</div><div class="dev-preview-value">value: dawnFadeIn</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="display:inline-block;animation:spin 1s linear infinite">Chris</div><div class="dev-preview-value">value: spin</div></div>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Avatar Frame Previews</div>
+        <div class="dev-preview-wrap">
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-gold">👤</div><div class="dev-preview-sample">Gold Frame</div></div><div class="dev-preview-value">value: gold</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-neon">👤</div><div class="dev-preview-sample">Neon Frame</div></div><div class="dev-preview-value">value: neon</div></div>
+        </div>
         <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
         <div class="dev-grid">
           <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('lobby')">Lobby</button>
@@ -611,12 +664,21 @@ select option{background:var(--surface2)}
       <div class="player-list" id="playerList"></div>
       <div style="height:8px"></div>
       <label>Game Mode</label>
-      <div class="mode-tabs">
-        <button class="mode-tab" id="modeTabSpyfall" onclick="setGameMode('spyfall')">🕵️ SPYFALL</button>
-        <button class="mode-tab" id="modeTabOoo" onclick="setGameMode('ooo')">🎭 ODD ONE OUT</button>
-        <button class="mode-tab" id="modeTabMafia" onclick="setGameMode('mafia')">🃏 MAFIA</button>
-        <button class="mode-tab" id="modeTabFa" onclick="setGameMode('fa')">🎨 FAKE ARTIST</button>
-        <button class="mode-tab" id="modeTabBs" onclick="setGameMode('bs')">🕵️ BLIND SPOT</button>
+      <div class="custom-mode-wrap" id="lobbyModeDropdown">
+        <button class="custom-mode-toggle" onclick="toggleModeDropdown('lobbyModeDropdown')">
+          <span class="custom-mode-toggle-text">
+            <span class="custom-mode-kicker">Select Game Mode</span>
+            <span class="custom-mode-current" id="lobbyModeCurrent">🕵️ Spyfall</span>
+          </span>
+          <span class="custom-mode-arrow">▶</span>
+        </button>
+        <div class="custom-mode-menu">
+          <button class="custom-mode-option mode-tab" id="modeTabSpyfall" onclick="setGameMode('spyfall')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Spyfall</span><span class="custom-mode-desc">Find the spy</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabOoo" onclick="setGameMode('ooo')"><span class="custom-mode-icon">🎭</span><span><span class="custom-mode-name">Odd One Out</span><span class="custom-mode-desc">Spot the odd answer</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabMafia" onclick="setGameMode('mafia')"><span class="custom-mode-icon">🃏</span><span><span class="custom-mode-name">Mafia</span><span class="custom-mode-desc">Civilians vs Mafia</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabFa" onclick="setGameMode('fa')"><span class="custom-mode-icon">🎨</span><span><span class="custom-mode-name">Fake Artist</span><span class="custom-mode-desc">Draw the imposter</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabBs" onclick="setGameMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
+        </div>
       </div>
       <!-- SPYFALL SETTINGS -->
       <div id="spyfallSettings">
@@ -1514,6 +1576,20 @@ function renderShop(){
     return `<div class="shop-item"><div class="shop-item-info"><div class="shop-item-name">${item.label}</div><div class="shop-item-price">${owned?'Owned':item.price+' coins'}</div></div><button class="btn ${owned?'btn-secondary':'btn-primary'} shop-item-btn" onclick="buyOrEquipItem('${item.id}')" ${equipped||(!owned&&!canBuy)?'disabled':''}>${label}</button></div>`;
   }).join('');
 }
+
+async function devSetCoins(amount){
+  const input=document.getElementById('devCoinInput');
+  let value=(amount!==undefined)?amount:parseInt(input&&input.value,10);
+  if(!Number.isFinite(value)||value<0)value=0;
+  value=Math.floor(value);
+  myProfile.coins=value;
+  await userRef().update({coins:value,lastDevCoinSetAt:Date.now()});
+  renderShop();
+  if(input)input.value=value;
+  const status=document.getElementById('devStatus');
+  if(status){status.style.display='block';status.textContent='Coins set to '+value;}
+}
+
 async function buyOrEquipItem(itemId){
   const item=SHOP_ITEMS.find(i=>i.id===itemId);if(!item)return;
   const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
@@ -1570,20 +1646,52 @@ async function awardCoinsForFinishedGame(game){
   }catch(e){console.warn('Reward failed',e);}
 }
 
+
+const MODE_LABELS={spyfall:'🕵️ Spyfall',ooo:'🎭 Odd One Out',mafia:'🃏 Mafia',fa:'🎨 Fake Artist',bs:'🕵️ Blind Spot'};
+function toggleModeDropdown(id){
+  const wrap=document.getElementById(id);
+  if(!wrap)return;
+  document.querySelectorAll('.custom-mode-wrap').forEach(el=>{if(el!==wrap)el.classList.remove('open');});
+  wrap.classList.toggle('open');
+}
+function closeModeDropdown(id){
+  const wrap=document.getElementById(id);
+  if(wrap)wrap.classList.remove('open');
+}
+function updateModeDropdownLabels(mode){
+  const label=MODE_LABELS[mode]||MODE_LABELS.spyfall;
+  const home=document.getElementById('homeModeCurrent');if(home)home.textContent=label;
+  const lobby=document.getElementById('lobbyModeCurrent');if(lobby)lobby.textContent=label;
+}
+function openShopModal(){
+  renderShop();
+  const modal=document.getElementById('shopModalBackdrop');
+  if(modal)modal.classList.add('open');
+}
+function closeShopModal(event){
+  if(event&&event.target&&event.currentTarget&&event.target!==event.currentTarget)return;
+  const modal=document.getElementById('shopModalBackdrop');
+  if(modal)modal.classList.remove('open');
+}
+document.addEventListener('keydown',function(event){if(event.key==='Escape')closeShopModal();});
+
 // =====================================================
 // GAME MODE (lobby)
 // =====================================================
 function setGameMode(mode){
   localGameMode=mode;
   updateModeUI(mode);
+  updateModeDropdownLabels(mode);
+  closeModeDropdown('lobbyModeDropdown');
   if(gameCode)updateGame(gameCode,{mode});
 }
 function updateModeUI(mode){
-  document.getElementById('modeTabSpyfall').className='mode-tab'+(mode==='spyfall'?' active-spyfall':'');
-  document.getElementById('modeTabOoo').className='mode-tab'+(mode==='ooo'?' active-ooo':'');
-  document.getElementById('modeTabMafia').className='mode-tab'+(mode==='mafia'?' active-mafia':'');
-  document.getElementById('modeTabFa').className='mode-tab'+(mode==='fa'?' active-fa':'');
-  document.getElementById('modeTabBs').className='mode-tab'+(mode==='bs'?' active-bs':'');
+  updateModeDropdownLabels(mode);
+  document.getElementById('modeTabSpyfall').className='custom-mode-option mode-tab'+(mode==='spyfall'?' active-spyfall':'');
+  document.getElementById('modeTabOoo').className='custom-mode-option mode-tab'+(mode==='ooo'?' active-ooo':'');
+  document.getElementById('modeTabMafia').className='custom-mode-option mode-tab'+(mode==='mafia'?' active-mafia':'');
+  document.getElementById('modeTabFa').className='custom-mode-option mode-tab'+(mode==='fa'?' active-fa':'');
+  document.getElementById('modeTabBs').className='custom-mode-option mode-tab'+(mode==='bs'?' active-bs':'');
   document.getElementById('spyfallSettings').style.display=mode==='spyfall'?'block':'none';
   document.getElementById('oooSettings').style.display=mode==='ooo'?'block':'none';
   document.getElementById('mafiaSettings').style.display=mode==='mafia'?'block':'none';
@@ -3499,6 +3607,8 @@ function selectHomeMode(mode){
   document.getElementById('homeTileMafia').classList.toggle('selected',mode==='mafia');
   document.getElementById('homeTileFa').classList.toggle('selected',mode==='fa');
   const bsTile=document.getElementById('homeTileBs');if(bsTile)bsTile.classList.toggle('selected',mode==='bs');
+  updateModeDropdownLabels(mode);
+  closeModeDropdown('homeModeDropdown');
 }
 
 // =====================================================
