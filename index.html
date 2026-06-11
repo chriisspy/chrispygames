@@ -673,24 +673,29 @@ select option{background:var(--surface2)}
 }
 
 .result-avatar-group{
+  width:100%;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:0;
-  margin:0 auto 8px;
+  gap:10px;
+  margin:0 auto 10px;
+  padding:0;
+  text-align:center;
 }
 .result-avatar-group .result-avatar{
-  width:40px!important;
-  height:40px!important;
-  margin:0 -4px 0 0!important;
+  width:42px!important;
+  height:42px!important;
+  margin:0!important;
   border-width:2px!important;
+  flex:0 0 auto;
 }
 .result-avatar-group .av-inferno-wrap.result-avatar{
-  width:40px!important;
-  height:40px!important;
-  margin:0 -4px 0 0!important;
+  width:42px!important;
+  height:42px!important;
+  margin:0!important;
+  flex:0 0 auto;
 }
-.result-avatar-group .result-avatar:last-child{margin-right:0!important;}
+.result-avatar-group .result-avatar:last-child{margin:0!important;}
 
 /* Bigger lobby avatars */
 #playerList .av,
@@ -5002,7 +5007,7 @@ function changeBsDiscuss(delta){
 // =====================================================
 async function startBsGame(){
   const game=localGame;if(!game)return;
-  const players=Object.values(game.players||{});if(players.length<4)return;
+  const players=Object.values(game.players||{});if(players.length<3)return;
   const cat=localBsCategory||BS_CATEGORIES[0];
   const sets=BS_CARD_SETS[cat]||[];
   if(!sets.length)return;
