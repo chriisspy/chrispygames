@@ -492,7 +492,11 @@ select option{background:var(--surface2)}
 .shop-item-info{flex:1}
 .shop-item-name{font-size:14px;font-weight:700;color:var(--text)}
 .shop-item-price{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:3px}
+.shop-item-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .shop-item-btn{width:auto;padding:8px 12px;font-size:12px;white-space:nowrap}
+.shop-sell-btn{background:transparent;color:var(--muted);border:1px solid var(--border);padding:7px 10px}
+.shop-sell-btn:hover{color:var(--text);border-color:var(--accent)}
+.player-cosmetic-name{display:inline-block}
 .name-anim-pulse{animation:cosmeticPulse 1.5s infinite}
 @keyframes cosmeticPulse{0%,100%{text-shadow:0 0 4px currentColor}50%{text-shadow:0 0 14px currentColor}}
 .av-frame-gold{border-color:var(--accent)!important;box-shadow:0 0 10px rgba(232,212,77,0.55)}
@@ -536,7 +540,6 @@ select option{background:var(--surface2)}
       <button class="custom-mode-option" id="homeTileBs" onclick="selectHomeMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
     </div>
   </div>
-  <button class="home-shop-btn" onclick="openShopModal()">🪙 Shop</button>
   <div class="card fadeIn">
     <h2>Play</h2>
     <label>Your name</label>
@@ -563,6 +566,7 @@ select option{background:var(--surface2)}
       <div class="shop-grid" id="shopItems"></div>
     </div>
   </div>
+  <button class="home-shop-btn" onclick="openShopModal()">🪙 Shop</button>
   <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
     <button onclick="toggleDevPanel()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;letter-spacing:1px;text-transform:uppercase">
@@ -1546,19 +1550,59 @@ function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').repl
 // PERMANENT PROFILE / COINS / SHOP
 // =====================================================
 function userRef(){return db.ref('users/'+myId);}
-async function loadMyProfile(){
+const PROFILE_STORAGE_KEY='chrispy_profile_'+myId;
+function loadLocalProfile(){
+  try{return JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY)||'{}')||{};}
+  catch(e){return {};}
+}
+function saveLocalProfile(){
   try{
-    const snap=await userRef().once('value');
-    const saved=snap.val()||{};
-    myProfile={coins:saved.coins||0,wins:saved.wins||0,ownedItems:saved.ownedItems||{},equipped:saved.equipped||{},name:saved.name||'',avatar:saved.avatar||myAvatar||null};
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify({
+      coins:myProfile.coins||0,
+      wins:myProfile.wins||0,
+      ownedItems:myProfile.ownedItems||{},
+      equipped:myProfile.equipped||{},
+      name:myProfile.name||'',
+      avatar:myProfile.avatar||myAvatar||null,
+      savedAt:Date.now()
+    }));
+  }catch(e){console.warn('Local profile save failed',e);}
+}
+function normaliseProfile(saved){
+  saved=saved||{};
+  return {
+    coins:saved.coins||0,
+    wins:saved.wins||0,
+    ownedItems:saved.ownedItems||{},
+    equipped:saved.equipped||{},
+    name:saved.name||'',
+    avatar:saved.avatar||myAvatar||null
+  };
+}
+async function loadMyProfile(){
+  const localSaved=loadLocalProfile();
+  if(Object.keys(localSaved).length){
+    myProfile=normaliseProfile(localSaved);
     if(myProfile.avatar&&!myAvatar){myAvatar=myProfile.avatar;localStorage.setItem('sf_avatar',myAvatar);}
     renderShop();updateAvatarBtns();
-  }catch(e){console.warn('Profile load failed',e);renderShop();}
+  }
+  try{
+    const snap=await userRef().once('value');
+    const cloudSaved=snap.val()||{};
+    const localTime=localSaved.savedAt||0;
+    const cloudTime=cloudSaved.savedAt||cloudSaved.lastUpdatedAt||cloudSaved.lastDevCoinSetAt||0;
+    const saved=(cloudTime>=localTime)?cloudSaved:localSaved;
+    myProfile=normaliseProfile(saved);
+    if(myProfile.avatar&&!myAvatar){myAvatar=myProfile.avatar;localStorage.setItem('sf_avatar',myAvatar);}
+    saveLocalProfile();
+    renderShop();updateAvatarBtns();
+  }catch(e){console.warn('Profile cloud load failed; using local profile',e);renderShop();updateAvatarBtns();}
 }
 async function saveProfileBasics(name){
-  const updates={lastSeen:serverTimestamp()};
-  if(name)updates.name=name;
-  if(myAvatar)updates.avatar=myAvatar;
+  const updates={lastSeen:serverTimestamp(),savedAt:Date.now()};
+  if(name){updates.name=name;myProfile.name=name;}
+  if(myAvatar){updates.avatar=myAvatar;myProfile.avatar=myAvatar;}
+  saveLocalProfile();
   await userRef().update(updates);
 }
 function makePlayerData(name,isHost){
@@ -1573,8 +1617,26 @@ function renderShop(){
     const equipped=myProfile.equipped&&myProfile.equipped[item.type]===item.value;
     const canBuy=(myProfile.coins||0)>=item.price;
     const label=equipped?'Equipped':owned?'Equip':'Buy';
-    return `<div class="shop-item"><div class="shop-item-info"><div class="shop-item-name">${item.label}</div><div class="shop-item-price">${owned?'Owned':item.price+' coins'}</div></div><button class="btn ${owned?'btn-secondary':'btn-primary'} shop-item-btn" onclick="buyOrEquipItem('${item.id}')" ${equipped||(!owned&&!canBuy)?'disabled':''}>${label}</button></div>`;
+    const mainBtnClass=owned?'btn-secondary':'btn-primary';
+    const priceText=owned?`Owned · sell for ${item.price} coins`:`${item.price} coins`;
+    const sellBtn=owned?`<button class="btn shop-item-btn shop-sell-btn" onclick="sellItem('${item.id}')">Sell</button>`:'';
+    return `<div class="shop-item"><div class="shop-item-info"><div class="shop-item-name">${item.label}</div><div class="shop-item-price">${priceText}</div></div><div class="shop-item-actions"><button class="btn ${mainBtnClass} shop-item-btn" onclick="buyOrEquipItem('${item.id}')" ${equipped||(!owned&&!canBuy)?'disabled':''}>${label}</button>${sellBtn}</div></div>`;
   }).join('');
+}
+function refreshMyCosmeticsDisplay(){
+  if(localGame&&localGame.players&&localGame.players[myId]){
+    localGame.players[myId].cosmetics={equipped:myProfile.equipped||{}};
+  }
+  const cur=document.querySelector('.screen.active');
+  if(!localGame||!cur)return;
+  if(cur.id==='screen-lobby')renderLobby(localGame);
+  else if(cur.id==='screen-waiting')renderWaiting(localGame);
+  else if(cur.id==='screen-game')renderGame(localGame);
+  else if(cur.id==='screen-mafia-game')renderMafiaGame(localGame);
+}
+async function syncMyCosmeticsToGame(){
+  if(!gameCode)return;
+  await gameRefFor(gameCode).child('players/'+myId).update({cosmetics:{equipped:myProfile.equipped||{}}});
 }
 
 async function devSetCoins(amount){
@@ -1583,7 +1645,8 @@ async function devSetCoins(amount){
   if(!Number.isFinite(value)||value<0)value=0;
   value=Math.floor(value);
   myProfile.coins=value;
-  await userRef().update({coins:value,lastDevCoinSetAt:Date.now()});
+  saveLocalProfile();
+  await userRef().update({coins:value,savedAt:Date.now(),lastDevCoinSetAt:Date.now()});
   renderShop();
   if(input)input.value=value;
   const status=document.getElementById('devStatus');
@@ -1599,21 +1662,53 @@ async function buyOrEquipItem(itemId){
     myProfile.ownedItems={...(myProfile.ownedItems||{}),[item.id]:true};
   }
   myProfile.equipped={...(myProfile.equipped||{}),[item.type]:item.value};
-  await userRef().update({coins:myProfile.coins,ownedItems:myProfile.ownedItems,equipped:myProfile.equipped});
-  if(gameCode)await gameRefFor(gameCode).child('players/'+myId+'/cosmetics/equipped').set(myProfile.equipped);
+  saveLocalProfile();
+  renderShop();
+  refreshMyCosmeticsDisplay();
+  try{
+    await userRef().update({coins:myProfile.coins,ownedItems:myProfile.ownedItems,equipped:myProfile.equipped,savedAt:Date.now()});
+    await syncMyCosmeticsToGame();
+  }catch(e){console.warn('Shop update failed',e);}
   renderShop();
 }
+async function sellItem(itemId){
+  const item=SHOP_ITEMS.find(i=>i.id===itemId);if(!item)return;
+  const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
+  if(!owned)return;
+  myProfile.coins=(myProfile.coins||0)+item.price;
+  myProfile.ownedItems={...(myProfile.ownedItems||{})};
+  delete myProfile.ownedItems[item.id];
+  if(myProfile.equipped&&myProfile.equipped[item.type]===item.value){
+    myProfile.equipped={...(myProfile.equipped||{})};
+    delete myProfile.equipped[item.type];
+  }
+  saveLocalProfile();
+  renderShop();
+  refreshMyCosmeticsDisplay();
+  try{
+    await userRef().update({coins:myProfile.coins,ownedItems:myProfile.ownedItems,equipped:myProfile.equipped,savedAt:Date.now()});
+    await syncMyCosmeticsToGame();
+  }catch(e){console.warn('Sell failed',e);}
+  renderShop();
+}
+
 function playerNameHtml(p){
   const eq=(p.cosmetics&&p.cosmetics.equipped)||{};
-  const style=eq.nameColor?` style="color:${eq.nameColor}"`:'';
-  const cls=eq.animatedName==='pulse'?' name-anim-pulse':'';
-  return `<span class="${cls.trim()}"${style}>${esc(p.name)}</span>`;
+  const styles=[];
+  if(eq.nameColor)styles.push(`color:${eq.nameColor}`);
+  if(eq.animatedName)styles.push(`animation:${eq.animatedName} 2s infinite`);
+  const style=styles.length?` style="${styles.join(';')}"`:'';
+  return `<span class="player-cosmetic-name"${style}>${esc(p.name)}</span>`;
+}
+function playerNameWithYou(p, label='you'){
+  return `${playerNameHtml(p)}${p.id===myId?` <span style="color:var(--muted);font-size:11px">(${label})</span>`:''}`;
 }
 function playerAvatar(p, extraClass=''){
   const eq=(p.cosmetics&&p.cosmetics.equipped)||{};
   const frame=eq.avatarFrame?` av-frame-${eq.avatarFrame}`:'';
   return avatarImg(p.avatar, (extraClass?extraClass:'')+frame);
 }
+
 function winnerIdsForGame(game){
   const players=Object.values(game.players||{});
   if(!players.length)return[];
@@ -2257,7 +2352,7 @@ function renderMafiaGame(game){
 
   document.getElementById('mafiaPlayerStatusList').innerHTML=players.map(p=>{
     const isDead=!!eliminated[p.id];
-    return`<div class="player-status-item ${isDead?'dead-player':''}"><div class="status-dot ${isDead?'dead':'alive'}"></div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${isDead?`<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--spy)">💀 eliminated</div>`:''}</div>`;
+    return`<div class="player-status-item ${isDead?'dead-player':''}"><div class="status-dot ${isDead?'dead':'alive'}"></div><div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${isDead?`<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--spy)">💀 eliminated</div>`:''}</div>`;
   }).join('');
 
   const log=game.mafiaLog||[];
@@ -2296,7 +2391,7 @@ function renderMafiaDayVote(game,alivePlayers,amDead){
     const vc=voteCounts[p.id]||0;
     const clickable=!amDead&&p.id!==myId;
     const isMyVote=myVote===p.id;
-    return`<div class="vote-item ${isMyVote?'mafia-voted':''}" onclick="${clickable?`castMafiaVote('${p.id}')`:''}" style="${!clickable&&!amDead?'opacity:0.55;pointer-events:none':''}">${avatarImg(p.avatar)}<div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c">${vc}</div>`:''}${isMyVote?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
+    return`<div class="vote-item ${isMyVote?'mafia-voted':''}" onclick="${clickable?`castMafiaVote('${p.id}')`:''}" style="${!clickable&&!amDead?'opacity:0.55;pointer-events:none':''}">${playerAvatar(p)}<div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c">${vc}</div>`:''}${isMyVote?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
   }).join('');
   const voted=Object.keys(votes).filter(id=>{const elim=game.mafiaEliminated||{};return!elim[id];}).length;
   if(voteStatus)voteStatus.textContent=`${voted} of ${n} alive players voted`;
@@ -2447,7 +2542,7 @@ function renderMafiaNightMafia(game){
     const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
     const targets=players.filter(p=>!mafiaIds.includes(p.id)&&!eliminated[p.id]);
     const myKillVote=(game.mafiaKillVotes||{})[myId];
-    document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>`<div class="vote-item ${myKillVote===p.id?'mafia-voted':''}" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div>${myKillVote===p.id?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`).join('');
+    document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>`<div class="vote-item ${myKillVote===p.id?'mafia-voted':''}" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameHtml(p)}</div>${myKillVote===p.id?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`).join('');
     document.getElementById('mafiaKillTargetStatus').textContent=(game.mafiaKillVotes||{})[myId]?'Target selected — waiting for others...':'Choose your target';
   }
 }
@@ -2518,7 +2613,7 @@ function showKillTargetList(game){
   const eliminated=game.mafiaEliminated||{};
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const targets=players.filter(p=>!mafiaIds.includes(p.id)&&!eliminated[p.id]);
-  document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>`<div class="vote-item" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}</div></div>`).join('');
+  document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>`<div class="vote-item" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameHtml(p)}</div></div>`).join('');
   document.getElementById('mafiaKillTargetStatus').textContent='Choose your target';
 }
 
@@ -2580,7 +2675,7 @@ function renderMafiaNightDoctor(game){
   document.getElementById('mafiaSaveSubmitted').style.display='none';
   document.getElementById('mafiaSaveList').style.display='block';
   document.getElementById('mafiaSaveStatus').style.display='block';
-  document.getElementById('mafiaSaveList').innerHTML=alivePlayers.map(p=>`<div class="vote-item ${saveVote===p.id?'voted':''}" onclick="castMafiaSaveVote('${p.id}')"><div style="font-size:20px">💊</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' (me)':''}</div>${saveVote===p.id?'<div style="color:var(--doctor);font-size:13px">✓</div>':''}</div>`).join('');
+  document.getElementById('mafiaSaveList').innerHTML=alivePlayers.map(p=>`<div class="vote-item ${saveVote===p.id?'voted':''}" onclick="castMafiaSaveVote('${p.id}')"><div style="font-size:20px">💊</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p,'me')}</div>${saveVote===p.id?'<div style="color:var(--doctor);font-size:13px">✓</div>':''}</div>`).join('');
   document.getElementById('mafiaSaveStatus').textContent='Choose who to protect tonight';
 }
 
@@ -2838,7 +2933,7 @@ function showMafiaResult(game){
   const roleLabel={mafia:'🔴 MAFIA',doctor:'💚 DOCTOR',town:'⬜ CIVILIAN'};
   document.getElementById('mafiaFinalRoles').innerHTML=players.map(p=>{
     const role=(game.mafiaRoles&&game.mafiaRoles[p.id])||'town';
-    return`<div class="player-item"><div class="player-name">${esc(p.name)}</div><div class="player-badge">${roleLabel[role]||role}</div></div>`;
+    return`<div class="player-item"><div class="player-name">${playerNameHtml(p)}</div><div class="player-badge">${roleLabel[role]||role}</div></div>`;
   }).join('');
   document.getElementById('mafiaResultHostBtns').style.display=amHost?'flex':'none';
   document.getElementById('mafiaResultNonHostBtns').style.display=!amHost?'flex':'none';
@@ -2979,7 +3074,7 @@ function updateVoteList(game){
   const myVote=game.votes&&game.votes[myId];
   const voteCounts={};Object.values(game.votes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const n=players.length;
-  document.getElementById('voteList').innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')">${avatarImg(p.avatar)}<div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('voteList').innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')">${playerAvatar(p)}<div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}</div>`;}).join('');
   document.getElementById('voteStatus').textContent=`${Object.keys(game.votes||{}).length} of ${n} voted`;
 }
 async function castVote(targetId){
@@ -3069,7 +3164,7 @@ function updateTieVoteList(game){
   document.getElementById('tieVoteList').innerHTML=tiedIds.map(id=>{
     const p=game.players&&game.players[id];const vc=voteCounts[id]||0;
     const fn=isOOO?`castOOOVote('${id}')`:`castVote('${id}')`;
-    return`<div class="vote-item ${myVote===id?voteClass:''}" onclick="${fn}"><div style="font-size:20px">${isOOO?'🎭':'🕵️'}</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p?p.name:'?')}${id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:${voteColor}">${vc}/${n}</div>`:''}${myVote===id?`<div style="color:${voteColor};font-size:13px">✓</div>`:''}</div>`;
+    return`<div class="vote-item ${myVote===id?voteClass:''}" onclick="${fn}"><div style="font-size:20px">${isOOO?'🎭':'🕵️'}</div><div style="flex:1;font-size:14px;font-weight:600">${p?playerNameWithYou(p):'?'}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:${voteColor}">${vc}/${n}</div>`:''}${myVote===id?`<div style="color:${voteColor};font-size:13px">✓</div>`:''}</div>`;
   }).join('');
   document.getElementById('tieVoteStatus').textContent=`${Object.keys(votes).length} of ${n} voted`;
 }
@@ -3171,7 +3266,7 @@ function showOOOWaitingState(game){
   document.getElementById('oooPostSubmit').style.display='block';
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const answers=game.oooAnswers||{};
-  document.getElementById('oooSubmittedList').innerHTML=players.map(p=>`<div class="player-item"><div class="player-dot ${answers[p.id]?'':'offline'}"></div><div class="player-name">${esc(p.name)}</div>${answers[p.id]?'<div class="player-badge" style="color:var(--safe)">✓ answered</div>':'<div class="player-badge">thinking...</div>'}</div>`).join('');
+  document.getElementById('oooSubmittedList').innerHTML=players.map(p=>`<div class="player-item"><div class="player-dot ${answers[p.id]?'':'offline'}"></div><div class="player-name">${playerNameHtml(p)}</div>${answers[p.id]?'<div class="player-badge" style="color:var(--safe)">✓ answered</div>':'<div class="player-badge">thinking...</div>'}</div>`).join('');
 }
 function revealOOOQuestion(){
   const game=localGame;if(!game)return;
@@ -3225,12 +3320,12 @@ function updateOOOAnswers(game){
   const myVote=game.oooVotes&&game.oooVotes[myId];
   const voteCounts={};Object.values(game.oooVotes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const n=players.length;
-  document.getElementById('oooAnswersList').innerHTML=players.map(p=>`<div class="answer-item"><div class="answer-name">${esc(p.name)}</div><div class="answer-text">${esc(answers[p.id]||'...')}</div></div>`).join('');
+  document.getElementById('oooAnswersList').innerHTML=players.map(p=>`<div class="answer-item"><div class="answer-name">${playerNameHtml(p)}</div><div class="answer-text">${esc(answers[p.id]||'...')}</div></div>`).join('');
   const tiedArr=game.oooTied?(Array.isArray(game.oooTiedPlayerIds)?game.oooTiedPlayerIds:Object.values(game.oooTiedPlayerIds||{})):null;
   const votablePlayers=tiedArr?players.filter(p=>tiedArr.includes(p.id)):players;
   const noticeEl=document.getElementById('oooVoteNotice');
   if(noticeEl){if(game.oooTied){noticeEl.className='notice info';noticeEl.textContent='Tie! Only vote for tied players.';}else{noticeEl.className='notice ooo';noticeEl.textContent='Who gave the odd answer? Tap to vote.';}}
-  document.getElementById('oooVoteList').innerHTML=votablePlayers.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'ooo-voted':''}" onclick="castOOOVote('${p.id}')">${avatarImg(p.avatar)}<div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--ooo);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('oooVoteList').innerHTML=votablePlayers.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'ooo-voted':''}" onclick="castOOOVote('${p.id}')">${playerAvatar(p)}<div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--ooo);font-size:13px">✓</div>':''}</div>`;}).join('');
   document.getElementById('oooVoteStatus').textContent=`${Object.keys(game.oooVotes||{}).length} of ${n} voted`;
   if(amHost)checkAllVoted(game);
 }
@@ -3323,7 +3418,7 @@ function showOOOResult(game){
   if(r.caught)banner.innerHTML=`<div class="result-banner ooo-caught"><div class="result-emoji">🎉</div><h2>Caught!</h2><p>${esc(r.description)}</p></div>`;
   else banner.innerHTML=`<div class="result-banner ooo-escaped"><div class="result-emoji">🎭</div><h2>Escaped!</h2><p>${esc(r.description)}</p></div>`;
   const players=Object.values(game.players||{}).sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
-  document.getElementById('oooScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${avatarImg(p.avatar,"av-sm")}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||`#${i+1}`}</div><div class="scoreboard-name">${esc(p.name)}${p.id===game.oooImposterId?' 🎭':''}</div><div class="scoreboard-pts">${game.oooScores[p.id]||0} pts</div></div>`).join('');
+  document.getElementById('oooScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${playerAvatar(p,'av-sm')}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||`#${i+1}`}</div><div class="scoreboard-name">${playerNameHtml(p)}${p.id===game.oooImposterId?' 🎭':''}</div><div class="scoreboard-pts">${game.oooScores[p.id]||0} pts</div></div>`).join('');
   const isLastRound=game.oooRound>=game.oooTotalRounds||game.status==='result';
   document.getElementById('oooNextRoundBtn').style.display=(!isLastRound&&amHost)?'block':'none';
   document.getElementById('oooEndGameBtn').style.display=(isLastRound&&amHost)?'block':'none';
@@ -3341,7 +3436,7 @@ function showOOOGameOver(game){
   const score=(game.oooScores&&game.oooScores[winner.id])||0;
   document.getElementById('gameoverTitle').textContent=winner.name.toUpperCase()+' WINS!';
   document.getElementById('gameoverSubtitle').textContent='with '+score+' point'+(score!==1?'s':'');
-  document.getElementById('gameoverScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${avatarImg(p.avatar,"av-sm")}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${esc(p.name)}</div><div class="scoreboard-pts">${(game.oooScores&&game.oooScores[p.id])||0} pts</div></div>`).join('');
+  document.getElementById('gameoverScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${playerAvatar(p,'av-sm')}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${(game.oooScores&&game.oooScores[p.id])||0} pts</div></div>`).join('');
   document.getElementById('gameoverReturnBtn').style.display=amHost?'block':'none';
   document.getElementById('gameoverWaitingForHost').style.display=!amHost?'block':'none';
   showScreen('ooo-gameover');
@@ -4021,7 +4116,7 @@ function updateFaVoteScreen(game){
   const players=Object.values(game.players||{}).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));
   const n=players.length;const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const list=document.getElementById('faVoteList');
-  if(list){list.innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;const clickable=p.id!==myId;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="${clickable?`castFaVote('${p.id}')`:''}" style="${!clickable?'opacity:0.5;pointer-events:none':''}">${avatarImg(p.avatar)}<div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#f97316">${vc}</div>`:''}${myVote===p.id?'<div style="color:#f97316;font-size:13px">✓</div>':''}</div>`;}).join('');}
+  if(list){list.innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;const clickable=p.id!==myId;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="${clickable?`castFaVote('${p.id}')`:''}" style="${!clickable?'opacity:0.5;pointer-events:none':''}">${playerAvatar(p)}<div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#f97316">${vc}</div>`:''}${myVote===p.id?'<div style="color:#f97316;font-size:13px">✓</div>':''}</div>`;}).join('');}
   const status=document.getElementById('faVoteStatus');if(status)status.textContent=`${Object.keys(votes).length} of ${n} voted`;
   startFaVoteTimer(game);
   if(amHost&&Object.keys(votes).length>=n&&n>0)resolveFaVote(game,'all-voted');
@@ -4109,7 +4204,7 @@ function showFaResult(game){
   const reveal=document.getElementById('faResultImpostorReveal');if(reveal)reveal.innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎨</div><div style="font-size:20px;font-weight:800;color:#f97316">${esc(impostorName)}</div>`;
   const word=document.getElementById('faResultWord');if(word)word.textContent=game.faWord||'?';
   const players=Object.values(game.players||{}).sort((a,b)=>((game.faScores&&game.faScores[b.id])||0)-((game.faScores&&game.faScores[a.id])||0));
-  const board=document.getElementById('faResultScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${avatarImg(p.avatar,"av-sm")}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${esc(p.name)}${p.id===game.faImposterId?' 🎨':''}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
+  const board=document.getElementById('faResultScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${playerAvatar(p,'av-sm')}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${playerNameHtml(p)}${p.id===game.faImposterId?' 🎨':''}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
   const wordIndex=game.faWordIndex||1;const totalWords=game.faTotalWords||3;const isLastWord=wordIndex>=totalWords;
   const nextBtn=document.getElementById('faNextWordBtn');if(nextBtn)nextBtn.textContent=isLastWord?'See Final Scores':'Next Word →';
   const hostBtns=document.getElementById('faResultHostBtns');if(hostBtns)hostBtns.style.display=amHost?'flex':'none';
@@ -4134,7 +4229,7 @@ function showFaGameOver(game){
   const faWinAv=document.getElementById('faGameoverWinnerAv');
   if(faWinAv){if(winner.avatar){faWinAv.innerHTML=`<img src="${winner.avatar}" style="width:160px;height:160px;border-radius:50%;object-fit:cover;opacity:0.18;filter:blur(1px)"/>`;faWinAv.style.display='flex';}else{faWinAv.style.display='none';}}
   const subtitle=document.getElementById('faGameoverSubtitle');if(subtitle)subtitle.textContent='with '+score+' point'+(score!==1?'s':'');
-  const board=document.getElementById('faGameoverScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${avatarImg(p.avatar,"av-sm")}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${esc(p.name)}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
+  const board=document.getElementById('faGameoverScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${playerAvatar(p,'av-sm')}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
   const hostBtns=document.getElementById('faGameoverHostBtns');if(hostBtns)hostBtns.style.display=amHost?'flex':'none';
   const nonHostBtns=document.getElementById('faGameoverNonHostBtns');if(nonHostBtns)nonHostBtns.style.display=!amHost?'flex':'none';
   showScreen('fa-gameover');
@@ -4533,8 +4628,8 @@ function renderBsVoteList(game){
     const vc=voteCounts[p.id]||0;
     const isMyVote=myVote===p.id;
     const clickable=p.id!==myId;
-    return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isMyVote?'rgba(6,182,212,0.1)':'var(--surface2)'};border:1px solid ${isMyVote?'rgba(6,182,212,0.5)':'var(--border)'};border-radius:var(--radius);cursor:${clickable?'pointer':'default'}" onclick="${clickable?`bsCastVote('${p.id}')`:''}"}>${avatarImg(p.avatar)}
-      <div style="flex:1;font-size:13px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>
+    return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isMyVote?'rgba(6,182,212,0.1)':'var(--surface2)'};border:1px solid ${isMyVote?'rgba(6,182,212,0.5)':'var(--border)'};border-radius:var(--radius);cursor:${clickable?'pointer':'default'}" onclick="${clickable?`bsCastVote('${p.id}')`:''}"}>${playerAvatar(p)}
+      <div style="flex:1;font-size:13px;font-weight:600">${playerNameWithYou(p)}</div>
       ${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#06b6d4;min-width:20px;text-align:center">${vc}</div>`:'<div style="min-width:20px"></div>'}
       ${isMyVote?'<div style="color:#06b6d4;font-size:12px">✓</div>':''}
     </div>`;
@@ -4785,7 +4880,7 @@ function showBsResult(game){
     const vc=voteCounts[p.id]||0;
     const isElim=r.eliminatedId===p.id;
     return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isElim?'rgba(232,93,77,0.08)':'var(--surface2)'};border:1px solid ${isElim?'rgba(232,93,77,0.3)':'var(--border)'};border-radius:var(--radius);margin-bottom:6px">
-      <div style="flex:1;font-size:13px;font-weight:600">${esc(p.name)}</div>
+      <div style="flex:1;font-size:13px;font-weight:600">${playerNameHtml(p)}</div>
       <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:${vc>0?'#06b6d4':'var(--muted)'}">${vc}</div>
       ${isElim?"<div style='font-size:11px;color:var(--spy);font-family:DM Mono,monospace'>eliminated</div>":""}
     </div>`;
@@ -4841,7 +4936,8 @@ function compressAndSaveAvatar(dataUrl){
     myAvatar = compressed;
     localStorage.setItem('sf_avatar', compressed);
     myProfile.avatar=compressed;
-    userRef().update({avatar:compressed,lastSeen:serverTimestamp()});
+    saveLocalProfile();
+    userRef().update({avatar:compressed,savedAt:Date.now(),lastSeen:serverTimestamp()});
     // Update button labels
     updateAvatarBtns();
     // Push to Firebase if in a game
