@@ -2035,12 +2035,27 @@ function winnerIdsForGame(game){
 }
 
 async function awardCoinsForFinishedGame(game){
-  if(!amHost||!gameCode)return;
+  if(!gameCode)return;
   const data=rewardDataForGame(game);
   if(!data||!data.key||!data.rewards||!Object.keys(data.rewards).length)return;
-  const rewardEvents=game.rewardEvents||{};
-  if(rewardEvents[data.key])return;
+
+  // Any connected client may try to create the reward event, but this transaction
+  // allows only ONE client to claim it. This prevents double rewards if multiple
+  // players reach the result screen at the same time.
   try{
+    const eventRef=gameRefFor(gameCode).child('rewardEvents/'+data.key);
+    const claimed=await eventRef.transaction(current=>{
+      if(current)return;
+      return {
+        awardedAt:Date.now(),
+        mode:data.mode,
+        rewards:data.rewards,
+        awardedBy:myId
+      };
+    });
+
+    if(!claimed||!claimed.committed)return;
+
     await Promise.all(Object.entries(data.rewards).map(([id,amount])=>db.ref('users/'+id).transaction(user=>{
       user=user||{};
       user.coins=(user.coins||0)+amount;
@@ -2048,14 +2063,14 @@ async function awardCoinsForFinishedGame(game){
       user.lastRewardedAt=Date.now();
       return user;
     })));
-    const event={awardedAt:Date.now(),mode:data.mode,rewards:data.rewards};
-    const update={};
-    update['rewardEvents/'+data.key]=event;
+
     // Keep old fields for compatibility with older builds/dev inspection.
-    update.rewardsAwarded=data.mode==='ooo'||data.mode==='fa'?false:true;
-    update.rewardedWinnerIds=Object.keys(data.rewards);
-    update.rewardCoins=data.rewards;
-    await gameRefFor(gameCode).update(update);
+    await gameRefFor(gameCode).update({
+      rewardsAwarded:data.mode==='ooo'||data.mode==='fa'?false:true,
+      rewardedWinnerIds:Object.keys(data.rewards),
+      rewardCoins:data.rewards
+    });
+
     if(data.rewards[myId])await loadMyProfile();
   }catch(e){console.warn('Reward failed',e);}
 }
@@ -2341,7 +2356,8 @@ function onGameUpdate(game){
   }
   if(game.hostId===myId&&!amHost)amHost=true;
   if(game.hostId!==myId&&amHost)amHost=false;
-  if(amHost){watchPresence(game);awardCoinsForFinishedGame(game);}
+  if(amHost)watchPresence(game);
+  awardCoinsForFinishedGame(game);
   handleMyRewardDisplays(game);
 
   const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result'];
