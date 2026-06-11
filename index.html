@@ -1510,6 +1510,10 @@ function toggleChaosMode(){
 // FIREBASE
 // =====================================================
 function gameRefFor(code){return db.ref('games/'+code);}
+let serverTimeOffset=0;
+db.ref('.info/serverTimeOffset').on('value',snap=>{serverTimeOffset=snap.val()||0;});
+function syncedNow(){return Date.now()+serverTimeOffset;}
+function serverTimestamp(){return firebase.database.ServerValue.TIMESTAMP;}
 function listenToGame(code,callback){
   if(gameListener&&gameRef)gameRef.off('value',gameListener);
   gameRef=gameRefFor(code);
@@ -1794,7 +1798,9 @@ function renderLobby(game){
   else if(spyCountWrap){spyCountWrap.style.opacity='1';spyCountWrap.style.pointerEvents='auto';}
   if(game.faTotalWords&&game.faTotalWords!==localFaWords){localFaWords=game.faTotalWords;document.getElementById('faWordsDisplay').textContent=localFaWords;document.getElementById('faWordsLabel').textContent=localFaWords===1?'word':'words';}
   if(game.faTotalRounds&&game.faTotalRounds!==localFaRounds){localFaRounds=game.faTotalRounds;document.getElementById('faRoundsDisplay').textContent=localFaRounds;document.getElementById('faRoundsLabel').textContent='rounds per word';}
-  document.getElementById('startBtn').textContent=localGameMode==='ooo'?'Start Odd One Out':localGameMode==='mafia'?'Start Mafia':localGameMode==='fa'?'Start Fake Artist':'Start Game';
+  if(game.bsCategory&&game.bsCategory!==localBsCategory){localBsCategory=game.bsCategory;renderBsCategorySelect();}
+  if(game.bsDiscussMinutes&&game.bsDiscussMinutes!==localBsDiscussMinutes){localBsDiscussMinutes=game.bsDiscussMinutes;const el=document.getElementById('bsDiscussDisplay');if(el)el.textContent=localBsDiscussMinutes+' min';}
+  document.getElementById('startBtn').textContent=localGameMode==='ooo'?'Start Odd One Out':localGameMode==='mafia'?'Start Mafia':localGameMode==='fa'?'Start Fake Artist':localGameMode==='bs'?'Start Blind Spot':'Start Game';
   updateDevLobbyButton();
 }
 function renderWaiting(game){
