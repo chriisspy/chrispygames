@@ -774,6 +774,12 @@ select option{background:var(--surface2)}
   height:100%!important;
 }
 
+
+/* ===== PWA UPDATE AVAILABLE BUTTON ===== */
+.update-available-btn{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:12000;display:none;align-items:center;justify-content:center;gap:8px;width:calc(100% - 36px);max-width:420px;padding:13px 16px;border:none;border-radius:var(--radius-lg);background:var(--accent);color:#0a0a0f;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:.3px;box-shadow:0 14px 40px rgba(0,0,0,.45);cursor:pointer}
+.update-available-btn.show{display:flex;animation:fadeIn .2s ease}
+.update-available-btn span{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;opacity:.78;text-transform:uppercase;letter-spacing:1px}
+
 </style>
 </head>
 <body>
@@ -5818,15 +5824,56 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
 </script>
 
 <script>
-  // CHRISPY FIX V4: temporarily unregister service workers so desktop browsers cannot keep serving an old broken index.html.
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-      navigator.serviceWorker.getRegistrations()
-        .then(function (registrations) {
-          registrations.forEach(function (registration) { registration.unregister(); });
-          console.log("Service workers cleared for fresh Chrispy Games load");
+  // CHRISPY GAMES PWA UPDATE HANDLER
+  // Shows a small button when a new deployed version is available.
+  let chrispyWaitingWorker = null;
+
+  function showAppUpdateButton(worker) {
+    chrispyWaitingWorker = worker || chrispyWaitingWorker;
+    const btn = document.getElementById('updateAvailableBtn');
+    if (btn) btn.classList.add('show');
+  }
+
+  function applyAppUpdate() {
+    if (chrispyWaitingWorker) {
+      chrispyWaitingWorker.postMessage({ type: 'SKIP_WAITING' });
+    } else {
+      window.location.reload();
+    }
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(function (registration) {
+          if (registration.waiting) {
+            showAppUpdateButton(registration.waiting);
+          }
+
+          registration.addEventListener('updatefound', function () {
+            const newWorker = registration.installing;
+            if (!newWorker) return;
+
+            newWorker.addEventListener('statechange', function () {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                showAppUpdateButton(newWorker);
+              }
+            });
+          });
+
+          // Ask the browser to check for an update each time the app opens.
+          if (registration.update) registration.update();
         })
-        .catch(function (error) { console.log("Service worker cleanup failed:", error); });
+        .catch(function (error) {
+          console.log('Service worker registration failed:', error);
+        });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
     });
   }
 </script>
@@ -5960,6 +6007,10 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
     </div>
   </div>
 </div>
+
+<button id="updateAvailableBtn" class="update-available-btn" onclick="applyAppUpdate()">
+  Update available <span>tap to refresh</span>
+</button>
 
 <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="onAvatarFileChosen(event)"/>
 </body>
