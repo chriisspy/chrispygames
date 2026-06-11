@@ -496,11 +496,22 @@ select option{background:var(--surface2)}
 .shop-item-btn{width:auto;padding:8px 12px;font-size:12px;white-space:nowrap}
 .shop-sell-btn{background:transparent;color:var(--muted);border:1px solid var(--border);padding:7px 10px}
 .shop-sell-btn:hover{color:var(--text);border-color:var(--accent)}
-.player-cosmetic-name{display:inline-block}
-.name-anim-pulse{animation:cosmeticPulse 1.5s infinite}
-@keyframes cosmeticPulse{0%,100%{text-shadow:0 0 4px currentColor}50%{text-shadow:0 0 14px currentColor}}
+.player-cosmetic-name{display:inline-block;position:relative}
+@keyframes chrispyGlow{0%,100%{text-shadow:0 0 5px currentColor,0 0 10px rgba(232,212,77,0.15)}50%{text-shadow:0 0 12px currentColor,0 0 24px rgba(232,212,77,0.45)}}
+@keyframes neonFlicker{0%,100%{opacity:1;text-shadow:0 0 5px currentColor,0 0 14px currentColor}8%,10%,18%{opacity:.55;text-shadow:none}12%,20%{opacity:1;text-shadow:0 0 8px currentColor,0 0 18px currentColor}}
+@keyframes rainbowShift{0%{filter:hue-rotate(0deg);text-shadow:0 0 8px currentColor}100%{filter:hue-rotate(360deg);text-shadow:0 0 8px currentColor}}
+@keyframes bouncePop{0%,100%{transform:translateY(0) scale(1)}45%{transform:translateY(-2px) scale(1.04)}60%{transform:translateY(1px) scale(.99)}}
+@keyframes glitchName{0%,100%{transform:translate(0);text-shadow:2px 0 #06b6d4,-2px 0 #e85d4d}20%{transform:translate(-1px,1px)}40%{transform:translate(1px,-1px)}60%{transform:translate(-1px,0)}80%{transform:translate(1px,1px)}}
+@keyframes fireFlicker{0%,100%{text-shadow:0 0 5px #f97316,0 0 12px #e85d4d;color:#f97316}35%{text-shadow:0 0 12px #f97316,0 0 24px #e85d4d;color:#ffd166}70%{text-shadow:0 0 8px #e85d4d,0 0 18px #f97316;color:#ff9f1c}}
+@keyframes frostShimmer{0%,100%{text-shadow:0 0 6px #06b6d4,0 0 14px rgba(6,182,212,.45);filter:brightness(1)}50%{text-shadow:0 0 12px #dff9ff,0 0 24px rgba(6,182,212,.7);filter:brightness(1.35)}}
 .av-frame-gold{border-color:var(--accent)!important;box-shadow:0 0 10px rgba(232,212,77,0.55)}
 .av-frame-neon{border-color:#06b6d4!important;box-shadow:0 0 10px rgba(6,182,212,0.65)}
+.av-frame-fire{border-color:#f97316!important;box-shadow:0 0 8px rgba(249,115,22,.75),0 0 18px rgba(232,93,77,.45);animation:frameFire 1.6s infinite}
+.av-frame-ice{border-color:#9eefff!important;box-shadow:0 0 8px rgba(158,239,255,.8),0 0 18px rgba(6,182,212,.45)}
+.av-frame-rainbow{border-color:#fff!important;box-shadow:0 0 8px rgba(232,212,77,.6),0 0 16px rgba(6,182,212,.5);animation:frameRainbow 2.4s linear infinite}
+.av-frame-shadow{border-color:#a78bfa!important;box-shadow:0 0 10px rgba(167,139,250,.7),0 0 22px rgba(167,139,250,.28)}
+@keyframes frameFire{0%,100%{box-shadow:0 0 8px rgba(249,115,22,.65),0 0 16px rgba(232,93,77,.35)}50%{box-shadow:0 0 14px rgba(249,115,22,.95),0 0 28px rgba(232,93,77,.55)}}
+@keyframes frameRainbow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
 
 </style>
 </head>
@@ -620,21 +631,22 @@ select option{background:var(--surface2)}
         </div>
         <div class="dev-section-label" style="margin-top:10px">Name Animation Previews</div>
         <div class="dev-preview-wrap">
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:pulse 2s infinite">Chris</div><div class="dev-preview-value">value: pulse</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:chaos-pulse 2s infinite;color:#ff2d2d">Chris</div><div class="dev-preview-value">value: chaos-pulse</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:mafia-pulse 2s infinite;color:#e74c3c">Chris</div><div class="dev-preview-value">value: mafia-pulse</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:timer-pulse 1s infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: timer-pulse</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:dawnGlow 2s infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: dawnGlow</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:fadeIn 1.2s infinite">Chris</div><div class="dev-preview-value">value: fadeIn</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:flipIn 1.4s infinite">Chris</div><div class="dev-preview-value">value: flipIn</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:cardFlip 1.4s infinite">Chris</div><div class="dev-preview-value">value: cardFlip</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:dawnFadeIn 1.4s infinite">Chris</div><div class="dev-preview-value">value: dawnFadeIn</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="display:inline-block;animation:spin 1s linear infinite">Chris</div><div class="dev-preview-value">value: spin</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:chrispyGlow 2s infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: chrispyGlow</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:neonFlicker 2s infinite;color:#06b6d4">Chris</div><div class="dev-preview-value">value: neonFlicker</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:rainbowShift 2s linear infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: rainbowShift</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:bouncePop 1.4s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: bouncePop</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:glitchName 1.1s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: glitchName</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:fireFlicker 1.6s infinite">Chris</div><div class="dev-preview-value">value: fireFlicker</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:frostShimmer 1.8s infinite;color:#9eefff">Chris</div><div class="dev-preview-value">value: frostShimmer</div></div>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Avatar Frame Previews</div>
         <div class="dev-preview-wrap">
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-gold">👤</div><div class="dev-preview-sample">Gold Frame</div></div><div class="dev-preview-value">value: gold</div></div>
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-neon">👤</div><div class="dev-preview-sample">Neon Frame</div></div><div class="dev-preview-value">value: neon</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-fire">👤</div><div class="dev-preview-sample">Fire Frame</div></div><div class="dev-preview-value">value: fire</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-ice">👤</div><div class="dev-preview-sample">Ice Frame</div></div><div class="dev-preview-value">value: ice</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-rainbow">👤</div><div class="dev-preview-sample">Rainbow Frame</div></div><div class="dev-preview-value">value: rainbow</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-shadow">👤</div><div class="dev-preview-sample">Shadow Frame</div></div><div class="dev-preview-value">value: shadow</div></div>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
         <div class="dev-grid">
@@ -1521,9 +1533,20 @@ const SHOP_ITEMS=[
   {id:'name_gold',type:'nameColor',label:'Gold Name',price:100,value:'#e8d44d'},
   {id:'name_red',type:'nameColor',label:'Red Name',price:100,value:'#e85d4d'},
   {id:'name_cyan',type:'nameColor',label:'Cyan Name',price:100,value:'#06b6d4'},
-  {id:'animated_pulse',type:'animatedName',label:'Animated Glow Name',price:250,value:'pulse'},
+  {id:'name_purple',type:'nameColor',label:'Purple Name',price:125,value:'#a78bfa'},
+  {id:'animated_chrispy_glow',type:'animatedName',label:'Chrispy Glow Name',price:250,value:'chrispyGlow'},
+  {id:'animated_neon_flicker',type:'animatedName',label:'Neon Flicker Name',price:300,value:'neonFlicker'},
+  {id:'animated_rainbow_shift',type:'animatedName',label:'Rainbow Shift Name',price:350,value:'rainbowShift'},
+  {id:'animated_bounce_pop',type:'animatedName',label:'Bounce Pop Name',price:275,value:'bouncePop'},
+  {id:'animated_glitch_name',type:'animatedName',label:'Glitch Name',price:350,value:'glitchName'},
+  {id:'animated_fire_flicker',type:'animatedName',label:'Fire Flicker Name',price:400,value:'fireFlicker'},
+  {id:'animated_frost_shimmer',type:'animatedName',label:'Frost Shimmer Name',price:400,value:'frostShimmer'},
   {id:'frame_gold',type:'avatarFrame',label:'Gold Avatar Frame',price:150,value:'gold'},
-  {id:'frame_neon',type:'avatarFrame',label:'Neon Avatar Frame',price:200,value:'neon'}
+  {id:'frame_neon',type:'avatarFrame',label:'Neon Avatar Frame',price:200,value:'neon'},
+  {id:'frame_fire',type:'avatarFrame',label:'Fire Avatar Frame',price:300,value:'fire'},
+  {id:'frame_ice',type:'avatarFrame',label:'Ice Avatar Frame',price:300,value:'ice'},
+  {id:'frame_rainbow',type:'avatarFrame',label:'Rainbow Avatar Frame',price:350,value:'rainbow'},
+  {id:'frame_shadow',type:'avatarFrame',label:'Shadow Avatar Frame',price:350,value:'shadow'}
 ];
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
@@ -1603,7 +1626,13 @@ async function saveProfileBasics(name){
   if(name){updates.name=name;myProfile.name=name;}
   if(myAvatar){updates.avatar=myAvatar;myProfile.avatar=myAvatar;}
   saveLocalProfile();
-  await userRef().update(updates);
+  try{
+    await userRef().update(updates);
+  }catch(e){
+    // Do not block creating/joining games if permanent profile saving fails.
+    // The local browser backup still keeps coins/cosmetics for this device.
+    console.warn('Profile save failed; continuing with local profile',e);
+  }
 }
 function makePlayerData(name,isHost){
   return {id:myId,name,isHost,joinedAt:Date.now(),online:true,avatar:myAvatar||null,cosmetics:{equipped:myProfile.equipped||{}}};
