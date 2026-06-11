@@ -487,6 +487,7 @@ select option{background:var(--surface2)}
 .custom-mode-option > span:not(.custom-mode-icon){display:flex;flex-direction:column;align-items:flex-start;gap:4px;line-height:1.15}
 .custom-mode-name{display:block;font-size:13px;font-weight:800;color:var(--text);letter-spacing:1px;text-transform:uppercase;line-height:1.15}
 .custom-mode-desc{display:block;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:0;text-transform:none;letter-spacing:0;line-height:1.35}
+.custom-mode-option>span:not(.custom-mode-icon){display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important;min-width:0}
 .home-shop-btn{width:100%;max-width:440px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius-lg);padding:14px 16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px}
 .home-shop-btn:hover{background:#f0dd55;transform:translateY(-1px)}
 .shop-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9998;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
@@ -618,6 +619,8 @@ select option{background:var(--surface2)}
 .coin-earned-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .coin-earned-toast .coin-earned-number{font-family:'DM Mono',monospace;font-size:24px;color:var(--accent);text-shadow:0 0 12px rgba(232,212,77,.55)}
 .coin-earned-toast .coin-earned-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.coin-earned-inline{margin:10px 0 12px;padding:8px 10px;border-radius:var(--radius);background:rgba(232,212,77,.07);border:1px solid rgba(232,212,77,.18);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.2px;text-align:center;color:var(--accent);line-height:1.4}
+.coin-earned-inline .coin-earned-number{font-size:16px;font-weight:700;color:var(--accent);text-shadow:0 0 10px rgba(232,212,77,.45)}
 
 /* Keep matching name + frame animations synced */
 .player-cosmetic-name{animation-delay:0s!important}
@@ -2000,6 +2003,14 @@ function playerAvatar(p, extraClass=''){
   return avatarImg(p.avatar, (extraClass?extraClass:'')+frame);
 }
 
+function rewardRoundKey(game,prefix){
+  // Stable per-round key: changes every time a new result is created,
+  // but stays identical for all players/devices viewing that same result.
+  const stamp=game.rewardRoundId||game.resultRoundId||game.finishedAt||game.updatedAt;
+  if(!stamp)return null;
+  return prefix+'_'+String(stamp).replace(/[^a-zA-Z0-9_-]/g,'');
+}
+
 function rewardDataForGame(game){
   const players=Object.values(game.players||{});
   if(!players.length)return null;
@@ -2016,7 +2027,9 @@ function rewardDataForGame(game){
       if(game.result&&game.result.spyWins)spyIds.forEach(id=>add(id,REWARD_AMOUNTS.spyfall.spy));
       else players.filter(p=>!spyIds.includes(p.id)).forEach(p=>add(p.id,REWARD_AMOUNTS.spyfall.innocent));
     }
-    return {key:'spyfall_game',mode:'spyfall',rewards};
+    const roundKey=rewardRoundKey(game,'spyfall_round');
+    if(!roundKey)return null;
+    return {key:roundKey,mode:'spyfall',rewards};
   }
 
   // Mafia final result
@@ -2024,14 +2037,18 @@ function rewardDataForGame(game){
     const mafiaIds=game.mafiaIds||[];
     if(game.mafiaResult.winner==='mafia')mafiaIds.forEach(id=>add(id,REWARD_AMOUNTS.mafia.mafia));
     else players.filter(p=>!mafiaIds.includes(p.id)).forEach(p=>add(p.id,REWARD_AMOUNTS.mafia.civilian));
-    return {key:'mafia_game',mode:'mafia',rewards};
+    const roundKey=rewardRoundKey(game,'mafia_round');
+    if(!roundKey)return null;
+    return {key:roundKey,mode:'mafia',rewards};
   }
 
   // Blind Spot final result
   if(game.mode==='bs'&&game.status==='result'&&game.bsResult){
     if(game.bsResult.winner==='imposter')add(game.bsImposterId,REWARD_AMOUNTS.bs.imposter);
     else players.filter(p=>p.id!==game.bsImposterId).forEach(p=>add(p.id,REWARD_AMOUNTS.bs.innocent));
-    return {key:'bs_game',mode:'bs',rewards};
+    const roundKey=rewardRoundKey(game,'bs_round');
+    if(!roundKey)return null;
+    return {key:roundKey,mode:'bs',rewards};
   }
 
   // Odd One Out round result
@@ -2099,25 +2116,35 @@ async function awardCoinsForFinishedGame(game){
   }catch(e){console.warn('Reward failed',e);}
 }
 
-function ensureCoinEarnedToast(){
-  let el=document.getElementById('coinEarnedToast');
-  if(el)return el;
-  el=document.createElement('div');
-  el.id='coinEarnedToast';
-  el.className='coin-earned-toast';
-  el.innerHTML='<div>You earned <img src="coin-icon-2.png" class="coin-icon-lg" alt=""/> <span class="coin-earned-number" id="coinEarnedNumber">0</span> coins!</div><div class="coin-earned-label">Reward added to your shop balance</div>';
-  document.body.appendChild(el);
+function ensureCoinEarnedMessage(){
+  const screen=document.querySelector('.screen.active');
+  if(!screen)return null;
+
+  // Keep only one permanent reward message visible on the current result screen.
+  screen.querySelectorAll('.coin-earned-inline').forEach(el=>el.remove());
+
+  const el=document.createElement('div');
+  el.className='coin-earned-inline';
+  el.innerHTML='You earned <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> <span class="coin-earned-number" id="coinEarnedNumberInline">0</span> coins!';
+
+  const anchors=['resultBanner','mafiaResultBanner','oooResultBanner','faResultBanner','bsResultBanner'];
+  const anchor=anchors.map(id=>document.getElementById(id)).find(node=>node&&screen.contains(node));
+  if(anchor&&anchor.parentNode)anchor.insertAdjacentElement('afterend',el);
+  else{
+    const card=screen.querySelector('.card')||screen.firstElementChild||screen;
+    card.insertBefore(el,card.firstChild);
+  }
   return el;
 }
 function animateCoinEarned(amount){
   amount=Math.max(0,Math.floor(Number(amount)||0));
   if(!amount)return;
-  const toast=ensureCoinEarnedToast();
-  const num=document.getElementById('coinEarnedNumber');
+  const msg=ensureCoinEarnedMessage();
+  if(!msg)return;
+  const num=msg.querySelector('.coin-earned-number');
   if(!num)return;
-  const duration=900;
+  const duration=950;
   const start=performance.now();
-  toast.classList.add('show');
   function tick(now){
     const t=Math.min(1,(now-start)/duration);
     const eased=1-Math.pow(1-t,3);
@@ -2126,8 +2153,6 @@ function animateCoinEarned(amount){
     else num.textContent=amount;
   }
   requestAnimationFrame(tick);
-  clearTimeout(window.__coinEarnedToastTimer);
-  window.__coinEarnedToastTimer=setTimeout(()=>toast.classList.remove('show'),3200);
 }
 function handleMyRewardDisplays(game){
   if(!gameCode||!game||!game.rewardEvents)return;
@@ -2141,7 +2166,8 @@ function handleMyRewardDisplays(game){
     myProfile.wins=(myProfile.wins||0)+1;
     saveLocalProfile();
     renderShop();
-    animateCoinEarned(amount);
+    // Delay slightly so the correct result screen is visible before placing the permanent message.
+    setTimeout(()=>animateCoinEarned(amount),220);
     loadMyProfile().catch(()=>{});
   });
 }
