@@ -508,19 +508,57 @@ select option{background:var(--surface2)}
 .player-cosmetic-name{display:inline-block;position:relative}
 @keyframes chrispyGlow{0%,100%{text-shadow:0 0 5px currentColor,0 0 10px rgba(232,212,77,0.15)}50%{text-shadow:0 0 12px currentColor,0 0 24px rgba(232,212,77,0.45)}}
 @keyframes neonFlicker{0%,100%{opacity:1;text-shadow:0 0 5px currentColor,0 0 14px currentColor}8%,10%,18%{opacity:.55;text-shadow:none}12%,20%{opacity:1;text-shadow:0 0 8px currentColor,0 0 18px currentColor}}
-@keyframes rainbowShift{0%{filter:hue-rotate(0deg);text-shadow:0 0 8px currentColor}100%{filter:hue-rotate(360deg);text-shadow:0 0 8px currentColor}}
+@keyframes rainbowShift{0%{color:#ff2d55;text-shadow:0 0 6px #ff2d55,0 0 14px rgba(255,45,85,.65)}16%{color:#ff9f0a;text-shadow:0 0 6px #ff9f0a,0 0 14px rgba(255,159,10,.65)}32%{color:#ffd60a;text-shadow:0 0 6px #ffd60a,0 0 14px rgba(255,214,10,.65)}48%{color:#32d74b;text-shadow:0 0 6px #32d74b,0 0 14px rgba(50,215,75,.65)}64%{color:#00c7ff;text-shadow:0 0 6px #00c7ff,0 0 14px rgba(0,199,255,.65)}80%{color:#bf5af2;text-shadow:0 0 6px #bf5af2,0 0 14px rgba(191,90,242,.65)}100%{color:#ff2d55;text-shadow:0 0 6px #ff2d55,0 0 14px rgba(255,45,85,.65)}}
 @keyframes bouncePop{0%,100%{transform:translateY(0) scale(1)}45%{transform:translateY(-2px) scale(1.04)}60%{transform:translateY(1px) scale(.99)}}
 @keyframes glitchName{0%,100%{transform:translate(0);text-shadow:2px 0 #06b6d4,-2px 0 #e85d4d}20%{transform:translate(-1px,1px)}40%{transform:translate(1px,-1px)}60%{transform:translate(-1px,0)}80%{transform:translate(1px,1px)}}
 @keyframes fireFlicker{0%,100%{text-shadow:0 0 5px #f97316,0 0 12px #e85d4d;color:#f97316}35%{text-shadow:0 0 12px #f97316,0 0 24px #e85d4d;color:#ffd166}70%{text-shadow:0 0 8px #e85d4d,0 0 18px #f97316;color:#ff9f1c}}
 @keyframes frostShimmer{0%,100%{text-shadow:0 0 6px #06b6d4,0 0 14px rgba(6,182,212,.45);filter:brightness(1)}50%{text-shadow:0 0 12px #dff9ff,0 0 24px rgba(6,182,212,.7);filter:brightness(1.35)}}
+
+@keyframes oceanWave{0%{background:linear-gradient(90deg,#075985,#06b6d4,#22d3ee,#14b8a6,#075985);background-size:300% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 8px rgba(6,182,212,.45)}50%{background-position:100% 50%;text-shadow:0 0 12px rgba(34,211,238,.7)}100%{background:linear-gradient(90deg,#075985,#06b6d4,#22d3ee,#14b8a6,#075985);background-size:300% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 8px rgba(6,182,212,.45)}}
+@keyframes auroraGlow{0%{background:linear-gradient(90deg,#22c55e,#38bdf8,#8b5cf6,#14b8a6,#22c55e);background-size:320% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 8px rgba(34,197,94,.45)}50%{background-position:100% 50%;text-shadow:0 0 14px rgba(139,92,246,.65)}100%{background:linear-gradient(90deg,#22c55e,#38bdf8,#8b5cf6,#14b8a6,#22c55e);background-size:320% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 8px rgba(34,197,94,.45)}}
+@keyframes candyShift{0%{background:linear-gradient(90deg,#ff4fd8,#a855f7,#38bdf8,#fb7185,#ff4fd8);background-size:300% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 8px rgba(255,79,216,.5)}50%{background-position:100% 50%;text-shadow:0 0 14px rgba(56,189,248,.7)}100%{background:linear-gradient(90deg,#ff4fd8,#a855f7,#38bdf8,#fb7185,#ff4fd8);background-size:300% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 8px rgba(255,79,216,.5)}}
+@keyframes bloodMoon{0%{background:linear-gradient(90deg,#450a0a,#991b1b,#ef4444,#f97316,#450a0a);background-size:300% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 8px rgba(239,68,68,.55)}50%{background-position:100% 50%;text-shadow:0 0 16px rgba(249,115,22,.7)}100%{background:linear-gradient(90deg,#450a0a,#991b1b,#ef4444,#f97316,#450a0a);background-size:300% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 8px rgba(239,68,68,.55)}}
+@keyframes galaxyFlow{0%{background:linear-gradient(90deg,#111827,#4c1d95,#2563eb,#ec4899,#111827);background-size:340% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 9px rgba(139,92,246,.55)}50%{background-position:100% 50%;text-shadow:0 0 18px rgba(236,72,153,.75)}100%{background:linear-gradient(90deg,#111827,#4c1d95,#2563eb,#ec4899,#111827);background-size:340% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 9px rgba(139,92,246,.55)}}
+.av-frame-ocean{border-color:#22d3ee!important;box-shadow:0 0 9px rgba(34,211,238,.7),0 0 20px rgba(20,184,166,.35);animation:frameOcean 2.4s linear infinite}
+.av-frame-aurora{border-color:#22c55e!important;box-shadow:0 0 9px rgba(34,197,94,.65),0 0 22px rgba(139,92,246,.35);animation:frameAurora 2.8s linear infinite}
+.av-frame-candy{border-color:#ff4fd8!important;box-shadow:0 0 9px rgba(255,79,216,.65),0 0 22px rgba(56,189,248,.35);animation:frameCandy 2.5s linear infinite}
+.av-frame-bloodmoon{border-color:#ef4444!important;box-shadow:0 0 9px rgba(239,68,68,.75),0 0 22px rgba(249,115,22,.35);animation:frameBloodMoon 2.6s linear infinite}
+.av-frame-galaxy{border-color:#8b5cf6!important;box-shadow:0 0 10px rgba(139,92,246,.75),0 0 24px rgba(236,72,153,.35);animation:frameGalaxy 3s linear infinite}
+@keyframes frameOcean{0%,100%{border-color:#075985;box-shadow:0 0 8px rgba(6,182,212,.55),0 0 18px rgba(20,184,166,.3)}50%{border-color:#22d3ee;box-shadow:0 0 14px rgba(34,211,238,.9),0 0 28px rgba(20,184,166,.55)}}
+@keyframes frameAurora{0%,100%{border-color:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.6),0 0 20px rgba(56,189,248,.35)}50%{border-color:#8b5cf6;box-shadow:0 0 14px rgba(139,92,246,.85),0 0 30px rgba(20,184,166,.5)}}
+@keyframes frameCandy{0%,100%{border-color:#ff4fd8;box-shadow:0 0 8px rgba(255,79,216,.65),0 0 20px rgba(168,85,247,.35)}50%{border-color:#38bdf8;box-shadow:0 0 14px rgba(56,189,248,.85),0 0 30px rgba(251,113,133,.5)}}
+@keyframes frameBloodMoon{0%,100%{border-color:#991b1b;box-shadow:0 0 8px rgba(153,27,27,.7),0 0 20px rgba(239,68,68,.35)}50%{border-color:#f97316;box-shadow:0 0 14px rgba(249,115,22,.85),0 0 30px rgba(239,68,68,.5)}}
+@keyframes frameGalaxy{0%,100%{border-color:#4c1d95;box-shadow:0 0 8px rgba(76,29,149,.75),0 0 20px rgba(37,99,235,.35)}50%{border-color:#ec4899;box-shadow:0 0 15px rgba(236,72,153,.9),0 0 32px rgba(139,92,246,.55)}}
 .av-frame-gold{border-color:var(--accent)!important;box-shadow:0 0 10px rgba(232,212,77,0.55)}
 .av-frame-neon{border-color:#06b6d4!important;box-shadow:0 0 10px rgba(6,182,212,0.65)}
 .av-frame-fire{border-color:#f97316!important;box-shadow:0 0 8px rgba(249,115,22,.75),0 0 18px rgba(232,93,77,.45);animation:frameFire 1.6s infinite}
 .av-frame-ice{border-color:#9eefff!important;box-shadow:0 0 8px rgba(158,239,255,.8),0 0 18px rgba(6,182,212,.45)}
-.av-frame-rainbow{border-color:#fff!important;box-shadow:0 0 8px rgba(232,212,77,.6),0 0 16px rgba(6,182,212,.5);animation:frameRainbow 2.4s linear infinite}
+.av-frame-rainbow{border-color:#ff2d55!important;box-shadow:0 0 8px rgba(255,45,85,.75),0 0 18px rgba(0,199,255,.55),0 0 26px rgba(191,90,242,.35);animation:frameRainbow 2.4s linear infinite}
 .av-frame-shadow{border-color:#a78bfa!important;box-shadow:0 0 10px rgba(167,139,250,.7),0 0 22px rgba(167,139,250,.28)}
 @keyframes frameFire{0%,100%{box-shadow:0 0 8px rgba(249,115,22,.65),0 0 16px rgba(232,93,77,.35)}50%{box-shadow:0 0 14px rgba(249,115,22,.95),0 0 28px rgba(232,93,77,.55)}}
 @keyframes frameRainbow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+
+
+
+/* ===== AVATAR CROP MODAL ===== */
+.avatar-crop-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10020;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
+.avatar-crop-backdrop.open{display:flex}
+.avatar-crop-modal{width:100%;max-width:390px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:0 24px 80px rgba(0,0,0,.7);animation:fadeIn .2s ease}
+.avatar-crop-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.avatar-crop-header h2{flex:1;font-size:20px;font-weight:800;margin:0}
+.avatar-crop-close{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'DM Mono',monospace;font-size:16px;cursor:pointer}
+.avatar-crop-close:hover{color:var(--text);border-color:var(--accent)}
+.avatar-crop-frame{width:min(72vw,280px);aspect-ratio:1/1;margin:0 auto 14px;position:relative;overflow:hidden;border-radius:22px;background:#050509;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,.18),0 0 24px rgba(232,212,77,.18);touch-action:none;cursor:grab}
+.avatar-crop-frame.dragging{cursor:grabbing}
+.avatar-crop-img{position:absolute;left:50%;top:50%;max-width:none;max-height:none;user-select:none;pointer-events:none;transform-origin:center center}
+.avatar-crop-guide{position:absolute;inset:0;border:1px dashed rgba(255,255,255,.38);border-radius:18px;pointer-events:none;box-shadow:inset 0 0 0 9999px rgba(255,255,255,.015)}
+.avatar-crop-guide::before,.avatar-crop-guide::after{content:'';position:absolute;background:rgba(255,255,255,.18)}
+.avatar-crop-guide::before{left:33.333%;top:0;bottom:0;width:1px;box-shadow:calc(min(72vw,280px) / 3) 0 0 rgba(255,255,255,.18)}
+.avatar-crop-guide::after{top:33.333%;left:0;right:0;height:1px;box-shadow:0 calc(min(72vw,280px) / 3) 0 rgba(255,255,255,.18)}
+.avatar-crop-help{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:12px}
+.avatar-zoom-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.avatar-zoom-row span{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.avatar-zoom-row input{margin:0;padding:0;accent-color:var(--accent)}
 
 </style>
 </head>
@@ -652,6 +690,11 @@ select option{background:var(--surface2)}
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:glitchName 1.1s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: glitchName</div></div>
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:fireFlicker 1.6s infinite">Chris</div><div class="dev-preview-value">value: fireFlicker</div></div>
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:frostShimmer 1.8s infinite;color:#9eefff">Chris</div><div class="dev-preview-value">value: frostShimmer</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:oceanWave 2.8s linear infinite">Chris</div><div class="dev-preview-value">value: oceanWave</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:candyShift 2.8s linear infinite">Chris</div><div class="dev-preview-value">value: candyShift</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:auroraGlow 3s linear infinite">Chris</div><div class="dev-preview-value">value: auroraGlow</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:bloodMoon 2.8s linear infinite">Chris</div><div class="dev-preview-value">value: bloodMoon</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:galaxyFlow 3s linear infinite">Chris</div><div class="dev-preview-value">value: galaxyFlow</div></div>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Avatar Frame Previews</div>
         <div class="dev-preview-wrap">
@@ -661,6 +704,11 @@ select option{background:var(--surface2)}
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-ice">👤</div><div class="dev-preview-sample">Ice Frame</div></div><div class="dev-preview-value">value: ice</div></div>
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-rainbow">👤</div><div class="dev-preview-sample">Rainbow Frame</div></div><div class="dev-preview-value">value: rainbow</div></div>
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-shadow">👤</div><div class="dev-preview-sample">Shadow Frame</div></div><div class="dev-preview-value">value: shadow</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-ocean">👤</div><div class="dev-preview-sample">Ocean Wave Frame</div></div><div class="dev-preview-value">value: ocean</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-candy">👤</div><div class="dev-preview-sample">Candy Shift Frame</div></div><div class="dev-preview-value">value: candy</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-aurora">👤</div><div class="dev-preview-sample">Aurora Glow Frame</div></div><div class="dev-preview-value">value: aurora</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-bloodmoon">👤</div><div class="dev-preview-sample">Blood Moon Frame</div></div><div class="dev-preview-value">value: bloodmoon</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-galaxy">👤</div><div class="dev-preview-sample">Galaxy Flow Frame</div></div><div class="dev-preview-value">value: galaxy</div></div>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
         <div class="dev-grid">
@@ -1556,12 +1604,22 @@ const SHOP_ITEMS=[
   {id:'animated_glitch_name',type:'animatedName',label:'Glitch Name',price:350,value:'glitchName'},
   {id:'animated_fire_flicker',type:'animatedName',label:'Fire Flicker Name',price:400,value:'fireFlicker'},
   {id:'animated_frost_shimmer',type:'animatedName',label:'Frost Shimmer Name',price:400,value:'frostShimmer'},
+  {id:'animated_ocean_wave',type:'animatedName',label:'Ocean Wave Name',price:500,value:'oceanWave'},
+  {id:'animated_candy_shift',type:'animatedName',label:'Candy Shift Name',price:550,value:'candyShift'},
+  {id:'animated_aurora_glow',type:'animatedName',label:'Aurora Glow Name',price:650,value:'auroraGlow'},
+  {id:'animated_blood_moon',type:'animatedName',label:'Blood Moon Name',price:700,value:'bloodMoon'},
+  {id:'animated_galaxy_flow',type:'animatedName',label:'Galaxy Flow Name',price:800,value:'galaxyFlow'},
   {id:'frame_gold',type:'avatarFrame',label:'Gold Avatar Frame',price:150,value:'gold'},
   {id:'frame_neon',type:'avatarFrame',label:'Neon Avatar Frame',price:200,value:'neon'},
   {id:'frame_fire',type:'avatarFrame',label:'Fire Avatar Frame',price:300,value:'fire'},
   {id:'frame_ice',type:'avatarFrame',label:'Ice Avatar Frame',price:300,value:'ice'},
   {id:'frame_rainbow',type:'avatarFrame',label:'Rainbow Avatar Frame',price:350,value:'rainbow'},
-  {id:'frame_shadow',type:'avatarFrame',label:'Shadow Avatar Frame',price:350,value:'shadow'}
+  {id:'frame_shadow',type:'avatarFrame',label:'Shadow Avatar Frame',price:350,value:'shadow'},
+  {id:'frame_ocean',type:'avatarFrame',label:'Ocean Wave Avatar Frame',price:500,value:'ocean'},
+  {id:'frame_candy',type:'avatarFrame',label:'Candy Shift Avatar Frame',price:550,value:'candy'},
+  {id:'frame_aurora',type:'avatarFrame',label:'Aurora Glow Avatar Frame',price:650,value:'aurora'},
+  {id:'frame_blood_moon',type:'avatarFrame',label:'Blood Moon Avatar Frame',price:700,value:'bloodmoon'},
+  {id:'frame_galaxy',type:'avatarFrame',label:'Galaxy Flow Avatar Frame',price:800,value:'galaxy'}
 ];
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
@@ -5029,34 +5087,163 @@ function onAvatarFileChosen(e){
   if(!file) return;
   e.target.value = '';
   const reader = new FileReader();
-  reader.onload = ev => compressAndSaveAvatar(ev.target.result);
+  reader.onload = ev => openAvatarCropper(ev.target.result);
   reader.readAsDataURL(file);
 }
 
-function compressAndSaveAvatar(dataUrl){
+let avatarCropState = null;
+
+function openAvatarCropper(dataUrl){
+  const cropImg = document.getElementById('avatarCropImg');
+  const zoom = document.getElementById('avatarCropZoom');
+  const modal = document.getElementById('avatarCropBackdrop');
+  const frame = document.getElementById('avatarCropFrame');
+  if(!cropImg || !zoom || !modal || !frame){
+    saveCroppedAvatarFromCenter(dataUrl);
+    return;
+  }
+
+  const img = new Image();
+  img.onload = () => {
+    avatarCropState = {
+      dataUrl,
+      img,
+      x:0,
+      y:0,
+      zoom:1,
+      dragging:false,
+      startX:0,
+      startY:0,
+      startOffsetX:0,
+      startOffsetY:0
+    };
+    cropImg.src = dataUrl;
+    zoom.value = '1';
+    modal.classList.add('open');
+    requestAnimationFrame(updateAvatarCropView);
+  };
+  img.src = dataUrl;
+}
+
+function closeAvatarCropper(){
+  const modal = document.getElementById('avatarCropBackdrop');
+  if(modal) modal.classList.remove('open');
+  avatarCropState = null;
+}
+
+function getAvatarCropMetrics(){
+  const frame = document.getElementById('avatarCropFrame');
+  if(!avatarCropState || !frame) return null;
+  const cropSize = frame.clientWidth;
+  const img = avatarCropState.img;
+  const baseScale = Math.max(cropSize / img.width, cropSize / img.height);
+  const scale = baseScale * avatarCropState.zoom;
+  const renderW = img.width * scale;
+  const renderH = img.height * scale;
+  return {cropSize,img,scale,renderW,renderH};
+}
+
+function clampAvatarCrop(){
+  const m = getAvatarCropMetrics();
+  if(!m || !avatarCropState) return;
+  const maxX = Math.max(0, (m.renderW - m.cropSize) / 2);
+  const maxY = Math.max(0, (m.renderH - m.cropSize) / 2);
+  avatarCropState.x = Math.max(-maxX, Math.min(maxX, avatarCropState.x));
+  avatarCropState.y = Math.max(-maxY, Math.min(maxY, avatarCropState.y));
+}
+
+function updateAvatarCropView(){
+  const cropImg = document.getElementById('avatarCropImg');
+  if(!cropImg || !avatarCropState) return;
+  const m = getAvatarCropMetrics();
+  if(!m) return;
+  clampAvatarCrop();
+  cropImg.style.width = m.renderW + 'px';
+  cropImg.style.height = m.renderH + 'px';
+  cropImg.style.transform = `translate(-50%,-50%) translate(${avatarCropState.x}px, ${avatarCropState.y}px)`;
+}
+
+function avatarCropZoomChanged(value){
+  if(!avatarCropState) return;
+  avatarCropState.zoom = parseFloat(value) || 1;
+  updateAvatarCropView();
+}
+
+function avatarCropPointerDown(e){
+  if(!avatarCropState) return;
+  const frame = document.getElementById('avatarCropFrame');
+  avatarCropState.dragging = true;
+  avatarCropState.startX = e.clientX;
+  avatarCropState.startY = e.clientY;
+  avatarCropState.startOffsetX = avatarCropState.x;
+  avatarCropState.startOffsetY = avatarCropState.y;
+  if(frame) frame.classList.add('dragging');
+  if(frame && frame.setPointerCapture) frame.setPointerCapture(e.pointerId);
+}
+
+function avatarCropPointerMove(e){
+  if(!avatarCropState || !avatarCropState.dragging) return;
+  avatarCropState.x = avatarCropState.startOffsetX + (e.clientX - avatarCropState.startX);
+  avatarCropState.y = avatarCropState.startOffsetY + (e.clientY - avatarCropState.startY);
+  updateAvatarCropView();
+}
+
+function avatarCropPointerUp(e){
+  if(!avatarCropState) return;
+  avatarCropState.dragging = false;
+  const frame = document.getElementById('avatarCropFrame');
+  if(frame) frame.classList.remove('dragging');
+}
+
+function saveAvatarFromCropper(){
+  if(!avatarCropState) return;
+  const m = getAvatarCropMetrics();
+  if(!m) return;
+
+  const canvasSize = 150;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvasSize;
+  canvas.height = canvasSize;
+  const ctx = canvas.getContext('2d');
+
+  const leftInFrame = (m.cropSize - m.renderW) / 2 + avatarCropState.x;
+  const topInFrame = (m.cropSize - m.renderH) / 2 + avatarCropState.y;
+  let sx = -leftInFrame / m.scale;
+  let sy = -topInFrame / m.scale;
+  const sourceSize = m.cropSize / m.scale;
+
+  sx = Math.max(0, Math.min(m.img.width - sourceSize, sx));
+  sy = Math.max(0, Math.min(m.img.height - sourceSize, sy));
+
+  ctx.drawImage(m.img, sx, sy, sourceSize, sourceSize, 0, 0, canvasSize, canvasSize);
+  saveAvatarCompressed(canvas.toDataURL('image/jpeg', 0.78));
+  closeAvatarCropper();
+}
+
+function saveCroppedAvatarFromCenter(dataUrl){
   const img = new Image();
   img.onload = () => {
     const size = 150;
     const canvas = document.createElement('canvas');
     canvas.width = size; canvas.height = size;
     const ctx = canvas.getContext('2d');
-    // Crop to square from centre
     const s = Math.min(img.width, img.height);
     const ox = (img.width - s) / 2;
     const oy = (img.height - s) / 2;
     ctx.drawImage(img, ox, oy, s, s, 0, 0, size, size);
-    const compressed = canvas.toDataURL('image/jpeg', 0.7);
-    myAvatar = compressed;
-    localStorage.setItem('sf_avatar', compressed);
-    myProfile.avatar=compressed;
-    saveLocalProfile();
-    userRef().update({avatar:compressed,savedAt:Date.now(),lastSeen:serverTimestamp()});
-    // Update button labels
-    updateAvatarBtns();
-    // Push to Firebase if in a game
-    if(gameCode) gameRefFor(gameCode).child('players/'+myId+'/avatar').set(compressed);
+    saveAvatarCompressed(canvas.toDataURL('image/jpeg', 0.78));
   };
   img.src = dataUrl;
+}
+
+function saveAvatarCompressed(compressed){
+  myAvatar = compressed;
+  localStorage.setItem('sf_avatar', compressed);
+  myProfile.avatar=compressed;
+  saveLocalProfile();
+  userRef().update({avatar:compressed,savedAt:Date.now(),lastSeen:serverTimestamp()});
+  updateAvatarBtns();
+  if(gameCode) gameRefFor(gameCode).child('players/'+myId+'/avatar').set(compressed);
 }
 
 function updateAvatarBtns(){
@@ -5209,6 +5396,29 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
       <div class="notice" style="background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.3);color:#06b6d4">Waiting for host...</div>
       <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
     </div>
+
+
+<div class="avatar-crop-backdrop" id="avatarCropBackdrop">
+  <div class="avatar-crop-modal" onclick="event.stopPropagation()">
+    <div class="avatar-crop-header">
+      <h2>Crop Avatar</h2>
+      <button class="avatar-crop-close" onclick="closeAvatarCropper()">×</button>
+    </div>
+    <div class="avatar-crop-frame" id="avatarCropFrame" onpointerdown="avatarCropPointerDown(event)" onpointermove="avatarCropPointerMove(event)" onpointerup="avatarCropPointerUp(event)" onpointercancel="avatarCropPointerUp(event)">
+      <img id="avatarCropImg" class="avatar-crop-img" alt="" draggable="false"/>
+      <div class="avatar-crop-guide"></div>
+    </div>
+    <div class="avatar-crop-help">Drag to reposition · use zoom · square crop saves as your avatar</div>
+    <div class="avatar-zoom-row">
+      <span>Zoom</span>
+      <input id="avatarCropZoom" type="range" min="1" max="3" step="0.01" value="1" oninput="avatarCropZoomChanged(this.value)"/>
+    </div>
+    <div class="flex-row">
+      <button class="btn btn-secondary" onclick="closeAvatarCropper()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAvatarFromCropper()">Save Avatar</button>
+    </div>
+  </div>
+</div>
 
 <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="onAvatarFileChosen(event)"/>
 </body>
