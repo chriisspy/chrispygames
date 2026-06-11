@@ -1608,13 +1608,31 @@ async function saveProfileBasics(name){
 function makePlayerData(name,isHost){
   return {id:myId,name,isHost,joinedAt:Date.now(),online:true,avatar:myAvatar||null,cosmetics:{equipped:myProfile.equipped||{}}};
 }
+function isNameShopItem(item){return item&&(item.type==='nameColor'||item.type==='animatedName');}
+function equipShopItem(item){
+  myProfile.equipped={...(myProfile.equipped||{})};
+  if(isNameShopItem(item)){
+    // Only one name customisation at a time. This removes the previous name colour/animation.
+    delete myProfile.equipped.nameColor;
+    delete myProfile.equipped.animatedName;
+  }
+  if(item.type==='avatarFrame'){
+    // Only one avatar frame at a time.
+    delete myProfile.equipped.avatarFrame;
+  }
+  myProfile.equipped[item.type]=item.value;
+}
+function isShopItemEquipped(item){
+  if(!item||!myProfile.equipped)return false;
+  return myProfile.equipped[item.type]===item.value;
+}
 function renderShop(){
   const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
   const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
   const list=document.getElementById('shopItems');if(!list)return;
   list.innerHTML=SHOP_ITEMS.map(item=>{
     const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
-    const equipped=myProfile.equipped&&myProfile.equipped[item.type]===item.value;
+    const equipped=isShopItemEquipped(item);
     const canBuy=(myProfile.coins||0)>=item.price;
     const label=equipped?'Equipped':owned?'Equip':'Buy';
     const mainBtnClass=owned?'btn-secondary':'btn-primary';
@@ -1636,7 +1654,11 @@ function refreshMyCosmeticsDisplay(){
 }
 async function syncMyCosmeticsToGame(){
   if(!gameCode)return;
-  await gameRefFor(gameCode).child('players/'+myId).update({cosmetics:{equipped:myProfile.equipped||{}}});
+  const updates={cosmetics:{equipped:myProfile.equipped||{}}};
+  const nameInput=document.getElementById('playerName');
+  if(nameInput&&nameInput.value.trim())updates.name=nameInput.value.trim();
+  if(myAvatar)updates.avatar=myAvatar;
+  await gameRefFor(gameCode).child('players/'+myId).update(updates);
 }
 
 async function devSetCoins(amount){
@@ -1661,7 +1683,8 @@ async function buyOrEquipItem(itemId){
     myProfile.coins=(myProfile.coins||0)-item.price;
     myProfile.ownedItems={...(myProfile.ownedItems||{}),[item.id]:true};
   }
-  myProfile.equipped={...(myProfile.equipped||{}),[item.type]:item.value};
+  // Buying an item also equips it instantly, replacing the previous item in that category.
+  equipShopItem(item);
   saveLocalProfile();
   renderShop();
   refreshMyCosmeticsDisplay();
@@ -1678,9 +1701,14 @@ async function sellItem(itemId){
   myProfile.coins=(myProfile.coins||0)+item.price;
   myProfile.ownedItems={...(myProfile.ownedItems||{})};
   delete myProfile.ownedItems[item.id];
-  if(myProfile.equipped&&myProfile.equipped[item.type]===item.value){
+  if(isShopItemEquipped(item)){
     myProfile.equipped={...(myProfile.equipped||{})};
-    delete myProfile.equipped[item.type];
+    if(isNameShopItem(item)){
+      delete myProfile.equipped.nameColor;
+      delete myProfile.equipped.animatedName;
+    }else{
+      delete myProfile.equipped[item.type];
+    }
   }
   saveLocalProfile();
   renderShop();
@@ -1929,8 +1957,9 @@ async function createGame(){
   if(!name)return showError('homeError','Please enter your name');
   setLoading('createBtn',true,'Creating...');
   const code=genCode();gameCode=code;amHost=true;
+  await saveProfileBasics(name);
   const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now(),updatedAt:Date.now()};
+  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,players:{[myId]:makePlayerData(name,true)},createdAt:Date.now(),updatedAt:Date.now()};
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
@@ -4960,8 +4989,9 @@ function avatarImg(av, extraClass=''){
 
 // Upload avatar when joining/creating a game
 function uploadMyAvatar(){
-  if(myAvatar && gameCode)
-    gameRefFor(gameCode).child('players/'+myId+'/avatar').set(myAvatar);
+  if(myAvatar && gameCode){
+    gameRefFor(gameCode).child('players/'+myId).update({avatar:myAvatar,cosmetics:{equipped:myProfile.equipped||{}}});
+  }
 }
 
 // =====================================================
