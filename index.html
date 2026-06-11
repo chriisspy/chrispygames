@@ -447,6 +447,11 @@ select option{background:var(--surface2)}
 .dev-btn-mafia:hover{border-color:#e74c3c;background:rgba(192,57,43,0.08)}
 .dev-btn-neutral{color:var(--muted)}
 .dev-btn-neutral:hover{color:var(--text);border-color:var(--muted)}
+
+.av{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border);background:var(--surface3)}
+.av-sm{width:26px;height:26px}
+.av-lg{width:44px;height:44px}
+.av-placeholder{width:32px;height:32px;border-radius:50%;background:var(--surface3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -515,6 +520,10 @@ select option{background:var(--surface2)}
       <input id="joinCode" type="text" placeholder="XXXX" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-family:'DM Mono',monospace;font-size:18px;margin-bottom:0"/>
       <button class="btn btn-secondary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
     </div>
+  </div>
+  <!-- AVATAR -->
+  <div style="width:100%;max-width:440px;text-align:center">
+    <button id="avatarHomeBtn" onclick="triggerAvatarPicker()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;padding:4px 0">📷 Set Avatar</button>
   </div>
   <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
@@ -725,6 +734,9 @@ select option{background:var(--surface2)}
       <div class="player-list" id="waitingPlayerList"></div>
       <div style="height:10px"></div>
       <div class="notice info" style="margin-bottom:0" id="waitingNotice">Waiting for the host to start...</div>
+      <div style="text-align:center;margin-top:10px">
+        <button id="avatarWaitBtn" onclick="triggerAvatarPicker()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;padding:4px 0">📷 Set Avatar</button>
+      </div>
       <div class="chat-wrap">
         <div class="chat-label">Lobby Chat</div>
         <div class="chat-messages" id="waitingChatMessages"><div class="chat-empty">No messages yet...</div></div>
@@ -1139,10 +1151,13 @@ select option{background:var(--surface2)}
 <!-- OOO: GAME OVER -->
 <div class="screen scrollable" id="screen-ooo-gameover">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
-    <div class="result-banner gameover-banner fadeIn">
-      <div class="result-emoji">🏆</div>
-      <h2 id="gameoverTitle">PLAYER WINS!</h2>
-      <p id="gameoverSubtitle">Final results</p>
+    <div class="result-banner gameover-banner fadeIn" style="position:relative;overflow:hidden">
+      <div id="gameoverWinnerAv" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;pointer-events:none"></div>
+      <div style="position:relative">
+        <div class="result-emoji">🏆</div>
+        <h2 id="gameoverTitle">PLAYER WINS!</h2>
+        <p id="gameoverSubtitle">Final results</p>
+      </div>
     </div>
     <div class="card fadeIn">
       <h2 style="margin-bottom:12px">Final Scoreboard</h2>
@@ -1281,10 +1296,13 @@ select option{background:var(--surface2)}
 <!-- FAKE ARTIST: GAME OVER -->
 <div class="screen scrollable" id="screen-fa-gameover">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
-    <div class="result-banner gameover-banner fadeIn" style="border-color:#f97316">
-      <div class="result-emoji">🎨</div>
-      <h2 id="faGameoverTitle" style="color:#f97316">PLAYER WINS!</h2>
-      <p id="faGameoverSubtitle">Final results</p>
+    <div class="result-banner gameover-banner fadeIn" style="border-color:#f97316;position:relative;overflow:hidden">
+      <div id="faGameoverWinnerAv" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;pointer-events:none"></div>
+      <div style="position:relative">
+        <div class="result-emoji">🎨</div>
+        <h2 id="faGameoverTitle" style="color:#f97316">PLAYER WINS!</h2>
+        <p id="faGameoverSubtitle">Final results</p>
+      </div>
     </div>
     <div class="card fadeIn">
       <h2 style="margin-bottom:12px">Final Scoreboard</h2>
@@ -1563,7 +1581,7 @@ async function createGame(){
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
-    setupPresence();showScreen('lobby');listenToGame(code,onGameUpdate);setupChat(code);
+    setupPresence();showScreen('lobby');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
     updateModeUI(localGameMode);
     if(localGameMode!=='spyfall')updateGame(code,{mode:localGameMode});
   }catch(e){showError('homeError','Could not connect to Firebase.');console.error(e);}
@@ -1584,7 +1602,7 @@ async function joinGame(){
     if(!existing)await gameRefFor(code).child('players/'+myId).set({id:myId,name,isHost:false,joinedAt:Date.now(),online:true});
     else await gameRefFor(code).child('players/'+myId+'/online').set(true);
     setupPresence();document.getElementById('waitingCodeDisplay').textContent=code;
-    showScreen('waiting');listenToGame(code,onGameUpdate);setupChat(code);
+    showScreen('waiting');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
   }catch(e){showError('homeError','Connection error');console.error(e);}
   setLoading('joinBtn',false,'Join');
 }
@@ -1774,7 +1792,7 @@ function renderLobby(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const n=players.length;
   document.getElementById('lobbyCount').textContent=n;
-  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item"><div class="player-dot ${p.isHost?'host':''}"></div><div class="player-name">${esc(p.name)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}</div>`).join('');
+  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${avatarImg(p.avatar,'av-sm')}<div class="player-name">${esc(p.name)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}</div>`).join('');
   const minPlayers=localGameMode==='mafia'?4:3;
   const ok=n>=minPlayers;
   document.getElementById('startBtn').disabled=!ok;
@@ -1806,7 +1824,7 @@ function renderLobby(game){
 function renderWaiting(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   document.getElementById('waitingCount').textContent=players.length;
-  document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item"><div class="player-dot ${p.isHost?'host':''}"></div><div class="player-name">${esc(p.name)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
+  document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item">${avatarImg(p.avatar,'av-sm')}<div class="player-name">${esc(p.name)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
 }
 
 // =====================================================
@@ -2019,7 +2037,7 @@ function renderMafiaDayVote(game,alivePlayers,amDead){
     const vc=voteCounts[p.id]||0;
     const clickable=!amDead&&p.id!==myId;
     const isMyVote=myVote===p.id;
-    return`<div class="vote-item ${isMyVote?'mafia-voted':''}" onclick="${clickable?`castMafiaVote('${p.id}')`:''}" style="${!clickable&&!amDead?'opacity:0.55;pointer-events:none':''}"><div style="font-size:20px">👤</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c">${vc}</div>`:''}${isMyVote?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
+    return`<div class="vote-item ${isMyVote?'mafia-voted':''}" onclick="${clickable?`castMafiaVote('${p.id}')`:''}" style="${!clickable&&!amDead?'opacity:0.55;pointer-events:none':''}">${avatarImg(p.avatar)}<div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c">${vc}</div>`:''}${isMyVote?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
   }).join('');
   const voted=Object.keys(votes).filter(id=>{const elim=game.mafiaEliminated||{};return!elim[id];}).length;
   if(voteStatus)voteStatus.textContent=`${voted} of ${n} alive players voted`;
@@ -2702,7 +2720,7 @@ function updateVoteList(game){
   const myVote=game.votes&&game.votes[myId];
   const voteCounts={};Object.values(game.votes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const n=players.length;
-  document.getElementById('voteList').innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')"><div style="font-size:20px">🕵️</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('voteList').innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')">${avatarImg(p.avatar)}<div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}</div>`;}).join('');
   document.getElementById('voteStatus').textContent=`${Object.keys(game.votes||{}).length} of ${n} voted`;
 }
 async function castVote(targetId){
@@ -2953,7 +2971,7 @@ function updateOOOAnswers(game){
   const votablePlayers=tiedArr?players.filter(p=>tiedArr.includes(p.id)):players;
   const noticeEl=document.getElementById('oooVoteNotice');
   if(noticeEl){if(game.oooTied){noticeEl.className='notice info';noticeEl.textContent='Tie! Only vote for tied players.';}else{noticeEl.className='notice ooo';noticeEl.textContent='Who gave the odd answer? Tap to vote.';}}
-  document.getElementById('oooVoteList').innerHTML=votablePlayers.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'ooo-voted':''}" onclick="castOOOVote('${p.id}')"><div style="font-size:20px">🎭</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--ooo);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('oooVoteList').innerHTML=votablePlayers.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'ooo-voted':''}" onclick="castOOOVote('${p.id}')">${avatarImg(p.avatar)}<div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--ooo);font-size:13px">✓</div>':''}</div>`;}).join('');
   document.getElementById('oooVoteStatus').textContent=`${Object.keys(game.oooVotes||{}).length} of ${n} voted`;
   if(amHost)checkAllVoted(game);
 }
@@ -3046,7 +3064,7 @@ function showOOOResult(game){
   if(r.caught)banner.innerHTML=`<div class="result-banner ooo-caught"><div class="result-emoji">🎉</div><h2>Caught!</h2><p>${esc(r.description)}</p></div>`;
   else banner.innerHTML=`<div class="result-banner ooo-escaped"><div class="result-emoji">🎭</div><h2>Escaped!</h2><p>${esc(r.description)}</p></div>`;
   const players=Object.values(game.players||{}).sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
-  document.getElementById('oooScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||`#${i+1}`}</div><div class="scoreboard-name">${esc(p.name)}${p.id===game.oooImposterId?' 🎭':''}</div><div class="scoreboard-pts">${game.oooScores[p.id]||0} pts</div></div>`).join('');
+  document.getElementById('oooScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${avatarImg(p.avatar,"av-sm")}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||`#${i+1}`}</div><div class="scoreboard-name">${esc(p.name)}${p.id===game.oooImposterId?' 🎭':''}</div><div class="scoreboard-pts">${game.oooScores[p.id]||0} pts</div></div>`).join('');
   const isLastRound=game.oooRound>=game.oooTotalRounds||game.status==='result';
   document.getElementById('oooNextRoundBtn').style.display=(!isLastRound&&amHost)?'block':'none';
   document.getElementById('oooEndGameBtn').style.display=(isLastRound&&amHost)?'block':'none';
@@ -3064,7 +3082,7 @@ function showOOOGameOver(game){
   const score=(game.oooScores&&game.oooScores[winner.id])||0;
   document.getElementById('gameoverTitle').textContent=winner.name.toUpperCase()+' WINS!';
   document.getElementById('gameoverSubtitle').textContent='with '+score+' point'+(score!==1?'s':'');
-  document.getElementById('gameoverScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${esc(p.name)}</div><div class="scoreboard-pts">${(game.oooScores&&game.oooScores[p.id])||0} pts</div></div>`).join('');
+  document.getElementById('gameoverScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${avatarImg(p.avatar,"av-sm")}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${esc(p.name)}</div><div class="scoreboard-pts">${(game.oooScores&&game.oooScores[p.id])||0} pts</div></div>`).join('');
   document.getElementById('gameoverReturnBtn').style.display=amHost?'block':'none';
   document.getElementById('gameoverWaitingForHost').style.display=!amHost?'block':'none';
   showScreen('ooo-gameover');
@@ -3742,7 +3760,7 @@ function updateFaVoteScreen(game){
   const players=Object.values(game.players||{}).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));
   const n=players.length;const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
   const list=document.getElementById('faVoteList');
-  if(list){list.innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;const clickable=p.id!==myId;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="${clickable?`castFaVote('${p.id}')`:''}" style="${!clickable?'opacity:0.5;pointer-events:none':''}"><div style="font-size:20px">🎨</div><div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#f97316">${vc}</div>`:''}${myVote===p.id?'<div style="color:#f97316;font-size:13px">✓</div>':''}</div>`;}).join('');}
+  if(list){list.innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;const clickable=p.id!==myId;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="${clickable?`castFaVote('${p.id}')`:''}" style="${!clickable?'opacity:0.5;pointer-events:none':''}">${avatarImg(p.avatar)}<div style="flex:1;font-size:14px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#f97316">${vc}</div>`:''}${myVote===p.id?'<div style="color:#f97316;font-size:13px">✓</div>':''}</div>`;}).join('');}
   const status=document.getElementById('faVoteStatus');if(status)status.textContent=`${Object.keys(votes).length} of ${n} voted`;
   startFaVoteTimer(game);
   if(amHost&&Object.keys(votes).length>=n&&n>0)resolveFaVote(game,'all-voted');
@@ -3830,7 +3848,7 @@ function showFaResult(game){
   const reveal=document.getElementById('faResultImpostorReveal');if(reveal)reveal.innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎨</div><div style="font-size:20px;font-weight:800;color:#f97316">${esc(impostorName)}</div>`;
   const word=document.getElementById('faResultWord');if(word)word.textContent=game.faWord||'?';
   const players=Object.values(game.players||{}).sort((a,b)=>((game.faScores&&game.faScores[b.id])||0)-((game.faScores&&game.faScores[a.id])||0));
-  const board=document.getElementById('faResultScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${esc(p.name)}${p.id===game.faImposterId?' 🎨':''}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
+  const board=document.getElementById('faResultScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${avatarImg(p.avatar,"av-sm")}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${esc(p.name)}${p.id===game.faImposterId?' 🎨':''}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
   const wordIndex=game.faWordIndex||1;const totalWords=game.faTotalWords||3;const isLastWord=wordIndex>=totalWords;
   const nextBtn=document.getElementById('faNextWordBtn');if(nextBtn)nextBtn.textContent=isLastWord?'See Final Scores':'Next Word →';
   const hostBtns=document.getElementById('faResultHostBtns');if(hostBtns)hostBtns.style.display=amHost?'flex':'none';
@@ -3852,8 +3870,10 @@ function showFaGameOver(game){
   const players=Object.values(game.players||{}).sort((a,b)=>((game.faScores&&game.faScores[b.id])||0)-((game.faScores&&game.faScores[a.id])||0));
   const winner=players[0]||{name:'Player',id:''};const score=(game.faScores&&game.faScores[winner.id])||0;
   const title=document.getElementById('faGameoverTitle');if(title)title.textContent=winner.name.toUpperCase()+' WINS!';
+  const faWinAv=document.getElementById('faGameoverWinnerAv');
+  if(faWinAv){if(winner.avatar){faWinAv.innerHTML=`<img src="${winner.avatar}" style="width:160px;height:160px;border-radius:50%;object-fit:cover;opacity:0.18;filter:blur(1px)"/>`;faWinAv.style.display='flex';}else{faWinAv.style.display='none';}}
   const subtitle=document.getElementById('faGameoverSubtitle');if(subtitle)subtitle.textContent='with '+score+' point'+(score!==1?'s':'');
-  const board=document.getElementById('faGameoverScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${esc(p.name)}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
+  const board=document.getElementById('faGameoverScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${avatarImg(p.avatar,"av-sm")}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${esc(p.name)}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
   const hostBtns=document.getElementById('faGameoverHostBtns');if(hostBtns)hostBtns.style.display=amHost?'flex':'none';
   const nonHostBtns=document.getElementById('faGameoverNonHostBtns');if(nonHostBtns)nonHostBtns.style.display=!amHost?'flex':'none';
   showScreen('fa-gameover');
@@ -4252,7 +4272,7 @@ function renderBsVoteList(game){
     const vc=voteCounts[p.id]||0;
     const isMyVote=myVote===p.id;
     const clickable=p.id!==myId;
-    return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isMyVote?'rgba(6,182,212,0.1)':'var(--surface2)'};border:1px solid ${isMyVote?'rgba(6,182,212,0.5)':'var(--border)'};border-radius:var(--radius);cursor:${clickable?'pointer':'default'}" onclick="${clickable?`bsCastVote('${p.id}')`:''}"}>
+    return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isMyVote?'rgba(6,182,212,0.1)':'var(--surface2)'};border:1px solid ${isMyVote?'rgba(6,182,212,0.5)':'var(--border)'};border-radius:var(--radius);cursor:${clickable?'pointer':'default'}" onclick="${clickable?`bsCastVote('${p.id}')`:''}"}>${avatarImg(p.avatar)}
       <div style="flex:1;font-size:13px;font-weight:600">${esc(p.name)}${p.id===myId?' <span style="color:var(--muted);font-size:11px">(you)</span>':''}</div>
       ${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#06b6d4;min-width:20px;text-align:center">${vc}</div>`:'<div style="min-width:20px"></div>'}
       ${isMyVote?'<div style="color:#06b6d4;font-size:12px">✓</div>':''}
@@ -4523,6 +4543,68 @@ function bsCleanup(){
   bsRefresherUsed=false;bsCardsVisible=false;
 }
 
+
+// =====================================================
+// AVATARS
+// =====================================================
+let myAvatar = localStorage.getItem('sf_avatar') || null;
+
+function triggerAvatarPicker(){
+  document.getElementById('avatarFileInput').click();
+}
+
+function onAvatarFileChosen(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  e.target.value = '';
+  const reader = new FileReader();
+  reader.onload = ev => compressAndSaveAvatar(ev.target.result);
+  reader.readAsDataURL(file);
+}
+
+function compressAndSaveAvatar(dataUrl){
+  const img = new Image();
+  img.onload = () => {
+    const size = 150;
+    const canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    // Crop to square from centre
+    const s = Math.min(img.width, img.height);
+    const ox = (img.width - s) / 2;
+    const oy = (img.height - s) / 2;
+    ctx.drawImage(img, ox, oy, s, s, 0, 0, size, size);
+    const compressed = canvas.toDataURL('image/jpeg', 0.7);
+    myAvatar = compressed;
+    localStorage.setItem('sf_avatar', compressed);
+    // Update button labels
+    updateAvatarBtns();
+    // Push to Firebase if in a game
+    if(gameCode) gameRefFor(gameCode).child('players/'+myId+'/avatar').set(compressed);
+  };
+  img.src = dataUrl;
+}
+
+function updateAvatarBtns(){
+  const label = myAvatar ? '📷 Change Avatar' : '📷 Set Avatar';
+  ['avatarHomeBtn','avatarWaitBtn'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.textContent=label;
+  });
+}
+
+function avatarImg(av, extraClass=''){
+  if(av) return `<img src="${av}" class="av${extraClass?' '+extraClass:''}" alt=""/>`;
+  return `<div class="av-placeholder${extraClass?' '+extraClass:''}">👤</div>`;
+}
+
+// Upload avatar when joining/creating a game
+function uploadMyAvatar(){
+  if(myAvatar && gameCode)
+    gameRefFor(gameCode).child('players/'+myId+'/avatar').set(myAvatar);
+}
+
+// =====================================================
+updateAvatarBtns();
 var joinCodeEl=document.getElementById('joinCode');
 if(joinCodeEl){joinCodeEl.addEventListener('input',function(e){e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});}
 var playerNameEl=document.getElementById('playerName');
@@ -4651,5 +4733,6 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
       <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
     </div>
 
+<input type="file" id="avatarFileInput" accept="image/*" capture="user" style="display:none" onchange="onAvatarFileChosen(event)"/>
 </body>
 </html>
