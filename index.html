@@ -142,13 +142,24 @@ select option{background:var(--surface2)}
 .code-display:hover{border-color:var(--accent)}
 .code-hint{font-size:11px;color:var(--muted);text-align:center;font-family:'DM Mono',monospace;margin-top:6px}
 .player-list{display:flex;flex-direction:column;gap:8px;margin:8px 0}
-.player-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);font-size:14px;animation:fadeIn 0.25s ease}
+.player-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);font-size:14px;animation:fadeIn 0.25s ease;position:relative}
 .player-dot{width:8px;height:8px;border-radius:50%;background:var(--safe);flex-shrink:0}
 .player-dot.host{background:var(--accent)}
 .player-dot.offline{background:var(--muted)}
 .player-dot.dead{background:var(--spy)}
 .player-name{flex:1}
 .player-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:3px 8px;background:var(--surface3);border-radius:6px}
+.lobby-player-menu-wrap{position:relative;margin-left:auto;flex-shrink:0}
+.lobby-player-menu-btn{width:28px;height:28px;border-radius:9px;border:1px solid var(--border);background:var(--surface3);color:var(--muted);font-family:'DM Mono',monospace;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lobby-player-menu-btn:hover{color:var(--text);border-color:var(--accent)}
+.lobby-player-menu{position:absolute;right:0;top:34px;z-index:30;min-width:165px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 16px 44px rgba(0,0,0,.55);padding:6px;display:none}
+.lobby-player-menu.open{display:flex;flex-direction:column;gap:4px;animation:fadeIn .14s ease}
+.lobby-player-menu button{width:100%;padding:9px 10px;border-radius:9px;border:none;background:transparent;color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-align:left;cursor:pointer}
+.lobby-player-menu button:hover{background:var(--surface2);color:var(--accent)}
+.lobby-player-menu button.danger{color:var(--spy)}
+.lobby-player-menu button.danger:hover{background:rgba(232,93,77,.08);color:var(--spy)}
+.lobby-player-menu-divider{height:1px;background:var(--border);margin:3px 0}
+
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes chaos-pulse{0%,100%{box-shadow:0 0 10px rgba(255,45,45,0.3)}50%{box-shadow:0 0 25px rgba(255,45,45,0.7)}}
 @keyframes mafia-pulse{0%,100%{box-shadow:0 0 10px rgba(192,57,43,0.3)}50%{box-shadow:0 0 25px rgba(192,57,43,0.7)}}
@@ -514,22 +525,22 @@ select option{background:var(--surface2)}
 @keyframes fireFlicker{0%,100%{text-shadow:0 0 5px #f97316,0 0 12px #e85d4d;color:#f97316}35%{text-shadow:0 0 12px #f97316,0 0 24px #e85d4d;color:#ffd166}70%{text-shadow:0 0 8px #e85d4d,0 0 18px #f97316;color:#ff9f1c}}
 @keyframes frostShimmer{0%,100%{text-shadow:0 0 6px #06b6d4,0 0 14px rgba(6,182,212,.45);filter:brightness(1)}50%{text-shadow:0 0 12px #dff9ff,0 0 24px rgba(6,182,212,.7);filter:brightness(1.35)}}
 
-/* Smooth gradient name animations. Background stays fixed on the element; only position moves. */
-.player-cosmetic-name[style*="oceanWave"]{background:linear-gradient(90deg,#075985,#06b6d4,#22d3ee,#14b8a6,#075985,#06b6d4,#22d3ee);background-size:420% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 10px rgba(34,211,238,.42);animation-duration:5.5s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
-.player-cosmetic-name[style*="auroraGlow"]{background:linear-gradient(90deg,#22c55e,#38bdf8,#8b5cf6,#14b8a6,#22c55e,#38bdf8,#8b5cf6);background-size:440% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 11px rgba(139,92,246,.42);animation-duration:6s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
-.player-cosmetic-name[style*="candyShift"]{background:linear-gradient(90deg,#ff4fd8,#a855f7,#38bdf8,#fb7185,#ff4fd8,#a855f7,#38bdf8);background-size:420% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 11px rgba(255,79,216,.46);animation-duration:5.5s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
-.player-cosmetic-name[style*="bloodMoon"]{background:linear-gradient(90deg,#450a0a,#991b1b,#ef4444,#f97316,#450a0a,#991b1b,#ef4444);background-size:420% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 11px rgba(239,68,68,.48);animation-duration:5.8s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
-.player-cosmetic-name[style*="galaxyFlow"]{background:linear-gradient(90deg,#111827,#4c1d95,#2563eb,#ec4899,#111827,#4c1d95,#2563eb,#ec4899);background-size:460% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 12px rgba(139,92,246,.5);animation-duration:6.2s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
-@keyframes oceanWave{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-@keyframes auroraGlow{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-@keyframes candyShift{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-@keyframes bloodMoon{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-@keyframes galaxyFlow{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-.av-frame-ocean{border-color:#22d3ee!important;box-shadow:0 0 9px rgba(34,211,238,.7),0 0 20px rgba(20,184,166,.35);animation:frameOcean 2.4s linear infinite}
-.av-frame-aurora{border-color:#22c55e!important;box-shadow:0 0 9px rgba(34,197,94,.65),0 0 22px rgba(139,92,246,.35);animation:frameAurora 2.8s linear infinite}
-.av-frame-candy{border-color:#ff4fd8!important;box-shadow:0 0 9px rgba(255,79,216,.65),0 0 22px rgba(56,189,248,.35);animation:frameCandy 2.5s linear infinite}
-.av-frame-bloodmoon{border-color:#ef4444!important;box-shadow:0 0 9px rgba(239,68,68,.75),0 0 22px rgba(249,115,22,.35);animation:frameBloodMoon 2.6s linear infinite}
-.av-frame-galaxy{border-color:#8b5cf6!important;box-shadow:0 0 10px rgba(139,92,246,.75),0 0 24px rgba(236,72,153,.35);animation:frameGalaxy 3s linear infinite}
+/* Smooth seamless gradient name animations. Each gradient is built as two identical halves so the loop has no hard reset line. */
+.player-cosmetic-name[style*="oceanWave"]{background:linear-gradient(90deg,#075985 0%,#06b6d4 12.5%,#22d3ee 25%,#14b8a6 37.5%,#075985 50%,#06b6d4 62.5%,#22d3ee 75%,#14b8a6 87.5%,#075985 100%);background-size:200% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 10px rgba(34,211,238,.42);animation-duration:7s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important;will-change:background-position}
+.player-cosmetic-name[style*="auroraGlow"]{background:linear-gradient(90deg,#22c55e 0%,#38bdf8 12.5%,#8b5cf6 25%,#14b8a6 37.5%,#22c55e 50%,#38bdf8 62.5%,#8b5cf6 75%,#14b8a6 87.5%,#22c55e 100%);background-size:200% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 11px rgba(139,92,246,.42);animation-duration:7.5s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important;will-change:background-position}
+.player-cosmetic-name[style*="candyShift"]{background:linear-gradient(90deg,#ff4fd8 0%,#a855f7 12.5%,#38bdf8 25%,#fb7185 37.5%,#ff4fd8 50%,#a855f7 62.5%,#38bdf8 75%,#fb7185 87.5%,#ff4fd8 100%);background-size:200% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 11px rgba(255,79,216,.46);animation-duration:7s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important;will-change:background-position}
+.player-cosmetic-name[style*="bloodMoon"]{background:linear-gradient(90deg,#450a0a 0%,#991b1b 12.5%,#ef4444 25%,#f97316 37.5%,#450a0a 50%,#991b1b 62.5%,#ef4444 75%,#f97316 87.5%,#450a0a 100%);background-size:200% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 11px rgba(239,68,68,.48);animation-duration:7.2s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important;will-change:background-position}
+.player-cosmetic-name[style*="galaxyFlow"]{background:linear-gradient(90deg,#4c1d95 0%,#2563eb 12.5%,#ec4899 25%,#111827 37.5%,#4c1d95 50%,#2563eb 62.5%,#ec4899 75%,#111827 87.5%,#4c1d95 100%);background-size:200% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 12px rgba(139,92,246,.5);animation-duration:7.8s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important;will-change:background-position}
+@keyframes oceanWave{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes auroraGlow{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes candyShift{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes bloodMoon{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes galaxyFlow{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+.av-frame-ocean{border-color:#22d3ee!important;box-shadow:0 0 9px rgba(34,211,238,.7),0 0 20px rgba(20,184,166,.35);animation:frameOcean 5.5s linear infinite}
+.av-frame-aurora{border-color:#22c55e!important;box-shadow:0 0 9px rgba(34,197,94,.65),0 0 22px rgba(139,92,246,.35);animation:frameAurora 6s linear infinite}
+.av-frame-candy{border-color:#ff4fd8!important;box-shadow:0 0 9px rgba(255,79,216,.65),0 0 22px rgba(56,189,248,.35);animation:frameCandy 5.5s linear infinite}
+.av-frame-bloodmoon{border-color:#ef4444!important;box-shadow:0 0 9px rgba(239,68,68,.75),0 0 22px rgba(249,115,22,.35);animation:frameBloodMoon 5.8s linear infinite}
+.av-frame-galaxy{border-color:#8b5cf6!important;box-shadow:0 0 10px rgba(139,92,246,.75),0 0 24px rgba(236,72,153,.35);animation:frameGalaxy 6.2s linear infinite}
 @keyframes frameOcean{0%,100%{border-color:#075985;box-shadow:0 0 8px rgba(6,182,212,.55),0 0 18px rgba(20,184,166,.3)}50%{border-color:#22d3ee;box-shadow:0 0 14px rgba(34,211,238,.9),0 0 28px rgba(20,184,166,.55)}}
 @keyframes frameAurora{0%,100%{border-color:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.6),0 0 20px rgba(56,189,248,.35)}50%{border-color:#8b5cf6;box-shadow:0 0 14px rgba(139,92,246,.85),0 0 30px rgba(20,184,166,.5)}}
 @keyframes frameCandy{0%,100%{border-color:#ff4fd8;box-shadow:0 0 8px rgba(255,79,216,.65),0 0 20px rgba(168,85,247,.35)}50%{border-color:#38bdf8;box-shadow:0 0 14px rgba(56,189,248,.85),0 0 30px rgba(251,113,133,.5)}}
@@ -539,7 +550,7 @@ select option{background:var(--surface2)}
 .av-frame-neon{border-color:#06b6d4!important;box-shadow:0 0 10px rgba(6,182,212,0.65)}
 .av-frame-fire{border-color:#f97316!important;box-shadow:0 0 8px rgba(249,115,22,.75),0 0 18px rgba(232,93,77,.45);animation:frameFire 1.6s infinite}
 .av-frame-ice{border-color:#9eefff!important;box-shadow:0 0 8px rgba(158,239,255,.8),0 0 18px rgba(6,182,212,.45)}
-.av-frame-rainbow{border-color:#ff2d55!important;box-shadow:0 0 8px rgba(255,45,85,.75),0 0 18px rgba(0,199,255,.55),0 0 26px rgba(191,90,242,.35);animation:frameRainbow 2.4s linear infinite}
+.av-frame-rainbow{border-color:#ff2d55!important;box-shadow:0 0 8px rgba(255,45,85,.75),0 0 18px rgba(0,199,255,.55),0 0 26px rgba(191,90,242,.35);animation:frameRainbow 5.5s linear infinite}
 .av-frame-shadow{border-color:#a78bfa!important;box-shadow:0 0 10px rgba(167,139,250,.7),0 0 22px rgba(167,139,250,.28)}
 @keyframes frameFire{0%,100%{box-shadow:0 0 8px rgba(249,115,22,.65),0 0 16px rgba(232,93,77,.35)}50%{box-shadow:0 0 14px rgba(249,115,22,.95),0 0 28px rgba(232,93,77,.55)}}
 @keyframes frameRainbow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
@@ -691,7 +702,7 @@ select option{background:var(--surface2)}
         <div class="dev-preview-wrap">
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:chrispyGlow 2s infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: chrispyGlow</div></div>
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:neonFlicker 2s infinite;color:#06b6d4">Chris</div><div class="dev-preview-value">value: neonFlicker</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:rainbowShift 2s linear infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: rainbowShift</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:rainbowShift 5.5s linear infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: rainbowShift</div></div>
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:bouncePop 1.4s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: bouncePop</div></div>
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:glitchName 1.1s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: glitchName</div></div>
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:fireFlicker 1.6s infinite">Chris</div><div class="dev-preview-value">value: fireFlicker</div></div>
@@ -1605,7 +1616,7 @@ const SHOP_ITEMS=[
   {id:'name_purple',type:'nameColor',label:'Purple Name',price:125,value:'#a78bfa'},
   {id:'animated_chrispy_glow',type:'animatedName',label:'Chrispy Glow Name',price:250,value:'chrispyGlow'},
   {id:'animated_neon_flicker',type:'animatedName',label:'Neon Flicker Name',price:300,value:'neonFlicker'},
-  {id:'animated_rainbow_shift',type:'animatedName',label:'Rainbow Shift Name',price:350,value:'rainbowShift'},
+  {id:'animated_rainbow_shift',type:'animatedName',label:'Rainbow Shift Name',price:1000,value:'rainbowShift'},
   {id:'animated_bounce_pop',type:'animatedName',label:'Bounce Pop Name',price:275,value:'bouncePop'},
   {id:'animated_glitch_name',type:'animatedName',label:'Glitch Name',price:350,value:'glitchName'},
   {id:'animated_fire_flicker',type:'animatedName',label:'Fire Flicker Name',price:400,value:'fireFlicker'},
@@ -1619,7 +1630,7 @@ const SHOP_ITEMS=[
   {id:'frame_neon',type:'avatarFrame',label:'Neon Avatar Frame',price:200,value:'neon'},
   {id:'frame_fire',type:'avatarFrame',label:'Fire Avatar Frame',price:300,value:'fire'},
   {id:'frame_ice',type:'avatarFrame',label:'Ice Avatar Frame',price:300,value:'ice'},
-  {id:'frame_rainbow',type:'avatarFrame',label:'Rainbow Avatar Frame',price:350,value:'rainbow'},
+  {id:'frame_rainbow',type:'avatarFrame',label:'Rainbow Avatar Frame',price:1000,value:'rainbow'},
   {id:'frame_shadow',type:'avatarFrame',label:'Shadow Avatar Frame',price:350,value:'shadow'},
   {id:'frame_ocean',type:'avatarFrame',label:'Ocean Wave Avatar Frame',price:500,value:'ocean'},
   {id:'frame_candy',type:'avatarFrame',label:'Candy Shift Avatar Frame',price:550,value:'candy'},
@@ -2143,7 +2154,13 @@ async function joinGame(){
 // =====================================================
 function onGameUpdate(game){
   const cur=(document.querySelector('.screen.active')||{}).id;
+  if(game&&game.status==='lobby'&&game.players&&!game.players[myId]&&gameCode){
+    alert('You were removed from the lobby.');
+    devBackHome();
+    return;
+  }
   if(game.hostId===myId&&!amHost)amHost=true;
+  if(game.hostId!==myId&&amHost)amHost=false;
   if(amHost){watchPresence(game);awardCoinsForFinishedGame(game);}
 
   const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result'];
@@ -2316,6 +2333,105 @@ function onGameUpdate(game){
   }
 }
 
+
+function isDevUnlocked(){return sessionStorage.getItem('sf_dev_unlocked')==='1';}
+function canShowLobbyPlayerMenu(){return !!(localGame&&localGame.status==='lobby'&&(amHost||isDevUnlocked()));}
+function lobbyPlayerMenuHtml(p){
+  if(!canShowLobbyPlayerMenu())return '';
+  const hostOptions=(amHost||isDevUnlocked())&&p.id!==myId?`<button class="danger" onclick="kickLobbyPlayer('${p.id}')">Kick player</button>${!p.isHost?`<button onclick="setLobbyHost('${p.id}')">Set as host</button>`:''}`:'';
+  const devOptions=isDevUnlocked()?`${hostOptions?'<div class="lobby-player-menu-divider"></div>':''}<button onclick="devSetPlayerCoins('${p.id}')">Set coins</button><button onclick="devChangePlayerName('${p.id}')">Change Name</button><button onclick="devChangePlayerAvatar('${p.id}')">Change Avatar</button>`:'';
+  const menuContent=hostOptions+devOptions;
+  if(!menuContent)return '';
+  return `<div class="lobby-player-menu-wrap"><button class="lobby-player-menu-btn" onclick="toggleLobbyPlayerMenu(event,'${p.id}')">⋯</button><div class="lobby-player-menu" id="lobbyPlayerMenu_${p.id}">${menuContent}</div></div>`;
+}
+function toggleLobbyPlayerMenu(event,playerId){
+  if(event)event.stopPropagation();
+  document.querySelectorAll('.lobby-player-menu').forEach(el=>{if(el.id!=='lobbyPlayerMenu_'+playerId)el.classList.remove('open');});
+  const el=document.getElementById('lobbyPlayerMenu_'+playerId);
+  if(el)el.classList.toggle('open');
+}
+function closeLobbyPlayerMenus(){document.querySelectorAll('.lobby-player-menu').forEach(el=>el.classList.remove('open'));}
+async function kickLobbyPlayer(playerId){
+  closeLobbyPlayerMenus();
+  if(!gameCode||playerId===myId)return;
+  const player=(localGame&&localGame.players&&localGame.players[playerId])||{};
+  if(!confirm(`Kick ${player.name||'this player'} from the lobby?`))return;
+  await gameRefFor(gameCode).child('players/'+playerId).remove();
+}
+async function setLobbyHost(playerId){
+  closeLobbyPlayerMenus();
+  if(!gameCode||!localGame||!localGame.players||!localGame.players[playerId])return;
+  const updates={hostId:playerId,updatedAt:Date.now()};
+  Object.keys(localGame.players||{}).forEach(id=>updates['players/'+id+'/isHost']=(id===playerId));
+  await gameRefFor(gameCode).update(updates);
+  amHost=playerId===myId;
+}
+async function devSetPlayerCoins(playerId){
+  closeLobbyPlayerMenus();
+  if(!isDevUnlocked())return;
+  const player=(localGame&&localGame.players&&localGame.players[playerId])||{};
+  const value=prompt(`Set coins for ${player.name||'player'}:`, playerId===myId?(myProfile.coins||0):'');
+  if(value===null)return;
+  let coins=parseInt(value,10);
+  if(!Number.isFinite(coins)||coins<0)coins=0;
+  coins=Math.floor(coins);
+  await db.ref('users/'+playerId).update({coins,savedAt:Date.now(),lastDevCoinSetAt:Date.now()});
+  if(playerId===myId){myProfile.coins=coins;saveLocalProfile();renderShop();}
+  alert(`Coins set to ${coins}.`);
+}
+async function devChangePlayerName(playerId){
+  closeLobbyPlayerMenus();
+  if(!isDevUnlocked())return;
+  const player=(localGame&&localGame.players&&localGame.players[playerId])||{};
+  const name=prompt('Change player name:', player.name||'');
+  if(name===null)return;
+  const clean=name.trim().slice(0,20);
+  if(!clean)return;
+  if(gameCode)await gameRefFor(gameCode).child('players/'+playerId).update({name:clean});
+  await db.ref('users/'+playerId).update({name:clean,savedAt:Date.now()}).catch(()=>{});
+  if(playerId===myId){myProfile.name=clean;const input=document.getElementById('playerName');if(input)input.value=clean;saveLocalProfile();}
+}
+let pendingLobbyAvatarPlayerId=null;
+function ensureLobbyAvatarInput(){
+  let input=document.getElementById('lobbyPlayerAvatarInput');
+  if(input)return input;
+  input=document.createElement('input');
+  input.type='file';input.id='lobbyPlayerAvatarInput';input.accept='image/*';input.style.display='none';
+  input.addEventListener('change', onLobbyPlayerAvatarChosen);
+  document.body.appendChild(input);
+  return input;
+}
+function devChangePlayerAvatar(playerId){
+  closeLobbyPlayerMenus();
+  if(!isDevUnlocked())return;
+  pendingLobbyAvatarPlayerId=playerId;
+  const input=ensureLobbyAvatarInput();
+  input.value='';
+  input.click();
+}
+function onLobbyPlayerAvatarChosen(e){
+  const file=e.target.files&&e.target.files[0];
+  const playerId=pendingLobbyAvatarPlayerId;
+  pendingLobbyAvatarPlayerId=null;
+  if(!file||!playerId)return;
+  const reader=new FileReader();
+  reader.onload=ev=>saveLobbyPlayerAvatar(playerId, ev.target.result);
+  reader.readAsDataURL(file);
+}
+function saveLobbyPlayerAvatar(playerId,dataUrl){
+  const img=new Image();
+  img.onload=async()=>{
+    const size=150;const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;
+    const ctx=canvas.getContext('2d');const s=Math.min(img.width,img.height);const ox=(img.width-s)/2;const oy=(img.height-s)/2;
+    ctx.drawImage(img,ox,oy,s,s,0,0,size,size);
+    const compressed=canvas.toDataURL('image/jpeg',0.78);
+    if(gameCode)await gameRefFor(gameCode).child('players/'+playerId).update({avatar:compressed,avatarUpdatedAt:Date.now()});
+    await db.ref('users/'+playerId).update({avatar:compressed,savedAt:Date.now()}).catch(()=>{});
+    if(playerId===myId){myAvatar=compressed;localStorage.setItem('sf_avatar',compressed);myProfile.avatar=compressed;saveLocalProfile();updateAvatarBtns();renderShop();}
+  };
+  img.src=dataUrl;
+}
+
 // =====================================================
 // LOBBY / WAITING RENDER
 // =====================================================
@@ -2323,7 +2439,7 @@ function renderLobby(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const n=players.length;
   document.getElementById('lobbyCount').textContent=n;
-  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}</div>`).join('');
+  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}${lobbyPlayerMenuHtml(p)}</div>`).join('');
   const minPlayers=localGameMode==='mafia'?4:3;
   const ok=n>=minPlayers;
   document.getElementById('startBtn').disabled=!ok;
@@ -5316,6 +5432,7 @@ function uploadMyAvatar(){
 }
 
 // =====================================================
+document.addEventListener('click', closeLobbyPlayerMenus);
 cleanupOldGames();
 loadMyProfile();
 updateAvatarBtns();
