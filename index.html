@@ -730,7 +730,7 @@ select option{background:var(--surface2)}
         <h2>Shop</h2>
         <button class="shop-close-btn" onclick="closeShopModal()">×</button>
       </div>
-      <div class="coin-pill"><img src="coin-icon.png" class="coin-icon" alt="Coins"/> <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
+      <div class="coin-pill"><img src="coin-icon-2.png" class="coin-icon" alt="Coins"/> <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
       <div class="shop-tabs">
         <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Names</button>
         <button class="shop-tab" id="shopTabFrames" onclick="switchShopTab('frames')">Frames</button>
@@ -739,7 +739,7 @@ select option{background:var(--surface2)}
       <div class="shop-grid" id="shopItems"></div>
     </div>
   </div>
-  <button class="home-shop-btn" onclick="openShopModal()"><img src="coin-icon.png" class="coin-icon" alt=""/> Shop</button>
+  <button class="home-shop-btn" onclick="openShopModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Shop</button>
   <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
     <button onclick="toggleDevPanel()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;letter-spacing:1px;text-transform:uppercase">
@@ -1897,7 +1897,7 @@ function renderShop(){
     const canBuy=(myProfile.coins||0)>=item.price;
     const label=equipped?'Equipped':owned?'Equip':'Buy';
     const mainBtnClass=owned?'btn-secondary':'btn-primary';
-    const priceText=owned?`Owned · sell for <img src="coin-icon.png" class="coin-icon-sm" alt=""/> ${item.price} coins`:`<img src="coin-icon.png" class="coin-icon-sm" alt=""/> ${item.price} coins`;
+    const priceText=owned?`Owned · sell for <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`:`<img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`;
     const sellBtn=owned?`<button class="btn shop-item-btn shop-sell-btn" onclick="sellItem('${item.id}')">Sell</button>`:'';
     const category=`<span class="shop-type-pill">${shopItemCategory(item)}</span>`;
     return `<div class="shop-item">${shopItemPreview(item)}<div class="shop-item-info"><div class="shop-item-name">${item.label}</div><div class="shop-item-price">${priceText}</div>${category}</div><div class="shop-item-actions"><button class="btn ${mainBtnClass} shop-item-btn" onclick="buyOrEquipItem('${item.id}')" ${equipped||(!owned&&!canBuy)?'disabled':''}>${label}</button>${sellBtn}</div></div>`;
@@ -2104,7 +2104,7 @@ function ensureCoinEarnedToast(){
   el=document.createElement('div');
   el.id='coinEarnedToast';
   el.className='coin-earned-toast';
-  el.innerHTML='<div>You earned <img src="coin-icon.png" class="coin-icon-lg" alt=""/> <span class="coin-earned-number" id="coinEarnedNumber">0</span> coins!</div><div class="coin-earned-label">Reward added to your shop balance</div>';
+  el.innerHTML='<div>You earned <img src="coin-icon-2.png" class="coin-icon-lg" alt=""/> <span class="coin-earned-number" id="coinEarnedNumber">0</span> coins!</div><div class="coin-earned-label">Reward added to your shop balance</div>';
   document.body.appendChild(el);
   return el;
 }
