@@ -1783,7 +1783,7 @@ function renderShop(){
     if(currentShopTab==='frames')return item.type==='avatarFrame';
     if(currentShopTab==='owned')return owned;
     return true;
-  });
+  }).sort((a,b)=>(a.price||0)-(b.price||0)||String(a.label).localeCompare(String(b.label)));
   if(!items.length){
     list.innerHTML=`<div class="shop-section-empty">No owned items yet.<br>Buy something from the Names or Frames tab.</div>`;
     return;
