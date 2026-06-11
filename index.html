@@ -486,7 +486,7 @@ select option{background:var(--surface2)}
 .custom-mode-icon{font-size:22px;width:28px;text-align:center;flex-shrink:0}
 .custom-mode-name{font-size:13px;font-weight:800;color:var(--text);letter-spacing:1px;text-transform:uppercase}
 .custom-mode-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;text-transform:none;letter-spacing:0}
-.home-shop-btn{width:100%;max-width:440px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius-lg);padding:14px 16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px}
+.home-shop-btn{width:100%;max-width:440px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius-lg);padding:14px 16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px}
 .home-shop-btn:hover{background:#f0dd55;transform:translateY(-1px)}
 .shop-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9998;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
 .shop-modal-backdrop.open{display:flex}
@@ -507,6 +507,9 @@ select option{background:var(--surface2)}
 
 /* ===== COINS + SHOP ===== */
 .coin-pill{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;background:rgba(232,212,77,0.08);border:1px solid rgba(232,212,77,0.25);border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);margin-bottom:12px}
+.coin-icon{width:18px;height:18px;object-fit:contain;display:inline-block;vertical-align:-3px;filter:drop-shadow(0 0 6px rgba(232,212,77,.35))}
+.coin-icon-sm{width:14px;height:14px;vertical-align:-2px}
+.coin-icon-lg{width:22px;height:22px;vertical-align:-5px}
 .shop-grid{display:flex;flex-direction:column;gap:8px}
 .shop-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)}
 .shop-item-info{flex:1}
@@ -727,7 +730,7 @@ select option{background:var(--surface2)}
         <h2>Shop</h2>
         <button class="shop-close-btn" onclick="closeShopModal()">×</button>
       </div>
-      <div class="coin-pill">🪙 <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
+      <div class="coin-pill"><img src="coin-icon.png" class="coin-icon" alt="Coins"/> <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
       <div class="shop-tabs">
         <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Names</button>
         <button class="shop-tab" id="shopTabFrames" onclick="switchShopTab('frames')">Frames</button>
@@ -736,7 +739,7 @@ select option{background:var(--surface2)}
       <div class="shop-grid" id="shopItems"></div>
     </div>
   </div>
-  <button class="home-shop-btn" onclick="openShopModal()">🪙 Shop</button>
+  <button class="home-shop-btn" onclick="openShopModal()"><img src="coin-icon.png" class="coin-icon" alt=""/> Shop</button>
   <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
     <button onclick="toggleDevPanel()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;letter-spacing:1px;text-transform:uppercase">
@@ -1894,7 +1897,7 @@ function renderShop(){
     const canBuy=(myProfile.coins||0)>=item.price;
     const label=equipped?'Equipped':owned?'Equip':'Buy';
     const mainBtnClass=owned?'btn-secondary':'btn-primary';
-    const priceText=owned?`Owned · sell for ${item.price} coins`:`${item.price} coins`;
+    const priceText=owned?`Owned · sell for <img src="coin-icon.png" class="coin-icon-sm" alt=""/> ${item.price} coins`:`<img src="coin-icon.png" class="coin-icon-sm" alt=""/> ${item.price} coins`;
     const sellBtn=owned?`<button class="btn shop-item-btn shop-sell-btn" onclick="sellItem('${item.id}')">Sell</button>`:'';
     const category=`<span class="shop-type-pill">${shopItemCategory(item)}</span>`;
     return `<div class="shop-item">${shopItemPreview(item)}<div class="shop-item-info"><div class="shop-item-name">${item.label}</div><div class="shop-item-price">${priceText}</div>${category}</div><div class="shop-item-actions"><button class="btn ${mainBtnClass} shop-item-btn" onclick="buyOrEquipItem('${item.id}')" ${equipped||(!owned&&!canBuy)?'disabled':''}>${label}</button>${sellBtn}</div></div>`;
@@ -2101,7 +2104,7 @@ function ensureCoinEarnedToast(){
   el=document.createElement('div');
   el.id='coinEarnedToast';
   el.className='coin-earned-toast';
-  el.innerHTML='<div>You earned <span class="coin-earned-number" id="coinEarnedNumber">0</span> coins!</div><div class="coin-earned-label">Reward added to your shop balance</div>';
+  el.innerHTML='<div>You earned <img src="coin-icon.png" class="coin-icon-lg" alt=""/> <span class="coin-earned-number" id="coinEarnedNumber">0</span> coins!</div><div class="coin-earned-label">Reward added to your shop balance</div>';
   document.body.appendChild(el);
   return el;
 }
