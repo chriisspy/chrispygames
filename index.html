@@ -44,7 +44,7 @@ const db = firebase.database();
     var value = input ? input.value.trim() : '';
 
     if (value === SITE_PASSWORD) {
-      sessionStorage.setItem('sf_unlocked', '1');
+      localStorage.setItem('sf_unlocked', '1');
       if (error) error.style.display = 'none';
       showScreen('screen-home');
       setTimeout(function () {
@@ -72,7 +72,7 @@ const db = firebase.database();
     var input = document.getElementById('passwordInput');
     var button = document.getElementById('passwordEnterBtn');
 
-    if (sessionStorage.getItem('sf_unlocked') === '1') {
+    if (localStorage.getItem('sf_unlocked') === '1') {
       showScreen('screen-home');
     }
 
@@ -4579,6 +4579,7 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
   <div style="width:100%;max-width:440px;height:100dvh;display:flex;flex-direction:column;padding:12px;box-sizing:border-box;gap:8px">
     <!-- Header -->
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <button class="back-btn" onclick="leaveGame()">← Leave game</button>
       <div style="flex:1">
         <div style="font-size:10px;color:#06b6d4;font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase">🕵️ BLIND SPOT</div>
         <div id="bsCategoryBadge" style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace"></div>
@@ -4649,8 +4650,6 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
       <div class="notice" style="background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.3);color:#06b6d4">Waiting for host...</div>
       <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
     </div>
-  </div>
-</div>
 
 </body>
 </html>
