@@ -574,34 +574,57 @@ select option{background:var(--surface2)}
 .player-cosmetic-name[style*="infernoName"]::after{
   content:'• • •';
   position:absolute;
-  left:4%;
-  right:4%;
-  bottom:70%;
-  font-size:8px;
-  letter-spacing:8px;
+  left:5%;
+  right:5%;
+  bottom:58%;
+  font-size:7px;
+  letter-spacing:7px;
   pointer-events:none;
   -webkit-text-fill-color:#f97316;
   color:#f97316;
-  text-shadow:0 0 5px #f97316,0 0 12px rgba(239,68,68,.7);
-  opacity:.75;
-  animation:infernoEmbers 1.65s linear infinite;
+  text-shadow:0 0 4px #f97316,0 0 9px rgba(239,68,68,.55);
+  opacity:.58;
+  animation:infernoEmbers 1.8s linear infinite;
 }
 .player-cosmetic-name[style*="infernoName"]::after{
   content:'• •';
-  left:18%;
-  bottom:55%;
-  font-size:6px;
-  letter-spacing:12px;
-  animation-duration:2.1s;
+  left:20%;
+  bottom:46%;
+  font-size:5px;
+  letter-spacing:10px;
+  animation-duration:2.25s;
   animation-delay:.45s;
-  opacity:.55;
+  opacity:.42;
 }
 @keyframes infernoName{0%{background-position:0% 50%;filter:brightness(1)}45%{filter:brightness(1.25)}100%{background-position:100% 50%;filter:brightness(1)}}
-@keyframes infernoEmbers{0%{transform:translateY(5px) scale(.8);opacity:0}20%{opacity:.9}100%{transform:translateY(-13px) scale(1.2);opacity:0}}
+@keyframes infernoEmbers{0%{transform:translateY(3px) scale(.8);opacity:0}25%{opacity:.62}100%{transform:translateY(-6px) scale(1.05);opacity:0}}
 .av-frame-inferno{border-color:#f97316!important;box-shadow:0 0 9px rgba(249,115,22,.8),0 0 20px rgba(239,68,68,.55),0 0 34px rgba(253,224,71,.22);animation:frameInferno 5.5s linear infinite}
+.av-inferno-wrap{position:relative;display:flex;align-items:center;justify-content:center;overflow:visible;background:rgba(249,115,22,.08)}
+.av-inferno-wrap .av-inferno-photo{width:100%;height:100%;border-radius:50%;object-fit:cover;border:0!important;display:block;filter:sepia(.34) saturate(1.35) hue-rotate(-12deg) brightness(1.04) contrast(1.04)}
+.av-inferno-wrap::before{content:'';position:absolute;inset:2px;border-radius:50%;background:radial-gradient(circle at 35% 25%,rgba(253,224,71,.22),transparent 34%),linear-gradient(135deg,rgba(249,115,22,.18),rgba(239,68,68,.12));mix-blend-mode:screen;pointer-events:none;z-index:1}
+.av-inferno-wrap::after{content:'• •';position:absolute;left:3px;right:3px;top:-2px;font-size:5px;line-height:1;letter-spacing:7px;text-align:center;color:#f97316;text-shadow:0 0 4px rgba(249,115,22,.8),0 0 8px rgba(239,68,68,.45);opacity:.34;pointer-events:none;z-index:2;animation:frameInfernoEmbers 2.4s linear infinite}
 @keyframes frameInferno{0%,100%{border-color:#7f1d1d;box-shadow:0 0 8px rgba(239,68,68,.55),0 0 18px rgba(249,115,22,.35)}25%{border-color:#f97316;box-shadow:0 0 14px rgba(249,115,22,.9),0 0 30px rgba(239,68,68,.55)}50%{border-color:#fde047;box-shadow:0 0 16px rgba(253,224,71,.8),0 0 34px rgba(249,115,22,.55)}75%{border-color:#ef4444;box-shadow:0 0 14px rgba(239,68,68,.9),0 0 30px rgba(249,115,22,.55)}}
+@keyframes frameInfernoEmbers{0%{transform:translateY(2px) scale(.85);opacity:0}35%{opacity:.34}100%{transform:translateY(-4px) scale(1.02);opacity:0}}
 
 
+
+
+/* ===== COIN REWARD TOAST ===== */
+.coin-earned-toast{position:fixed;left:50%;top:22px;transform:translateX(-50%) translateY(-12px);z-index:12000;width:calc(100% - 36px);max-width:420px;padding:16px 18px;border-radius:var(--radius-lg);background:linear-gradient(135deg,rgba(232,212,77,.18),rgba(19,19,26,.98));border:1px solid rgba(232,212,77,.45);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 32px rgba(232,212,77,.15);font-family:'Syne',sans-serif;font-size:15px;font-weight:800;text-align:center;color:var(--text);opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease}
+.coin-earned-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.coin-earned-toast .coin-earned-number{font-family:'DM Mono',monospace;font-size:24px;color:var(--accent);text-shadow:0 0 12px rgba(232,212,77,.55)}
+.coin-earned-toast .coin-earned-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+
+/* Keep matching name + frame animations synced */
+.player-cosmetic-name{animation-delay:0s!important}
+.av-frame-rainbow{animation-duration:5.5s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-ocean{animation-duration:5.5s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-candy{animation-duration:5.5s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-aurora{animation-duration:6s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-bloodmoon{animation-duration:5.8s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-galaxy{animation-duration:6.2s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-fire{animation-duration:5.5s!important;animation-delay:0s!important;animation-iteration-count:infinite!important}
+.av-frame-inferno{animation-duration:5.5s!important;animation-delay:0s!important;animation-iteration-count:infinite!important}
 
 
 /* ===== AVATAR CROP MODAL ===== */
@@ -1657,7 +1680,13 @@ let myId = localStorage.getItem('sf_myId');
 if(!myId){myId=Math.random().toString(36).slice(2,12);localStorage.setItem('sf_myId',myId);}
 let myProfile={coins:0,wins:0,ownedItems:{},equipped:{}};
 let currentShopTab='names';
-const WIN_COINS=50;
+const REWARD_AMOUNTS={
+  spyfall:{spy:100,innocent:10},
+  mafia:{mafia:100,civilian:50},
+  bs:{imposter:150,innocent:50},
+  ooo:{imposter:75,normal:10},
+  fa:{imposter:75,normal:10}
+};
 const SHOP_ITEMS=[
   {id:'name_gold',type:'nameColor',label:'Gold Name',price:100,value:'#e8d44d'},
   {id:'name_red',type:'nameColor',label:'Red Name',price:100,value:'#e85d4d'},
@@ -1947,37 +1976,137 @@ function playerAvatar(p, extraClass=''){
   return avatarImg(p.avatar, (extraClass?extraClass:'')+frame);
 }
 
-function winnerIdsForGame(game){
+function rewardDataForGame(game){
   const players=Object.values(game.players||{});
-  if(!players.length)return[];
-  if(game.mode==='spyfall'||(!['ooo','mafia','fa','bs'].includes(game.mode))){
+  if(!players.length)return null;
+  const rewards={};
+  const add=(id,amount)=>{if(id&&amount>0)rewards[id]=(rewards[id]||0)+amount;};
+
+  // Spyfall final result
+  if((game.mode==='spyfall'||(!['ooo','mafia','fa','bs'].includes(game.mode)))&&game.status==='result'&&game.result){
     const spyIds=game.spyIds||[game.spyId].filter(Boolean);
-    if(game.chaosMode)return (game.result&&game.result.spyWins)?spyIds:[game.innocentId].filter(Boolean);
-    return (game.result&&game.result.spyWins)?spyIds:players.filter(p=>!spyIds.includes(p.id)).map(p=>p.id);
+    if(game.chaosMode){
+      if(game.result&&game.result.spyWins)spyIds.forEach(id=>add(id,REWARD_AMOUNTS.spyfall.spy));
+      else add(game.innocentId,REWARD_AMOUNTS.spyfall.innocent);
+    }else{
+      if(game.result&&game.result.spyWins)spyIds.forEach(id=>add(id,REWARD_AMOUNTS.spyfall.spy));
+      else players.filter(p=>!spyIds.includes(p.id)).forEach(p=>add(p.id,REWARD_AMOUNTS.spyfall.innocent));
+    }
+    return {key:'spyfall_game',mode:'spyfall',rewards};
   }
-  if(game.mode==='mafia'){
+
+  // Mafia final result
+  if(game.mode==='mafia'&&game.status==='result'&&game.mafiaResult){
     const mafiaIds=game.mafiaIds||[];
-    return game.mafiaResult&&game.mafiaResult.winner==='mafia'?mafiaIds:players.filter(p=>!mafiaIds.includes(p.id)).map(p=>p.id);
+    if(game.mafiaResult.winner==='mafia')mafiaIds.forEach(id=>add(id,REWARD_AMOUNTS.mafia.mafia));
+    else players.filter(p=>!mafiaIds.includes(p.id)).forEach(p=>add(p.id,REWARD_AMOUNTS.mafia.civilian));
+    return {key:'mafia_game',mode:'mafia',rewards};
   }
-  if(game.mode==='bs'){
-    return game.bsResult&&game.bsResult.winner==='imposter'?[game.bsImposterId].filter(Boolean):players.filter(p=>p.id!==game.bsImposterId).map(p=>p.id);
+
+  // Blind Spot final result
+  if(game.mode==='bs'&&game.status==='result'&&game.bsResult){
+    if(game.bsResult.winner==='imposter')add(game.bsImposterId,REWARD_AMOUNTS.bs.imposter);
+    else players.filter(p=>p.id!==game.bsImposterId).forEach(p=>add(p.id,REWARD_AMOUNTS.bs.innocent));
+    return {key:'bs_game',mode:'bs',rewards};
   }
-  const scores=game.mode==='fa'?(game.faScores||{}):(game.oooScores||{});
-  const max=Math.max(...players.map(p=>scores[p.id]||0));
-  return players.filter(p=>(scores[p.id]||0)===max).map(p=>p.id);
+
+  // Odd One Out round result
+  if(game.mode==='ooo'&&game.oooPhase==='result'&&game.oooResult){
+    const round=game.oooRound||0;
+    if(game.oooResult.caught)players.filter(p=>p.id!==game.oooImposterId).forEach(p=>add(p.id,REWARD_AMOUNTS.ooo.normal));
+    else add(game.oooImposterId,REWARD_AMOUNTS.ooo.imposter);
+    return {key:'ooo_round_'+round,mode:'ooo',rewards};
+  }
+
+  // Fake Artist word/round result
+  if(game.mode==='fa'&&game.faPhase==='result'&&game.faResult){
+    const wordIndex=game.faWordIndex||0;
+    if(game.faResult.townWins)players.filter(p=>p.id!==game.faImposterId).forEach(p=>add(p.id,REWARD_AMOUNTS.fa.normal));
+    else add(game.faImposterId,REWARD_AMOUNTS.fa.imposter);
+    return {key:'fa_word_'+wordIndex,mode:'fa',rewards};
+  }
+
+  return null;
 }
+
+function winnerIdsForGame(game){
+  const data=rewardDataForGame(game);
+  return data?Object.keys(data.rewards||{}):[];
+}
+
 async function awardCoinsForFinishedGame(game){
-  if(!amHost||!gameCode||game.status!=='result'||game.rewardsAwarded)return;
-  const winners=[...new Set(winnerIdsForGame(game))].filter(Boolean);
-  if(!winners.length)return;
+  if(!amHost||!gameCode)return;
+  const data=rewardDataForGame(game);
+  if(!data||!data.key||!data.rewards||!Object.keys(data.rewards).length)return;
+  const rewardEvents=game.rewardEvents||{};
+  if(rewardEvents[data.key])return;
   try{
-    await Promise.all(winners.map(id=>db.ref('users/'+id).transaction(user=>{
-      user=user||{};user.coins=(user.coins||0)+WIN_COINS;user.wins=(user.wins||0)+1;user.lastRewardedAt=Date.now();return user;
+    await Promise.all(Object.entries(data.rewards).map(([id,amount])=>db.ref('users/'+id).transaction(user=>{
+      user=user||{};
+      user.coins=(user.coins||0)+amount;
+      user.wins=(user.wins||0)+1;
+      user.lastRewardedAt=Date.now();
+      return user;
     })));
-    await gameRefFor(gameCode).update({rewardsAwarded:true,rewardedWinnerIds:winners,rewardCoins:WIN_COINS});
-    if(winners.includes(myId))await loadMyProfile();
+    const event={awardedAt:Date.now(),mode:data.mode,rewards:data.rewards};
+    const update={};
+    update['rewardEvents/'+data.key]=event;
+    // Keep old fields for compatibility with older builds/dev inspection.
+    update.rewardsAwarded=data.mode==='ooo'||data.mode==='fa'?false:true;
+    update.rewardedWinnerIds=Object.keys(data.rewards);
+    update.rewardCoins=data.rewards;
+    await gameRefFor(gameCode).update(update);
+    if(data.rewards[myId])await loadMyProfile();
   }catch(e){console.warn('Reward failed',e);}
 }
+
+function ensureCoinEarnedToast(){
+  let el=document.getElementById('coinEarnedToast');
+  if(el)return el;
+  el=document.createElement('div');
+  el.id='coinEarnedToast';
+  el.className='coin-earned-toast';
+  el.innerHTML='<div>You earned <span class="coin-earned-number" id="coinEarnedNumber">0</span> coins!</div><div class="coin-earned-label">Reward added to your shop balance</div>';
+  document.body.appendChild(el);
+  return el;
+}
+function animateCoinEarned(amount){
+  amount=Math.max(0,Math.floor(Number(amount)||0));
+  if(!amount)return;
+  const toast=ensureCoinEarnedToast();
+  const num=document.getElementById('coinEarnedNumber');
+  if(!num)return;
+  const duration=900;
+  const start=performance.now();
+  toast.classList.add('show');
+  function tick(now){
+    const t=Math.min(1,(now-start)/duration);
+    const eased=1-Math.pow(1-t,3);
+    num.textContent=Math.round(amount*eased);
+    if(t<1)requestAnimationFrame(tick);
+    else num.textContent=amount;
+  }
+  requestAnimationFrame(tick);
+  clearTimeout(window.__coinEarnedToastTimer);
+  window.__coinEarnedToastTimer=setTimeout(()=>toast.classList.remove('show'),3200);
+}
+function handleMyRewardDisplays(game){
+  if(!gameCode||!game||!game.rewardEvents)return;
+  Object.entries(game.rewardEvents||{}).forEach(([key,event])=>{
+    const amount=event&&event.rewards&&event.rewards[myId];
+    if(!amount)return;
+    const seenKey='sf_reward_seen_'+gameCode+'_'+key+'_'+myId;
+    if(localStorage.getItem(seenKey))return;
+    localStorage.setItem(seenKey,'1');
+    myProfile.coins=(myProfile.coins||0)+amount;
+    myProfile.wins=(myProfile.wins||0)+1;
+    saveLocalProfile();
+    renderShop();
+    animateCoinEarned(amount);
+    loadMyProfile().catch(()=>{});
+  });
+}
+
 
 
 const MODE_LABELS={spyfall:'🕵️ Spyfall',ooo:'🎭 Odd One Out',mafia:'🃏 Mafia',fa:'🎨 Fake Artist',bs:'🕵️ Blind Spot'};
@@ -2213,6 +2342,7 @@ function onGameUpdate(game){
   if(game.hostId===myId&&!amHost)amHost=true;
   if(game.hostId!==myId&&amHost)amHost=false;
   if(amHost){watchPresence(game);awardCoinsForFinishedGame(game);}
+  handleMyRewardDisplays(game);
 
   const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result'];
 
@@ -5471,6 +5601,12 @@ function updateAvatarBtns(){
 }
 
 function avatarImg(av, extraClass=''){
+  const classes=(extraClass||'').trim();
+  if(classes.includes('av-frame-inferno')){
+    const wrapClass=`av av-inferno-wrap ${classes}`.trim().replace(/\s+/g,' ');
+    if(av) return `<span class="${wrapClass}"><img src="${av}" class="av-inferno-photo" alt=""/></span>`;
+    return `<span class="${wrapClass} av-placeholder">👤</span>`;
+  }
   if(av) return `<img src="${av}" class="av${extraClass?' '+extraClass:''}" alt=""/>`;
   return `<div class="av-placeholder${extraClass?' '+extraClass:''}">👤</div>`;
 }
