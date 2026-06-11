@@ -655,6 +655,43 @@ select option{background:var(--surface2)}
 .avatar-zoom-row input{margin:0;padding:0;accent-color:var(--accent)}
 
 
+
+/* Result banner winner avatar */
+.result-avatar,
+.result-banner .result-avatar,
+.result-banner .av.result-avatar,
+.result-banner .av-placeholder.result-avatar{
+  width:44px!important;
+  height:44px!important;
+  font-size:19px!important;
+  margin:0 auto 8px!important;
+}
+.result-banner .av-inferno-wrap.result-avatar{
+  width:44px!important;
+  height:44px!important;
+  margin:0 auto 8px!important;
+}
+
+.result-avatar-group{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  margin:0 auto 8px;
+}
+.result-avatar-group .result-avatar{
+  width:40px!important;
+  height:40px!important;
+  margin:0 -4px 0 0!important;
+  border-width:2px!important;
+}
+.result-avatar-group .av-inferno-wrap.result-avatar{
+  width:40px!important;
+  height:40px!important;
+  margin:0 -4px 0 0!important;
+}
+.result-avatar-group .result-avatar:last-child{margin-right:0!important;}
+
 /* Bigger lobby avatars */
 #playerList .av,
 #playerList .av-placeholder,
@@ -2001,6 +2038,17 @@ function playerAvatar(p, extraClass=''){
   const eq=(p.cosmetics&&p.cosmetics.equipped)||{};
   const frame=eq.avatarFrame?` av-frame-${eq.avatarFrame}`:'';
   return avatarImg(p.avatar, (extraClass?extraClass:'')+frame);
+}
+
+function resultAvatarHtml(p, fallback='🏆'){
+  if(p)return playerAvatar(p,'result-avatar');
+  return `<div class="result-emoji">${fallback}</div>`;
+}
+function resultAvatarGroupHtml(players, fallback='🏆'){
+  const winners=(players||[]).filter(Boolean);
+  if(!winners.length)return `<div class="result-emoji">${fallback}</div>`;
+  if(winners.length===1)return resultAvatarHtml(winners[0],fallback);
+  return `<div class="result-avatar-group">${winners.slice(0,8).map(p=>playerAvatar(p,'result-avatar')).join('')}</div>`;
 }
 
 function rewardRoundKey(game,prefix){
@@ -3462,12 +3510,13 @@ function showMafiaResult(game){
   const mafiaIds=game.mafiaIds||[];
   const mafiaPlayers=mafiaIds.map(id=>game.players&&game.players[id]).filter(Boolean);
   const bannerEl=document.getElementById('mafiaResultBanner');
+  const townPlayers=players.filter(p=>!mafiaIds.includes(p.id));
   if(winner==='mafia'){
-    bannerEl.innerHTML=`<div class="result-banner mafia-wins"><div class="result-emoji">🔴</div><h2>Mafia Wins!</h2><p>The civilians were overrun.</p></div>`;
+    bannerEl.innerHTML=`<div class="result-banner mafia-wins">${resultAvatarGroupHtml(mafiaPlayers,'🔴')}<h2>Mafia Wins!</h2><p>The civilians were overrun.</p></div>`;
   } else {
-    bannerEl.innerHTML=`<div class="result-banner town-wins"><div class="result-emoji">🎉</div><h2>Civilians Win!</h2><p>All Mafia members eliminated.</p></div>`;
+    bannerEl.innerHTML=`<div class="result-banner town-wins">${resultAvatarGroupHtml(townPlayers,'🎉')}<h2>Civilians Win!</h2><p>All Mafia members eliminated.</p></div>`;
   }
-  document.getElementById('mafiaResultReveal').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🔴</div><div style="font-size:20px;font-weight:800;color:#e74c3c">${mafiaPlayers.map(p=>esc(p.name)).join(', ')||'Unknown'}</div>`;
+  document.getElementById('mafiaResultReveal').innerHTML=`${resultAvatarGroupHtml(mafiaPlayers,'🔴')}<div style="font-size:20px;font-weight:800;color:#e74c3c">${mafiaPlayers.map(p=>esc(p.name)).join(', ')||'Unknown'}</div>`;
   // Show all roles
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const roleLabel={mafia:'🔴 MAFIA',doctor:'💚 DOCTOR',town:'⬜ CIVILIAN'};
@@ -3744,21 +3793,23 @@ async function endGameEarly(){if(!confirm('End the round now?'))return;await res
 function showResultScreen(game){
   clearInterval(timerInterval);
   const r=game.result;const isChaos=game.chaosMode;const spyIds=game.spyIds||[game.spyId];
+  const allPlayers=Object.values(game.players||{});
   const innocentPlayer=game.innocentId&&game.players&&game.players[game.innocentId];
   const spyPlayers=spyIds.map(id=>game.players&&game.players[id]).filter(Boolean);
+  const crewPlayers=allPlayers.filter(p=>!spyIds.includes(p.id));
   document.getElementById('resultTitle').textContent=isChaos?'The Innocent was...':(spyIds.length>1?'The spies were...':'The spy was...');
   if(isChaos){
-    document.getElementById('resultRevealBox').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎭</div><div style="font-size:22px;font-weight:800;color:var(--safe)">${esc((innocentPlayer&&innocentPlayer.name)||'Unknown')}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation)}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">Spies: ${spyPlayers.map(p=>esc(p.name)).join(', ')}</div>`;
+    document.getElementById('resultRevealBox').innerHTML=`${resultAvatarHtml(innocentPlayer,'🎭')}<div style="font-size:22px;font-weight:800;color:var(--safe)">${esc((innocentPlayer&&innocentPlayer.name)||'Unknown')}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation)}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">Spies: ${spyPlayers.map(p=>esc(p.name)).join(', ')}</div>`;
   } else {
-    document.getElementById('resultRevealBox').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🕵️</div><div style="font-size:22px;font-weight:800;color:var(--spy)">${spyPlayers.map(p=>esc(p.name)).join(' & ')||'Unknown'}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation||'?')}</div>`;
+    document.getElementById('resultRevealBox').innerHTML=`${resultAvatarGroupHtml(spyPlayers,'🕵️')}<div style="font-size:22px;font-weight:800;color:var(--spy)">${spyPlayers.map(p=>esc(p.name)).join(' & ')||'Unknown'}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation||'?')}</div>`;
   }
   const banner=document.getElementById('resultBanner');
   if(isChaos){
-    if(r.spyWins)banner.innerHTML=`<div class="result-banner chaos-spies-win"><div class="result-emoji">⚡</div><h2>Spies Win!</h2><p>${esc(r.description)}</p></div>`;
-    else banner.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Innocent Wins!</h2><p>${esc(r.description)}</p></div>`;
+    if(r.spyWins)banner.innerHTML=`<div class="result-banner chaos-spies-win">${resultAvatarGroupHtml(spyPlayers,'⚡')}<h2>Spies Win!</h2><p>${esc(r.description)}</p></div>`;
+    else banner.innerHTML=`<div class="result-banner crew-wins">${resultAvatarHtml(innocentPlayer,'🎉')}<h2>Innocent Wins!</h2><p>${esc(r.description)}</p></div>`;
   } else {
-    if(r.spyWins)banner.innerHTML=`<div class="result-banner spy-wins"><div class="result-emoji">🕵️</div><h2>Spy Wins!</h2><p>${esc(r.description)}</p></div>`;
-    else banner.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Crew Wins!</h2><p>${esc(r.description)}</p></div>`;
+    if(r.spyWins)banner.innerHTML=`<div class="result-banner spy-wins">${resultAvatarGroupHtml(spyPlayers,'🕵️')}<h2>Spy Wins!</h2><p>${esc(r.description)}</p></div>`;
+    else banner.innerHTML=`<div class="result-banner crew-wins">${resultAvatarGroupHtml(crewPlayers,'🎉')}<h2>Crew Wins!</h2><p>${esc(r.description)}</p></div>`;
   }
   document.getElementById('resultHostBtns').style.display=amHost?'flex':'none';
   document.getElementById('resultNonHostBtns').style.display=!amHost?'flex':'none';
@@ -3951,13 +4002,15 @@ function showOOOResult(game){
   clearInterval(oooVoteTimerInterval);
   const r=game.oooResult||{};
   const impostorPlayer=game.players&&game.players[game.oooImposterId];
-  document.getElementById('oooImpostorReveal').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎭</div><div style="font-size:22px;font-weight:800;color:var(--ooo)">${esc((impostorPlayer&&impostorPlayer.name)||'Unknown')}</div>`;
+  document.getElementById('oooImpostorReveal').innerHTML=`${resultAvatarHtml(impostorPlayer,'🎭')}<div style="font-size:22px;font-weight:800;color:var(--ooo)">${esc((impostorPlayer&&impostorPlayer.name)||'Unknown')}</div>`;
   document.getElementById('oooNormalQReveal').textContent=game.oooQuestionNormal||'';
   document.getElementById('oooOddQReveal').textContent=game.oooQuestionOdd||'';
   const banner=document.getElementById('oooResultBanner');
-  if(r.caught)banner.innerHTML=`<div class="result-banner ooo-caught"><div class="result-emoji">🎉</div><h2>Caught!</h2><p>${esc(r.description)}</p></div>`;
-  else banner.innerHTML=`<div class="result-banner ooo-escaped"><div class="result-emoji">🎭</div><h2>Escaped!</h2><p>${esc(r.description)}</p></div>`;
-  const players=Object.values(game.players||{}).sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
+  const oooPlayers=Object.values(game.players||{});
+  const normalQuestionPlayers=oooPlayers.filter(p=>p.id!==game.oooImposterId);
+  if(r.caught)banner.innerHTML=`<div class="result-banner ooo-caught">${resultAvatarGroupHtml(normalQuestionPlayers,'🎉')}<h2>Caught!</h2><p>${esc(r.description)}</p></div>`;
+  else banner.innerHTML=`<div class="result-banner ooo-escaped">${resultAvatarHtml(impostorPlayer,'🎭')}<h2>Escaped!</h2><p>${esc(r.description)}</p></div>`;
+  const players=oooPlayers.sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
   document.getElementById('oooScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${playerAvatar(p,'av-sm')}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||`#${i+1}`}</div><div class="scoreboard-name">${playerNameHtml(p)}${p.id===game.oooImposterId?' 🎭':''}</div><div class="scoreboard-pts">${game.oooScores[p.id]||0} pts</div></div>`).join('');
   const isLastRound=game.oooRound>=game.oooTotalRounds||game.status==='result';
   document.getElementById('oooNextRoundBtn').style.display=(!isLastRound&&amHost)?'block':'none';
@@ -3971,7 +4024,7 @@ async function oooNextRound(){await startOOOGame();}
 async function oooEndGame(){await updateGame(gameCode,{status:'result',oooPhase:'gameover'});}
 function showOOOGameOver(game){
   clearInterval(oooVoteTimerInterval);
-  const players=Object.values(game.players||{}).sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
+  const players=oooPlayers.sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
   const winner=players[0];
   const score=(game.oooScores&&game.oooScores[winner.id])||0;
   document.getElementById('gameoverTitle').textContent=winner.name.toUpperCase()+' WINS!';
@@ -4740,8 +4793,10 @@ async function resolveFaRound(game,townWins,impostorGuess){
 function showFaResult(game){
   const r=game.faResult||{};const impostorPlayer=game.players&&game.players[game.faImposterId];const impostorName=(impostorPlayer&&impostorPlayer.name)||'Unknown';
   const bannerEl=document.getElementById('faResultBanner');
-  if(bannerEl){bannerEl.innerHTML=r.townWins?`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Players Win!</h2><p>The Fake Artist was caught${r.impostorGuess?` — and guessed wrong (&quot;${esc(r.impostorGuess)}&quot;)`:''}.</p></div>`:`<div class="result-banner" style="background:linear-gradient(135deg,#1a0a00,#0f0500);border:2px solid #f97316;animation:none"><div class="result-emoji">🎨</div><h2 style="color:#f97316">Fake Artist Wins!</h2><p>${r.impostorGuess?'Correctly guessed the word!':'Escaped undetected.'}</p></div>`;}
-  const reveal=document.getElementById('faResultImpostorReveal');if(reveal)reveal.innerHTML=`<div style="font-size:34px;margin-bottom:8px">🎨</div><div style="font-size:20px;font-weight:800;color:#f97316">${esc(impostorName)}</div>`;
+  const faPlayers=Object.values(game.players||{});
+  const normalWordPlayers=faPlayers.filter(p=>p.id!==game.faImposterId);
+  if(bannerEl){bannerEl.innerHTML=r.townWins?`<div class="result-banner crew-wins">${resultAvatarGroupHtml(normalWordPlayers,'🎉')}<h2>Players Win!</h2><p>The Fake Artist was caught${r.impostorGuess?` — and guessed wrong (&quot;${esc(r.impostorGuess)}&quot;)`:''}.</p></div>`:`<div class="result-banner" style="background:linear-gradient(135deg,#1a0a00,#0f0500);border:2px solid #f97316;animation:none">${resultAvatarHtml(impostorPlayer,'🎨')}<h2 style="color:#f97316">Fake Artist Wins!</h2><p>${r.impostorGuess?'Correctly guessed the word!':'Escaped undetected.'}</p></div>`;}
+  const reveal=document.getElementById('faResultImpostorReveal');if(reveal)reveal.innerHTML=`${resultAvatarHtml(impostorPlayer,'🎨')}<div style="font-size:20px;font-weight:800;color:#f97316">${esc(impostorName)}</div>`;
   const word=document.getElementById('faResultWord');if(word)word.textContent=game.faWord||'?';
   const players=Object.values(game.players||{}).sort((a,b)=>((game.faScores&&game.faScores[b.id])||0)-((game.faScores&&game.faScores[a.id])||0));
   const board=document.getElementById('faResultScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${playerAvatar(p,'av-sm')}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${playerNameHtml(p)}${p.id===game.faImposterId?' 🎨':''}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
@@ -5379,15 +5434,17 @@ function showBsResult(game){
 
   // Banner
   const bannerEl=document.getElementById('bsResultBanner');
+  const bsPlayers=Object.values(game.players||{});
+  const bsInnocentPlayers=bsPlayers.filter(p=>p.id!==game.bsImposterId);
   if(r.winner==='innocents'){
     const reason=r.reason==='guess_limit'?'Imposter ran out of guesses!':'Imposter was voted out!';
-    bannerEl.innerHTML=`<div class="result-banner crew-wins"><div class="result-emoji">🎉</div><h2>Innocents Win!</h2><p>${reason}</p></div>`;
+    bannerEl.innerHTML=`<div class="result-banner crew-wins">${resultAvatarGroupHtml(bsInnocentPlayers,'🎉')}<h2>Innocents Win!</h2><p>${reason}</p></div>`;
   } else {
-    bannerEl.innerHTML=`<div class="result-banner" style="background:linear-gradient(135deg,#1a0505,#0f0202);border:2px solid var(--spy)"><div class="result-emoji">🕵️</div><h2 style="color:var(--spy)">Imposter Wins!</h2><p>All cards identified!</p></div>`;
+    bannerEl.innerHTML=`<div class="result-banner" style="background:linear-gradient(135deg,#1a0505,#0f0202);border:2px solid var(--spy)">${resultAvatarHtml(imposterPlayer,'🕵️')}<h2 style="color:var(--spy)">Imposter Wins!</h2><p>All cards identified!</p></div>`;
   }
 
   // Imposter reveal
-  document.getElementById('bsResultImposter').innerHTML=`<div style="font-size:34px;margin-bottom:8px">🕵️</div><div style="font-size:20px;font-weight:800;color:var(--spy)">${esc(imposterName)}</div>`;
+  document.getElementById('bsResultImposter').innerHTML=`${resultAvatarHtml(imposterPlayer,'🕵️')}<div style="font-size:20px;font-weight:800;color:var(--spy)">${esc(imposterName)}</div>`;
 
   // Cards
   const cardEmojis=['🎴','🃏','🀄'];
