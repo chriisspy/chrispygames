@@ -452,6 +452,20 @@ select option{background:var(--surface2)}
 .av-sm{width:26px;height:26px}
 .av-lg{width:44px;height:44px}
 .av-placeholder{width:32px;height:32px;border-radius:50%;background:var(--surface3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+/* ===== COINS + SHOP ===== */
+.coin-pill{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;background:rgba(232,212,77,0.08);border:1px solid rgba(232,212,77,0.25);border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);margin-bottom:12px}
+.shop-grid{display:flex;flex-direction:column;gap:8px}
+.shop-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)}
+.shop-item-info{flex:1}
+.shop-item-name{font-size:14px;font-weight:700;color:var(--text)}
+.shop-item-price{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:3px}
+.shop-item-btn{width:auto;padding:8px 12px;font-size:12px;white-space:nowrap}
+.name-anim-pulse{animation:cosmeticPulse 1.5s infinite}
+@keyframes cosmeticPulse{0%,100%{text-shadow:0 0 4px currentColor}50%{text-shadow:0 0 14px currentColor}}
+.av-frame-gold{border-color:var(--accent)!important;box-shadow:0 0 10px rgba(232,212,77,0.55)}
+.av-frame-neon{border-color:#06b6d4!important;box-shadow:0 0 10px rgba(6,182,212,0.65)}
+
 </style>
 </head>
 <body>
@@ -512,6 +526,9 @@ select option{background:var(--surface2)}
     <h2>Play</h2>
     <label>Your name</label>
     <input id="playerName" type="text" placeholder="Enter your name..." maxlength="20" autocomplete="off"/>
+    <div style="width:100%;text-align:center;margin:-4px 0 12px">
+      <button id="avatarHomeBtn" onclick="triggerAvatarPicker()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;padding:4px 0">📷 Set Avatar</button>
+    </div>
     <div id="homeError" class="notice error" style="display:none"></div>
     <button class="btn btn-primary" id="createBtn" onclick="createGame()">Create New Game</button>
     <div class="divider">or join existing</div>
@@ -521,9 +538,10 @@ select option{background:var(--surface2)}
       <button class="btn btn-secondary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
     </div>
   </div>
-  <!-- AVATAR -->
-  <div style="width:100%;max-width:440px;text-align:center">
-    <button id="avatarHomeBtn" onclick="triggerAvatarPicker()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;padding:4px 0">📷 Set Avatar</button>
+  <div class="card fadeIn" id="shopCard">
+    <h2>Shop</h2>
+    <div class="coin-pill">🪙 <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
+    <div class="shop-grid" id="shopItems"></div>
   </div>
   <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
@@ -1431,6 +1449,16 @@ const MAFIA_NIGHT_TIMER = 30;
 // =====================================================
 let myId = localStorage.getItem('sf_myId');
 if(!myId){myId=Math.random().toString(36).slice(2,12);localStorage.setItem('sf_myId',myId);}
+let myProfile={coins:0,wins:0,ownedItems:{},equipped:{}};
+const WIN_COINS=50;
+const SHOP_ITEMS=[
+  {id:'name_gold',type:'nameColor',label:'Gold Name',price:100,value:'#e8d44d'},
+  {id:'name_red',type:'nameColor',label:'Red Name',price:100,value:'#e85d4d'},
+  {id:'name_cyan',type:'nameColor',label:'Cyan Name',price:100,value:'#06b6d4'},
+  {id:'animated_pulse',type:'animatedName',label:'Animated Glow Name',price:250,value:'pulse'},
+  {id:'frame_gold',type:'avatarFrame',label:'Gold Avatar Frame',price:150,value:'gold'},
+  {id:'frame_neon',type:'avatarFrame',label:'Neon Avatar Frame',price:200,value:'neon'}
+];
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
 let roleVisible=true,revealVisible=true,mafiaCardVisible=true;
@@ -1451,6 +1479,96 @@ function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classL
 function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
 function setLoading(btnId,loading,text){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${text}`:text;}
 function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// =====================================================
+// PERMANENT PROFILE / COINS / SHOP
+// =====================================================
+function userRef(){return db.ref('users/'+myId);}
+async function loadMyProfile(){
+  try{
+    const snap=await userRef().once('value');
+    const saved=snap.val()||{};
+    myProfile={coins:saved.coins||0,wins:saved.wins||0,ownedItems:saved.ownedItems||{},equipped:saved.equipped||{},name:saved.name||'',avatar:saved.avatar||myAvatar||null};
+    if(myProfile.avatar&&!myAvatar){myAvatar=myProfile.avatar;localStorage.setItem('sf_avatar',myAvatar);}
+    renderShop();updateAvatarBtns();
+  }catch(e){console.warn('Profile load failed',e);renderShop();}
+}
+async function saveProfileBasics(name){
+  const updates={lastSeen:serverTimestamp()};
+  if(name)updates.name=name;
+  if(myAvatar)updates.avatar=myAvatar;
+  await userRef().update(updates);
+}
+function makePlayerData(name,isHost){
+  return {id:myId,name,isHost,joinedAt:Date.now(),online:true,avatar:myAvatar||null,cosmetics:{equipped:myProfile.equipped||{}}};
+}
+function renderShop(){
+  const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
+  const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
+  const list=document.getElementById('shopItems');if(!list)return;
+  list.innerHTML=SHOP_ITEMS.map(item=>{
+    const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
+    const equipped=myProfile.equipped&&myProfile.equipped[item.type]===item.value;
+    const canBuy=(myProfile.coins||0)>=item.price;
+    const label=equipped?'Equipped':owned?'Equip':'Buy';
+    return `<div class="shop-item"><div class="shop-item-info"><div class="shop-item-name">${item.label}</div><div class="shop-item-price">${owned?'Owned':item.price+' coins'}</div></div><button class="btn ${owned?'btn-secondary':'btn-primary'} shop-item-btn" onclick="buyOrEquipItem('${item.id}')" ${equipped||(!owned&&!canBuy)?'disabled':''}>${label}</button></div>`;
+  }).join('');
+}
+async function buyOrEquipItem(itemId){
+  const item=SHOP_ITEMS.find(i=>i.id===itemId);if(!item)return;
+  const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
+  if(!owned){
+    if((myProfile.coins||0)<item.price)return;
+    myProfile.coins=(myProfile.coins||0)-item.price;
+    myProfile.ownedItems={...(myProfile.ownedItems||{}),[item.id]:true};
+  }
+  myProfile.equipped={...(myProfile.equipped||{}),[item.type]:item.value};
+  await userRef().update({coins:myProfile.coins,ownedItems:myProfile.ownedItems,equipped:myProfile.equipped});
+  if(gameCode)await gameRefFor(gameCode).child('players/'+myId+'/cosmetics/equipped').set(myProfile.equipped);
+  renderShop();
+}
+function playerNameHtml(p){
+  const eq=(p.cosmetics&&p.cosmetics.equipped)||{};
+  const style=eq.nameColor?` style="color:${eq.nameColor}"`:'';
+  const cls=eq.animatedName==='pulse'?' name-anim-pulse':'';
+  return `<span class="${cls.trim()}"${style}>${esc(p.name)}</span>`;
+}
+function playerAvatar(p, extraClass=''){
+  const eq=(p.cosmetics&&p.cosmetics.equipped)||{};
+  const frame=eq.avatarFrame?` av-frame-${eq.avatarFrame}`:'';
+  return avatarImg(p.avatar, (extraClass?extraClass:'')+frame);
+}
+function winnerIdsForGame(game){
+  const players=Object.values(game.players||{});
+  if(!players.length)return[];
+  if(game.mode==='spyfall'||(!['ooo','mafia','fa','bs'].includes(game.mode))){
+    const spyIds=game.spyIds||[game.spyId].filter(Boolean);
+    if(game.chaosMode)return (game.result&&game.result.spyWins)?spyIds:[game.innocentId].filter(Boolean);
+    return (game.result&&game.result.spyWins)?spyIds:players.filter(p=>!spyIds.includes(p.id)).map(p=>p.id);
+  }
+  if(game.mode==='mafia'){
+    const mafiaIds=game.mafiaIds||[];
+    return game.mafiaResult&&game.mafiaResult.winner==='mafia'?mafiaIds:players.filter(p=>!mafiaIds.includes(p.id)).map(p=>p.id);
+  }
+  if(game.mode==='bs'){
+    return game.bsResult&&game.bsResult.winner==='imposter'?[game.bsImposterId].filter(Boolean):players.filter(p=>p.id!==game.bsImposterId).map(p=>p.id);
+  }
+  const scores=game.mode==='fa'?(game.faScores||{}):(game.oooScores||{});
+  const max=Math.max(...players.map(p=>scores[p.id]||0));
+  return players.filter(p=>(scores[p.id]||0)===max).map(p=>p.id);
+}
+async function awardCoinsForFinishedGame(game){
+  if(!amHost||!gameCode||game.status!=='result'||game.rewardsAwarded)return;
+  const winners=[...new Set(winnerIdsForGame(game))].filter(Boolean);
+  if(!winners.length)return;
+  try{
+    await Promise.all(winners.map(id=>db.ref('users/'+id).transaction(user=>{
+      user=user||{};user.coins=(user.coins||0)+WIN_COINS;user.wins=(user.wins||0)+1;user.lastRewardedAt=Date.now();return user;
+    })));
+    await gameRefFor(gameCode).update({rewardsAwarded:true,rewardedWinnerIds:winners,rewardCoins:WIN_COINS});
+    if(winners.includes(myId))await loadMyProfile();
+  }catch(e){console.warn('Reward failed',e);}
+}
 
 // =====================================================
 // GAME MODE (lobby)
@@ -1538,7 +1656,39 @@ function listenToGame(code,callback){
   gameListener=gameRef.on('value',snap=>{const data=snap.val();if(data){localGame=data;callback(data);}});
 }
 function stopListening(){if(gameListener&&gameRef){gameRef.off('value',gameListener);gameListener=null;}}
-function updateGame(code,updates){return gameRefFor(code).update(updates);}
+function updateGame(code,updates){
+  const finalUpdates={...(updates||{}),updatedAt:serverTimestamp()};
+  if(updates&&updates.status==='result'&&!('finishedAt' in updates))finalUpdates.finishedAt=serverTimestamp();
+  if(updates&&updates.status&&updates.status!=='result')finalUpdates.finishedAt=null;
+  return gameRefFor(code).update(finalUpdates);
+}
+
+// Deletes finished/result games after 24 hours.
+async function cleanupOldGames(){
+  try{
+    const snap=await db.ref('games').once('value');
+    if(!snap.exists())return;
+
+    const now=syncedNow();
+    const oneDay=24*60*60*1000;
+    const deletes={};
+
+    snap.forEach(child=>{
+      const game=child.val()||{};
+      const finishedAt=game.finishedAt||(game.status==='result'?game.updatedAt:null);
+      if(game.status==='result'&&finishedAt&&now-finishedAt>oneDay){
+        deletes[child.key]=null;
+      }
+    });
+
+    if(Object.keys(deletes).length){
+      await db.ref('games').update(deletes);
+      console.log('Cleaned up old finished games:',Object.keys(deletes));
+    }
+  }catch(e){
+    console.warn('Game cleanup failed',e);
+  }
+}
 
 // =====================================================
 // PRESENCE
@@ -1577,7 +1727,7 @@ async function createGame(){
   setLoading('createBtn',true,'Creating...');
   const code=genCode();gameCode=code;amHost=true;
   const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now()};
+  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,players:{[myId]:{id:myId,name,isHost:true,joinedAt:Date.now(),online:true}},createdAt:Date.now(),updatedAt:Date.now()};
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
@@ -1598,9 +1748,10 @@ async function joinGame(){
     if(!game){setLoading('joinBtn',false,'Join');return showError('homeError','Game not found');}
     if(game.status!=='lobby'){setLoading('joinBtn',false,'Join');return showError('homeError','Game already started');}
     gameCode=code;amHost=false;
+    await saveProfileBasics(name);
     const existing=game.players&&game.players[myId];
-    if(!existing)await gameRefFor(code).child('players/'+myId).set({id:myId,name,isHost:false,joinedAt:Date.now(),online:true});
-    else await gameRefFor(code).child('players/'+myId+'/online').set(true);
+    if(!existing)await gameRefFor(code).child('players/'+myId).set(makePlayerData(name,false));
+    else await gameRefFor(code).child('players/'+myId).update({online:true,name,avatar:myAvatar||null,cosmetics:{equipped:myProfile.equipped||{}}});
     setupPresence();document.getElementById('waitingCodeDisplay').textContent=code;
     showScreen('waiting');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
   }catch(e){showError('homeError','Connection error');console.error(e);}
@@ -1613,7 +1764,7 @@ async function joinGame(){
 function onGameUpdate(game){
   const cur=(document.querySelector('.screen.active')||{}).id;
   if(game.hostId===myId&&!amHost)amHost=true;
-  if(amHost)watchPresence(game);
+  if(amHost){watchPresence(game);awardCoinsForFinishedGame(game);}
 
   const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result'];
 
@@ -1792,7 +1943,7 @@ function renderLobby(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const n=players.length;
   document.getElementById('lobbyCount').textContent=n;
-  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${avatarImg(p.avatar,'av-sm')}<div class="player-name">${esc(p.name)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}</div>`).join('');
+  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}</div>`).join('');
   const minPlayers=localGameMode==='mafia'?4:3;
   const ok=n>=minPlayers;
   document.getElementById('startBtn').disabled=!ok;
@@ -1824,7 +1975,7 @@ function renderLobby(game){
 function renderWaiting(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   document.getElementById('waitingCount').textContent=players.length;
-  document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item">${avatarImg(p.avatar,'av-sm')}<div class="player-name">${esc(p.name)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
+  document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
 }
 
 // =====================================================
@@ -4422,6 +4573,7 @@ async function bsSubmitGuess(){
       await updateGame(gameCode,{
         bsCorrectGuesses:newCorrect,
         bsGuesses:newGuesses,
+        status:'result',
         bsPhase:'result',
         bsResult:{winner:'imposter',reason:'guessed_all'},
       });
@@ -4436,6 +4588,7 @@ async function bsSubmitGuess(){
       await updateGame(gameCode,{
         bsIncorrectCount:newIncorrect,
         bsGuesses:newGuesses,
+        status:'result',
         bsPhase:'result',
         bsResult:{winner:'innocents',reason:'guess_limit'},
       });
@@ -4456,7 +4609,7 @@ async function bsResolveVote(game){
     const eliminated=topIds[0];
     const winner=eliminated===game.bsImposterId?'innocents':'imposter';
     const reason=winner==='innocents'?'voted_out':'wrong_elimination';
-    await updateGame(gameCode,{bsPhase:'result',bsResult:{winner,reason,eliminatedId:eliminated}});
+    await updateGame(gameCode,{status:'result',bsPhase:'result',bsResult:{winner,reason,eliminatedId:eliminated}});
   } else {
     // Tie — extend 60 seconds
     const tieStart=Date.now();
@@ -4577,6 +4730,8 @@ function compressAndSaveAvatar(dataUrl){
     const compressed = canvas.toDataURL('image/jpeg', 0.7);
     myAvatar = compressed;
     localStorage.setItem('sf_avatar', compressed);
+    myProfile.avatar=compressed;
+    userRef().update({avatar:compressed,lastSeen:serverTimestamp()});
     // Update button labels
     updateAvatarBtns();
     // Push to Firebase if in a game
@@ -4604,6 +4759,8 @@ function uploadMyAvatar(){
 }
 
 // =====================================================
+cleanupOldGames();
+loadMyProfile();
 updateAvatarBtns();
 var joinCodeEl=document.getElementById('joinCode');
 if(joinCodeEl){joinCodeEl.addEventListener('input',function(e){e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});}
@@ -4733,6 +4890,6 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
       <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
     </div>
 
-<input type="file" id="avatarFileInput" accept="image/*" capture="user" style="display:none" onchange="onAvatarFileChosen(event)"/>
+<input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="onAvatarFileChosen(event)"/>
 </body>
 </html>
