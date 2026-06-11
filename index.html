@@ -5168,7 +5168,7 @@ function renderBsGame(game){
       rb.style.background='rgba(232,93,77,0.1)';
       rb.style.border='1px solid rgba(232,93,77,0.3)';
       rb.style.color='var(--spy)';
-      rb.textContent=`🕵️ IMPOSTER — ${correctGuesses.length}/3 cards found`;
+      rb.textContent=`🕵️ IMPOSTER — ${correctGuesses.length}/2 cards found`;
     } else {
       rb.style.background='rgba(6,182,212,0.08)';
       rb.style.border='1px solid rgba(6,182,212,0.3)';
@@ -5187,7 +5187,7 @@ function renderBsGame(game){
   if(isImpostor){
     const gp=document.getElementById('bsGuessProgress');
     const gl=document.getElementById('bsGuessesLeft');
-    if(gp)gp.textContent=`Correct: ${correctGuesses.length} / 3`;
+    if(gp)gp.textContent=`Correct: ${correctGuesses.length} / 2`;
     if(gl){
       const remaining=maxIncorrect-incorrectCount;
       gl.textContent=remaining>0?`Wrong guesses: ${incorrectCount} / ${maxIncorrect} (${remaining} left)`:`No guesses left!`;
@@ -5365,8 +5365,8 @@ async function bsSubmitGuess(){
 
   if(matched){
     const newCorrect=[...correctGuesses,matched];
-    // Check win condition: all 3 cards found
-    const allFound=newCorrect.length>=(cards.length-1); // knows 1 already, needs remaining 2
+    // Check win condition: imposter knows 1 card already, so they only need to guess the other 2
+    const allFound=newCorrect.length>=2;
     const guessEntry={guess,matched,correct:true,ts:Date.now()};
     const newGuesses=[...(game.bsGuesses||[]),guessEntry];
     if(allFound){
