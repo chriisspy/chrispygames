@@ -555,6 +555,53 @@ select option{background:var(--surface2)}
 @keyframes frameFire{0%,100%{box-shadow:0 0 8px rgba(249,115,22,.65),0 0 16px rgba(232,93,77,.35)}50%{box-shadow:0 0 14px rgba(249,115,22,.95),0 0 28px rgba(232,93,77,.55)}}
 @keyframes frameRainbow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
 
+/* Legendary Inferno name + matching avatar frame */
+.player-cosmetic-name[style*="infernoName"]{
+  background:linear-gradient(90deg,#7f1d1d 0%,#ef4444 12.5%,#f97316 25%,#fde047 37.5%,#7f1d1d 50%,#ef4444 62.5%,#f97316 75%,#fde047 87.5%,#7f1d1d 100%);
+  background-size:200% 100%;
+  background-position:0% 50%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent!important;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 0 7px rgba(249,115,22,.65),0 0 16px rgba(239,68,68,.45),0 0 28px rgba(253,224,71,.22);
+  animation-duration:5.5s!important;
+  animation-timing-function:linear!important;
+  animation-iteration-count:infinite!important;
+  will-change:background-position,filter;
+}
+.player-cosmetic-name[style*="infernoName"]::before,
+.player-cosmetic-name[style*="infernoName"]::after{
+  content:'• • •';
+  position:absolute;
+  left:4%;
+  right:4%;
+  bottom:70%;
+  font-size:8px;
+  letter-spacing:8px;
+  pointer-events:none;
+  -webkit-text-fill-color:#f97316;
+  color:#f97316;
+  text-shadow:0 0 5px #f97316,0 0 12px rgba(239,68,68,.7);
+  opacity:.75;
+  animation:infernoEmbers 1.65s linear infinite;
+}
+.player-cosmetic-name[style*="infernoName"]::after{
+  content:'• •';
+  left:18%;
+  bottom:55%;
+  font-size:6px;
+  letter-spacing:12px;
+  animation-duration:2.1s;
+  animation-delay:.45s;
+  opacity:.55;
+}
+@keyframes infernoName{0%{background-position:0% 50%;filter:brightness(1)}45%{filter:brightness(1.25)}100%{background-position:100% 50%;filter:brightness(1)}}
+@keyframes infernoEmbers{0%{transform:translateY(5px) scale(.8);opacity:0}20%{opacity:.9}100%{transform:translateY(-13px) scale(1.2);opacity:0}}
+.av-frame-inferno{border-color:#f97316!important;box-shadow:0 0 9px rgba(249,115,22,.8),0 0 20px rgba(239,68,68,.55),0 0 34px rgba(253,224,71,.22);animation:frameInferno 5.5s linear infinite}
+@keyframes frameInferno{0%,100%{border-color:#7f1d1d;box-shadow:0 0 8px rgba(239,68,68,.55),0 0 18px rgba(249,115,22,.35)}25%{border-color:#f97316;box-shadow:0 0 14px rgba(249,115,22,.9),0 0 30px rgba(239,68,68,.55)}50%{border-color:#fde047;box-shadow:0 0 16px rgba(253,224,71,.8),0 0 34px rgba(249,115,22,.55)}75%{border-color:#ef4444;box-shadow:0 0 14px rgba(239,68,68,.9),0 0 30px rgba(249,115,22,.55)}}
+
+
 
 
 /* ===== AVATAR CROP MODAL ===== */
@@ -712,6 +759,7 @@ select option{background:var(--surface2)}
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:auroraGlow 6s linear infinite">Chris</div><div class="dev-preview-value">value: auroraGlow</div></div>
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:bloodMoon 5.8s linear infinite">Chris</div><div class="dev-preview-value">value: bloodMoon</div></div>
           <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:galaxyFlow 6.2s linear infinite">Chris</div><div class="dev-preview-value">value: galaxyFlow</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:infernoName 5.5s linear infinite">Chris</div><div class="dev-preview-value">value: infernoName</div></div>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Avatar Frame Previews</div>
         <div class="dev-preview-wrap">
@@ -726,6 +774,7 @@ select option{background:var(--surface2)}
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-aurora">👤</div><div class="dev-preview-sample">Aurora Glow Frame</div></div><div class="dev-preview-value">value: aurora</div></div>
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-bloodmoon">👤</div><div class="dev-preview-sample">Blood Moon Frame</div></div><div class="dev-preview-value">value: bloodmoon</div></div>
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-galaxy">👤</div><div class="dev-preview-sample">Galaxy Flow Frame</div></div><div class="dev-preview-value">value: galaxy</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-inferno">👤</div><div class="dev-preview-sample">Inferno Frame</div></div><div class="dev-preview-value">value: inferno</div></div>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
         <div class="dev-grid">
@@ -1626,6 +1675,7 @@ const SHOP_ITEMS=[
   {id:'animated_aurora_glow',type:'animatedName',label:'Aurora Glow Name',price:650,value:'auroraGlow'},
   {id:'animated_blood_moon',type:'animatedName',label:'Blood Moon Name',price:700,value:'bloodMoon'},
   {id:'animated_galaxy_flow',type:'animatedName',label:'Galaxy Flow Name',price:800,value:'galaxyFlow'},
+  {id:'animated_inferno_name',type:'animatedName',label:'Inferno Name',price:1100,value:'infernoName'},
   {id:'frame_gold',type:'avatarFrame',label:'Gold Avatar Frame',price:150,value:'gold'},
   {id:'frame_neon',type:'avatarFrame',label:'Neon Avatar Frame',price:200,value:'neon'},
   {id:'frame_fire',type:'avatarFrame',label:'Fire Avatar Frame',price:300,value:'fire'},
@@ -1636,7 +1686,8 @@ const SHOP_ITEMS=[
   {id:'frame_candy',type:'avatarFrame',label:'Candy Shift Avatar Frame',price:550,value:'candy'},
   {id:'frame_aurora',type:'avatarFrame',label:'Aurora Glow Avatar Frame',price:650,value:'aurora'},
   {id:'frame_blood_moon',type:'avatarFrame',label:'Blood Moon Avatar Frame',price:700,value:'bloodmoon'},
-  {id:'frame_galaxy',type:'avatarFrame',label:'Galaxy Flow Avatar Frame',price:800,value:'galaxy'}
+  {id:'frame_galaxy',type:'avatarFrame',label:'Galaxy Flow Avatar Frame',price:800,value:'galaxy'},
+  {id:'frame_inferno',type:'avatarFrame',label:'Inferno Avatar Frame',price:1100,value:'inferno'}
 ];
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
