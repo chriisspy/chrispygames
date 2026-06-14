@@ -2894,7 +2894,7 @@ function renderLobby(game){
   const n=players.length;
   document.getElementById('lobbyCount').textContent=n;
   document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}${lobbyPlayerMenuHtml(p)}</div>`).join('');
-  const minPlayers=localGameMode==='mafia'?4:3;
+  const minPlayers=localGameMode==='mafia'?4:localGameMode==='guess'?2:3;
   const ok=n>=minPlayers;
   document.getElementById('startBtn').disabled=!ok;
   document.getElementById('minPlayersNotice').style.display=ok?'none':'block';
@@ -5929,7 +5929,7 @@ function changeGuessRounds(delta){
 async function startGuessGame(){
   const game=localGame;if(!game)return;
   const players=Object.values(game.players||{});
-  if(players.length<3)return;
+  if(players.length<2)return;
   await startGuessRound(1,{},[]);
 }
 async function startGuessRound(round,scores,usedGivers){
