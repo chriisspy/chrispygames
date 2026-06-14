@@ -837,9 +837,7 @@ select option{background:var(--surface2)}
 @keyframes winTextPop{0%{transform:translate(-50%,-50%) scale(0.3);opacity:0}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}70%{transform:translate(-50%,-50%) scale(0.96)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 .win-anim-overlay .win-victory-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Syne',sans-serif;font-size:clamp(30px,10vw,60px);font-weight:800;letter-spacing:-1px;text-align:center;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,0.7);animation:winTextPop 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;white-space:nowrap}
 
-/* ===== INFERNO WIN THEME (applied to <body>
-<div class="win-anim-overlay" id="winAnimOverlay"></div>
-<div class="win-anim-overlay" id="winAnimOverlay"></div> while inferno win plays) ===== */
+/* ===== INFERNO WIN THEME (applied to body while inferno win plays) ===== */
 @keyframes infThemePulse{0%,100%{filter:saturate(1.15) brightness(1.02)}50%{filter:saturate(1.4) brightness(1.1)}}
 @keyframes infGlowPulse{0%,100%{box-shadow:0 0 14px rgba(249,115,22,.55),0 0 32px rgba(239,68,68,.35),inset 0 0 18px rgba(249,115,22,.18)}50%{box-shadow:0 0 26px rgba(253,224,71,.7),0 0 54px rgba(249,115,22,.55),inset 0 0 26px rgba(239,68,68,.28)}}
 @keyframes infTextGlow{0%,100%{text-shadow:0 0 8px rgba(249,115,22,.7),0 0 18px rgba(239,68,68,.5)}50%{text-shadow:0 0 16px rgba(253,224,71,.9),0 0 36px rgba(249,115,22,.7)}}
@@ -957,6 +955,7 @@ body.gold-win-theme .screen.active .scoreboard-item.me{
 </style>
 </head>
 <body>
+<div class="win-anim-overlay" id="winAnimOverlay"></div>
 <!-- PASSWORD -->
 <div class="screen active" id="screen-password">
   <div class="logo">CHRISPY<span>GAMES</span></div>
@@ -1107,6 +1106,15 @@ body.gold-win-theme .screen.active .scoreboard-item.me{
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-bloodmoon">👤</div><div class="dev-preview-sample">Blood Moon Frame</div></div><div class="dev-preview-value">value: bloodmoon</div></div>
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-galaxy">👤</div><div class="dev-preview-sample">Galaxy Flow Frame</div></div><div class="dev-preview-value">value: galaxy</div></div>
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-inferno">👤</div><div class="dev-preview-sample">Inferno Frame</div></div><div class="dev-preview-value">value: inferno</div></div>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Win Animation Previews</div>
+        <div class="dev-grid">
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('rays')">🌟 Golden Rays</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('confetti')">🎉 Confetti</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('fireworks')">🎆 Fireworks</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('goldConfetti')">✨ Golden Confetti</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('crown')">👑 Golden Crown</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('inferno')">🔥 Inferno</button>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
         <div class="dev-grid">
@@ -2181,7 +2189,7 @@ function shopItemPreview(item){
     return `<div class="shop-preview">${avatarImg(myAvatar, 'shop-preview-frame av-frame-'+item.value)}</div>`;
   }
   if(item.type==='winAnim'){
-    return `<div class="shop-preview"><button type="button" class="win-anim-shop-preview win-preview-${item.value}" onclick="event.stopPropagation();previewWinAnim('${item.value}')" style="cursor:pointer" title="Tap to preview"><span class="win-preview-icon">${item.icon||'🏆'}</span></button></div>`;
+    return `<div class="shop-preview"><button type="button" class="win-anim-shop-preview win-preview-${item.value}" onclick="event.preventDefault();event.stopPropagation();previewWinAnim('${item.value}')" style="cursor:pointer" title="Tap to preview"><span class="win-preview-icon">${item.icon||'🏆'}</span></button></div>`;
   }
   return `<div class="shop-preview"></div>`;
 }
@@ -2447,6 +2455,7 @@ function clearWinAnim(){
 function previewWinAnim(value){
   playWinAnim(value,true);
 }
+window.previewWinAnim=previewWinAnim;
 
 // Renders a full-screen overlay effect for ~2.6s
 function playWinAnim(value,isPreview){
