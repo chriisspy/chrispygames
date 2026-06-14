@@ -2896,7 +2896,11 @@ function watchPresence(game){
 async function handlePlayerLeft(leftId,game){
   if(!amHost||!gameCode)return;
   const snap=await gameRefFor(gameCode).once('value');const fg=snap.val();if(!fg)return;
-  if(fg.status==='lobby')await gameRefFor(gameCode).child('players/'+leftId).remove();
+
+  // Do NOT auto-remove offline players from the lobby.
+  // Players can now press Back to Lobby before the host returns, and they should remain in the same room.
+  // Only the explicit Kick Player button or Leave Game should remove a player from /players.
+
   if(fg.hostId===leftId){
     const rem=Object.values(fg.players||{}).filter(p=>p.id!==leftId).sort((a,b)=>a.joinedAt-b.joinedAt);
     if(rem.length>0){
