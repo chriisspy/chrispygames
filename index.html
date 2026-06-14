@@ -510,8 +510,8 @@ select option{background:var(--surface2)}
 #homeTileBs:hover,#modeTabBs:hover,#homeTileBs.selected,#modeTabBs.active-bs{border-color:#4de8a0;background:rgba(77,232,160,.14);box-shadow:0 0 0 1px rgba(77,232,160,.25)}
 #homeTileBs .custom-mode-name,#modeTabBs .custom-mode-name{color:#4de8a0}
 
-.home-shop-btn{width:100%;max-width:440px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius-lg);padding:14px 16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px}
-.home-shop-btn:hover{background:#f0dd55;transform:translateY(-1px)}
+.home-shop-btn{width:100%;max-width:440px;background:#13131a;color:var(--accent);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:14px 16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px}
+.home-shop-btn:hover{background:rgba(232,212,77,.08);transform:translateY(-1px);box-shadow:0 0 0 1px rgba(232,212,77,.18)}
 .shop-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9998;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
 .shop-modal-backdrop.open{display:flex}
 .shop-modal{width:100%;max-width:440px;max-height:88dvh;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:0 24px 80px rgba(0,0,0,0.65);animation:fadeIn 0.2s ease}
@@ -1005,7 +1005,7 @@ body.gold-win-theme .screen.active .scoreboard-item.me{
     <label>Game code</label>
     <div class="flex-row">
       <input id="joinCode" type="text" placeholder="XXXX" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-family:'DM Mono',monospace;font-size:18px;margin-bottom:0"/>
-      <button class="btn btn-secondary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
+      <button class="btn btn-primary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
     </div>
   </div>
   <div class="shop-modal-backdrop" id="shopModalBackdrop" onclick="closeShopModal(event)">
@@ -2065,6 +2065,7 @@ const SHOP_ITEMS=[
   {id:'win_inferno',type:'winAnim',label:'Inferno Triumph',price:2200,value:'inferno',icon:'🔥'}
 ];
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
+let nonHostLobbyView=false;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
 let roleVisible=true,revealVisible=true,mafiaCardVisible=true;
 let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localFaWords=3,localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;let localGuessDiscussMinutes=5,localGuessRounds=3,guessTimerInterval=null;
@@ -2914,7 +2915,7 @@ async function createGame(){
   const name=document.getElementById('playerName').value.trim();
   if(!name)return showError('homeError','Please enter your name');
   setLoading('createBtn',true,'Creating...');
-  const code=genCode();gameCode=code;amHost=true;
+  const code=genCode();gameCode=code;amHost=true;nonHostLobbyView=false;
   await saveProfileBasics(name);
   const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
   const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,guessRound:0,guessTotalRounds:3,guessDiscussMinutes:5,guessScores:{},guessPhase:null,guessAnswerGiverId:null,guessCategory:null,guessAnswer:null,guessGuesses:{},guessCorrectOrder:[],guessResult:null,players:{[myId]:makePlayerData(name,true)},createdAt:Date.now(),updatedAt:Date.now()};
@@ -2937,7 +2938,7 @@ async function joinGame(){
     const snap=await gameRefFor(code).once('value');const game=snap.val();
     if(!game){setLoading('joinBtn',false,'Join');return showError('homeError','Game not found');}
     if(game.status!=='lobby'){setLoading('joinBtn',false,'Join');return showError('homeError','Game already started');}
-    gameCode=code;amHost=false;
+    gameCode=code;amHost=false;nonHostLobbyView=false;
     await saveProfileBasics(name);
     const existing=game.players&&game.players[myId];
     if(!existing)await gameRefFor(code).child('players/'+myId).set(makePlayerData(name,false));
@@ -2964,6 +2965,12 @@ function onGameUpdate(game){
   awardCoinsForFinishedGame(game);
   handleMyRewardDisplays(game);
   maybePlayMyWinAnim(game);
+  if(game.status==='lobby')nonHostLobbyView=false;
+  if(nonHostLobbyView&&!amHost&&game.status!=='lobby'){
+    renderWaiting(game);
+    showScreen('waiting');
+    return;
+  }
 
   const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result','screen-guess-setup','screen-guess-game','screen-guess-result','screen-guess-final'];
 
@@ -4623,8 +4630,14 @@ async function playAgain(){
   await updateGame(gameCode,{status:'playing',mode:'spyfall',spyIds,innocentId,spyId:spyIds[0]||null,currentLocation:locObj.name,roles,locations:newLocations,timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:duration,votes:{},result:null,spyGuess:null,chaosMode:isChaos,spyCount:spyIds.length,tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0});
 }
 async function returnToLobby(){
-  if(!amHost)return;
   const game=localGame;if(!game)return;
+  if(!amHost){
+    nonHostLobbyView=true;
+    renderWaiting(game);
+    showScreen('waiting');
+    return;
+  }
+  nonHostLobbyView=false;
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
   await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,chat:null});
 }
@@ -4641,7 +4654,7 @@ async function leaveGame(){
       }
     }catch(e){console.error(e);}
   }
-  gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;faCanvasCleanup();bsCleanup();
+  gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;faCanvasCleanup();bsCleanup();
   showScreen('home');
 }
 
@@ -4824,7 +4837,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
 
 
 
