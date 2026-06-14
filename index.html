@@ -480,6 +480,11 @@ select option{background:var(--surface2)}
 .custom-mode-wrap.open .custom-mode-arrow{transform:rotate(90deg)}
 .custom-mode-menu{display:none;margin-top:8px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 18px 50px rgba(0,0,0,0.35)}
 .custom-mode-wrap.open .custom-mode-menu{display:flex;flex-direction:column;gap:8px;animation:fadeIn 0.18s ease}
+/* Home game selector opens as an overlay so it does not push the logo/layout upward */
+#homeModeDropdown{position:relative;z-index:60}
+#homeModeDropdown .custom-mode-menu{position:absolute;left:0;right:0;top:calc(100% + 8px);width:100%;margin-top:0;z-index:70}
+#homeModeDropdown.open{z-index:80}
+
 .custom-mode-option{width:100%;display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);text-align:left;cursor:pointer;transition:all 0.15s}
 .custom-mode-option:hover{border-color:var(--accent);transform:translateY(-1px)}
 .custom-mode-option.selected,.custom-mode-option.active-spyfall,.custom-mode-option.active-ooo,.custom-mode-option.active-mafia,.custom-mode-option.active-fa,.custom-mode-option.active-bs,.custom-mode-option.active-guess{background:rgba(232,212,77,0.06);border-color:var(--accent)}
