@@ -519,8 +519,8 @@ select option{background:var(--surface2)}
 .shop-modal-header h2{flex:1;font-size:22px;font-weight:800;margin:0}
 .shop-close-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'DM Mono',monospace;font-size:16px;cursor:pointer}
 .shop-close-btn:hover{color:var(--text);border-color:var(--accent)}
-.shop-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:var(--surface2);padding:5px;border-radius:var(--radius);margin-bottom:12px}
-.shop-tab{padding:9px 6px;border:none;border-radius:9px;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s}
+.shop-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:12px}
+.shop-tab{padding:9px 4px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .shop-tab:hover{color:var(--text);background:var(--surface3)}
 .shop-tab.active{background:var(--accent);color:#0a0a0f}
 .shop-preview{width:54px;min-width:54px;display:flex;align-items:center;justify-content:center}
@@ -541,7 +541,7 @@ select option{background:var(--surface2)}
 .shop-item-price{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:3px}
 .shop-item-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .shop-item-btn{width:auto;padding:8px 12px;font-size:12px;white-space:nowrap}
-.shop-sell-btn{background:transparent;color:var(--muted);border:1px solid var(--accent);padding:7px 10px}
+.shop-sell-btn{background:transparent;color:var(--muted);border:1px solid var(--border);padding:7px 10px}
 .shop-sell-btn:hover{color:var(--text);border-color:var(--accent)}
 .player-cosmetic-name{display:inline-block;position:relative}
 @keyframes chrispyGlow{0%,100%{text-shadow:0 0 5px currentColor,0 0 10px rgba(232,212,77,0.15)}50%{text-shadow:0 0 12px currentColor,0 0 24px rgba(232,212,77,0.45)}}
@@ -781,29 +781,34 @@ select option{background:var(--surface2)}
 .update-available-btn span{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;opacity:.78;text-transform:uppercase;letter-spacing:1px}
 
 
-/* ===== ENTRANCE SHOP PREVIEW ===== */
-.shop-preview-entrance{width:54px;min-width:54px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.entrance-preview-card{display:flex;align-items:center;gap:5px;padding:4px 5px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;white-space:nowrap;overflow:hidden;width:100%}
-/* ===== ENTRANCE ANIMATIONS ===== */
-@keyframes entranceSlideIn{0%{opacity:0;transform:translateX(-70px) scale(0.95)}60%{transform:translateX(6px) scale(1.01)}100%{opacity:1;transform:translateX(0) scale(1)}}
-@keyframes entranceDropBounce{0%{opacity:0;transform:translateY(-90px) scale(0.9)}55%{transform:translateY(10px) scale(1.02)}72%{transform:translateY(-5px) scale(0.99)}88%{transform:translateY(3px) scale(1.005)}100%{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes entranceGlitch{0%{opacity:0;transform:translate(0);filter:none}4%{opacity:1;transform:translate(-4px,2px) skew(-5deg);filter:brightness(2) hue-rotate(90deg)}8%{transform:translate(4px,-2px) skew(4deg);filter:brightness(1.5) hue-rotate(-90deg)}12%{transform:translate(-2px,1px) skew(-2deg);filter:brightness(1.2)}16%{transform:translate(0);filter:none}20%{transform:translate(-1px,0) skew(-1deg);filter:brightness(1.8)}25%{transform:translate(0);filter:none;opacity:1}100%{opacity:1;transform:translate(0);filter:none}}
-@keyframes entranceSpotlight{0%{opacity:0;transform:scale(0.82)}50%{opacity:1;transform:scale(1.04)}80%{transform:scale(0.99)}100%{opacity:1;transform:scale(1)}}
-@keyframes entrancePortal{0%{opacity:0;clip-path:circle(0% at 50% 50%)}60%{clip-path:circle(58% at 50% 50%);opacity:1}85%{clip-path:circle(52% at 50% 50%)}100%{opacity:1;clip-path:circle(75% at 50% 50%)}}
-@keyframes entranceShatter{0%{opacity:0;transform:scale(0.4) rotate(-8deg);filter:blur(4px)}40%{opacity:1;transform:scale(1.06) rotate(1.5deg);filter:blur(0)}65%{transform:scale(0.97) rotate(-0.5deg)}82%{transform:scale(1.02) rotate(0.3deg)}100%{opacity:1;transform:scale(1) rotate(0);filter:none}}
-@keyframes entranceInferno{0%{opacity:0;transform:translateY(30px) scale(0.85);filter:brightness(3) saturate(2) hue-rotate(-10deg)}30%{opacity:1;transform:translateY(-6px) scale(1.05);filter:brightness(1.8) saturate(1.5)}55%{transform:translateY(3px) scale(0.98);filter:brightness(1.2)}75%{transform:translateY(-2px) scale(1.01)}100%{opacity:1;transform:translateY(0) scale(1);filter:none}}
-@keyframes entranceVortex{0%{opacity:0;transform:rotate(-180deg) scale(0)}50%{opacity:1;transform:rotate(10deg) scale(1.06)}70%{transform:rotate(-4deg) scale(0.97)}85%{transform:rotate(2deg) scale(1.01)}100%{opacity:1;transform:rotate(0) scale(1)}}
-.entrance-slideIn{animation:entranceSlideIn 0.55s cubic-bezier(0.22,1,0.36,1) both}
-.entrance-dropBounce{animation:entranceDropBounce 0.7s ease both}
-.entrance-glitch{animation:entranceGlitch 0.5s linear both}
-.entrance-spotlight{animation:entranceSpotlight 0.65s ease both}
-.entrance-portal{animation:entrancePortal 0.6s ease both}
-.entrance-shatter{animation:entranceShatter 0.65s cubic-bezier(0.22,1,0.36,1) both}
-.entrance-inferno{animation:entranceInferno 0.7s ease both}
-.entrance-vortex{animation:entranceVortex 0.6s cubic-bezier(0.34,1.56,0.64,1) both}
+/* ===== WIN ANIMATIONS ===== */
+.win-anim-overlay{position:fixed;inset:0;z-index:13000;pointer-events:none;display:none;overflow:hidden}
+.win-anim-overlay.active{display:block}
+.win-anim-shop-preview{width:54px;min-width:54px;height:40px;border-radius:8px;background:var(--surface3);border:1px solid var(--border);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px}
+@keyframes winConfettiFall{0%{transform:translateY(-20vh) rotate(0deg);opacity:1}100%{transform:translateY(120vh) rotate(720deg);opacity:0.2}}
+.win-confetti-piece{position:absolute;top:-20px;width:11px;height:16px;border-radius:2px;animation:winConfettiFall linear forwards}
+@keyframes winFirework{0%{transform:scale(0);opacity:1}70%{opacity:1}100%{transform:scale(1);opacity:0}}
+.win-firework{position:absolute;width:6px;height:6px;border-radius:50%;animation:winFirework 1.1s ease-out forwards}
+@keyframes winRays{0%{opacity:0;transform:scale(0.4) rotate(0deg)}30%{opacity:0.85}100%{opacity:0;transform:scale(2.2) rotate(140deg)}}
+.win-rays{position:absolute;left:50%;top:42%;width:140vmax;height:140vmax;margin-left:-70vmax;margin-top:-70vmax;background:repeating-conic-gradient(from 0deg,rgba(232,212,77,0.0) 0deg,rgba(232,212,77,0.22) 6deg,rgba(232,212,77,0.0) 12deg);animation:winRays 1.8s ease-out forwards}
+@keyframes winCrownDrop{0%{transform:translate(-50%,-160px) scale(0.4) rotate(-20deg);opacity:0}45%{transform:translate(-50%,0) scale(1.2) rotate(6deg);opacity:1}62%{transform:translate(-50%,8px) scale(0.95) rotate(-3deg)}100%{transform:translate(-50%,0) scale(1) rotate(0deg);opacity:1}}
+.win-crown{position:absolute;left:50%;top:24%;font-size:84px;filter:drop-shadow(0 8px 24px rgba(232,212,77,0.6));animation:winCrownDrop 1.1s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes winFlameRise{0%{transform:translateY(40px) scaleY(0.4);opacity:0}25%{opacity:1}100%{transform:translateY(-110vh) scaleY(1.4);opacity:0}}
+.win-flame{position:absolute;bottom:-10vh;width:60px;border-radius:50% 50% 40% 40%;background:radial-gradient(circle at 50% 80%,#fde047,#f97316 45%,#ef4444 75%,transparent);filter:blur(2px);animation:winFlameRise ease-in forwards}
+@keyframes winFlash{0%,100%{opacity:0}5%,12%{opacity:0.9}8%{opacity:0.2}}
+.win-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(56,189,248,0.5),transparent 60%);animation:winFlash 1.4s ease-out forwards}
+@keyframes winBoltGrow{0%{height:0;opacity:1}40%{height:60vh;opacity:1}100%{height:60vh;opacity:0}}
+.win-bolt{position:absolute;top:8%;left:50%;width:5px;margin-left:-2px;background:linear-gradient(#dbeafe,#38bdf8);box-shadow:0 0 14px #38bdf8,0 0 28px #06b6d4;transform-origin:top center;animation:winBoltGrow 1.2s ease-out forwards}
+@keyframes winStarFall{0%{transform:translateY(-10vh) scale(0);opacity:0}20%{opacity:1;transform:scale(1)}100%{transform:translateY(110vh) scale(0.6);opacity:0}}
+.win-star{position:absolute;top:-10vh;font-size:26px;animation:winStarFall ease-in forwards;filter:drop-shadow(0 0 6px rgba(232,212,77,0.7))}
+@keyframes winVortexSpin{0%{transform:translate(-50%,-50%) scale(0) rotate(0deg);opacity:0}30%{opacity:0.8}100%{transform:translate(-50%,-50%) scale(2.4) rotate(540deg);opacity:0}}
+.win-vortex{position:absolute;left:50%;top:42%;width:60vmax;height:60vmax;border-radius:50%;border:14px solid transparent;border-top-color:#a855f7;border-right-color:#38bdf8;border-bottom-color:#ec4899;animation:winVortexSpin 1.6s ease-out forwards}
+@keyframes winTextPop{0%{transform:translate(-50%,-50%) scale(0.3);opacity:0}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}70%{transform:translate(-50%,-50%) scale(0.96)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.win-anim-overlay .win-victory-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Syne',sans-serif;font-size:clamp(30px,10vw,60px);font-weight:800;letter-spacing:-1px;text-align:center;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,0.7);animation:winTextPop 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;white-space:nowrap}
 </style>
 </head>
 <body>
+<div class="win-anim-overlay" id="winAnimOverlay"></div>
 <!-- PASSWORD -->
 <div class="screen active" id="screen-password">
   <div class="logo">CHRISPY<span>GAMES</span></div>
@@ -862,10 +867,10 @@ select option{background:var(--surface2)}
         <button class="shop-close-btn" onclick="closeShopModal()">×</button>
       </div>
       <div class="coin-pill"><img src="coin-icon-2.png" class="coin-icon" alt="Coins"/> <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
-      <div class="shop-tabs" style="grid-template-columns:1fr 1fr 1fr 1fr">
+      <div class="shop-tabs">
         <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Names</button>
         <button class="shop-tab" id="shopTabFrames" onclick="switchShopTab('frames')">Frames</button>
-        <button class="shop-tab" id="shopTabEntrance" onclick="switchShopTab('entrance')">Entrance</button>
+        <button class="shop-tab" id="shopTabWins" onclick="switchShopTab('wins')">Wins</button>
         <button class="shop-tab" id="shopTabOwned" onclick="switchShopTab('owned')">Owned</button>
       </div>
       <div class="shop-grid" id="shopItems"></div>
@@ -953,6 +958,17 @@ select option{background:var(--surface2)}
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-bloodmoon">👤</div><div class="dev-preview-sample">Blood Moon Frame</div></div><div class="dev-preview-value">value: bloodmoon</div></div>
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-galaxy">👤</div><div class="dev-preview-sample">Galaxy Flow Frame</div></div><div class="dev-preview-value">value: galaxy</div></div>
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-inferno">👤</div><div class="dev-preview-sample">Inferno Frame</div></div><div class="dev-preview-value">value: inferno</div></div>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Win Animation Previews</div>
+        <div class="dev-grid">
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('confetti')">🎉 Confetti</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('fireworks')">🎆 Fireworks</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('crown')">👑 Crown</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('stars')">⭐ Stars</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('rays')">🌟 Rays</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('lightning')">⚡ Lightning</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('vortex')">🌀 Vortex</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('inferno')">🔥 Inferno</button>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
         <div class="dev-grid">
@@ -1597,6 +1613,14 @@ select option{background:var(--surface2)}
         <span style="color:var(--muted);font-size:13px">Word hidden — tap to peek</span>
       </div>
     </div>
+    <div id="faImposterGuessBar" style="display:none;margin-bottom:8px;flex-shrink:0;padding:10px 12px;background:rgba(232,93,77,0.08);border:1px solid rgba(232,93,77,0.35);border-radius:var(--radius)">
+      <div style="font-size:10px;color:var(--spy);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">🕵️ Imposter — one guess to win</div>
+      <div style="display:flex;gap:8px">
+        <input id="faImposterGuessInput" type="text" placeholder="Guess the subject..." maxlength="40" autocomplete="off" style="flex:1;margin-bottom:0;font-size:14px;padding:9px 12px" onkeydown="if(event.key==='Enter')faImposterGuessWord()"/>
+        <button onclick="faImposterGuessWord()" style="background:var(--spy);color:#fff;border:none;padding:9px 14px;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Guess</button>
+      </div>
+      <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;line-height:1.4">Guess right = you win instantly. Guess wrong = you lose & the artists win.</div>
+    </div>
     <div id="faCanvasBox" style="width:100%;max-width:430px;aspect-ratio:1/1;height:auto;position:relative;flex:0 1 auto;margin:0 auto;overflow:hidden;border-radius:var(--radius);background:#1a1a24;border:1px solid var(--border)">
       <canvas id="faCanvas" width="430" height="430" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius);background:#1a1a24;display:block;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none"></canvas>
       <canvas id="faLiveCanvas" width="430" height="430" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius);display:block;pointer-events:none;touch-action:none"></canvas>
@@ -1872,14 +1896,14 @@ const SHOP_ITEMS=[
   {id:'frame_blood_moon',type:'avatarFrame',label:'Blood Moon Avatar Frame',price:700,value:'bloodmoon'},
   {id:'frame_galaxy',type:'avatarFrame',label:'Galaxy Flow Avatar Frame',price:800,value:'galaxy'},
   {id:'frame_inferno',type:'avatarFrame',label:'Inferno Avatar Frame',price:1100,value:'inferno'},
-  {id:'entrance_slideIn',type:'entrance',label:'Slide In',price:1000,value:'slideIn'},
-  {id:'entrance_dropBounce',type:'entrance',label:'Drop Bounce',price:1100,value:'dropBounce'},
-  {id:'entrance_glitch',type:'entrance',label:'Glitch',price:1200,value:'glitch'},
-  {id:'entrance_spotlight',type:'entrance',label:'Spotlight',price:1300,value:'spotlight'},
-  {id:'entrance_portal',type:'entrance',label:'Portal',price:1400,value:'portal'},
-  {id:'entrance_shatter',type:'entrance',label:'Shatter',price:1600,value:'shatter'},
-  {id:'entrance_vortex',type:'entrance',label:'Vortex',price:1800,value:'vortex'},
-  {id:'entrance_inferno',type:'entrance',label:'Inferno Entrance',price:2000,value:'inferno'}
+  {id:'win_confetti',type:'winAnim',label:'Confetti Blast',price:1000,value:'confetti',icon:'🎉'},
+  {id:'win_fireworks',type:'winAnim',label:'Fireworks',price:1200,value:'fireworks',icon:'🎆'},
+  {id:'win_crown',type:'winAnim',label:'Golden Crown',price:1400,value:'crown',icon:'👑'},
+  {id:'win_stars',type:'winAnim',label:'Star Shower',price:1500,value:'stars',icon:'⭐'},
+  {id:'win_rays',type:'winAnim',label:'Golden Rays',price:1600,value:'rays',icon:'🌟'},
+  {id:'win_lightning',type:'winAnim',label:'Lightning Strike',price:1800,value:'lightning',icon:'⚡'},
+  {id:'win_vortex',type:'winAnim',label:'Victory Vortex',price:1900,value:'vortex',icon:'🌀'},
+  {id:'win_inferno',type:'winAnim',label:'Inferno Triumph',price:2200,value:'inferno',icon:'🔥'}
 ];
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
@@ -1982,8 +2006,8 @@ function equipShopItem(item){
     // Only one avatar frame at a time.
     delete myProfile.equipped.avatarFrame;
   }
-  if(item.type==='entrance'){
-    delete myProfile.equipped.entrance;
+  if(item.type==='winAnim'){
+    delete myProfile.equipped.winAnim;
   }
   myProfile.equipped[item.type]=item.value;
 }
@@ -1992,7 +2016,7 @@ function isShopItemEquipped(item){
   return myProfile.equipped[item.type]===item.value;
 }
 function shopItemCategory(item){
-  return isNameShopItem(item)?'Name':item.type==='avatarFrame'?'Frame':item.type==='entrance'?'Entrance':'Item';
+  return isNameShopItem(item)?'Name':item.type==='avatarFrame'?'Frame':item.type==='winAnim'?'Win':'Item';
 }
 function shopItemPreview(item){
   const sampleName=esc((document.getElementById('playerName')&&document.getElementById('playerName').value.trim())||myProfile.name||'Chris');
@@ -2005,15 +2029,14 @@ function shopItemPreview(item){
   if(item.type==='avatarFrame'){
     return `<div class="shop-preview">${avatarImg(myAvatar, 'shop-preview-frame av-frame-'+item.value)}</div>`;
   }
-  if(item.type==='entrance'){
-    const sn=esc((document.getElementById('playerName')&&document.getElementById('playerName').value.trim())||myProfile.name||'Chris');
-    return `<div class="shop-preview-entrance"><div class="entrance-preview-card entrance-${item.value}" style="animation-iteration-count:infinite;animation-duration:2.2s"><div class="av-placeholder" style="width:28px;height:28px;font-size:12px;flex-shrink:0">👤</div><span style="font-size:12px;font-weight:700;color:var(--text)">${sn}</span></div></div>`;
+  if(item.type==='winAnim'){
+    return `<div class="shop-preview"><div class="win-anim-shop-preview" onclick="event.stopPropagation();previewWinAnim('${item.value}')" style="cursor:pointer" title="Tap to preview">${item.icon||'🏆'}</div></div>`;
   }
   return `<div class="shop-preview"></div>`;
 }
 function switchShopTab(tab){
   currentShopTab=tab;
-  ['names','frames','entrance','owned'].forEach(t=>{
+  ['names','frames','wins','owned'].forEach(t=>{
     const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.classList.toggle('active',t===currentShopTab);
   });
@@ -2022,7 +2045,7 @@ function switchShopTab(tab){
 function renderShop(){
   const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
   const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
-  ['names','frames','entrance','owned'].forEach(t=>{
+  ['names','frames','wins','owned'].forEach(t=>{
     const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.classList.toggle('active',t===currentShopTab);
   });
@@ -2031,7 +2054,7 @@ function renderShop(){
     const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
     if(currentShopTab==='names')return isNameShopItem(item);
     if(currentShopTab==='frames')return item.type==='avatarFrame';
-    if(currentShopTab==='entrance')return item.type==='entrance';
+    if(currentShopTab==='wins')return item.type==='winAnim';
     if(currentShopTab==='owned')return owned;
     return true;
   }).sort((a,b)=>(a.price||0)-(b.price||0)||String(a.label).localeCompare(String(b.label)));
@@ -2229,6 +2252,132 @@ function winnerIdsForGame(game){
   const data=rewardDataForGame(game);
   return data?Object.keys(data.rewards||{}):[];
 }
+
+// =====================================================
+// WIN ANIMATIONS (solo-winner only)
+// =====================================================
+const WIN_ANIM_SEEN=new Set();
+function getMyWinAnim(){return (myProfile.equipped&&myProfile.equipped.winAnim)||null;}
+
+// Determine if I am a SOLO winner of this game (the only person who won).
+function amSoloWinnerOfGame(game){
+  const winners=winnerIdsForGame(game);
+  return winners.length===1 && winners[0]===myId;
+}
+
+function clearWinAnim(){
+  const ov=document.getElementById('winAnimOverlay');
+  if(ov){ov.classList.remove('active');ov.innerHTML='';ov.style.display='none';}
+}
+
+function previewWinAnim(value){
+  playWinAnim(value,true);
+}
+
+// Renders a full-screen overlay effect for ~2.6s
+function playWinAnim(value,isPreview){
+  const ov=document.getElementById('winAnimOverlay');
+  if(!ov||!value)return;
+  ov.innerHTML='';
+  ov.style.display='block';
+  ov.classList.add('active');
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  const palette=['#e8d44d','#e85d4d','#4de8a0','#06b6d4','#a78bfa','#f97316','#ff4fd8','#ffffff'];
+
+  if(value==='confetti'){
+    for(let i=0;i<90;i++){
+      const p=document.createElement('div');p.className='win-confetti-piece';
+      p.style.left=rand(0,100)+'vw';
+      p.style.background=palette[Math.floor(Math.random()*palette.length)];
+      p.style.animationDuration=rand(1.6,3.0)+'s';
+      p.style.animationDelay=rand(0,0.6)+'s';
+      p.style.width=rand(8,14)+'px';p.style.height=rand(12,20)+'px';
+      ov.appendChild(p);
+    }
+  } else if(value==='fireworks'){
+    for(let b=0;b<6;b++){
+      const cx=rand(15,85),cy=rand(18,55),col=palette[Math.floor(Math.random()*palette.length)];
+      setTimeout(()=>{
+        if(!ov.classList.contains('active'))return;
+        for(let i=0;i<26;i++){
+          const ang=(Math.PI*2*i)/26,dist=rand(60,150);
+          const f=document.createElement('div');f.className='win-firework';
+          f.style.left=cx+'vw';f.style.top=cy+'vh';f.style.background=col;
+          f.style.boxShadow='0 0 8px '+col;
+          f.style.setProperty('--x',Math.cos(ang)*dist+'px');
+          f.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist}px) scale(0)`,opacity:0}],{duration:1000,easing:'ease-out',fill:'forwards'});
+          ov.appendChild(f);
+        }
+      },b*260);
+    }
+  } else if(value==='crown'){
+    const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
+    const c=document.createElement('div');c.className='win-crown';c.textContent='👑';ov.appendChild(c);
+    for(let i=0;i<40;i++){
+      const p=document.createElement('div');p.className='win-confetti-piece';
+      p.style.left=rand(20,80)+'vw';p.style.background='#e8d44d';
+      p.style.animationDuration=rand(1.8,2.8)+'s';p.style.animationDelay=rand(0.3,0.9)+'s';
+      ov.appendChild(p);
+    }
+  } else if(value==='stars'){
+    for(let i=0;i<46;i++){
+      const s=document.createElement('div');s.className='win-star';s.textContent=Math.random()>0.5?'⭐':'✨';
+      s.style.left=rand(0,100)+'vw';
+      s.style.animationDuration=rand(1.6,2.8)+'s';s.style.animationDelay=rand(0,0.9)+'s';
+      s.style.fontSize=rand(18,34)+'px';
+      ov.appendChild(s);
+    }
+  } else if(value==='rays'){
+    const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
+    const rays2=document.createElement('div');rays2.className='win-rays';rays2.style.animationDelay='0.3s';rays2.style.animationDuration='2.1s';ov.appendChild(rays2);
+  } else if(value==='lightning'){
+    const flash=document.createElement('div');flash.className='win-flash';ov.appendChild(flash);
+    for(let i=0;i<5;i++){
+      const bolt=document.createElement('div');bolt.className='win-bolt';
+      bolt.style.left=rand(20,80)+'vw';
+      bolt.style.transform='rotate('+rand(-12,12)+'deg)';
+      bolt.style.animationDelay=rand(0,0.5)+'s';
+      ov.appendChild(bolt);
+    }
+  } else if(value==='vortex'){
+    const v=document.createElement('div');v.className='win-vortex';ov.appendChild(v);
+    const v2=document.createElement('div');v2.className='win-vortex';v2.style.animationDelay='0.25s';v2.style.borderTopColor='#fde047';ov.appendChild(v2);
+  } else if(value==='inferno'){
+    for(let i=0;i<14;i++){
+      const f=document.createElement('div');f.className='win-flame';
+      f.style.left=rand(0,100)+'vw';
+      f.style.height=rand(120,260)+'px';
+      f.style.animationDuration=rand(1.3,2.2)+'s';
+      f.style.animationDelay=rand(0,0.7)+'s';
+      ov.appendChild(f);
+    }
+    const flash=document.createElement('div');flash.className='win-flash';flash.style.background='radial-gradient(circle at 50% 60%,rgba(249,115,22,0.5),transparent 60%)';ov.appendChild(flash);
+  }
+
+  // Victory text for non-preview plays
+  if(!isPreview){
+    const t=document.createElement('div');t.className='win-victory-text';t.textContent='VICTORY';
+    ov.appendChild(t);
+  }
+
+  clearTimeout(window.__winAnimTimer);
+  window.__winAnimTimer=setTimeout(clearWinAnim, isPreview?2400:2800);
+}
+
+// Called whenever a game result is shown — plays MY win anim if I solo-won.
+function maybePlayMyWinAnim(game){
+  if(!game)return;
+  const data=rewardDataForGame(game);
+  if(!data||!data.key)return;
+  const seenKey='winanim_'+(gameCode||'dev')+'_'+data.key;
+  if(WIN_ANIM_SEEN.has(seenKey))return;
+  if(!amSoloWinnerOfGame(game))return;
+  const anim=getMyWinAnim();
+  if(!anim)return;
+  WIN_ANIM_SEEN.add(seenKey);
+  setTimeout(()=>playWinAnim(anim,false),400);
+}
+
 
 async function awardCoinsForFinishedGame(game){
   if(!gameCode)return;
@@ -2483,56 +2632,6 @@ async function cleanupOldGames(){
 // =====================================================
 // PRESENCE
 // =====================================================
-
-// =====================================================
-// ENTRANCE ANIMATIONS
-// =====================================================
-const ENTRANCE_ANIM_MAP={slideIn:'entrance-slideIn',dropBounce:'entrance-dropBounce',glitch:'entrance-glitch',spotlight:'entrance-spotlight',portal:'entrance-portal',shatter:'entrance-shatter',vortex:'entrance-vortex',inferno:'entrance-inferno'};
-let entranceQueueListener=null;
-const seenEntrances=new Set();
-
-function getMyEntranceClass(){const val=myProfile.equipped&&myProfile.equipped.entrance;return val?(ENTRANCE_ANIM_MAP[val]||null):null;}
-
-function broadcastMyEntrance(){
-  if(!gameCode||!myId)return;
-  const cls=getMyEntranceClass();if(!cls)return;
-  const key=myId+'_'+Date.now();
-  gameRefFor(gameCode).child('entranceQueue/'+key).set({playerId:myId,animClass:cls,ts:Date.now()}).catch(()=>{});
-  setTimeout(()=>gameRefFor(gameCode).child('entranceQueue/'+key).remove().catch(()=>{}),5000);
-}
-
-function setupEntranceListener(code){
-  if(entranceQueueListener&&gameCode)db.ref('games/'+gameCode+'/entranceQueue').off('child_added',entranceQueueListener);
-  seenEntrances.clear();
-  entranceQueueListener=db.ref('games/'+code+'/entranceQueue').on('child_added',snap=>{
-    const data=snap.val();if(!data)return;
-    const key=snap.key;
-    if(seenEntrances.has(key))return;
-    seenEntrances.add(key);
-    if(data.playerId===myId)return;
-    const cur=(document.querySelector('.screen.active')||{}).id;
-    if(cur!=='screen-lobby'&&cur!=='screen-waiting')return;
-    playEntranceOnPlayerItem(data.playerId,data.animClass);
-  });
-}
-
-function stopEntranceListener(){
-  if(entranceQueueListener&&gameCode)db.ref('games/'+gameCode+'/entranceQueue').off('child_added',entranceQueueListener);
-  entranceQueueListener=null;seenEntrances.clear();
-}
-
-function playEntranceOnPlayerItem(playerId,animClass){
-  ['playerList','waitingPlayerList'].forEach(listId=>{
-    const list=document.getElementById(listId);if(!list)return;
-    list.querySelectorAll('.player-item[data-playerid="'+playerId+'"]').forEach(item=>{
-      item.classList.remove(...Object.values(ENTRANCE_ANIM_MAP));
-      void item.offsetWidth;
-      item.classList.add(animClass);
-      setTimeout(()=>item.classList.remove(animClass),1800);
-    });
-  });
-}
-
 function setupPresence(){
   if(!gameCode)return;
   const ref=gameRefFor(gameCode).child('players/'+myId+'/online');
@@ -2572,7 +2671,7 @@ async function createGame(){
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
-    setupPresence();setupEntranceListener(code);showScreen('lobby');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();setTimeout(()=>broadcastMyEntrance(),600);
+    setupPresence();showScreen('lobby');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
     updateModeUI(localGameMode);
     if(localGameMode!=='spyfall')updateGame(code,{mode:localGameMode});
   }catch(e){showError('homeError','Could not connect to Firebase.');console.error(e);}
@@ -2593,8 +2692,8 @@ async function joinGame(){
     const existing=game.players&&game.players[myId];
     if(!existing)await gameRefFor(code).child('players/'+myId).set(makePlayerData(name,false));
     else await gameRefFor(code).child('players/'+myId).update({online:true,name,avatar:myAvatar||null,cosmetics:{equipped:myProfile.equipped||{}}});
-    setupPresence();setupEntranceListener(code);document.getElementById('waitingCodeDisplay').textContent=code;
-    showScreen('waiting');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();setTimeout(()=>broadcastMyEntrance(),600);
+    setupPresence();document.getElementById('waitingCodeDisplay').textContent=code;
+    showScreen('waiting');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
   }catch(e){showError('homeError','Connection error');console.error(e);}
   setLoading('joinBtn',false,'Join');
 }
@@ -2891,9 +2990,7 @@ function renderLobby(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const n=players.length;
   document.getElementById('lobbyCount').textContent=n;
-  if(window._lastLobbyPlayerIds){players.forEach(p=>{if(p.id!==myId&&!window._lastLobbyPlayerIds.has(p.id)){const pEq=(p.cosmetics&&p.cosmetics.equipped)||{};const pAC=pEq.entrance?ENTRANCE_ANIM_MAP[pEq.entrance]:null;if(pAC)setTimeout(()=>playEntranceOnPlayerItem(p.id,pAC),80);}});}
-  window._lastLobbyPlayerIds=new Set(players.map(p=>p.id));
-  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item" data-playerid="${p.id}">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}${lobbyPlayerMenuHtml(p)}</div>`).join('');
+  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}${lobbyPlayerMenuHtml(p)}</div>`).join('');
   const minPlayers=localGameMode==='mafia'?4:3;
   const ok=n>=minPlayers;
   document.getElementById('startBtn').disabled=!ok;
@@ -2925,7 +3022,7 @@ function renderLobby(game){
 function renderWaiting(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   document.getElementById('waitingCount').textContent=players.length;
-  document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item" data-playerid="${p.id}">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
+  document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
 }
 
 // =====================================================
@@ -3686,6 +3783,7 @@ function showMafiaResult(game){
   document.getElementById('mafiaResultHostBtns').style.display=amHost?'flex':'none';
   document.getElementById('mafiaResultNonHostBtns').style.display=!amHost?'flex':'none';
   showScreen('mafia-result');
+  maybePlayMyWinAnim(game);
 }
 async function mafiaPlayAgain(){
   if(!amHost)return;
@@ -3973,6 +4071,7 @@ function showResultScreen(game){
   document.getElementById('resultHostBtns').style.display=amHost?'flex':'none';
   document.getElementById('resultNonHostBtns').style.display=!amHost?'flex':'none';
   showScreen('result');
+  maybePlayMyWinAnim(game);
 }
 
 // =====================================================
@@ -4178,6 +4277,7 @@ function showOOOResult(game){
   document.getElementById('oooWaitingForHost').style.display=!amHost?'block':'none';
   document.getElementById('oooLeaveBtn').style.display=!amHost?'block':'none';
   showScreen('ooo-result');
+  maybePlayMyWinAnim(game);
 }
 async function oooNextRound(){await startOOOGame();}
 async function oooEndGame(){await updateGame(gameCode,{status:'result',oooPhase:'gameover'});}
@@ -4244,7 +4344,8 @@ async function returnToLobby(){
   await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,chat:null});
 }
 async function leaveGame(){
-  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();stopEntranceListener();
+  clearWinAnim();
+  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();
   if(gameCode){
     try{
       const snap=await gameRefFor(gameCode).once('value');const game=snap.val();
@@ -4439,7 +4540,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();stopEntranceListener();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
+function devBackHome(){clearWinAnim();clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
 
 
 
@@ -4528,6 +4629,19 @@ function changeFaRounds(d){
   if(gameCode)updateGame(gameCode,{faTotalRounds:localFaRounds});
 }
 
+async function faImposterGuessWord(){
+  const game=localGame;if(!game||game.mode!=='fa'||game.faPhase!=='draw')return;
+  if(game.faImposterId!==myId)return;
+  const input=document.getElementById('faImposterGuessInput');if(!input)return;
+  const guess=input.value.trim();if(!guess)return;
+  input.disabled=true;
+  const word=(game.faWord||'').toLowerCase().trim();
+  const correct=guess.toLowerCase().trim()===word;
+  // Imposter guesses: correct => imposter wins; wrong => town wins.
+  // resolveFaRound(townWins, impostorGuess)
+  await resolveFaRound(game, !correct, correct?guess:guess);
+}
+
 async function startFaGame(){
   const game=localGame;if(!game)return;
   const players=Object.values(game.players||{});if(players.length<3)return;
@@ -4553,6 +4667,7 @@ function enterFaDraw(game){
   faCanvasCleanup();
   faVoteResolving=false;
   faWordHidden=false;
+  const gi=document.getElementById('faImposterGuessInput');if(gi){gi.disabled=false;gi.value='';}
   showScreen('fa-draw');
   setTimeout(()=>setupFaCanvas(localGame||game),50);
 }
@@ -4673,6 +4788,10 @@ function updateFaDrawScreen(game){
 
   const wordEl=document.getElementById('faWordDisplay');
   if(wordEl){wordEl.textContent=isImpostor?'???':(game.faWord||'???');wordEl.style.color=isImpostor?'var(--spy)':'var(--accent)';}
+
+  // Imposter in-game guess bar
+  const guessBar=document.getElementById('faImposterGuessBar');
+  if(guessBar)guessBar.style.display=isImpostor?'block':'none';
 
   const canDraw=faCanDraw(game);
   const canStartStroke=faCanStartStroke(game);
@@ -4909,7 +5028,7 @@ async function resolveFaVote(game,reason){
   const votes=game.faVotes||{};const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
   const maxV=Math.max(...Object.values(counts),0);const topIds=Object.entries(counts).filter(([,c])=>c===maxV).map(([id])=>id);
   const accusedId=(maxV>0&&topIds.length===1)?topIds[0]:null;
-  if(accusedId===game.faImposterId){await updateGame(gameCode,{faPhase:'guess',faAccusedId:accusedId,faVoteTie:false,faVoteEndReason:reason||'resolved'});}
+  if(accusedId===game.faImposterId){await resolveFaRound(game,true,null);}
   else{await resolveFaRound(game,false,null);}
 }
 
@@ -4942,7 +5061,7 @@ async function checkFaGuess(game,guess){
   await resolveFaRound(game,!correct,correct?guess:null);
 }
 async function resolveFaRound(game,townWins,impostorGuess){
-  if(!amHost)return;
+  // Allow ANY client to resolve a guess-driven result (imposter may not be host).
   const scores={...(game.faScores||{})};const players=Object.values(game.players||{});
   if(townWins){players.forEach(p=>{if(p.id!==game.faImposterId)scores[p.id]=(scores[p.id]||0)+2;});}
   else{scores[game.faImposterId]=(scores[game.faImposterId]||0)+3;}
@@ -4954,7 +5073,7 @@ function showFaResult(game){
   const bannerEl=document.getElementById('faResultBanner');
   const faPlayers=Object.values(game.players||{});
   const normalWordPlayers=faPlayers.filter(p=>p.id!==game.faImposterId);
-  if(bannerEl){bannerEl.innerHTML=r.townWins?`<div class="result-banner crew-wins">${resultAvatarGroupHtml(normalWordPlayers,'🎉')}<h2>Players Win!</h2><p>The Fake Artist was caught${r.impostorGuess?` — and guessed wrong (&quot;${esc(r.impostorGuess)}&quot;)`:''}.</p></div>`:`<div class="result-banner" style="background:linear-gradient(135deg,#1a0a00,#0f0500);border:2px solid #f97316;animation:none">${resultAvatarHtml(impostorPlayer,'🎨')}<h2 style="color:#f97316">Fake Artist Wins!</h2><p>${r.impostorGuess?'Correctly guessed the word!':'Escaped undetected.'}</p></div>`;}
+  if(bannerEl){bannerEl.innerHTML=r.townWins?`<div class="result-banner crew-wins">${resultAvatarGroupHtml(normalWordPlayers,'🎉')}<h2>Players Win!</h2><p>${r.impostorGuess?`The Fake Artist guessed wrong (&quot;${esc(r.impostorGuess)}&quot;)`:'The Fake Artist was voted out'}.</p></div>`:`<div class="result-banner" style="background:linear-gradient(135deg,#1a0a00,#0f0500);border:2px solid #f97316;animation:none">${resultAvatarHtml(impostorPlayer,'🎨')}<h2 style="color:#f97316">Fake Artist Wins!</h2><p>${r.impostorGuess?`Correctly guessed &quot;${esc(r.impostorGuess)}&quot;!`:'Escaped undetected.'}</p></div>`;}
   const reveal=document.getElementById('faResultImpostorReveal');if(reveal)reveal.innerHTML=`${resultAvatarHtml(impostorPlayer,'🎨')}<div style="font-size:20px;font-weight:800;color:#f97316">${esc(impostorName)}</div>`;
   const word=document.getElementById('faResultWord');if(word)word.textContent=game.faWord||'?';
   const players=Object.values(game.players||{}).sort((a,b)=>((game.faScores&&game.faScores[b.id])||0)-((game.faScores&&game.faScores[a.id])||0));
@@ -4964,6 +5083,7 @@ function showFaResult(game){
   const hostBtns=document.getElementById('faResultHostBtns');if(hostBtns)hostBtns.style.display=amHost?'flex':'none';
   const nonHostBtns=document.getElementById('faResultNonHostBtns');if(nonHostBtns)nonHostBtns.style.display=!amHost?'flex':'none';
   showScreen('fa-result');
+  maybePlayMyWinAnim(game);
 }
 async function faNextWord(){
   if(!amHost||!localGame)return;
@@ -5332,8 +5452,14 @@ function renderBsGame(game){
       rb.style.background='rgba(6,182,212,0.08)';
       rb.style.border='1px solid rgba(6,182,212,0.3)';
       rb.style.color='#06b6d4';
-      rb.textContent='✓ INNOCENT — find the imposter';
+      rb.textContent=`✓ INNOCENT — imposter has ${correctGuesses.length}/2 cards`;
     }
+  }
+  // Shared progress visible to EVERYONE (incl. imposter)
+  const sharedProg=document.getElementById('bsSharedProgress');
+  if(sharedProg){
+    sharedProg.style.display='block';
+    sharedProg.innerHTML=`🕵️ Imposter has guessed <span style="color:#06b6d4;font-weight:800">${correctGuesses.length} / 2</span> cards correct`;
   }
 
   // Vote list
@@ -5645,6 +5771,7 @@ function showBsResult(game){
   document.getElementById('bsResultHostBtns').style.display=amHost?'flex':'none';
   document.getElementById('bsResultNonHostBtns').style.display=!amHost?'flex':'none';
   showScreen('bs-result');
+  maybePlayMyWinAnim(game);
 }
 
 // =====================================================
@@ -6015,6 +6142,7 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
     </div>
     <!-- Role + imposter progress -->
     <div id="bsGameRoleBadge" style="padding:8px 12px;border-radius:var(--radius);font-size:13px;font-weight:700;flex-shrink:0"></div>
+    <div id="bsSharedProgress" style="padding:8px 12px;border-radius:var(--radius);font-size:13px;font-weight:600;flex-shrink:0;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);color:var(--text);text-align:center;font-family:'DM Mono',monospace"></div>
     <!-- Vote list -->
     <div style="flex-shrink:0">
       <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">LIVE VOTES</div>
