@@ -859,6 +859,65 @@ body.inferno-win-theme .screen.active .scoreboard-item.me{
 }
 /* Victory text already warm for inferno */
 .win-victory-text.inferno-text{color:#fde047;text-shadow:0 0 14px #f97316,0 0 30px #ef4444,0 0 50px rgba(253,224,71,.6)}
+
+/* ===== GOLD WIN THEME (Golden Crown) ===== */
+@keyframes goldGlowPulse{0%,100%{box-shadow:0 0 14px rgba(232,212,77,.55),0 0 32px rgba(255,215,0,.32),inset 0 0 18px rgba(232,212,77,.16)}50%{box-shadow:0 0 26px rgba(255,235,140,.75),0 0 56px rgba(232,212,77,.55),inset 0 0 26px rgba(255,215,0,.26)}}
+@keyframes goldTextGlow{0%,100%{text-shadow:0 0 8px rgba(232,212,77,.7),0 0 18px rgba(255,215,0,.5)}50%{text-shadow:0 0 16px rgba(255,245,180,.95),0 0 38px rgba(232,212,77,.7)}}
+@keyframes goldAvatarGlow{0%,100%{box-shadow:0 0 14px rgba(232,212,77,.8),0 0 30px rgba(255,215,0,.5),0 0 48px rgba(255,235,140,.3);border-color:#e8d44d}50%{box-shadow:0 0 26px rgba(255,245,180,.95),0 0 56px rgba(232,212,77,.7),0 0 84px rgba(255,215,0,.45);border-color:#fff3b0}}
+
+body.gold-win-theme{background:radial-gradient(ellipse at 50% 28%,#2a2406 0%,#1a1604 45%,#0a0902 100%)!important}
+body.gold-win-theme .screen.active{background:radial-gradient(ellipse at 50% 25%,rgba(232,212,77,.12),transparent 70%)}
+body.gold-win-theme .screen.active .card,
+body.gold-win-theme .screen.active .result-banner,
+body.gold-win-theme .screen.active #resultRevealBox,
+body.gold-win-theme .screen.active [id$="ResultReveal"],
+body.gold-win-theme .screen.active [id$="ResultImposter"],
+body.gold-win-theme .screen.active [id$="ImpostorReveal"],
+body.gold-win-theme .screen.active #mafiaResultReveal{
+  border-color:#e8d44d!important;
+  background:linear-gradient(145deg,#2a2406,#1a1604)!important;
+  animation:goldGlowPulse 1.6s ease-in-out infinite;
+}
+body.gold-win-theme .screen.active h2,
+body.gold-win-theme .screen.active .result-banner h2{
+  color:#ffe98a!important;
+  animation:goldTextGlow 1.6s ease-in-out infinite;
+}
+body.gold-win-theme .screen.active .result-banner p,
+body.gold-win-theme .screen.active .scoreboard-pts{color:#ffd700!important}
+body.gold-win-theme .screen.active .btn-primary,
+body.gold-win-theme .screen.active .btn-mafia,
+body.gold-win-theme .screen.active .btn-ooo{
+  background:linear-gradient(135deg,#f7d24d,#e8b94d)!important;color:#1a1400!important;
+  box-shadow:0 0 18px rgba(232,212,77,.5);
+}
+body.gold-win-theme .result-avatar,
+body.gold-win-theme .result-banner .result-avatar,
+body.gold-win-theme .result-banner .av.result-avatar,
+body.gold-win-theme .result-banner .av-placeholder.result-avatar,
+body.gold-win-theme #resultRevealBox .av,
+body.gold-win-theme #resultRevealBox .av-placeholder,
+body.gold-win-theme [id$="ResultReveal"] .av,
+body.gold-win-theme [id$="ResultReveal"] .av-placeholder,
+body.gold-win-theme [id$="ResultImposter"] .av,
+body.gold-win-theme [id$="ResultImposter"] .av-placeholder,
+body.gold-win-theme [id$="ImpostorReveal"] .av,
+body.gold-win-theme [id$="ImpostorReveal"] .av-placeholder{
+  border:2px solid #e8d44d!important;
+  animation:goldAvatarGlow 1.3s ease-in-out infinite!important;
+}
+body.gold-win-theme .screen.active .scoreboard-item.me{
+  border-color:#e8d44d!important;
+  box-shadow:0 0 14px rgba(232,212,77,.4);
+}
+.win-victory-text.gold-text{color:#ffe98a;text-shadow:0 0 14px #e8d44d,0 0 30px #ffd700,0 0 50px rgba(255,245,180,.6)}
+
+/* Crown that lands on the winner's avatar */
+@keyframes crownLand{0%{transform:translate(-50%,-220px) scale(0.5) rotate(-22deg);opacity:0}40%{opacity:1}55%{transform:translate(-50%,4px) scale(1.18) rotate(8deg)}70%{transform:translate(-50%,-2px) scale(0.96) rotate(-4deg)}85%{transform:translate(-50%,1px) scale(1.04) rotate(2deg)}100%{transform:translate(-50%,0) scale(1) rotate(0deg);opacity:1}}
+@keyframes crownBob{0%,100%{transform:translate(-50%,0) rotate(0deg)}50%{transform:translate(-50%,-4px) rotate(2deg)}}
+.win-crown-landed{position:fixed;z-index:13050;font-size:54px;pointer-events:none;filter:drop-shadow(0 4px 14px rgba(232,212,77,0.85)) drop-shadow(0 0 22px rgba(255,215,0,0.6));will-change:transform}
+.win-crown-landed.landing{animation:crownLand 1.0s cubic-bezier(0.34,1.56,0.64,1) forwards}
+.win-crown-landed.bobbing{animation:crownBob 1.4s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -2319,6 +2378,8 @@ function clearWinAnim(){
   const ov=document.getElementById('winAnimOverlay');
   if(ov){ov.classList.remove('active');ov.innerHTML='';ov.style.display='none';}
   document.body.classList.remove('inferno-win-theme');
+  document.body.classList.remove('gold-win-theme');
+  document.querySelectorAll('.win-crown-landed').forEach(el=>el.remove());
 }
 
 function previewWinAnim(value){
@@ -2333,6 +2394,7 @@ function playWinAnim(value,isPreview){
   ov.style.display='block';
   ov.classList.add('active');
   document.body.classList.toggle('inferno-win-theme', value==='inferno'&&!isPreview);
+  document.body.classList.toggle('gold-win-theme', value==='crown'&&!isPreview);
   const rand=(a,b)=>a+Math.random()*(b-a);
   const palette=['#e8d44d','#e85d4d','#4de8a0','#06b6d4','#a78bfa','#f97316','#ff4fd8','#ffffff'];
   const goldPalette=['#fff6cf','#ffe98a','#f7d24d','#e8b94d','#fffbe6','#ffd700'];
@@ -2387,12 +2449,18 @@ function playWinAnim(value,isPreview){
       setTimeout(()=>{ if(ov.classList.contains('active')) burst(cx,cy,col,rand(30,40)|0,80,200,1100); }, b*180);
     }
   } else if(value==='crown'){
-    // INTENSIFIED: rays + crown + heavy gold confetti + glitter
+    // INTENSIFIED: rays + heavy gold confetti + glitter
     const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
     const rays2=document.createElement('div');rays2.className='win-rays';rays2.style.animationDelay='0.4s';rays2.style.animationDuration='2.4s';ov.appendChild(rays2);
-    const c=document.createElement('div');c.className='win-crown';c.textContent='👑';ov.appendChild(c);
     dropConfetti(110,goldPalette,0.9,1.9,2.9);
     dropGlitter(70);
+    if(isPreview){
+      // Preview: simple centered crown drop
+      const c=document.createElement('div');c.className='win-crown';c.textContent='👑';ov.appendChild(c);
+    } else {
+      // Real win: land the crown on the winner's avatar
+      landCrownOnWinnerAvatar();
+    }
   } else if(value==='rays'){
     const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
     const rays2=document.createElement('div');rays2.className='win-rays';rays2.style.animationDelay='0.3s';rays2.style.animationDuration='2.4s';ov.appendChild(rays2);
@@ -2422,7 +2490,7 @@ function playWinAnim(value,isPreview){
 
   // Victory text for non-preview plays
   if(!isPreview){
-    const t=document.createElement('div');t.className='win-victory-text'+(value==='inferno'?' inferno-text':'');t.textContent='VICTORY';
+    const t=document.createElement('div');t.className='win-victory-text'+(value==='inferno'?' inferno-text':value==='crown'?' gold-text':'');t.textContent='VICTORY';
     ov.appendChild(t);
   }
 
@@ -2431,6 +2499,38 @@ function playWinAnim(value,isPreview){
 }
 
 // Called whenever a game result is shown — plays MY win anim if I solo-won.
+function landCrownOnWinnerAvatar(){
+  // Find the most prominent winner avatar on the active result screen.
+  const screen=document.querySelector('.screen.active');
+  if(!screen){return;}
+  // Prefer the banner avatar, then the reveal box avatar.
+  let target=screen.querySelector('.result-banner .result-avatar')
+    || screen.querySelector('.result-banner .av, .result-banner .av-placeholder, .result-banner .av-inferno-wrap')
+    || screen.querySelector('#resultRevealBox .av, #resultRevealBox .av-placeholder')
+    || screen.querySelector('[id$="ResultReveal"] .av, [id$="ResultReveal"] .av-placeholder, [id$="ResultImposter"] .av, [id$="ImpostorReveal"] .av');
+  // Retry shortly if the result DOM is not painted yet.
+  if(!target){setTimeout(landCrownOnWinnerAvatar,120);return;}
+  const place=()=>{
+    const r=target.getBoundingClientRect();
+    if(r.width===0){setTimeout(place,120);return;}
+    const crown=document.createElement('div');
+    crown.className='win-crown-landed landing';
+    crown.textContent='👑';
+    // size relative to avatar
+    const sz=Math.max(40,r.width*1.15);
+    crown.style.fontSize=sz+'px';
+    crown.style.left=(r.left+r.width/2)+'px';
+    // sit the crown so its base overlaps the top of the avatar
+    crown.style.top=(r.top - sz*0.62)+'px';
+    document.body.appendChild(crown);
+    crown.addEventListener('animationend',()=>{
+      crown.classList.remove('landing');
+      crown.classList.add('bobbing');
+    },{once:true});
+  };
+  place();
+}
+
 function maybePlayMyWinAnim(game){
   if(!game)return;
   const data=rewardDataForGame(game);
