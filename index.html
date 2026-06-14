@@ -795,14 +795,12 @@ select option{background:var(--surface2)}
 .win-crown{position:absolute;left:50%;top:24%;font-size:84px;filter:drop-shadow(0 8px 24px rgba(232,212,77,0.6));animation:winCrownDrop 1.1s cubic-bezier(0.34,1.56,0.64,1) forwards}
 @keyframes winFlameRise{0%{transform:translateY(40px) scaleY(0.4);opacity:0}25%{opacity:1}100%{transform:translateY(-110vh) scaleY(1.4);opacity:0}}
 .win-flame{position:absolute;bottom:-10vh;width:60px;border-radius:50% 50% 40% 40%;background:radial-gradient(circle at 50% 80%,#fde047,#f97316 45%,#ef4444 75%,transparent);filter:blur(2px);animation:winFlameRise ease-in forwards}
-@keyframes winFlash{0%,100%{opacity:0}5%,12%{opacity:0.9}8%{opacity:0.2}}
-.win-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(56,189,248,0.5),transparent 60%);animation:winFlash 1.4s ease-out forwards}
-@keyframes winBoltGrow{0%{height:0;opacity:1}40%{height:60vh;opacity:1}100%{height:60vh;opacity:0}}
-.win-bolt{position:absolute;top:8%;left:50%;width:5px;margin-left:-2px;background:linear-gradient(#dbeafe,#38bdf8);box-shadow:0 0 14px #38bdf8,0 0 28px #06b6d4;transform-origin:top center;animation:winBoltGrow 1.2s ease-out forwards}
-@keyframes winStarFall{0%{transform:translateY(-10vh) scale(0);opacity:0}20%{opacity:1;transform:scale(1)}100%{transform:translateY(110vh) scale(0.6);opacity:0}}
-.win-star{position:absolute;top:-10vh;font-size:26px;animation:winStarFall ease-in forwards;filter:drop-shadow(0 0 6px rgba(232,212,77,0.7))}
-@keyframes winVortexSpin{0%{transform:translate(-50%,-50%) scale(0) rotate(0deg);opacity:0}30%{opacity:0.8}100%{transform:translate(-50%,-50%) scale(2.4) rotate(540deg);opacity:0}}
-.win-vortex{position:absolute;left:50%;top:42%;width:60vmax;height:60vmax;border-radius:50%;border:14px solid transparent;border-top-color:#a855f7;border-right-color:#38bdf8;border-bottom-color:#ec4899;animation:winVortexSpin 1.6s ease-out forwards}
+.win-inferno-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(249,115,22,0.5),transparent 60%);animation:winInfFlash 1.6s ease-out forwards}
+@keyframes winInfFlash{0%,100%{opacity:0}8%,40%{opacity:0.85}20%{opacity:0.4}}
+@keyframes winGlitterFall{0%{transform:translateY(-12vh) scale(0.4) rotate(0deg);opacity:0}15%{opacity:1}100%{transform:translateY(118vh) scale(1) rotate(360deg);opacity:0}}
+.win-glitter{position:absolute;top:-12vh;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#ffe98a 40%,#e8b94d 75%,transparent);box-shadow:0 0 8px 2px rgba(255,225,120,0.9),0 0 16px 4px rgba(232,185,77,0.5);animation:winGlitterFall linear forwards;will-change:transform,opacity}
+@keyframes winGlitterTwinkle{0%,100%{opacity:0.35;transform:scale(0.7)}50%{opacity:1;transform:scale(1.25)}}
+.win-glitter.tw{animation:winGlitterFall linear forwards,winGlitterTwinkle 0.5s ease-in-out infinite}
 @keyframes winTextPop{0%{transform:translate(-50%,-50%) scale(0.3);opacity:0}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}70%{transform:translate(-50%,-50%) scale(0.96)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 .win-anim-overlay .win-victory-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Syne',sans-serif;font-size:clamp(30px,10vw,60px);font-weight:800;letter-spacing:-1px;text-align:center;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,0.7);animation:winTextPop 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;white-space:nowrap}
 </style>
@@ -961,13 +959,11 @@ select option{background:var(--surface2)}
         </div>
         <div class="dev-section-label" style="margin-top:10px">Win Animation Previews</div>
         <div class="dev-grid">
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('rays')">🌟 Golden Rays</button>
           <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('confetti')">🎉 Confetti</button>
           <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('fireworks')">🎆 Fireworks</button>
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('crown')">👑 Crown</button>
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('stars')">⭐ Stars</button>
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('rays')">🌟 Rays</button>
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('lightning')">⚡ Lightning</button>
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('vortex')">🌀 Vortex</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('goldConfetti')">✨ Golden Confetti</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('crown')">👑 Golden Crown</button>
           <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('inferno')">🔥 Inferno</button>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
@@ -1896,13 +1892,11 @@ const SHOP_ITEMS=[
   {id:'frame_blood_moon',type:'avatarFrame',label:'Blood Moon Avatar Frame',price:700,value:'bloodmoon'},
   {id:'frame_galaxy',type:'avatarFrame',label:'Galaxy Flow Avatar Frame',price:800,value:'galaxy'},
   {id:'frame_inferno',type:'avatarFrame',label:'Inferno Avatar Frame',price:1100,value:'inferno'},
-  {id:'win_confetti',type:'winAnim',label:'Confetti Blast',price:1000,value:'confetti',icon:'🎉'},
-  {id:'win_fireworks',type:'winAnim',label:'Fireworks',price:1200,value:'fireworks',icon:'🎆'},
-  {id:'win_crown',type:'winAnim',label:'Golden Crown',price:1400,value:'crown',icon:'👑'},
-  {id:'win_stars',type:'winAnim',label:'Star Shower',price:1500,value:'stars',icon:'⭐'},
-  {id:'win_rays',type:'winAnim',label:'Golden Rays',price:1600,value:'rays',icon:'🌟'},
-  {id:'win_lightning',type:'winAnim',label:'Lightning Strike',price:1800,value:'lightning',icon:'⚡'},
-  {id:'win_vortex',type:'winAnim',label:'Victory Vortex',price:1900,value:'vortex',icon:'🌀'},
+  {id:'win_rays',type:'winAnim',label:'Golden Rays',price:900,value:'rays',icon:'🌟'},
+  {id:'win_confetti',type:'winAnim',label:'Confetti Blast',price:950,value:'confetti',icon:'🎉'},
+  {id:'win_fireworks',type:'winAnim',label:'Fireworks',price:1000,value:'fireworks',icon:'🎆'},
+  {id:'win_golden_confetti',type:'winAnim',label:'Golden Confetti',price:1100,value:'goldConfetti',icon:'✨'},
+  {id:'win_crown',type:'winAnim',label:'Golden Crown',price:1500,value:'crown',icon:'👑'},
   {id:'win_inferno',type:'winAnim',label:'Inferno Triumph',price:2200,value:'inferno',icon:'🔥'}
 ];
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
@@ -2283,75 +2277,89 @@ function playWinAnim(value,isPreview){
   ov.classList.add('active');
   const rand=(a,b)=>a+Math.random()*(b-a);
   const palette=['#e8d44d','#e85d4d','#4de8a0','#06b6d4','#a78bfa','#f97316','#ff4fd8','#ffffff'];
+  const goldPalette=['#fff6cf','#ffe98a','#f7d24d','#e8b94d','#fffbe6','#ffd700'];
 
-  if(value==='confetti'){
-    for(let i=0;i<90;i++){
+  function dropConfetti(count,colors,delayMax,durMin,durMax){
+    for(let i=0;i<count;i++){
       const p=document.createElement('div');p.className='win-confetti-piece';
-      p.style.left=rand(0,100)+'vw';
-      p.style.background=palette[Math.floor(Math.random()*palette.length)];
-      p.style.animationDuration=rand(1.6,3.0)+'s';
-      p.style.animationDelay=rand(0,0.6)+'s';
-      p.style.width=rand(8,14)+'px';p.style.height=rand(12,20)+'px';
+      p.style.left=rand(-2,102)+'vw';
+      p.style.background=colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDuration=rand(durMin,durMax)+'s';
+      p.style.animationDelay=rand(0,delayMax)+'s';
+      p.style.width=rand(8,16)+'px';p.style.height=rand(12,22)+'px';
       ov.appendChild(p);
     }
-  } else if(value==='fireworks'){
-    for(let b=0;b<6;b++){
-      const cx=rand(15,85),cy=rand(18,55),col=palette[Math.floor(Math.random()*palette.length)];
-      setTimeout(()=>{
-        if(!ov.classList.contains('active'))return;
-        for(let i=0;i<26;i++){
-          const ang=(Math.PI*2*i)/26,dist=rand(60,150);
-          const f=document.createElement('div');f.className='win-firework';
-          f.style.left=cx+'vw';f.style.top=cy+'vh';f.style.background=col;
-          f.style.boxShadow='0 0 8px '+col;
-          f.style.setProperty('--x',Math.cos(ang)*dist+'px');
-          f.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist}px) scale(0)`,opacity:0}],{duration:1000,easing:'ease-out',fill:'forwards'});
-          ov.appendChild(f);
-        }
-      },b*260);
+  }
+  function dropGlitter(count){
+    for(let i=0;i<count;i++){
+      const g=document.createElement('div');g.className='win-glitter'+(Math.random()>0.5?' tw':'');
+      const sz=rand(4,9);
+      g.style.left=rand(-2,102)+'vw';
+      g.style.width=sz+'px';g.style.height=sz+'px';
+      g.style.animationDuration=rand(2.0,2.9)+'s';
+      g.style.animationDelay=rand(0,0.7)+'s';
+      ov.appendChild(g);
     }
-  } else if(value==='crown'){
-    const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
-    const c=document.createElement('div');c.className='win-crown';c.textContent='👑';ov.appendChild(c);
-    for(let i=0;i<40;i++){
-      const p=document.createElement('div');p.className='win-confetti-piece';
-      p.style.left=rand(20,80)+'vw';p.style.background='#e8d44d';
-      p.style.animationDuration=rand(1.8,2.8)+'s';p.style.animationDelay=rand(0.3,0.9)+'s';
-      ov.appendChild(p);
-    }
-  } else if(value==='stars'){
-    for(let i=0;i<46;i++){
-      const s=document.createElement('div');s.className='win-star';s.textContent=Math.random()>0.5?'⭐':'✨';
-      s.style.left=rand(0,100)+'vw';
-      s.style.animationDuration=rand(1.6,2.8)+'s';s.style.animationDelay=rand(0,0.9)+'s';
-      s.style.fontSize=rand(18,34)+'px';
-      ov.appendChild(s);
-    }
-  } else if(value==='rays'){
-    const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
-    const rays2=document.createElement('div');rays2.className='win-rays';rays2.style.animationDelay='0.3s';rays2.style.animationDuration='2.1s';ov.appendChild(rays2);
-  } else if(value==='lightning'){
-    const flash=document.createElement('div');flash.className='win-flash';ov.appendChild(flash);
-    for(let i=0;i<5;i++){
-      const bolt=document.createElement('div');bolt.className='win-bolt';
-      bolt.style.left=rand(20,80)+'vw';
-      bolt.style.transform='rotate('+rand(-12,12)+'deg)';
-      bolt.style.animationDelay=rand(0,0.5)+'s';
-      ov.appendChild(bolt);
-    }
-  } else if(value==='vortex'){
-    const v=document.createElement('div');v.className='win-vortex';ov.appendChild(v);
-    const v2=document.createElement('div');v2.className='win-vortex';v2.style.animationDelay='0.25s';v2.style.borderTopColor='#fde047';ov.appendChild(v2);
-  } else if(value==='inferno'){
-    for(let i=0;i<14;i++){
-      const f=document.createElement('div');f.className='win-flame';
-      f.style.left=rand(0,100)+'vw';
-      f.style.height=rand(120,260)+'px';
-      f.style.animationDuration=rand(1.3,2.2)+'s';
-      f.style.animationDelay=rand(0,0.7)+'s';
+  }
+  function burst(cx,cy,col,n,distMin,distMax,dur){
+    for(let i=0;i<n;i++){
+      const ang=(Math.PI*2*i)/n + rand(-0.05,0.05),dist=rand(distMin,distMax);
+      const f=document.createElement('div');f.className='win-firework';
+      f.style.left=cx+'vw';f.style.top=cy+'vh';f.style.background=col;
+      f.style.boxShadow='0 0 10px '+col+',0 0 18px '+col;
+      f.style.width=rand(5,9)+'px';f.style.height=f.style.width;
+      f.animate([{transform:'translate(0,0) scale(1.2)',opacity:1},{transform:`translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist}px) scale(0)`,opacity:0}],{duration:dur,easing:'cubic-bezier(0.15,0.7,0.3,1)',fill:'forwards'});
       ov.appendChild(f);
     }
-    const flash=document.createElement('div');flash.className='win-flash';flash.style.background='radial-gradient(circle at 50% 60%,rgba(249,115,22,0.5),transparent 60%)';ov.appendChild(flash);
+  }
+
+  if(value==='confetti'){
+    // INTENSIFIED: many more pieces, layered waves
+    dropConfetti(200,palette,0.8,1.8,3.0);
+    dropConfetti(80,palette,1.4,2.2,3.0);
+  } else if(value==='goldConfetti'){
+    // Golden confetti + glowing glitter falling together
+    dropConfetti(170,goldPalette,0.9,1.8,2.9);
+    dropGlitter(130);
+    const rays=document.createElement('div');rays.className='win-rays';rays.style.opacity='0.7';ov.appendChild(rays);
+  } else if(value==='fireworks'){
+    // INTENSIFIED: more bursts, bigger, overlapping
+    for(let b=0;b<14;b++){
+      const cx=rand(10,90),cy=rand(12,55),col=palette[Math.floor(Math.random()*palette.length)];
+      setTimeout(()=>{ if(ov.classList.contains('active')) burst(cx,cy,col,rand(30,40)|0,80,200,1100); }, b*180);
+    }
+  } else if(value==='crown'){
+    // INTENSIFIED: rays + crown + heavy gold confetti + glitter
+    const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
+    const rays2=document.createElement('div');rays2.className='win-rays';rays2.style.animationDelay='0.4s';rays2.style.animationDuration='2.4s';ov.appendChild(rays2);
+    const c=document.createElement('div');c.className='win-crown';c.textContent='👑';ov.appendChild(c);
+    dropConfetti(110,goldPalette,0.9,1.9,2.9);
+    dropGlitter(70);
+  } else if(value==='rays'){
+    const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
+    const rays2=document.createElement('div');rays2.className='win-rays';rays2.style.animationDelay='0.3s';rays2.style.animationDuration='2.4s';ov.appendChild(rays2);
+  } else if(value==='inferno'){
+    // INTENSIFIED: more flames + embers + flash
+    for(let i=0;i<30;i++){
+      const f=document.createElement('div');f.className='win-flame';
+      f.style.left=rand(-2,102)+'vw';
+      f.style.width=rand(40,90)+'px';
+      f.style.height=rand(160,340)+'px';
+      f.style.animationDuration=rand(1.4,2.6)+'s';
+      f.style.animationDelay=rand(0,0.9)+'s';
+      ov.appendChild(f);
+    }
+    // embers (small orange glitter-like)
+    for(let i=0;i<60;i++){
+      const e=document.createElement('div');e.className='win-firework';
+      const col=['#fde047','#f97316','#ef4444'][Math.floor(Math.random()*3)];
+      e.style.left=rand(0,100)+'vw';e.style.top=rand(60,100)+'vh';
+      e.style.background=col;e.style.boxShadow='0 0 8px '+col;
+      e.style.width=rand(3,7)+'px';e.style.height=e.style.width;
+      e.animate([{transform:'translateY(0) scale(1)',opacity:1},{transform:`translateY(-${rand(200,500)}px) scale(0)`,opacity:0}],{duration:rand(1400,2400),delay:rand(0,800),easing:'ease-out',fill:'forwards'});
+      ov.appendChild(e);
+    }
+    const flash=document.createElement('div');flash.className='win-inferno-flash';ov.appendChild(flash);
   }
 
   // Victory text for non-preview plays
@@ -2361,7 +2369,7 @@ function playWinAnim(value,isPreview){
   }
 
   clearTimeout(window.__winAnimTimer);
-  window.__winAnimTimer=setTimeout(clearWinAnim, isPreview?2400:2800);
+  window.__winAnimTimer=setTimeout(clearWinAnim, isPreview?2900:3000);
 }
 
 // Called whenever a game result is shown — plays MY win anim if I solo-won.
