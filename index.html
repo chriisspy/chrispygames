@@ -3830,6 +3830,7 @@ function showMafiaResult(game){
   const r=game.mafiaResult||{};
   const winner=r.winner||'town';
   const mafiaIds=game.mafiaIds||[];
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const mafiaPlayers=mafiaIds.map(id=>game.players&&game.players[id]).filter(Boolean);
   const bannerEl=document.getElementById('mafiaResultBanner');
   const townPlayers=players.filter(p=>!mafiaIds.includes(p.id));
@@ -3840,7 +3841,6 @@ function showMafiaResult(game){
   }
   document.getElementById('mafiaResultReveal').innerHTML=`${resultAvatarGroupHtml(mafiaPlayers,'🔴')}<div style="font-size:20px;font-weight:800;color:#e74c3c">${mafiaPlayers.map(p=>esc(p.name)).join(', ')||'Unknown'}</div>`;
   // Show all roles
-  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const roleLabel={mafia:'🔴 MAFIA',doctor:'💚 DOCTOR',town:'⬜ CIVILIAN'};
   document.getElementById('mafiaFinalRoles').innerHTML=players.map(p=>{
     const role=(game.mafiaRoles&&game.mafiaRoles[p.id])||'town';
