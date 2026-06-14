@@ -5903,7 +5903,187 @@ function uploadMyAvatar(){
     gameRefFor(gameCode).child('players/'+myId).update({avatar:myAvatar,cosmetics:{equipped:myProfile.equipped||{}}});
   }
 }
-\n\n// =====================================================\n// GUESSING GAME\n// =====================================================\nconst GUESS_CATEGORIES=['Person','Place','Occupation','Object','Animal','Food','Movie/TV','Game','Brand','Character'];\nconst GUESS_DISCUSS_OPTIONS=[3,5,10,15];\nconst GUESS_POINTS=[10,8,5,3];\nfunction guessPointsForPosition(pos){return pos<=3?GUESS_POINTS[pos]:1;}\nfunction changeGuessDiscuss(delta){\n  let idx=GUESS_DISCUSS_OPTIONS.indexOf(localGuessDiscussMinutes);\n  if(idx<0)idx=1;\n  idx=Math.max(0,Math.min(GUESS_DISCUSS_OPTIONS.length-1,idx+delta));\n  localGuessDiscussMinutes=GUESS_DISCUSS_OPTIONS[idx];\n  const el=document.getElementById('guessDiscussDisplay');if(el)el.textContent=localGuessDiscussMinutes+' min';\n  if(gameCode)updateGame(gameCode,{guessDiscussMinutes:localGuessDiscussMinutes});\n}\nfunction changeGuessRounds(delta){\n  localGuessRounds=Math.max(1,Math.min(12,localGuessRounds+delta));\n  const el=document.getElementById('guessRoundsDisplay');if(el)el.textContent=localGuessRounds;\n  const lab=document.getElementById('guessRoundsLabel');if(lab)lab.textContent=`round${localGuessRounds!==1?'s':''}`;\n  if(gameCode)updateGame(gameCode,{guessTotalRounds:localGuessRounds});\n}\nasync function startGuessGame(){\n  const game=localGame;if(!game)return;\n  const players=Object.values(game.players||{});\n  if(players.length<3)return;\n  await startGuessRound(1,{},[]);\n}\nasync function startGuessRound(round,scores,usedGivers){\n  const game=localGame;if(!game)return;\n  const players=Object.values(game.players||{});\n  const used=usedGivers||[];\n  let pool=players.filter(p=>!used.includes(p.id));\n  if(!pool.length)pool=players;\n  const giver=pick(pool);\n  await updateGame(gameCode,{\n    status:'playing',mode:'guess',guessPhase:'setup',guessRound:round,guessTotalRounds:localGuessRounds,guessDiscussMinutes:localGuessDiscussMinutes,\n    guessAnswerGiverId:giver.id,guessCategory:null,guessAnswer:null,guessAnswerReady:false,guessGuesses:{},guessCorrectOrder:[],\n    guessScores:scores||{},guessUsedGivers:[...used,giver.id],guessResult:null,guessFinalResult:null,guessTimerStart:null,guessTimerDuration:localGuessDiscussMinutes*60,guessRoundId:Date.now()\n  });\n}\nfunction guessPlayerList(game){return Object.values(game.players||{}).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));}\nfunction renderGuessSetup(game){\n  const players=guessPlayerList(game);\n  const isGiver=myId===game.guessAnswerGiverId;\n  const giver=players.find(p=>p.id===game.guessAnswerGiverId);\n  const title=document.getElementById('guessSetupTitle');if(title)title.textContent=isGiver?'Pick a question/category':'Waiting for the answer giver';\n  const chooser=document.getElementById('guessSetupChooser');const waiting=document.getElementById('guessSetupWaiting');\n  if(chooser)chooser.style.display=isGiver?'block':'none';\n  if(waiting)waiting.style.display=isGiver?'none':'block';\n  const waitText=document.getElementById('guessSetupWaitingText');if(waitText)waitText.textContent=`${giver?giver.name:'The answer giver'} is choosing the category and answer...`;\n  const list=document.getElementById('guessSetupPlayers');if(list)list.innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.id===game.guessAnswerGiverId?'<div class="player-badge">answer giver</div>':''}</div>`).join('');\n  const grid=document.getElementById('guessCategoryGrid');\n  if(grid){grid.innerHTML=GUESS_CATEGORIES.map(c=>`<button class="guess-category-btn ${game.guessCategory===c?'selected':''}" onclick="selectGuessCategory('${c}')">${c}</button>`).join('');}\n}\nfunction enterGuessSetup(game){showScreen('guess-setup');renderGuessSetup(game);}\nasync function selectGuessCategory(cat){if(!localGame||myId!==localGame.guessAnswerGiverId)return;await updateGame(gameCode,{guessCategory:cat});}\nasync function guessAnswerReady(){\n  if(!localGame||myId!==localGame.guessAnswerGiverId)return;\n  const answer=(document.getElementById('guessAnswerInput')||{}).value.trim();\n  if(!localGame.guessCategory){showError('guessSetupError','Pick a category first');return;}\n  if(!answer){showError('guessSetupError','Type the secret answer');return;}\n  await updateGame(gameCode,{guessAnswer:answer,guessAnswerReady:true,guessPhase:'discussion',guessTimerStart:syncedNow(),guessTimerDuration:(localGame.guessDiscussMinutes||localGuessDiscussMinutes)*60,guessGuesses:{},guessCorrectOrder:[]});\n}\nfunction formatGuessTime(seconds){seconds=Math.max(0,Math.ceil(seconds));const m=Math.floor(seconds/60),s=seconds%60;return `${m}:${String(s).padStart(2,'0')}`;}\nfunction startGuessTimer(game){\n  clearInterval(guessTimerInterval);\n  guessTimerInterval=setInterval(()=>{\n    if(!localGame||localGame.mode!=='guess'||localGame.guessPhase!=='discussion'){clearInterval(guessTimerInterval);return;}\n    const duration=localGame.guessTimerDuration||300;\n    const start=localGame.guessTimerStart||syncedNow();\n    const remaining=duration-((syncedNow()-start)/1000);\n    const el=document.getElementById('guessTimerDisplay');if(el)el.textContent=formatGuessTime(remaining);\n    if(remaining<=0){\n      clearInterval(guessTimerInterval);\n      if(amHost||localGame.hostId===myId)resolveGuessRound('time');\n    }\n  },500);\n}\nfunction enterGuessGame(game){showScreen('guess-game');renderGuessGame(game);startGuessTimer(game);}\nfunction renderGuessGame(game){\n  const players=guessPlayerList(game);\n  const isGiver=myId===game.guessAnswerGiverId;\n  const guessed=game.guessCorrectOrder||[];\n  const myGuessed=guessed.includes(myId);\n  const category=game.guessCategory||'Category';\n  const main=document.getElementById('guessGameMain');\n  if(main){\n    if(isGiver){\n      main.innerHTML=`<div class="notice info"><strong>Category:</strong> ${esc(category)}<br><strong>Answer:</strong> ${esc(game.guessAnswer||'')}</div><div class="notice" style="background:rgba(232,212,77,.08);border:1px solid rgba(232,212,77,.2);color:var(--accent);margin-bottom:0">Tap a player below to see their guesses live.</div>`;\n    }else if(myGuessed){\n      const pos=guessed.indexOf(myId);const pts=guessPointsForPosition(pos);\n      main.innerHTML=`<div class="guess-correct-box"><div class="guess-correct-title">You guessed correctly!</div><div class="guess-points-earned">+${pts} points this round</div></div>`;\n    }else{\n      main.innerHTML=`<div class="notice info"><strong>Category:</strong> ${esc(category)}</div><label>Your guess</label><div class="flex-row"><input id="guessInput" type="text" placeholder="Type your answer..." maxlength="70" style="margin-bottom:0" onkeydown="if(event.key==='Enter')submitGuessAnswer()"/><button class="btn btn-primary btn-sm" onclick="submitGuessAnswer()">Guess</button></div><div id="guessSubmitMsg" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px"></div>`;\n    }\n  }\n  renderGuessPlayers(game);\n}\nfunction renderGuessPlayers(game){\n  const players=guessPlayerList(game);\n  const list=document.getElementById('guessPlayersList');if(!list)return;\n  const order=game.guessCorrectOrder||[];const guesses=game.guessGuesses||{};\n  list.innerHTML=players.filter(p=>p.id!==game.guessAnswerGiverId).map(p=>{\n    const ok=order.includes(p.id);\n    const all=(guesses[p.id]||[]).map(g=>g.text||g.guess||'').filter(Boolean);\n    const detail=all.length?all.map((g,i)=>`${i+1}. ${esc(g)}`).join('<br>'):'No guesses submitted';\n    return `<div class="guess-player-row" onclick="this.classList.toggle('open')"><div class="guess-player-top">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div><div class="guess-status ${ok?'ok':'wait'}">${ok?'Guessed':'Still guessing'}</div></div><div class="guess-detail">${detail}</div></div>`;\n  }).join('');\n}\nasync function submitGuessAnswer(){\n  if(!localGame||myId===localGame.guessAnswerGiverId)return;\n  const input=document.getElementById('guessInput');if(!input)return;\n  const guess=input.value.trim();if(!guess)return;\n  const guesses={...(localGame.guessGuesses||{})};\n  const mine=[...(guesses[myId]||[])];\n  mine.push({text:guess,ts:Date.now()});guesses[myId]=mine;\n  const correct=bsFuzzyMatch(guess,localGame.guessAnswer||'');\n  const order=[...(localGame.guessCorrectOrder||[])];\n  const scores={...(localGame.guessScores||{})};\n  const updates={guessGuesses:guesses};\n  if(correct&&!order.includes(myId)){\n    order.push(myId);\n    scores[myId]=(scores[myId]||0)+guessPointsForPosition(order.length-1);\n    updates.guessCorrectOrder=order;updates.guessScores=scores;\n  }\n  await updateGame(gameCode,updates);\n  if(correct){\n    const total=Object.keys(localGame.players||{}).length-1;\n    if(order.length>=total){setTimeout(()=>resolveGuessRound('all_guessed'),120);}\n  }else{\n    const msg=document.getElementById('guessSubmitMsg');if(msg)msg.textContent='Not quite — keep guessing.';\n    input.value='';input.focus();\n  }\n}\nasync function resolveGuessRound(reason){\n  const game=localGame;if(!game||game.mode!=='guess'||game.guessPhase!=='discussion')return;\n  const order=game.guessCorrectOrder||[];\n  const scores=game.guessScores||{};\n  await updateGame(gameCode,{guessPhase:'roundResult',guessResult:{reason,order,answer:game.guessAnswer,category:game.guessCategory,round:game.guessRound,endedAt:Date.now()},guessScores:scores});\n}\nfunction renderGuessRoundResult(game){\n  const players=guessPlayerList(game);const scores=game.guessScores||{};const r=game.guessResult||{};\n  const banner=document.getElementById('guessRoundBanner');\n  if(banner){banner.innerHTML=`<div class="result-banner crew-wins" style="border-color:var(--accent);background:linear-gradient(135deg,#1a1600,#121000)"><div class="result-emoji">❓</div><h2 style="color:var(--accent)">Round ${game.guessRound||1} Complete</h2><p>${esc(r.category||'Category')}: ${esc(r.answer||'')}</p></div>`;}\n  const scoreEl=document.getElementById('guessRoundScores');\n  if(scoreEl){scoreEl.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${i+1}</div>${playerAvatar(p,'av-sm')}<div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${scores[p.id]||0}</div></div>`).join('');}\n  const next=document.getElementById('guessNextRoundBtn'),final=document.getElementById('guessFinalResultsBtn');\n  const last=(game.guessRound||1)>=(game.guessTotalRounds||1);\n  if(next)next.style.display=(amHost&&!last)?'block':'none';\n  if(final)final.style.display=(amHost&&last)?'block':'none';\n}\nfunction showGuessRoundResult(game){clearInterval(guessTimerInterval);showScreen('guess-result');renderGuessRoundResult(game);}\nasync function guessNextRound(){\n  const game=localGame;if(!game||!amHost)return;\n  await startGuessRound((game.guessRound||1)+1,game.guessScores||{},game.guessUsedGivers||[]);\n}\nasync function guessShowFinalResults(){\n  const game=localGame;if(!game||!amHost)return;\n  const scores=game.guessScores||{};\n  const players=guessPlayerList(game);\n  const max=Math.max(0,...players.map(p=>scores[p.id]||0));\n  const winnerIds=players.filter(p=>(scores[p.id]||0)===max&&max>0).map(p=>p.id);\n  await updateGame(gameCode,{status:'result',guessPhase:'final',guessFinalResult:{winnerIds,tie:winnerIds.length>1,maxScore:max,endedAt:Date.now()},rewardRoundId:Date.now()});\n}\nfunction renderGuessFinal(game){\n  const players=guessPlayerList(game);const scores=game.guessScores||{};\n  const sorted=[...players].sort((a,b)=>(scores[b.id]||0)-(scores[a.id]||0));\n  const res=game.guessFinalResult||{};\n  const winners=players.filter(p=>(res.winnerIds||[]).includes(p.id));\n  const banner=document.getElementById('guessFinalBanner');\n  if(banner){\n    if(res.tie){banner.innerHTML=`<div class="result-banner tie-banner">${resultAvatarGroupHtml(winners,'🤝')}<h2>It\'s a Tie!</h2><p>${winners.map(p=>esc(p.name)).join(' and ')} tied with ${res.maxScore||0} points.</p></div>`;}\n    else{banner.innerHTML=`<div class="result-banner crew-wins">${resultAvatarHtml(winners[0],'🏆')}<h2>Winner!</h2><p>${winners[0]?esc(winners[0].name):'No winner'} won with ${res.maxScore||0} points.</p></div>`;}\n  }\n  const el=document.getElementById('guessFinalScores');\n  if(el){el.innerHTML=sorted.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${i+1}</div>${playerAvatar(p,'av-sm')}<div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${scores[p.id]||0}</div></div>`).join('');}\n}\nfunction showGuessFinal(game){clearInterval(guessTimerInterval);showScreen('guess-final');renderGuessFinal(game);}\n
+
+
+// =====================================================
+// GUESSING GAME
+// =====================================================
+const GUESS_CATEGORIES=['Person','Place','Occupation','Object','Animal','Food','Movie/TV','Game','Brand','Character'];
+const GUESS_DISCUSS_OPTIONS=[3,5,10,15];
+const GUESS_POINTS=[10,8,5,3];
+function guessPointsForPosition(pos){return pos<=3?GUESS_POINTS[pos]:1;}
+function changeGuessDiscuss(delta){
+  let idx=GUESS_DISCUSS_OPTIONS.indexOf(localGuessDiscussMinutes);
+  if(idx<0)idx=1;
+  idx=Math.max(0,Math.min(GUESS_DISCUSS_OPTIONS.length-1,idx+delta));
+  localGuessDiscussMinutes=GUESS_DISCUSS_OPTIONS[idx];
+  const el=document.getElementById('guessDiscussDisplay');if(el)el.textContent=localGuessDiscussMinutes+' min';
+  if(gameCode)updateGame(gameCode,{guessDiscussMinutes:localGuessDiscussMinutes});
+}
+function changeGuessRounds(delta){
+  localGuessRounds=Math.max(1,Math.min(12,localGuessRounds+delta));
+  const el=document.getElementById('guessRoundsDisplay');if(el)el.textContent=localGuessRounds;
+  const lab=document.getElementById('guessRoundsLabel');if(lab)lab.textContent=`round${localGuessRounds!==1?'s':''}`;
+  if(gameCode)updateGame(gameCode,{guessTotalRounds:localGuessRounds});
+}
+async function startGuessGame(){
+  const game=localGame;if(!game)return;
+  const players=Object.values(game.players||{});
+  if(players.length<3)return;
+  await startGuessRound(1,{},[]);
+}
+async function startGuessRound(round,scores,usedGivers){
+  const game=localGame;if(!game)return;
+  const players=Object.values(game.players||{});
+  const used=usedGivers||[];
+  let pool=players.filter(p=>!used.includes(p.id));
+  if(!pool.length)pool=players;
+  const giver=pick(pool);
+  await updateGame(gameCode,{
+    status:'playing',mode:'guess',guessPhase:'setup',guessRound:round,guessTotalRounds:localGuessRounds,guessDiscussMinutes:localGuessDiscussMinutes,
+    guessAnswerGiverId:giver.id,guessCategory:null,guessAnswer:null,guessAnswerReady:false,guessGuesses:{},guessCorrectOrder:[],
+    guessScores:scores||{},guessUsedGivers:[...used,giver.id],guessResult:null,guessFinalResult:null,guessTimerStart:null,guessTimerDuration:localGuessDiscussMinutes*60,guessRoundId:Date.now()
+  });
+}
+function guessPlayerList(game){return Object.values(game.players||{}).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));}
+function renderGuessSetup(game){
+  const players=guessPlayerList(game);
+  const isGiver=myId===game.guessAnswerGiverId;
+  const giver=players.find(p=>p.id===game.guessAnswerGiverId);
+  const title=document.getElementById('guessSetupTitle');if(title)title.textContent=isGiver?'Pick a question/category':'Waiting for the answer giver';
+  const chooser=document.getElementById('guessSetupChooser');const waiting=document.getElementById('guessSetupWaiting');
+  if(chooser)chooser.style.display=isGiver?'block':'none';
+  if(waiting)waiting.style.display=isGiver?'none':'block';
+  const waitText=document.getElementById('guessSetupWaitingText');if(waitText)waitText.textContent=`${giver?giver.name:'The answer giver'} is choosing the category and answer...`;
+  const list=document.getElementById('guessSetupPlayers');if(list)list.innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.id===game.guessAnswerGiverId?'<div class="player-badge">answer giver</div>':''}</div>`).join('');
+  const grid=document.getElementById('guessCategoryGrid');
+  if(grid){grid.innerHTML=GUESS_CATEGORIES.map(c=>`<button class="guess-category-btn ${game.guessCategory===c?'selected':''}" onclick="selectGuessCategory('${c}')">${c}</button>`).join('');}
+}
+function enterGuessSetup(game){showScreen('guess-setup');renderGuessSetup(game);}
+async function selectGuessCategory(cat){if(!localGame||myId!==localGame.guessAnswerGiverId)return;await updateGame(gameCode,{guessCategory:cat});}
+async function guessAnswerReady(){
+  if(!localGame||myId!==localGame.guessAnswerGiverId)return;
+  const answer=(document.getElementById('guessAnswerInput')||{}).value.trim();
+  if(!localGame.guessCategory){showError('guessSetupError','Pick a category first');return;}
+  if(!answer){showError('guessSetupError','Type the secret answer');return;}
+  await updateGame(gameCode,{guessAnswer:answer,guessAnswerReady:true,guessPhase:'discussion',guessTimerStart:syncedNow(),guessTimerDuration:(localGame.guessDiscussMinutes||localGuessDiscussMinutes)*60,guessGuesses:{},guessCorrectOrder:[]});
+}
+function formatGuessTime(seconds){seconds=Math.max(0,Math.ceil(seconds));const m=Math.floor(seconds/60),s=seconds%60;return `${m}:${String(s).padStart(2,'0')}`;}
+function startGuessTimer(game){
+  clearInterval(guessTimerInterval);
+  guessTimerInterval=setInterval(()=>{
+    if(!localGame||localGame.mode!=='guess'||localGame.guessPhase!=='discussion'){clearInterval(guessTimerInterval);return;}
+    const duration=localGame.guessTimerDuration||300;
+    const start=localGame.guessTimerStart||syncedNow();
+    const remaining=duration-((syncedNow()-start)/1000);
+    const el=document.getElementById('guessTimerDisplay');if(el)el.textContent=formatGuessTime(remaining);
+    if(remaining<=0){
+      clearInterval(guessTimerInterval);
+      if(amHost||localGame.hostId===myId)resolveGuessRound('time');
+    }
+  },500);
+}
+function enterGuessGame(game){showScreen('guess-game');renderGuessGame(game);startGuessTimer(game);}
+function renderGuessGame(game){
+  const players=guessPlayerList(game);
+  const isGiver=myId===game.guessAnswerGiverId;
+  const guessed=game.guessCorrectOrder||[];
+  const myGuessed=guessed.includes(myId);
+  const category=game.guessCategory||'Category';
+  const main=document.getElementById('guessGameMain');
+  if(main){
+    if(isGiver){
+      main.innerHTML=`<div class="notice info"><strong>Category:</strong> ${esc(category)}<br><strong>Answer:</strong> ${esc(game.guessAnswer||'')}</div><div class="notice" style="background:rgba(232,212,77,.08);border:1px solid rgba(232,212,77,.2);color:var(--accent);margin-bottom:0">Tap a player below to see their guesses live.</div>`;
+    }else if(myGuessed){
+      const pos=guessed.indexOf(myId);const pts=guessPointsForPosition(pos);
+      main.innerHTML=`<div class="guess-correct-box"><div class="guess-correct-title">You guessed correctly!</div><div class="guess-points-earned">+${pts} points this round</div></div>`;
+    }else{
+      main.innerHTML=`<div class="notice info"><strong>Category:</strong> ${esc(category)}</div><label>Your guess</label><div class="flex-row"><input id="guessInput" type="text" placeholder="Type your answer..." maxlength="70" style="margin-bottom:0" onkeydown="if(event.key==='Enter')submitGuessAnswer()"/><button class="btn btn-primary btn-sm" onclick="submitGuessAnswer()">Guess</button></div><div id="guessSubmitMsg" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px"></div>`;
+    }
+  }
+  renderGuessPlayers(game);
+}
+function renderGuessPlayers(game){
+  const players=guessPlayerList(game);
+  const list=document.getElementById('guessPlayersList');if(!list)return;
+  const order=game.guessCorrectOrder||[];const guesses=game.guessGuesses||{};
+  list.innerHTML=players.filter(p=>p.id!==game.guessAnswerGiverId).map(p=>{
+    const ok=order.includes(p.id);
+    const all=(guesses[p.id]||[]).map(g=>g.text||g.guess||'').filter(Boolean);
+    const detail=all.length?all.map((g,i)=>`${i+1}. ${esc(g)}`).join('<br>'):'No guesses submitted';
+    return `<div class="guess-player-row" onclick="this.classList.toggle('open')"><div class="guess-player-top">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div><div class="guess-status ${ok?'ok':'wait'}">${ok?'Guessed':'Still guessing'}</div></div><div class="guess-detail">${detail}</div></div>`;
+  }).join('');
+}
+async function submitGuessAnswer(){
+  if(!localGame||myId===localGame.guessAnswerGiverId)return;
+  const input=document.getElementById('guessInput');if(!input)return;
+  const guess=input.value.trim();if(!guess)return;
+  const guesses={...(localGame.guessGuesses||{})};
+  const mine=[...(guesses[myId]||[])];
+  mine.push({text:guess,ts:Date.now()});guesses[myId]=mine;
+  const correct=bsFuzzyMatch(guess,localGame.guessAnswer||'');
+  const order=[...(localGame.guessCorrectOrder||[])];
+  const scores={...(localGame.guessScores||{})};
+  const updates={guessGuesses:guesses};
+  if(correct&&!order.includes(myId)){
+    order.push(myId);
+    scores[myId]=(scores[myId]||0)+guessPointsForPosition(order.length-1);
+    updates.guessCorrectOrder=order;updates.guessScores=scores;
+  }
+  await updateGame(gameCode,updates);
+  if(correct){
+    const total=Object.keys(localGame.players||{}).length-1;
+    if(order.length>=total){setTimeout(()=>resolveGuessRound('all_guessed'),120);}
+  }else{
+    const msg=document.getElementById('guessSubmitMsg');if(msg)msg.textContent='Not quite — keep guessing.';
+    input.value='';input.focus();
+  }
+}
+async function resolveGuessRound(reason){
+  const game=localGame;if(!game||game.mode!=='guess'||game.guessPhase!=='discussion')return;
+  const order=game.guessCorrectOrder||[];
+  const scores=game.guessScores||{};
+  await updateGame(gameCode,{guessPhase:'roundResult',guessResult:{reason,order,answer:game.guessAnswer,category:game.guessCategory,round:game.guessRound,endedAt:Date.now()},guessScores:scores});
+}
+function renderGuessRoundResult(game){
+  const players=guessPlayerList(game);const scores=game.guessScores||{};const r=game.guessResult||{};
+  const banner=document.getElementById('guessRoundBanner');
+  if(banner){banner.innerHTML=`<div class="result-banner crew-wins" style="border-color:var(--accent);background:linear-gradient(135deg,#1a1600,#121000)"><div class="result-emoji">❓</div><h2 style="color:var(--accent)">Round ${game.guessRound||1} Complete</h2><p>${esc(r.category||'Category')}: ${esc(r.answer||'')}</p></div>`;}
+  const scoreEl=document.getElementById('guessRoundScores');
+  if(scoreEl){scoreEl.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${i+1}</div>${playerAvatar(p,'av-sm')}<div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${scores[p.id]||0}</div></div>`).join('');}
+  const next=document.getElementById('guessNextRoundBtn'),final=document.getElementById('guessFinalResultsBtn');
+  const last=(game.guessRound||1)>=(game.guessTotalRounds||1);
+  if(next)next.style.display=(amHost&&!last)?'block':'none';
+  if(final)final.style.display=(amHost&&last)?'block':'none';
+}
+function showGuessRoundResult(game){clearInterval(guessTimerInterval);showScreen('guess-result');renderGuessRoundResult(game);}
+async function guessNextRound(){
+  const game=localGame;if(!game||!amHost)return;
+  await startGuessRound((game.guessRound||1)+1,game.guessScores||{},game.guessUsedGivers||[]);
+}
+async function guessShowFinalResults(){
+  const game=localGame;if(!game||!amHost)return;
+  const scores=game.guessScores||{};
+  const players=guessPlayerList(game);
+  const max=Math.max(0,...players.map(p=>scores[p.id]||0));
+  const winnerIds=players.filter(p=>(scores[p.id]||0)===max&&max>0).map(p=>p.id);
+  await updateGame(gameCode,{status:'result',guessPhase:'final',guessFinalResult:{winnerIds,tie:winnerIds.length>1,maxScore:max,endedAt:Date.now()},rewardRoundId:Date.now()});
+}
+function renderGuessFinal(game){
+  const players=guessPlayerList(game);const scores=game.guessScores||{};
+  const sorted=[...players].sort((a,b)=>(scores[b.id]||0)-(scores[a.id]||0));
+  const res=game.guessFinalResult||{};
+  const winners=players.filter(p=>(res.winnerIds||[]).includes(p.id));
+  const banner=document.getElementById('guessFinalBanner');
+  if(banner){
+    if(res.tie){banner.innerHTML=`<div class="result-banner tie-banner">${resultAvatarGroupHtml(winners,'🤝')}<h2>It\'s a Tie!</h2><p>${winners.map(p=>esc(p.name)).join(' and ')} tied with ${res.maxScore||0} points.</p></div>`;}
+    else{banner.innerHTML=`<div class="result-banner crew-wins">${resultAvatarHtml(winners[0],'🏆')}<h2>Winner!</h2><p>${winners[0]?esc(winners[0].name):'No winner'} won with ${res.maxScore||0} points.</p></div>`;}
+  }
+  const el=document.getElementById('guessFinalScores');
+  if(el){el.innerHTML=sorted.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${i+1}</div>${playerAvatar(p,'av-sm')}<div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${scores[p.id]||0}</div></div>`).join('');}
+}
+function showGuessFinal(game){clearInterval(guessTimerInterval);showScreen('guess-final');renderGuessFinal(game);}
+
 // =====================================================
 document.addEventListener('click', closeLobbyPlayerMenus);
 cleanupOldGames();
