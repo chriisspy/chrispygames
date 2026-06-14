@@ -1,94 +1,6401 @@
-/* Chrispy Games Service Worker
-   Change VERSION every time you update the site. */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Chrispy Games</title>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBHtUzguBOKpyXhHSLSoRUKszmPSlo-FB0",
+  authDomain: "spyfall-24be3.firebaseapp.com",
+  databaseURL: "https://spyfall-24be3-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "spyfall-24be3",
+  storageBucket: "spyfall-24be3.firebasestorage.app",
+  messagingSenderId: "1063032915470",
+  appId: "1:1063032915470:web:140317fc9b6d297d001e5f"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+</script>
+<script>
+/* CHRISPY GAMES PASSWORD FIX V4
+   This is intentionally in the <head> so password entry still works even if the large game script below has an error. */
+(function () {
+  var SITE_PASSWORD = 'boysnight1';
 
-const VERSION = "chrispy-games-v2026-06-11-1202";
-const CACHE_NAME = VERSION;
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function (screen) {
+      screen.classList.remove('active');
+    });
+    var target = document.getElementById(id);
+    if (target) target.classList.add('active');
+  }
 
-const CORE_ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./coin-icon-2.png",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  window.checkPassword = function checkPassword() {
+    var input = document.getElementById('passwordInput');
+    var error = document.getElementById('passwordError');
+    var value = input ? input.value.trim() : '';
+
+    if (value === SITE_PASSWORD) {
+      localStorage.setItem('sf_unlocked', '1');
+      if (error) error.style.display = 'none';
+      showScreen('screen-home');
+      setTimeout(function () {
+        var nameInput = document.getElementById('playerName');
+        if (nameInput) nameInput.focus();
+      }, 80);
+      return true;
+    }
+
+    if (error) {
+      error.style.display = 'block';
+      clearTimeout(window.__chrispyPasswordErrorTimer);
+      window.__chrispyPasswordErrorTimer = setTimeout(function () {
+        error.style.display = 'none';
+      }, 3000);
+    }
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+    return false;
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var input = document.getElementById('passwordInput');
+    var button = document.getElementById('passwordEnterBtn');
+
+    if (localStorage.getItem('sf_unlocked') === '1') {
+      showScreen('screen-home');
+    }
+
+    if (button) {
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        window.checkPassword();
+      });
+    }
+
+    if (input) {
+      input.addEventListener('keydown', function (event) {
+        var key = event.key || event.code;
+        if (key === 'Enter' || key === 'NumpadEnter' || key === 'Go' || key === 'Return') {
+          event.preventDefault();
+          window.checkPassword();
+        }
+      });
+    }
+  });
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:hidden;max-width:100vw}
+body.no-scroll{overflow:hidden;height:100%;touch-action:none;}
+:root{
+  --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--surface3:#252532;
+  --accent:#e8d44d;--accent2:#e85d4d;--text:#f0eff5;--muted:#7a7a8c;
+  --border:#2a2a3a;--spy:#e85d4d;--safe:#4de8a0;--chaos:#ff2d2d;--ooo:#a78bfa;
+  --mafia:#c0392b;--doctor:#27ae60;--town:#95a5a6;--fa:#f97316;--bs:#06b6d4;
+  --radius:12px;--radius-lg:20px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh}
+.screen{display:none;width:100%;max-width:100vw;min-height:100vh;padding:24px;box-sizing:border-box;flex-direction:column;align-items:center;justify-content:center;gap:20px;overflow-x:hidden}
+.screen.active{display:flex}
+.screen.scrollable{justify-content:flex-start;padding-top:24px;padding-bottom:40px;overflow-y:auto;overflow-x:hidden}
+.screen.game-screen{min-height:unset;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;padding:16px;justify-content:center;overflow:hidden}
+.logo{font-size:42px;font-weight:800;letter-spacing:-2px;line-height:0.9;display:flex;flex-direction:column;align-items:center;gap:0}
+.logo span{color:var(--accent);display:block}
+.tagline{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;width:100%;max-width:440px;box-sizing:border-box}
+.card h2{font-size:20px;font-weight:700;margin-bottom:16px}
+.btn{width:100%;padding:13px 20px;border-radius:var(--radius);border:none;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important}
+.btn-primary{background:var(--accent);color:#0a0a0f}
+.btn-primary:not(:disabled):hover{background:#f0dd55;transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface2);border-color:var(--muted)}
+.btn-danger{background:var(--accent2);color:#fff}
+.btn-danger:hover{background:#f06050}
+.btn-ooo{background:var(--ooo);color:#fff}
+.btn-ooo:hover{background:#b99ffb;transform:translateY(-1px)}
+.btn-mafia{background:var(--mafia);color:#fff}
+.btn-mafia:hover{background:#e74c3c;transform:translateY(-1px)}
+.btn-sm{padding:8px 16px;font-size:13px;width:auto}
+input,select{width:100%;max-width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:15px;outline:none;transition:border 0.15s;margin-bottom:12px;box-sizing:border-box}
+input:focus,select:focus{border-color:var(--accent)}
+input::placeholder{color:var(--muted)}
+label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
+select option{background:var(--surface2)}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;margin:14px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.code-display{font-family:'DM Mono',monospace;font-size:38px;font-weight:500;letter-spacing:8px;color:var(--accent);text-align:center;padding:16px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;transition:all 0.15s;user-select:none}
+.code-display:hover{border-color:var(--accent)}
+.code-hint{font-size:11px;color:var(--muted);text-align:center;font-family:'DM Mono',monospace;margin-top:6px}
+.player-list{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.player-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);font-size:14px;animation:fadeIn 0.25s ease;position:relative}
+.player-dot{width:8px;height:8px;border-radius:50%;background:var(--safe);flex-shrink:0}
+.player-dot.host{background:var(--accent)}
+.player-dot.offline{background:var(--muted)}
+.player-dot.dead{background:var(--spy)}
+.player-name{flex:1}
+.player-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:3px 8px;background:var(--surface3);border-radius:6px}
+.lobby-player-menu-wrap{position:relative;margin-left:auto;flex-shrink:0}
+.lobby-player-menu-btn{width:28px;height:28px;border-radius:9px;border:1px solid var(--border);background:var(--surface3);color:var(--muted);font-family:'DM Mono',monospace;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lobby-player-menu-btn:hover{color:var(--text);border-color:var(--accent)}
+.lobby-player-menu{position:absolute;right:0;top:34px;z-index:30;min-width:165px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 16px 44px rgba(0,0,0,.55);padding:6px;display:none}
+.lobby-player-menu.open{display:flex;flex-direction:column;gap:4px;animation:fadeIn .14s ease}
+.lobby-player-menu button{width:100%;padding:9px 10px;border-radius:9px;border:none;background:transparent;color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-align:left;cursor:pointer}
+.lobby-player-menu button:hover{background:var(--surface2);color:var(--accent)}
+.lobby-player-menu button.danger{color:var(--spy)}
+.lobby-player-menu button.danger:hover{background:rgba(232,93,77,.08);color:var(--spy)}
+.lobby-player-menu-divider{height:1px;background:var(--border);margin:3px 0}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes chaos-pulse{0%,100%{box-shadow:0 0 10px rgba(255,45,45,0.3)}50%{box-shadow:0 0 25px rgba(255,45,45,0.7)}}
+@keyframes mafia-pulse{0%,100%{box-shadow:0 0 10px rgba(192,57,43,0.3)}50%{box-shadow:0 0 25px rgba(192,57,43,0.7)}}
+.live-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--safe);display:flex;align-items:center;gap:4px}
+.live-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
+.notice{padding:12px 16px;border-radius:var(--radius);font-size:13px;font-family:'DM Mono',monospace;margin-bottom:12px}
+.notice.info{background:rgba(232,212,77,0.08);border:1px solid rgba(232,212,77,0.2);color:var(--accent)}
+.notice.error{background:rgba(232,93,77,0.08);border:1px solid rgba(232,93,77,0.2);color:var(--spy)}
+.notice.success{background:rgba(77,232,160,0.08);border:1px solid rgba(77,232,160,0.2);color:var(--safe)}
+.notice.chaos{background:rgba(255,45,45,0.08);border:1px solid rgba(255,45,45,0.3);color:var(--chaos)}
+.notice.ooo{background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);color:var(--ooo)}
+.notice.mafia{background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.3);color:#e74c3c}
+.flex-row{display:flex;gap:8px}
+.flex-row .btn{flex:1}
+.back-btn{background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:6px}
+.back-btn:hover{color:var(--text)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flipIn{from{opacity:0;transform:rotateY(-90deg)}to{opacity:1;transform:rotateY(0)}}
+@keyframes cardFlip{0%{transform:rotateY(-90deg);opacity:0}100%{transform:rotateY(0deg);opacity:1}}
+.fadeIn{animation:fadeIn 0.3s ease forwards}
+
+/* Game tiles on home */
+.game-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:440px}
+.game-tiles-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:440px;margin-top:-10px}
+.game-tile{padding:16px 8px;border-radius:var(--radius-lg);text-align:center;background:var(--surface);border:1px solid var(--border)}
+.game-tile-spyfall{border-color:rgba(232,212,77,0.25);background:rgba(232,212,77,0.04)}
+.game-tile-ooo{border-color:rgba(167,139,250,0.25);background:rgba(167,139,250,0.04)}
+.game-tile-mafia{border-color:rgba(192,57,43,0.25);background:rgba(192,57,43,0.04)}
+.game-tile-icon{font-size:24px;margin-bottom:6px}
+.game-tile-name{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.game-tile-spyfall .game-tile-name{color:var(--accent)}
+.game-tile-ooo .game-tile-name{color:var(--ooo)}
+.game-tile-mafia .game-tile-name{color:#e74c3c}
+.game-tile-fa{border-color:rgba(249,115,22,0.25);background:rgba(249,115,22,0.04)}
+.game-tile-fa .game-tile-name{color:#f97316}
+.game-tile-fa.selected{border-color:#f97316;background:rgba(249,115,22,0.12);box-shadow:0 0 0 1px #f97316}
+.game-tile-fa.selected .game-tile-selected-badge{display:block;color:#f97316}
+.mode-tab.active-fa{background:rgba(249,115,22,0.15);color:#f97316}
+.game-tile-bs{border-color:rgba(6,182,212,0.25);background:rgba(6,182,212,0.04)}
+.game-tile-bs .game-tile-name{color:#06b6d4}
+.game-tile-bs.selected{border-color:#06b6d4;background:rgba(6,182,212,0.12);box-shadow:0 0 0 1px #06b6d4}
+.game-tile-bs.selected .game-tile-selected-badge{display:block;color:#06b6d4}
+.mode-tab.active-bs{background:rgba(6,182,212,0.15);color:#06b6d4}
+.game-tile-desc{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3px}
+.game-tile{cursor:pointer;transition:all 0.15s}
+.game-tile:hover{transform:translateY(-2px)}
+.game-tile-spyfall.selected{border-color:var(--accent);background:rgba(232,212,77,0.1);box-shadow:0 0 0 1px var(--accent)}
+.game-tile-ooo.selected{border-color:var(--ooo);background:rgba(167,139,250,0.12);box-shadow:0 0 0 1px var(--ooo)}
+.game-tile-mafia.selected{border-color:#e74c3c;background:rgba(192,57,43,0.12);box-shadow:0 0 0 1px #e74c3c}
+.game-tile-selected-badge{font-size:10px;font-family:'DM Mono',monospace;margin-top:5px;font-weight:700;display:none}
+.game-tile-spyfall.selected .game-tile-selected-badge{display:block;color:var(--accent)}
+.game-tile-ooo.selected .game-tile-selected-badge{display:block;color:var(--ooo)}
+.game-tile-mafia.selected .game-tile-selected-badge{display:block;color:#e74c3c}
+
+/* Mode tabs in lobby */
+.mode-tabs{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin:6px 0 12px}
+.mode-tab{flex:1;padding:8px 4px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.15s}
+.mode-tab.active-spyfall{background:rgba(232,212,77,0.15);color:var(--accent)}
+.mode-tab.active-ooo{background:rgba(167,139,250,0.15);color:var(--ooo)}
+.mode-tab.active-mafia{background:rgba(192,57,43,0.15);color:#e74c3c}
+
+/* Count */
+.count-wrap{margin:10px 0}
+.count-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.count-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.count-btn:hover{border-color:var(--accent);color:var(--accent)}
+.count-display{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--text);min-width:32px;text-align:center}
+.count-label{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* Chaos toggle */
+.chaos-toggle-wrap{margin:12px 0;padding:14px;background:rgba(255,45,45,0.05);border:1px solid rgba(255,45,45,0.2);border-radius:var(--radius);transition:all 0.2s}
+.chaos-toggle-wrap.chaos-on{background:rgba(255,45,45,0.1);border-color:rgba(255,45,45,0.5);animation:chaos-pulse 2s infinite}
+.chaos-toggle-header{display:flex;align-items:center;justify-content:space-between}
+.chaos-title{font-size:14px;font-weight:800;color:var(--chaos);letter-spacing:1px;text-transform:uppercase}
+.chaos-desc{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6;margin-top:4px}
+.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--surface3);border-radius:24px;transition:0.2s;border:1px solid var(--border)}
+.toggle-slider:before{position:absolute;content:'';height:16px;width:16px;left:3px;bottom:3px;background:var(--muted);border-radius:50%;transition:0.2s}
+.toggle-switch input:checked + .toggle-slider{background:var(--chaos);border-color:var(--chaos)}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px);background:#fff}
+
+/* Reveal */
+.reveal-outer{display:flex;flex-direction:column;align-items:center;width:100%;max-width:440px;gap:14px}
+.reveal-tap{text-align:center;padding:48px 32px;background:var(--surface);border:2px dashed var(--border);border-radius:var(--radius-lg);cursor:pointer;transition:all 0.2s;width:100%}
+.reveal-tap:hover{border-color:var(--accent);background:var(--surface2)}
+.reveal-tap.ooo-tap:hover{border-color:var(--ooo)}
+.reveal-tap.mafia-tap:hover{border-color:#e74c3c}
+.reveal-tap .hint{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:2px}
+.reveal-tap .eye-icon{font-size:44px;margin-bottom:10px}
+.reveal-tap .reveal-cta{font-size:17px;font-weight:700;color:var(--text)}
+.role-card{width:100%;border-radius:var(--radius-lg);padding:32px 24px;text-align:center;animation:flipIn 0.4s ease}
+.role-card.spy-card{background:linear-gradient(135deg,#2a1015,#1a0a0f);border:2px solid var(--spy)}
+.role-card.safe-card{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.role-card.chaos-spy-card{background:linear-gradient(135deg,#2a0808,#1a0404);border:2px solid var(--chaos);animation:chaos-pulse 2s infinite,flipIn 0.4s ease}
+.role-card.chaos-innocent-card{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.role-card .role-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.role-card.spy-card .role-label,.role-card.chaos-spy-card .role-label{color:var(--spy)}
+.role-card.safe-card .role-label,.role-card.chaos-innocent-card .role-label{color:var(--safe)}
+.role-card .role-name{font-size:34px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.role-card.spy-card .role-name{color:var(--spy)}
+.role-card.chaos-spy-card .role-name{color:var(--chaos)}
+.role-card.safe-card .role-name,.role-card.chaos-innocent-card .role-name{color:var(--safe)}
+.role-card .location-line{font-size:13px;color:var(--muted);margin-bottom:4px;font-family:'DM Mono',monospace}
+.role-card .location-name{font-size:21px;font-weight:700;color:var(--text)}
+.spy-warning{background:rgba(232,93,77,0.1);border:1px solid rgba(232,93,77,0.3);border-radius:var(--radius);padding:12px;font-size:13px;color:var(--spy);text-align:center}
+.chaos-warning{background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.4);border-radius:var(--radius);padding:12px;font-size:13px;color:var(--chaos);text-align:center;line-height:1.6}
+
+/* ===== PLAYING CARD STYLES ===== */
+.playing-card-wrap{perspective:1000px;width:100%;max-width:280px;margin:0 auto;animation:cardFlip 0.5s ease forwards}
+.playing-card{width:100%;aspect-ratio:2.5/3.5;border-radius:16px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+.playing-card.card-mafia{background:linear-gradient(145deg,#1a0505 0%,#2d0a0a 40%,#1a0505 100%);border:2px solid #8b0000}
+.playing-card.card-doctor{background:linear-gradient(145deg,#021a08 0%,#053d12 40%,#021a08 100%);border:2px solid #1a5e2a}
+.playing-card.card-town{background:linear-gradient(145deg,#0f0f14 0%,#1c1c28 40%,#0f0f14 100%);border:2px solid #3d3d5c}
+.card-corner{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:1}
+.card-corner.top-left{top:12px;left:14px}
+.card-corner.bottom-right{bottom:12px;right:14px;transform:rotate(180deg)}
+.card-corner-rank{font-family:'DM Mono',monospace;font-size:22px;font-weight:700}
+.card-corner-suit{font-size:18px;line-height:1}
+.card-mafia .card-corner-rank{color:#e74c3c}
+.card-doctor .card-corner-rank{color:#27ae60}
+.card-town .card-corner-rank{color:#7f8c8d}
+.card-center{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:20px 0 10px}
+.card-center-icon{font-size:64px;margin-bottom:12px;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5))}
+.card-role-name{font-size:22px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.card-mafia .card-role-name{color:#e74c3c}
+.card-doctor .card-role-name{color:#27ae60}
+.card-town .card-role-name{color:#95a5a6}
+.card-role-desc{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);margin-top:6px;text-align:center;line-height:1.5;letter-spacing:0.5px}
+.card-inner-border{position:absolute;inset:8px;border-radius:10px;pointer-events:none}
+.card-mafia .card-inner-border{border:1px solid rgba(139,0,0,0.4)}
+.card-doctor .card-inner-border{border:1px solid rgba(26,94,42,0.4)}
+.card-town .card-inner-border{border:1px solid rgba(61,61,92,0.4)}
+/* Card suit pattern overlay */
+.card-pattern{position:absolute;inset:0;opacity:0.03;font-size:14px;overflow:hidden;pointer-events:none;display:flex;flex-wrap:wrap;gap:6px;padding:6px}
+
+/* Timer */
+.timer-area{text-align:center;padding:16px 0}
+.timer-display{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;letter-spacing:4px;color:var(--text);transition:color 0.3s}
+.timer-display.warning{color:var(--accent)}
+.timer-display.danger{color:var(--spy);animation:timer-pulse 1s infinite}
+@keyframes timer-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.timer-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+
+/* Tabs */
+.tab-bar{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:14px}
+.tab-btn{flex:1;padding:8px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.tab-btn.active{background:var(--surface3);color:var(--text)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Locations */
+.location-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.location-chip{padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center}
+
+/* Vote */
+.vote-list{display:flex;flex-direction:column;gap:8px}
+.vote-item{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;transition:all 0.15s}
+.vote-item:hover{border-color:var(--spy);background:rgba(232,93,77,0.05)}
+.vote-item.voted{border-color:var(--spy);background:rgba(232,93,77,0.1)}
+.vote-item.ooo-voted{border-color:var(--ooo);background:rgba(167,139,250,0.1)}
+.vote-item.mafia-voted{border-color:#e74c3c;background:rgba(192,57,43,0.1)}
+.vote-item.dead{opacity:0.35;pointer-events:none;cursor:not-allowed}
+
+/* Role summary */
+.role-summary-wrap{position:relative;margin-bottom:10px}
+.role-summary-content{padding:12px;background:var(--surface2);border-radius:var(--radius);font-size:14px;text-align:center;line-height:1.6}
+.role-summary-hidden{padding:12px;background:var(--surface2);border-radius:var(--radius);font-size:14px;text-align:center;cursor:pointer;border:1px dashed var(--border);transition:all 0.15s}
+.role-summary-hidden:hover{border-color:var(--muted)}
+.hide-toggle-btn{margin-top:8px;padding:7px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;cursor:pointer;width:100%;transition:all 0.15s}
+.hide-toggle-btn:hover{background:var(--surface2);color:var(--text)}
+
+/* Result banners */
+.result-banner{text-align:center;padding:28px 20px;border-radius:var(--radius-lg)}
+.result-banner.spy-wins{background:linear-gradient(135deg,#2a1015,#1a0a0f);border:2px solid var(--spy)}
+.result-banner.crew-wins{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.result-banner.chaos-spies-win{background:linear-gradient(135deg,#2a0808,#1a0404);border:2px solid var(--chaos);animation:chaos-pulse 2s infinite}
+.result-banner.ooo-caught{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.result-banner.ooo-escaped{background:linear-gradient(135deg,#1a0f2a,#100a1a);border:2px solid var(--ooo)}
+.result-banner.mafia-wins{background:linear-gradient(135deg,#2a0505,#1a0202);border:2px solid var(--mafia);animation:mafia-pulse 2s infinite}
+.result-banner.town-wins{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.result-banner .result-emoji{font-size:44px;margin-bottom:8px}
+.result-banner h2{font-size:26px;font-weight:800;margin-bottom:8px}
+.result-banner.spy-wins h2,.result-banner.chaos-spies-win h2{color:var(--spy)}
+.result-banner.crew-wins h2,.result-banner.ooo-caught h2,.result-banner.town-wins h2{color:var(--safe)}
+.result-banner.ooo-escaped h2{color:var(--ooo)}
+.result-banner.mafia-wins h2{color:#e74c3c}
+.result-banner.tie-banner{background:linear-gradient(135deg,#1a1600,#121000);border:2px solid var(--accent)}
+.result-banner.tie-banner h2{color:var(--accent)}
+.result-banner.gameover-banner{background:linear-gradient(135deg,#0a1a14,#0a1410);border:2px solid var(--safe)}
+.result-banner.gameover-banner h2{color:var(--safe);font-size:30px;letter-spacing:-1px}
+.result-banner p{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* OOO */
+.ooo-question-box{padding:18px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:var(--radius);font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.5;text-align:center}
+.round-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.answer-item{padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;animation:fadeIn 0.25s ease}
+.answer-name{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.answer-text{font-size:15px;font-weight:600;color:var(--text)}
+.scoreboard-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px}
+.scoreboard-item.me{border-color:var(--accent)}
+.scoreboard-rank{font-size:18px;min-width:28px;text-align:center}
+.scoreboard-name{flex:1;font-size:14px;font-weight:600}
+.scoreboard-pts{font-family:'DM Mono',monospace;font-size:16px;color:var(--accent);font-weight:500}
+.discuss-timer-wrap{text-align:center;padding:10px 0 4px}
+.discuss-timer{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;letter-spacing:4px;color:var(--ooo);transition:color 0.3s}
+.discuss-timer.ending{color:var(--accent);animation:timer-pulse 1s infinite}
+.discuss-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+
+/* ===== MAFIA GAME STYLES ===== */
+.mafia-phase-banner{padding:10px 14px;border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;letter-spacing:2px;margin-bottom:12px}
+.mafia-phase-banner.day{background:rgba(232,212,77,0.08);border:1px solid rgba(232,212,77,0.3);color:var(--accent)}
+.mafia-phase-banner.night{background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.3);color:#e74c3c;animation:mafia-pulse 2s infinite}
+.player-status-grid{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.player-status-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);font-size:14px}
+.player-status-item.dead-player{opacity:0.4;border-style:dashed}
+.player-status-item.eliminated-today{border-color:var(--spy);background:rgba(232,93,77,0.08)}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-dot.alive{background:var(--safe)}
+.status-dot.dead{background:var(--spy)}
+.mafia-action-box{padding:16px;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.3);border-radius:var(--radius);margin:10px 0}
+.doctor-action-box{padding:16px;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.3);border-radius:var(--radius);margin:10px 0}
+.night-waiting-box{padding:16px;background:var(--surface2);border:1px dashed var(--border);border-radius:var(--radius);text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;margin:10px 0}
+.mafia-log{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.mafia-log-item{padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border-left:3px solid var(--border);font-size:13px;font-family:'DM Mono',monospace;line-height:1.5}
+.mafia-log-item.death{border-left-color:var(--spy);color:var(--spy)}
+.mafia-log-item.saved{border-left-color:var(--doctor);color:var(--doctor)}
+.mafia-log-item.vote-out{border-left-color:var(--accent);color:var(--accent)}
+.mafia-log-item.system{border-left-color:var(--muted);color:var(--muted)}
+.dead-spectator-banner{padding:20px;background:rgba(232,93,77,0.08);border:2px solid rgba(232,93,77,0.3);border-radius:var(--radius-lg);text-align:center;margin-bottom:12px}
+.mafia-tab-bar{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:14px}
+.mafia-tab-btn{flex:1;padding:7px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s}
+.mafia-tab-btn.active{background:var(--surface3);color:var(--text)}
+.mafia-tab-content{display:none}
+.mafia-tab-content.active{display:block}
+.host-controls-box{padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-top:10px}
+.host-controls-title{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+
+/* Chat */
+.chat-wrap{margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
+.chat-label{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.chat-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite}
+.chat-messages{height:130px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.chat-msg{font-size:13px;line-height:1.5;animation:fadeIn 0.2s ease}
+.chat-name{font-weight:700;font-family:'DM Mono',monospace;font-size:11px;margin-right:6px}
+.chat-name.you{color:var(--safe)}
+.chat-name.other{color:var(--accent)}
+.chat-time{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:6px}
+.chat-empty{text-align:center;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;padding:16px 0}
+.chat-input-row{display:flex;gap:8px}
+.chat-input{flex:1;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;outline:none;transition:border 0.15s;margin-bottom:0;box-sizing:border-box}
+.chat-input:focus{border-color:var(--accent)}
+.chat-input::placeholder{color:var(--muted)}
+.chat-send-btn{padding:9px 14px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;flex-shrink:0}
+.chat-send-btn:hover{background:#f0dd55}
+
+/* Chaos/mode banners in game */
+.chaos-mode-banner{padding:7px 12px;background:rgba(255,45,45,0.1);border:1px solid rgba(255,45,45,0.3);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--chaos);font-weight:700;letter-spacing:2px;margin-bottom:10px;animation:chaos-pulse 2s infinite}
+.ooo-mode-banner{padding:7px 12px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--ooo);font-weight:700;letter-spacing:2px;margin-bottom:10px}
+
+/* Dawn story screen */
+@keyframes dawnFadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dawnGlow{0%,100%{text-shadow:0 0 20px rgba(232,212,77,0.3)}50%{text-shadow:0 0 40px rgba(232,212,77,0.7)}}
+.dawn-screen-bg{min-height:100vh;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 30%,rgba(232,212,77,0.04) 0%,transparent 70%)}
+.dawn-eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;animation:dawnFadeIn 0.6s ease forwards}
+.dawn-title{font-size:38px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;animation:dawnFadeIn 0.6s ease 0.1s both}
+.dawn-title.death{color:var(--spy)}
+.dawn-title.saved{color:var(--safe)}
+.dawn-title.quiet{color:var(--accent)}
+.dawn-icon{font-size:64px;margin-bottom:20px;animation:dawnFadeIn 0.5s ease both}
+.dawn-story-text{font-size:16px;color:var(--muted);line-height:1.7;text-align:center;max-width:320px;margin:0 auto 8px;animation:dawnFadeIn 0.6s ease 0.2s both}
+.dawn-story-text strong{color:var(--text);font-weight:700}
+.dawn-story-text em{color:var(--spy);font-style:normal;font-weight:700}
+.dawn-story-text.saved-name em{color:var(--safe)}
+.dawn-divider{width:48px;height:2px;background:var(--border);margin:24px auto;animation:dawnFadeIn 0.6s ease 0.3s both}
+.dawn-day-label{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;animation:dawnFadeIn 0.6s ease 0.35s both}
+.dawn-continue-btn{animation:dawnFadeIn 0.6s ease 0.4s both;width:100%;max-width:320px}
+.dawn-alive-count{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:12px;animation:dawnFadeIn 0.6s ease 0.45s both}
+
+.dev-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px}
+.dev-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.dev-desc{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;line-height:1.6}
+.dev-section-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.dev-btn{padding:9px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:left}
+.dev-btn:hover{border-color:var(--accent);color:var(--accent)}
+.dev-btn-chaos{border-color:rgba(255,45,45,0.3);color:var(--chaos)}
+.dev-btn-chaos:hover{border-color:var(--chaos);background:rgba(255,45,45,0.08)}
+.dev-btn-ooo{border-color:rgba(167,139,250,0.3);color:var(--ooo)}
+.dev-btn-ooo:hover{border-color:var(--ooo);background:rgba(167,139,250,0.08)}
+.dev-btn-mafia{border-color:rgba(192,57,43,0.3);color:#e74c3c}
+.dev-btn-mafia:hover{border-color:#e74c3c;background:rgba(192,57,43,0.08)}
+.dev-btn-neutral{color:var(--muted)}
+.dev-btn-neutral:hover{color:var(--text);border-color:var(--muted)}
+.dev-preview-wrap{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.dev-preview-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)}
+.dev-preview-sample{font-size:14px;font-weight:800;min-width:92px;color:var(--text)}
+.dev-preview-value{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:right;word-break:break-all}
+.dev-frame-preview{display:flex;align-items:center;gap:10px}
+
+.av{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border);background:var(--surface3)}
+.av-sm{width:26px;height:26px}
+.av-lg{width:44px;height:44px}
+.av-placeholder{width:32px;height:32px;border-radius:50%;background:var(--surface3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+/* ===== CUSTOM DROPDOWNS + SHOP MODAL ===== */
+.custom-mode-wrap{width:100%;max-width:440px}
+.custom-mode-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.3px}
+.custom-mode-toggle:hover{border-color:var(--accent);background:var(--surface2)}
+.custom-mode-toggle-text{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.custom-mode-kicker{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-weight:500}
+.custom-mode-current{font-size:15px;color:var(--text);font-weight:800}
+.custom-mode-arrow{font-family:'DM Mono',monospace;color:var(--accent);transition:transform 0.15s}
+.custom-mode-wrap.open .custom-mode-arrow{transform:rotate(90deg)}
+.custom-mode-menu{display:none;margin-top:8px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 18px 50px rgba(0,0,0,0.35)}
+.custom-mode-wrap.open .custom-mode-menu{display:flex;flex-direction:column;gap:8px;animation:fadeIn 0.18s ease}
+.custom-mode-option{width:100%;display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);text-align:left;cursor:pointer;transition:all 0.15s}
+.custom-mode-option:hover{border-color:var(--accent);transform:translateY(-1px)}
+.custom-mode-option.selected,.custom-mode-option.active-spyfall,.custom-mode-option.active-ooo,.custom-mode-option.active-mafia,.custom-mode-option.active-fa,.custom-mode-option.active-bs{background:rgba(232,212,77,0.06);border-color:var(--accent)}
+.custom-mode-icon{font-size:22px;width:28px;text-align:center;flex-shrink:0}
+.custom-mode-option > span:not(.custom-mode-icon){display:flex;flex-direction:column;align-items:flex-start;gap:4px;line-height:1.15}
+.custom-mode-name{display:block;font-size:13px;font-weight:800;color:var(--text);letter-spacing:1px;text-transform:uppercase;line-height:1.15}
+.custom-mode-desc{display:block;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:0;text-transform:none;letter-spacing:0;line-height:1.35}
+.custom-mode-option>span:not(.custom-mode-icon){display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important;min-width:0}
+
+/* Game mode dropdown colours */
+#homeTileSpyfall,#modeTabSpyfall{border-color:rgba(232,212,77,.45);background:rgba(232,212,77,.075)}
+#homeTileSpyfall:hover,#modeTabSpyfall:hover,#homeTileSpyfall.selected,#modeTabSpyfall.active-spyfall{border-color:var(--accent);background:rgba(232,212,77,.14);box-shadow:0 0 0 1px rgba(232,212,77,.25)}
+#homeTileSpyfall .custom-mode-name,#modeTabSpyfall .custom-mode-name{color:var(--accent)}
+
+#homeTileOoo,#modeTabOoo{border-color:rgba(6,182,212,.45);background:rgba(6,182,212,.075)}
+#homeTileOoo:hover,#modeTabOoo:hover,#homeTileOoo.selected,#modeTabOoo.active-ooo{border-color:#06b6d4;background:rgba(6,182,212,.14);box-shadow:0 0 0 1px rgba(6,182,212,.25)}
+#homeTileOoo .custom-mode-name,#modeTabOoo .custom-mode-name{color:#06b6d4}
+
+#homeTileMafia,#modeTabMafia{border-color:rgba(232,93,77,.45);background:rgba(232,93,77,.075)}
+#homeTileMafia:hover,#modeTabMafia:hover,#homeTileMafia.selected,#modeTabMafia.active-mafia{border-color:#e85d4d;background:rgba(232,93,77,.14);box-shadow:0 0 0 1px rgba(232,93,77,.25)}
+#homeTileMafia .custom-mode-name,#modeTabMafia .custom-mode-name{color:#e85d4d}
+
+#homeTileFa,#modeTabFa{border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.075)}
+#homeTileFa:hover,#modeTabFa:hover,#homeTileFa.selected,#modeTabFa.active-fa{border-color:#a78bfa;background:rgba(167,139,250,.14);box-shadow:0 0 0 1px rgba(167,139,250,.25)}
+#homeTileFa .custom-mode-name,#modeTabFa .custom-mode-name{color:#a78bfa}
+
+#homeTileBs,#modeTabBs{border-color:rgba(77,232,160,.45);background:rgba(77,232,160,.075)}
+#homeTileBs:hover,#modeTabBs:hover,#homeTileBs.selected,#modeTabBs.active-bs{border-color:#4de8a0;background:rgba(77,232,160,.14);box-shadow:0 0 0 1px rgba(77,232,160,.25)}
+#homeTileBs .custom-mode-name,#modeTabBs .custom-mode-name{color:#4de8a0}
+
+.home-shop-btn{width:100%;max-width:440px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--radius-lg);padding:14px 16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px}
+.home-shop-btn:hover{background:#f0dd55;transform:translateY(-1px)}
+.shop-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9998;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
+.shop-modal-backdrop.open{display:flex}
+.shop-modal{width:100%;max-width:440px;max-height:88dvh;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:0 24px 80px rgba(0,0,0,0.65);animation:fadeIn 0.2s ease}
+.shop-modal-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.shop-modal-header h2{flex:1;font-size:22px;font-weight:800;margin:0}
+.shop-close-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'DM Mono',monospace;font-size:16px;cursor:pointer}
+.shop-close-btn:hover{color:var(--text);border-color:var(--accent)}
+.shop-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:12px}
+.shop-tab{padding:9px 4px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.shop-tab:hover{color:var(--text);background:var(--surface3)}
+.shop-tab.active{background:var(--accent);color:#0a0a0f}
+.shop-preview{width:54px;min-width:54px;display:flex;align-items:center;justify-content:center}
+.shop-preview-name{font-size:13px;font-weight:800;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shop-preview-frame{width:38px;height:38px;font-size:16px}
+.shop-section-empty{padding:18px;background:var(--surface2);border:1px dashed var(--border);border-radius:var(--radius);text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;line-height:1.6}
+.shop-type-pill{display:inline-block;margin-top:5px;padding:3px 7px;border-radius:999px;background:var(--surface3);color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.6px}
+
+/* ===== COINS + SHOP ===== */
+.coin-pill{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;background:rgba(232,212,77,0.08);border:1px solid rgba(232,212,77,0.25);border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);margin-bottom:12px}
+.coin-icon{width:18px;height:18px;object-fit:contain;display:inline-block;vertical-align:-3px;filter:drop-shadow(0 0 6px rgba(232,212,77,.35))}
+.coin-icon-sm{width:14px;height:14px;vertical-align:-2px}
+.coin-icon-lg{width:22px;height:22px;vertical-align:-5px}
+.shop-grid{display:flex;flex-direction:column;gap:8px}
+.shop-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)}
+.shop-item-info{flex:1}
+.shop-item-name{font-size:14px;font-weight:700;color:var(--text)}
+.shop-item-price{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:3px}
+.shop-item-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.shop-item-btn{width:auto;padding:8px 12px;font-size:12px;white-space:nowrap}
+.shop-sell-btn{background:transparent;color:var(--muted);border:1px solid var(--border);padding:7px 10px}
+.shop-sell-btn:hover{color:var(--text);border-color:var(--accent)}
+.player-cosmetic-name{display:inline-block;position:relative}
+@keyframes chrispyGlow{0%,100%{text-shadow:0 0 5px currentColor,0 0 10px rgba(232,212,77,0.15)}50%{text-shadow:0 0 12px currentColor,0 0 24px rgba(232,212,77,0.45)}}
+@keyframes neonFlicker{0%,100%{opacity:1;text-shadow:0 0 5px currentColor,0 0 14px currentColor}8%,10%,18%{opacity:.55;text-shadow:none}12%,20%{opacity:1;text-shadow:0 0 8px currentColor,0 0 18px currentColor}}
+@keyframes rainbowShift{0%{color:#ff2d55;text-shadow:0 0 6px #ff2d55,0 0 14px rgba(255,45,85,.65)}16%{color:#ff9f0a;text-shadow:0 0 6px #ff9f0a,0 0 14px rgba(255,159,10,.65)}32%{color:#ffd60a;text-shadow:0 0 6px #ffd60a,0 0 14px rgba(255,214,10,.65)}48%{color:#32d74b;text-shadow:0 0 6px #32d74b,0 0 14px rgba(50,215,75,.65)}64%{color:#00c7ff;text-shadow:0 0 6px #00c7ff,0 0 14px rgba(0,199,255,.65)}80%{color:#bf5af2;text-shadow:0 0 6px #bf5af2,0 0 14px rgba(191,90,242,.65)}100%{color:#ff2d55;text-shadow:0 0 6px #ff2d55,0 0 14px rgba(255,45,85,.65)}}
+@keyframes bouncePop{0%,100%{transform:translateY(0) scale(1)}45%{transform:translateY(-2px) scale(1.04)}60%{transform:translateY(1px) scale(.99)}}
+@keyframes glitchName{0%,100%{transform:translate(0);text-shadow:2px 0 #06b6d4,-2px 0 #e85d4d}20%{transform:translate(-1px,1px)}40%{transform:translate(1px,-1px)}60%{transform:translate(-1px,0)}80%{transform:translate(1px,1px)}}
+@keyframes fireFlicker{0%,100%{text-shadow:0 0 5px #f97316,0 0 12px #e85d4d;color:#f97316}35%{text-shadow:0 0 12px #f97316,0 0 24px #e85d4d;color:#ffd166}70%{text-shadow:0 0 8px #e85d4d,0 0 18px #f97316;color:#ff9f1c}}
+@keyframes frostShimmer{0%,100%{text-shadow:0 0 6px #06b6d4,0 0 14px rgba(6,182,212,.45);filter:brightness(1)}50%{text-shadow:0 0 12px #dff9ff,0 0 24px rgba(6,182,212,.7);filter:brightness(1.35)}}
+
+/* Smooth seamless gradient name animations. Each gradient is built as two identical halves so the loop has no hard reset line. */
+.player-cosmetic-name[style*="oceanWave"]{background:linear-gradient(90deg,#075985 0%,#06b6d4 12.5%,#22d3ee 25%,#14b8a6 37.5%,#075985 50%,#06b6d4 62.5%,#22d3ee 75%,#14b8a6 87.5%,#075985 100%);background-size:200% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 10px rgba(34,211,238,.42);animation-duration:7s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important;will-change:background-position}
+.player-cosmetic-name[style*="auroraGlow"]{background:linear-gradient(90deg,#22c55e 0%,#38bdf8 12.5%,#8b5cf6 25%,#14b8a6 37.5%,#22c55e 50%,#38bdf8 62.5%,#8b5cf6 75%,#14b8a6 87.5%,#22c55e 100%);background-size:200% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 11px rgba(139,92,246,.42);animation-duration:7.5s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important;will-change:background-position}
+.player-cosmetic-name[style*="candyShift"]{background:linear-gradient(90deg,#ff4fd8 0%,#a855f7 12.5%,#38bdf8 25%,#fb7185 37.5%,#ff4fd8 50%,#a855f7 62.5%,#38bdf8 75%,#fb7185 87.5%,#ff4fd8 100%);background-size:200% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 11px rgba(255,79,216,.46);animation-duration:7s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important;will-change:background-position}
+.player-cosmetic-name[style*="bloodMoon"]{background:linear-gradient(90deg,#450a0a 0%,#991b1b 12.5%,#ef4444 25%,#f97316 37.5%,#450a0a 50%,#991b1b 62.5%,#ef4444 75%,#f97316 87.5%,#450a0a 100%);background-size:200% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 11px rgba(239,68,68,.48);animation-duration:7.2s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important;will-change:background-position}
+.player-cosmetic-name[style*="galaxyFlow"]{background:linear-gradient(90deg,#4c1d95 0%,#2563eb 12.5%,#ec4899 25%,#111827 37.5%,#4c1d95 50%,#2563eb 62.5%,#ec4899 75%,#111827 87.5%,#4c1d95 100%);background-size:200% 100%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;text-shadow:0 0 12px rgba(139,92,246,.5);animation-duration:7.8s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important;will-change:background-position}
+@keyframes oceanWave{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes auroraGlow{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes candyShift{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes bloodMoon{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes galaxyFlow{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+.av-frame-ocean{border-color:#22d3ee!important;box-shadow:0 0 9px rgba(34,211,238,.7),0 0 20px rgba(20,184,166,.35);animation:frameOcean 5.5s linear infinite}
+.av-frame-aurora{border-color:#22c55e!important;box-shadow:0 0 9px rgba(34,197,94,.65),0 0 22px rgba(139,92,246,.35);animation:frameAurora 6s linear infinite}
+.av-frame-candy{border-color:#ff4fd8!important;box-shadow:0 0 9px rgba(255,79,216,.65),0 0 22px rgba(56,189,248,.35);animation:frameCandy 5.5s linear infinite}
+.av-frame-bloodmoon{border-color:#ef4444!important;box-shadow:0 0 9px rgba(239,68,68,.75),0 0 22px rgba(249,115,22,.35);animation:frameBloodMoon 5.8s linear infinite}
+.av-frame-galaxy{border-color:#8b5cf6!important;box-shadow:0 0 10px rgba(139,92,246,.75),0 0 24px rgba(236,72,153,.35);animation:frameGalaxy 6.2s linear infinite}
+@keyframes frameOcean{0%,100%{border-color:#075985;box-shadow:0 0 8px rgba(6,182,212,.55),0 0 18px rgba(20,184,166,.3)}50%{border-color:#22d3ee;box-shadow:0 0 14px rgba(34,211,238,.9),0 0 28px rgba(20,184,166,.55)}}
+@keyframes frameAurora{0%,100%{border-color:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.6),0 0 20px rgba(56,189,248,.35)}50%{border-color:#8b5cf6;box-shadow:0 0 14px rgba(139,92,246,.85),0 0 30px rgba(20,184,166,.5)}}
+@keyframes frameCandy{0%,100%{border-color:#ff4fd8;box-shadow:0 0 8px rgba(255,79,216,.65),0 0 20px rgba(168,85,247,.35)}50%{border-color:#38bdf8;box-shadow:0 0 14px rgba(56,189,248,.85),0 0 30px rgba(251,113,133,.5)}}
+@keyframes frameBloodMoon{0%,100%{border-color:#991b1b;box-shadow:0 0 8px rgba(153,27,27,.7),0 0 20px rgba(239,68,68,.35)}50%{border-color:#f97316;box-shadow:0 0 14px rgba(249,115,22,.85),0 0 30px rgba(239,68,68,.5)}}
+@keyframes frameGalaxy{0%,100%{border-color:#4c1d95;box-shadow:0 0 8px rgba(76,29,149,.75),0 0 20px rgba(37,99,235,.35)}50%{border-color:#ec4899;box-shadow:0 0 15px rgba(236,72,153,.9),0 0 32px rgba(139,92,246,.55)}}
+.av-frame-gold{border-color:var(--accent)!important;box-shadow:none!important}
+.av-frame-neon{border-color:#06b6d4!important;box-shadow:none!important}
+.av-frame-fire{border-color:#f97316!important;box-shadow:none!important;animation:none!important}
+.av-frame-ice{border-color:#9eefff!important;box-shadow:none!important}
+.av-frame-rainbow{border-color:#ff2d55!important;box-shadow:0 0 8px rgba(255,45,85,.75),0 0 18px rgba(0,199,255,.55),0 0 26px rgba(191,90,242,.35);animation:frameRainbow 5.5s linear infinite}
+.av-frame-shadow{border-color:#a78bfa!important;box-shadow:0 0 10px rgba(167,139,250,.7),0 0 22px rgba(167,139,250,.28)}
+@keyframes frameFire{0%,100%{box-shadow:0 0 8px rgba(249,115,22,.65),0 0 16px rgba(232,93,77,.35)}50%{box-shadow:0 0 14px rgba(249,115,22,.95),0 0 28px rgba(232,93,77,.55)}}
+@keyframes frameRainbow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+
+/* Legendary Inferno name + matching avatar frame */
+.player-cosmetic-name[style*="infernoName"]{
+  background:linear-gradient(90deg,#7f1d1d 0%,#ef4444 12.5%,#f97316 25%,#fde047 37.5%,#7f1d1d 50%,#ef4444 62.5%,#f97316 75%,#fde047 87.5%,#7f1d1d 100%);
+  background-size:200% 100%;
+  background-position:0% 50%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent!important;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 0 7px rgba(249,115,22,.65),0 0 16px rgba(239,68,68,.45),0 0 28px rgba(253,224,71,.22);
+  animation-duration:5.5s!important;
+  animation-timing-function:linear!important;
+  animation-iteration-count:infinite!important;
+  will-change:background-position,filter;
+}
+.player-cosmetic-name[style*="infernoName"]::before,
+.player-cosmetic-name[style*="infernoName"]::after{
+  content:'• • •';
+  position:absolute;
+  left:5%;
+  right:5%;
+  bottom:58%;
+  font-size:7px;
+  letter-spacing:7px;
+  pointer-events:none;
+  -webkit-text-fill-color:#f97316;
+  color:#f97316;
+  text-shadow:0 0 4px #f97316,0 0 9px rgba(239,68,68,.55);
+  opacity:.58;
+  animation:infernoEmbers 1.8s linear infinite;
+}
+.player-cosmetic-name[style*="infernoName"]::after{
+  content:'• •';
+  left:20%;
+  bottom:46%;
+  font-size:5px;
+  letter-spacing:10px;
+  animation-duration:2.25s;
+  animation-delay:.45s;
+  opacity:.42;
+}
+@keyframes infernoName{0%{background-position:0% 50%;filter:brightness(1)}45%{filter:brightness(1.25)}100%{background-position:100% 50%;filter:brightness(1)}}
+@keyframes infernoEmbers{0%{transform:translateY(3px) scale(.8);opacity:0}25%{opacity:.62}100%{transform:translateY(-6px) scale(1.05);opacity:0}}
+.av-frame-inferno{border-color:#f97316!important;box-shadow:0 0 9px rgba(249,115,22,.8),0 0 20px rgba(239,68,68,.55),0 0 34px rgba(253,224,71,.22);animation:frameInferno 5.5s linear infinite}
+.av-inferno-wrap{position:relative;display:flex;align-items:center;justify-content:center;overflow:visible;background:rgba(249,115,22,.08)}
+.av-inferno-wrap .av-inferno-photo{width:100%;height:100%;border-radius:50%;object-fit:cover;border:0!important;display:block;filter:sepia(.34) saturate(1.35) hue-rotate(-12deg) brightness(1.04) contrast(1.04)}
+.av-inferno-wrap::before{content:'';position:absolute;inset:2px;border-radius:50%;background:radial-gradient(circle at 35% 25%,rgba(253,224,71,.22),transparent 34%),linear-gradient(135deg,rgba(249,115,22,.18),rgba(239,68,68,.12));mix-blend-mode:screen;pointer-events:none;z-index:1}
+.av-inferno-wrap::after{content:'• • •';position:absolute;left:1px;right:1px;top:-3px;font-size:7px;line-height:1;letter-spacing:5px;text-align:center;color:#ffd166;text-shadow:0 0 6px rgba(249,115,22,.95),0 0 12px rgba(239,68,68,.7),0 0 18px rgba(253,224,71,.42);opacity:.58;pointer-events:none;z-index:2;animation:frameInfernoEmbers 1.9s ease-out infinite}
+@keyframes frameInferno{0%,100%{border-color:#7f1d1d;box-shadow:0 0 8px rgba(239,68,68,.55),0 0 18px rgba(249,115,22,.35)}25%{border-color:#f97316;box-shadow:0 0 14px rgba(249,115,22,.9),0 0 30px rgba(239,68,68,.55)}50%{border-color:#fde047;box-shadow:0 0 16px rgba(253,224,71,.8),0 0 34px rgba(249,115,22,.55)}75%{border-color:#ef4444;box-shadow:0 0 14px rgba(239,68,68,.9),0 0 30px rgba(249,115,22,.55)}}
+@keyframes frameInfernoEmbers{0%{transform:translateY(3px) scale(.8);opacity:0}30%{opacity:.62}70%{opacity:.46}100%{transform:translateY(-6px) scale(1.08);opacity:0}}
+
+
+
+
+/* ===== COIN REWARD TOAST ===== */
+.coin-earned-toast{position:fixed;left:50%;top:22px;transform:translateX(-50%) translateY(-12px);z-index:12000;width:calc(100% - 36px);max-width:420px;padding:16px 18px;border-radius:var(--radius-lg);background:linear-gradient(135deg,rgba(232,212,77,.18),rgba(19,19,26,.98));border:1px solid rgba(232,212,77,.45);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 32px rgba(232,212,77,.15);font-family:'Syne',sans-serif;font-size:15px;font-weight:800;text-align:center;color:var(--text);opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease}
+.coin-earned-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.coin-earned-toast .coin-earned-number{font-family:'DM Mono',monospace;font-size:24px;color:var(--accent);text-shadow:none}
+.coin-earned-toast .coin-earned-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.coin-earned-inline{margin:10px 0 12px;padding:8px 10px;border-radius:var(--radius);background:rgba(232,212,77,.07);border:1px solid rgba(232,212,77,.18);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.2px;text-align:center;color:var(--accent);line-height:1.4}
+.coin-earned-inline .coin-earned-number{font-size:16px;font-weight:700;color:var(--accent);text-shadow:none}
+
+/* Keep matching name + frame animations synced */
+.player-cosmetic-name{animation-delay:0s!important}
+.av-frame-rainbow{animation-duration:5.5s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-ocean{animation-duration:5.5s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-candy{animation-duration:5.5s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-aurora{animation-duration:6s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-bloodmoon{animation-duration:5.8s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-galaxy{animation-duration:6.2s!important;animation-delay:0s!important;animation-timing-function:linear!important;animation-iteration-count:infinite!important}
+.av-frame-fire{animation:none!important;box-shadow:none!important}
+.av-frame-inferno{animation-duration:5.5s!important;animation-delay:0s!important;animation-iteration-count:infinite!important}
+
+
+/* ===== AVATAR CROP MODAL ===== */
+.avatar-crop-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10020;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
+.avatar-crop-backdrop.open{display:flex}
+.avatar-crop-modal{width:100%;max-width:390px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:0 24px 80px rgba(0,0,0,.7);animation:fadeIn .2s ease}
+.avatar-crop-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.avatar-crop-header h2{flex:1;font-size:20px;font-weight:800;margin:0}
+.avatar-crop-close{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'DM Mono',monospace;font-size:16px;cursor:pointer}
+.avatar-crop-close:hover{color:var(--text);border-color:var(--accent)}
+.avatar-crop-frame{width:min(76vw,300px);height:min(76vw,300px);aspect-ratio:1/1;margin:0 auto 14px;position:relative;overflow:hidden;border-radius:22px;background:#050509;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,.18),0 0 24px rgba(232,212,77,.18);touch-action:none;cursor:grab;display:block}
+.avatar-crop-frame.dragging{cursor:grabbing}
+.avatar-crop-img{position:absolute;left:50%;top:50%;max-width:none;max-height:none;user-select:none;pointer-events:none;transform-origin:center center}
+.avatar-crop-guide{position:absolute;inset:0;border:1px dashed rgba(255,255,255,.38);border-radius:18px;pointer-events:none;box-shadow:inset 0 0 0 9999px rgba(255,255,255,.015)}
+.avatar-crop-guide::before,.avatar-crop-guide::after{content:'';position:absolute;background:rgba(255,255,255,.18)}
+.avatar-crop-guide::before{left:33.333%;top:0;bottom:0;width:1px;box-shadow:calc(min(72vw,280px) / 3) 0 0 rgba(255,255,255,.18)}
+.avatar-crop-guide::after{top:33.333%;left:0;right:0;height:1px;box-shadow:0 calc(min(72vw,280px) / 3) 0 rgba(255,255,255,.18)}
+.avatar-crop-help{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:12px}
+.avatar-zoom-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.avatar-zoom-row span{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.avatar-zoom-row input{margin:0;padding:0;accent-color:var(--accent)}
+
+
+
+/* Result banner winner avatar */
+.result-avatar,
+.result-banner .result-avatar,
+.result-banner .av.result-avatar,
+.result-banner .av-placeholder.result-avatar{
+  width:44px!important;
+  height:44px!important;
+  font-size:19px!important;
+  margin:0 auto 8px!important;
+}
+.result-banner .av-inferno-wrap.result-avatar{
+  width:44px!important;
+  height:44px!important;
+  margin:0 auto 8px!important;
+}
+
+.result-avatar-group{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin:0 auto 10px;
+  padding:0;
+  text-align:center;
+}
+.result-avatar-group .result-avatar{
+  width:42px!important;
+  height:42px!important;
+  margin:0!important;
+  border-width:2px!important;
+  flex:0 0 auto;
+}
+.result-avatar-group .av-inferno-wrap.result-avatar{
+  width:42px!important;
+  height:42px!important;
+  margin:0!important;
+  flex:0 0 auto;
+}
+.result-avatar-group .result-avatar:last-child{margin:0!important;}
+
+/* Bigger lobby avatars */
+#playerList .av,
+#playerList .av-placeholder,
+#waitingPlayerList .av,
+#waitingPlayerList .av-placeholder{
+  width:40px!important;
+  height:40px!important;
+  font-size:17px;
+}
+#playerList .av-inferno-wrap,
+#waitingPlayerList .av-inferno-wrap{
+  width:40px!important;
+  height:40px!important;
+}
+#playerList .player-item,
+#waitingPlayerList .player-item{
+  min-height:52px;
+}
+
+
+/* Team result avatar alignment hard-fix */
+.result-banner .result-avatar-group{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  width:fit-content!important;
+  max-width:100%!important;
+  margin:0 auto 12px!important;
+  padding:0!important;
+  text-align:center!important;
+}
+.result-banner .result-avatar-group > .result-avatar,
+.result-banner .result-avatar-group > .av.result-avatar,
+.result-banner .result-avatar-group > .av-placeholder.result-avatar,
+.result-banner .result-avatar-group > .av-inferno-wrap.result-avatar{
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  margin:0!important;
+  flex:0 0 44px!important;
+  align-self:center!important;
+}
+.result-banner .result-avatar-group > .av-inferno-wrap.result-avatar{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.result-banner .result-avatar-group > .av-inferno-wrap.result-avatar .av-inferno-photo{
+  width:100%!important;
+  height:100%!important;
+}
+
+
+/* ===== PWA UPDATE AVAILABLE BUTTON ===== */
+.update-available-btn{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:12000;display:none;align-items:center;justify-content:center;gap:8px;width:calc(100% - 36px);max-width:420px;padding:13px 16px;border:none;border-radius:var(--radius-lg);background:var(--accent);color:#0a0a0f;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:.3px;box-shadow:0 14px 40px rgba(0,0,0,.45);cursor:pointer}
+.update-available-btn.show{display:flex;animation:fadeIn .2s ease}
+.update-available-btn span{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;opacity:.78;text-transform:uppercase;letter-spacing:1px}
+
+
+/* ===== WIN ANIMATIONS ===== */
+.win-anim-overlay{position:fixed;inset:0;z-index:13000;pointer-events:none;display:none;overflow:hidden}
+.win-anim-overlay.active{display:block}
+.win-anim-shop-preview{width:54px;min-width:54px;height:40px;border-radius:8px;background:var(--surface3);border:1px solid var(--border);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px}
+@keyframes winConfettiFall{0%{transform:translateY(-20vh) rotate(0deg);opacity:1}100%{transform:translateY(120vh) rotate(720deg);opacity:0.2}}
+.win-confetti-piece{position:absolute;top:-20px;width:11px;height:16px;border-radius:2px;animation:winConfettiFall linear forwards}
+@keyframes winFirework{0%{transform:scale(0);opacity:1}70%{opacity:1}100%{transform:scale(1);opacity:0}}
+.win-firework{position:absolute;width:6px;height:6px;border-radius:50%;animation:winFirework 1.1s ease-out forwards}
+@keyframes winRays{0%{opacity:0;transform:scale(0.4) rotate(0deg)}30%{opacity:0.85}100%{opacity:0;transform:scale(2.2) rotate(140deg)}}
+.win-rays{position:absolute;left:50%;top:42%;width:140vmax;height:140vmax;margin-left:-70vmax;margin-top:-70vmax;background:repeating-conic-gradient(from 0deg,rgba(232,212,77,0.0) 0deg,rgba(232,212,77,0.22) 6deg,rgba(232,212,77,0.0) 12deg);animation:winRays 1.8s ease-out forwards}
+@keyframes winCrownDrop{0%{transform:translate(-50%,-160px) scale(0.4) rotate(-20deg);opacity:0}45%{transform:translate(-50%,0) scale(1.2) rotate(6deg);opacity:1}62%{transform:translate(-50%,8px) scale(0.95) rotate(-3deg)}100%{transform:translate(-50%,0) scale(1) rotate(0deg);opacity:1}}
+.win-crown{position:absolute;left:50%;top:24%;font-size:84px;filter:drop-shadow(0 8px 24px rgba(232,212,77,0.6));animation:winCrownDrop 1.1s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes winFlameRise{0%{transform:translateY(40px) scaleY(0.4);opacity:0}25%{opacity:1}100%{transform:translateY(-110vh) scaleY(1.4);opacity:0}}
+.win-flame{position:absolute;bottom:-10vh;width:60px;border-radius:50% 50% 40% 40%;background:radial-gradient(circle at 50% 80%,#fde047,#f97316 45%,#ef4444 75%,transparent);filter:blur(2px);animation:winFlameRise ease-in forwards}
+.win-inferno-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(249,115,22,0.5),transparent 60%);animation:winInfFlash 1.6s ease-out forwards}
+@keyframes winInfFlash{0%,100%{opacity:0}8%,40%{opacity:0.85}20%{opacity:0.4}}
+@keyframes winGlitterFall{0%{transform:translateY(-12vh) scale(0.4) rotate(0deg);opacity:0}15%{opacity:1}100%{transform:translateY(118vh) scale(1) rotate(360deg);opacity:0}}
+.win-glitter{position:absolute;top:-12vh;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#ffe98a 40%,#e8b94d 75%,transparent);box-shadow:0 0 8px 2px rgba(255,225,120,0.9),0 0 16px 4px rgba(232,185,77,0.5);animation:winGlitterFall linear forwards;will-change:transform,opacity}
+@keyframes winGlitterTwinkle{0%,100%{opacity:0.35;transform:scale(0.7)}50%{opacity:1;transform:scale(1.25)}}
+.win-glitter.tw{animation:winGlitterFall linear forwards,winGlitterTwinkle 0.5s ease-in-out infinite}
+@keyframes winTextPop{0%{transform:translate(-50%,-50%) scale(0.3);opacity:0}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}70%{transform:translate(-50%,-50%) scale(0.96)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.win-anim-overlay .win-victory-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Syne',sans-serif;font-size:clamp(30px,10vw,60px);font-weight:800;letter-spacing:-1px;text-align:center;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,0.7);animation:winTextPop 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;white-space:nowrap}
+
+/* ===== INFERNO WIN THEME (applied to <body> while inferno win plays) ===== */
+@keyframes infThemePulse{0%,100%{filter:saturate(1.15) brightness(1.02)}50%{filter:saturate(1.4) brightness(1.1)}}
+@keyframes infGlowPulse{0%,100%{box-shadow:0 0 14px rgba(249,115,22,.55),0 0 32px rgba(239,68,68,.35),inset 0 0 18px rgba(249,115,22,.18)}50%{box-shadow:0 0 26px rgba(253,224,71,.7),0 0 54px rgba(249,115,22,.55),inset 0 0 26px rgba(239,68,68,.28)}}
+@keyframes infTextGlow{0%,100%{text-shadow:0 0 8px rgba(249,115,22,.7),0 0 18px rgba(239,68,68,.5)}50%{text-shadow:0 0 16px rgba(253,224,71,.9),0 0 36px rgba(249,115,22,.7)}}
+@keyframes infAvatarGlow{0%,100%{box-shadow:0 0 14px rgba(249,115,22,.8),0 0 30px rgba(239,68,68,.55),0 0 48px rgba(253,224,71,.3);border-color:#f97316}50%{box-shadow:0 0 24px rgba(253,224,71,.95),0 0 52px rgba(249,115,22,.7),0 0 78px rgba(239,68,68,.45);border-color:#fde047}}
+
+body.inferno-win-theme{background:radial-gradient(ellipse at 50% 30%,#2a0f04 0%,#1a0702 45%,#0a0402 100%)!important}
+/* Tint the active result screen warm */
+body.inferno-win-theme .screen.active{background:radial-gradient(ellipse at 50% 25%,rgba(249,115,22,.10),transparent 70%)}
+/* Cards on the win screen get a glowing ember border + warm bg */
+body.inferno-win-theme .screen.active .card,
+body.inferno-win-theme .screen.active .result-banner,
+body.inferno-win-theme .screen.active #resultRevealBox,
+body.inferno-win-theme .screen.active [id$="ResultReveal"],
+body.inferno-win-theme .screen.active [id$="ResultImposter"],
+body.inferno-win-theme .screen.active #mafiaResultReveal{
+  border-color:#f97316!important;
+  background:linear-gradient(145deg,#2a1004,#1a0a04)!important;
+  animation:infGlowPulse 1.6s ease-in-out infinite;
+}
+/* Headings + key text glow warm */
+body.inferno-win-theme .screen.active h2,
+body.inferno-win-theme .screen.active .result-banner h2{
+  color:#fde047!important;
+  animation:infTextGlow 1.6s ease-in-out infinite;
+}
+body.inferno-win-theme .screen.active .result-banner p,
+body.inferno-win-theme .screen.active .scoreboard-pts{color:#ffb86b!important}
+/* Buttons warm */
+body.inferno-win-theme .screen.active .btn-primary,
+body.inferno-win-theme .screen.active .btn-mafia{
+  background:linear-gradient(135deg,#f97316,#ef4444)!important;color:#fff!important;
+  box-shadow:0 0 18px rgba(249,115,22,.5);
+}
+/* THE WINNER'S AVATAR — red/orange glow */
+body.inferno-win-theme .result-avatar,
+body.inferno-win-theme .result-banner .result-avatar,
+body.inferno-win-theme .result-banner .av.result-avatar,
+body.inferno-win-theme .result-banner .av-placeholder.result-avatar,
+body.inferno-win-theme #resultRevealBox .av,
+body.inferno-win-theme #resultRevealBox .av-placeholder,
+body.inferno-win-theme [id$="ResultReveal"] .av,
+body.inferno-win-theme [id$="ResultReveal"] .av-placeholder,
+body.inferno-win-theme [id$="ResultImposter"] .av,
+body.inferno-win-theme [id$="ResultImposter"] .av-placeholder{
+  border:2px solid #f97316!important;
+  animation:infAvatarGlow 1.3s ease-in-out infinite!important;
+}
+/* Scoreboard 'me' row glow */
+body.inferno-win-theme .screen.active .scoreboard-item.me{
+  border-color:#f97316!important;
+  box-shadow:0 0 14px rgba(249,115,22,.4);
+}
+/* Victory text already warm for inferno */
+.win-victory-text.inferno-text{color:#fde047;text-shadow:0 0 14px #f97316,0 0 30px #ef4444,0 0 50px rgba(253,224,71,.6)}
+
+/* ===== GOLD WIN THEME (Golden Crown) ===== */
+@keyframes goldGlowPulse{0%,100%{box-shadow:0 0 14px rgba(232,212,77,.55),0 0 32px rgba(255,215,0,.32),inset 0 0 18px rgba(232,212,77,.16)}50%{box-shadow:0 0 26px rgba(255,235,140,.75),0 0 56px rgba(232,212,77,.55),inset 0 0 26px rgba(255,215,0,.26)}}
+@keyframes goldTextGlow{0%,100%{text-shadow:0 0 8px rgba(232,212,77,.7),0 0 18px rgba(255,215,0,.5)}50%{text-shadow:0 0 16px rgba(255,245,180,.95),0 0 38px rgba(232,212,77,.7)}}
+@keyframes goldAvatarGlow{0%,100%{box-shadow:0 0 14px rgba(232,212,77,.8),0 0 30px rgba(255,215,0,.5),0 0 48px rgba(255,235,140,.3);border-color:#e8d44d}50%{box-shadow:0 0 26px rgba(255,245,180,.95),0 0 56px rgba(232,212,77,.7),0 0 84px rgba(255,215,0,.45);border-color:#fff3b0}}
+
+body.gold-win-theme{background:radial-gradient(ellipse at 50% 28%,#2a2406 0%,#1a1604 45%,#0a0902 100%)!important}
+body.gold-win-theme .screen.active{background:radial-gradient(ellipse at 50% 25%,rgba(232,212,77,.12),transparent 70%)}
+body.gold-win-theme .screen.active .card,
+body.gold-win-theme .screen.active .result-banner,
+body.gold-win-theme .screen.active #resultRevealBox,
+body.gold-win-theme .screen.active [id$="ResultReveal"],
+body.gold-win-theme .screen.active [id$="ResultImposter"],
+body.gold-win-theme .screen.active [id$="ImpostorReveal"],
+body.gold-win-theme .screen.active #mafiaResultReveal{
+  border-color:#e8d44d!important;
+  background:linear-gradient(145deg,#2a2406,#1a1604)!important;
+  animation:goldGlowPulse 1.6s ease-in-out infinite;
+}
+body.gold-win-theme .screen.active h2,
+body.gold-win-theme .screen.active .result-banner h2{
+  color:#ffe98a!important;
+  animation:goldTextGlow 1.6s ease-in-out infinite;
+}
+body.gold-win-theme .screen.active .result-banner p,
+body.gold-win-theme .screen.active .scoreboard-pts{color:#ffd700!important}
+body.gold-win-theme .screen.active .btn-primary,
+body.gold-win-theme .screen.active .btn-mafia,
+body.gold-win-theme .screen.active .btn-ooo{
+  background:linear-gradient(135deg,#f7d24d,#e8b94d)!important;color:#1a1400!important;
+  box-shadow:0 0 18px rgba(232,212,77,.5);
+}
+body.gold-win-theme .result-avatar,
+body.gold-win-theme .result-banner .result-avatar,
+body.gold-win-theme .result-banner .av.result-avatar,
+body.gold-win-theme .result-banner .av-placeholder.result-avatar,
+body.gold-win-theme #resultRevealBox .av,
+body.gold-win-theme #resultRevealBox .av-placeholder,
+body.gold-win-theme [id$="ResultReveal"] .av,
+body.gold-win-theme [id$="ResultReveal"] .av-placeholder,
+body.gold-win-theme [id$="ResultImposter"] .av,
+body.gold-win-theme [id$="ResultImposter"] .av-placeholder,
+body.gold-win-theme [id$="ImpostorReveal"] .av,
+body.gold-win-theme [id$="ImpostorReveal"] .av-placeholder{
+  border:2px solid #e8d44d!important;
+  animation:goldAvatarGlow 1.3s ease-in-out infinite!important;
+}
+body.gold-win-theme .screen.active .scoreboard-item.me{
+  border-color:#e8d44d!important;
+  box-shadow:0 0 14px rgba(232,212,77,.4);
+}
+.win-victory-text.gold-text{color:#ffe98a;text-shadow:0 0 14px #e8d44d,0 0 30px #ffd700,0 0 50px rgba(255,245,180,.6)}
+
+/* Crown that lands on the winner's avatar */
+@keyframes crownLand{0%{transform:translate(-50%,-220px) scale(0.5) rotate(-22deg);opacity:0}40%{opacity:1}55%{transform:translate(-50%,4px) scale(1.18) rotate(8deg)}70%{transform:translate(-50%,-2px) scale(0.96) rotate(-4deg)}85%{transform:translate(-50%,1px) scale(1.04) rotate(2deg)}100%{transform:translate(-50%,0) scale(1) rotate(0deg);opacity:1}}
+@keyframes crownBob{0%,100%{transform:translate(-50%,0) rotate(0deg)}50%{transform:translate(-50%,-4px) rotate(2deg)}}
+.win-crown-landed{position:fixed;z-index:13050;font-size:54px;pointer-events:none;filter:drop-shadow(0 4px 14px rgba(232,212,77,0.85)) drop-shadow(0 0 22px rgba(255,215,0,0.6));will-change:transform}
+.win-crown-landed.landing{animation:crownLand 1.0s cubic-bezier(0.34,1.56,0.64,1) forwards}
+.win-crown-landed.bobbing{animation:crownBob 1.4s ease-in-out infinite}
+</style>
+</head>
+<body>
+<div class="win-anim-overlay" id="winAnimOverlay"></div>
+<!-- PASSWORD -->
+<div class="screen active" id="screen-password">
+  <div class="logo">CHRISPY<span>GAMES</span></div>
+  <div class="tagline">Private — enter password</div>
+  <div class="card fadeIn">
+    <h2>Welcome</h2>
+    <label>Password</label>
+    <input id="passwordInput" type="password" placeholder="Enter password..." autocomplete="off" onkeydown="var k=event.key||event.code;if(k==='Enter'||k==='NumpadEnter'||k==='Go'||k==='Return'){event.preventDefault();window.checkPassword();}"/>
+    <div id="passwordError" class="notice error" style="display:none">Incorrect password.</div>
+    <button class="btn btn-primary" id="passwordEnterBtn" onclick="event.preventDefault();window.checkPassword();">Enter</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="screen-home">
+  <div style="text-align:center">
+    <div class="logo">CHRISPY<span>GAMES</span></div>
+    <div class="tagline">Party games for the boys</div>
+  </div>
+  <div class="custom-mode-wrap" id="homeModeDropdown">
+    <button class="custom-mode-toggle" onclick="toggleModeDropdown('homeModeDropdown')">
+      <span class="custom-mode-toggle-text">
+        <span class="custom-mode-kicker">Select Game Mode</span>
+        <span class="custom-mode-current" id="homeModeCurrent">🕵️ Spyfall</span>
+      </span>
+      <span class="custom-mode-arrow">▶</span>
+    </button>
+    <div class="custom-mode-menu">
+      <button class="custom-mode-option selected" id="homeTileSpyfall" onclick="selectHomeMode('spyfall')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Spyfall</span><span class="custom-mode-desc">Find the spy</span></span></button>
+      <button class="custom-mode-option" id="homeTileOoo" onclick="selectHomeMode('ooo')"><span class="custom-mode-icon">🎭</span><span><span class="custom-mode-name">Odd One Out</span><span class="custom-mode-desc">Spot the odd answer</span></span></button>
+      <button class="custom-mode-option" id="homeTileMafia" onclick="selectHomeMode('mafia')"><span class="custom-mode-icon">🃏</span><span><span class="custom-mode-name">Mafia</span><span class="custom-mode-desc">Civilians vs Mafia</span></span></button>
+      <button class="custom-mode-option" id="homeTileFa" onclick="selectHomeMode('fa')"><span class="custom-mode-icon">🎨</span><span><span class="custom-mode-name">Fake Artist</span><span class="custom-mode-desc">Draw the imposter</span></span></button>
+      <button class="custom-mode-option" id="homeTileBs" onclick="selectHomeMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
+    </div>
+  </div>
+  <div class="card fadeIn">
+    <h2>Play</h2>
+    <label>Your name</label>
+    <input id="playerName" type="text" placeholder="Enter your name..." maxlength="20" autocomplete="off"/>
+    <div style="width:100%;text-align:center;margin:-4px 0 12px">
+      <button id="avatarHomeBtn" onclick="triggerAvatarPicker()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;padding:4px 0">📷 Set Avatar</button>
+    </div>
+    <div id="homeError" class="notice error" style="display:none"></div>
+    <button class="btn btn-primary" id="createBtn" onclick="createGame()">Create New Game</button>
+    <div class="divider">or join existing</div>
+    <label>Game code</label>
+    <div class="flex-row">
+      <input id="joinCode" type="text" placeholder="XXXX" maxlength="4" style="text-transform:uppercase;letter-spacing:4px;font-family:'DM Mono',monospace;font-size:18px;margin-bottom:0"/>
+      <button class="btn btn-secondary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
+    </div>
+  </div>
+  <div class="shop-modal-backdrop" id="shopModalBackdrop" onclick="closeShopModal(event)">
+    <div class="shop-modal" onclick="event.stopPropagation()">
+      <div class="shop-modal-header">
+        <h2>Shop</h2>
+        <button class="shop-close-btn" onclick="closeShopModal()">×</button>
+      </div>
+      <div class="coin-pill"><img src="coin-icon-2.png" class="coin-icon" alt="Coins"/> <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
+      <div class="shop-tabs">
+        <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Names</button>
+        <button class="shop-tab" id="shopTabFrames" onclick="switchShopTab('frames')">Frames</button>
+        <button class="shop-tab" id="shopTabWins" onclick="switchShopTab('wins')">Wins</button>
+        <button class="shop-tab" id="shopTabOwned" onclick="switchShopTab('owned')">Owned</button>
+      </div>
+      <div class="shop-grid" id="shopItems"></div>
+    </div>
+  </div>
+  <button class="home-shop-btn" onclick="openShopModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Shop</button>
+  <!-- DEV TOOLS -->
+  <div style="width:100%;max-width:440px">
+    <button onclick="toggleDevPanel()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;letter-spacing:1px;text-transform:uppercase">
+      <span id="devArrow">▶</span> Dev Tools
+    </button>
+    <div id="devPanel" style="display:none;margin-top:8px">
+      <div class="dev-panel">
+        <div class="dev-title">🛠 Developer Test Panel</div>
+        <div class="dev-desc">Simulate game states instantly.</div>
+        <div class="dev-section-label">Spyfall</div>
+        <div class="dev-grid">
+          <button class="dev-btn" onclick="devStartAs('crew')">👤 Crew</button>
+          <button class="dev-btn" onclick="devStartAs('spy')">🕵️ Spy</button>
+          <button class="dev-btn dev-btn-chaos" onclick="devStartAs('chaos-innocent')">😇 Chaos Innocent</button>
+          <button class="dev-btn dev-btn-chaos" onclick="devStartAs('chaos-spy')">⚡ Chaos Spy</button>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Odd One Out</div>
+        <div class="dev-grid">
+          <button class="dev-btn dev-btn-ooo" onclick="devOOO('normal')">🎭 Normal Q</button>
+          <button class="dev-btn dev-btn-ooo" onclick="devOOO('odd')">❓ Odd Q</button>
+          <button class="dev-btn dev-btn-ooo" onclick="devOOO('answers')">📋 Answers</button>
+          <button class="dev-btn dev-btn-ooo" onclick="devOOO('result')">🏆 Result</button>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Mafia</div>
+        <div class="dev-grid">
+          <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('mafia')">🔴 As Mafia</button>
+          <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('doctor')">💚 As Doctor</button>
+          <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('town')">⬜ As Town</button>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Blind Spot</div>
+        <div class="dev-grid">
+          <button class="dev-btn" style="border-color:rgba(6,182,212,0.3);color:#06b6d4" onclick="devBsTest('innocent')">✓ As Innocent</button>
+          <button class="dev-btn" style="border-color:rgba(6,182,212,0.3);color:#06b6d4" onclick="devBsTest('imposter')">🕵️ As Imposter</button>
+          <button class="dev-btn" style="border-color:rgba(6,182,212,0.3);color:#06b6d4" onclick="devBsTest('discussion')">💬 Discussion</button>
+          <button class="dev-btn" style="border-color:rgba(6,182,212,0.3);color:#06b6d4" onclick="devBsTest('result')">🏆 Result</button>
+        </div>
+
+        <div class="dev-section-label" style="margin-top:10px">Set Coins</div>
+        <div class="dev-preview-wrap">
+          <div class="dev-desc" style="margin-bottom:8px">Set your saved coin balance for testing shop items.</div>
+          <div class="flex-row">
+            <input id="devCoinInput" type="number" min="0" placeholder="Coins..." style="margin-bottom:0;font-family:'DM Mono',monospace"/>
+            <button class="btn btn-primary btn-sm" onclick="devSetCoins()">Set</button>
+          </div>
+          <div class="dev-grid" style="margin-top:8px">
+            <button class="dev-btn dev-btn-neutral" onclick="devSetCoins(0)">0</button>
+            <button class="dev-btn dev-btn-neutral" onclick="devSetCoins(500)">500</button>
+            <button class="dev-btn dev-btn-neutral" onclick="devSetCoins(1000)">1000</button>
+            <button class="dev-btn dev-btn-neutral" onclick="devSetCoins(9999)">9999</button>
+          </div>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Name Animation Previews</div>
+        <div class="dev-preview-wrap">
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:chrispyGlow 2s infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: chrispyGlow</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:neonFlicker 2s infinite;color:#06b6d4">Chris</div><div class="dev-preview-value">value: neonFlicker</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:rainbowShift 5.5s linear infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: rainbowShift</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:bouncePop 1.4s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: bouncePop</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:glitchName 1.1s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: glitchName</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:fireFlicker 1.6s infinite">Chris</div><div class="dev-preview-value">value: fireFlicker</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:frostShimmer 1.8s infinite;color:#9eefff">Chris</div><div class="dev-preview-value">value: frostShimmer</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:oceanWave 5.5s linear infinite">Chris</div><div class="dev-preview-value">value: oceanWave</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:candyShift 5.5s linear infinite">Chris</div><div class="dev-preview-value">value: candyShift</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:auroraGlow 6s linear infinite">Chris</div><div class="dev-preview-value">value: auroraGlow</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:bloodMoon 5.8s linear infinite">Chris</div><div class="dev-preview-value">value: bloodMoon</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:galaxyFlow 6.2s linear infinite">Chris</div><div class="dev-preview-value">value: galaxyFlow</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:infernoName 5.5s linear infinite">Chris</div><div class="dev-preview-value">value: infernoName</div></div>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Avatar Frame Previews</div>
+        <div class="dev-preview-wrap">
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-gold">👤</div><div class="dev-preview-sample">Gold Frame</div></div><div class="dev-preview-value">value: gold</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-neon">👤</div><div class="dev-preview-sample">Neon Frame</div></div><div class="dev-preview-value">value: neon</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-fire">👤</div><div class="dev-preview-sample">Fire Frame</div></div><div class="dev-preview-value">value: fire</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-ice">👤</div><div class="dev-preview-sample">Ice Frame</div></div><div class="dev-preview-value">value: ice</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-rainbow">👤</div><div class="dev-preview-sample">Rainbow Frame</div></div><div class="dev-preview-value">value: rainbow</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-shadow">👤</div><div class="dev-preview-sample">Shadow Frame</div></div><div class="dev-preview-value">value: shadow</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-ocean">👤</div><div class="dev-preview-sample">Ocean Wave Frame</div></div><div class="dev-preview-value">value: ocean</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-candy">👤</div><div class="dev-preview-sample">Candy Shift Frame</div></div><div class="dev-preview-value">value: candy</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-aurora">👤</div><div class="dev-preview-sample">Aurora Glow Frame</div></div><div class="dev-preview-value">value: aurora</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-bloodmoon">👤</div><div class="dev-preview-sample">Blood Moon Frame</div></div><div class="dev-preview-value">value: bloodmoon</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-galaxy">👤</div><div class="dev-preview-sample">Galaxy Flow Frame</div></div><div class="dev-preview-value">value: galaxy</div></div>
+          <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-inferno">👤</div><div class="dev-preview-sample">Inferno Frame</div></div><div class="dev-preview-value">value: inferno</div></div>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Win Animation Previews</div>
+        <div class="dev-grid">
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('rays')">🌟 Golden Rays</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('confetti')">🎉 Confetti</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('fireworks')">🎆 Fireworks</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('goldConfetti')">✨ Golden Confetti</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('crown')">👑 Golden Crown</button>
+          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('inferno')">🔥 Inferno</button>
+        </div>
+        <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
+        <div class="dev-grid">
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('lobby')">Lobby</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('waiting')">Waiting</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('game')">SF Game</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('result-crew')">SF Crew Win</button>
+          <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('result-spy')">SF Spy Win</button>
+        </div>
+        <div id="devStatus" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--safe);display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOBBY -->
+<div class="screen scrollable" id="screen-lobby">
+  <div style="width:100%;max-width:440px">
+    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <div style="height:14px"></div>
+    <div class="card fadeIn">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <h2 style="flex:1;font-size:19px;font-weight:700">Game Lobby</h2>
+        <div class="live-badge">LIVE</div>
+      </div>
+      <label>Share code</label>
+      <div class="code-display" onclick="copyCode()" id="gameCodeDisplay">----</div>
+      <div class="code-hint">tap to copy · share with friends</div>
+      <div style="height:16px"></div>
+      <label>Players (<span id="lobbyCount">1</span>)</label>
+      <div class="player-list" id="playerList"></div>
+      <div style="height:8px"></div>
+      <label>Game Mode</label>
+      <div class="custom-mode-wrap" id="lobbyModeDropdown">
+        <button class="custom-mode-toggle" onclick="toggleModeDropdown('lobbyModeDropdown')">
+          <span class="custom-mode-toggle-text">
+            <span class="custom-mode-kicker">Select Game Mode</span>
+            <span class="custom-mode-current" id="lobbyModeCurrent">🕵️ Spyfall</span>
+          </span>
+          <span class="custom-mode-arrow">▶</span>
+        </button>
+        <div class="custom-mode-menu">
+          <button class="custom-mode-option mode-tab" id="modeTabSpyfall" onclick="setGameMode('spyfall')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Spyfall</span><span class="custom-mode-desc">Find the spy</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabOoo" onclick="setGameMode('ooo')"><span class="custom-mode-icon">🎭</span><span><span class="custom-mode-name">Odd One Out</span><span class="custom-mode-desc">Spot the odd answer</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabMafia" onclick="setGameMode('mafia')"><span class="custom-mode-icon">🃏</span><span><span class="custom-mode-name">Mafia</span><span class="custom-mode-desc">Civilians vs Mafia</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabFa" onclick="setGameMode('fa')"><span class="custom-mode-icon">🎨</span><span><span class="custom-mode-name">Fake Artist</span><span class="custom-mode-desc">Draw the imposter</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabBs" onclick="setGameMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
+        </div>
+      </div>
+      <!-- SPYFALL SETTINGS -->
+      <div id="spyfallSettings">
+        <div class="count-wrap">
+          <label>Number of spies</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeSpyCount(-1)">−</button>
+            <div class="count-display" id="spyCountDisplay">1</div>
+            <button class="count-btn" onclick="changeSpyCount(1)">+</button>
+            <div class="count-label" id="spyCountLabel">max for group size</div>
+          </div>
+        </div>
+        <div class="chaos-toggle-wrap" id="chaosModeWrap">
+          <div class="chaos-toggle-header">
+            <div>
+              <div class="chaos-title">⚡ CHAOS MODE</div>
+              <div class="chaos-desc">Everyone is a SPY lying about location.<br>One INNOCENT must catch them all.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="chaosModeToggle" onchange="toggleChaosMode()"/>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <!-- OOO SETTINGS -->
+      <div id="oooSettings" style="display:none">
+        <div class="count-wrap">
+          <label>Number of rounds</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeOOORounds(-1)">−</button>
+            <div class="count-display" id="oooRoundsDisplay">3</div>
+            <button class="count-btn" onclick="changeOOORounds(1)">+</button>
+            <div class="count-label" id="oooRoundsLabel">rounds</div>
+          </div>
+        </div>
+        <div class="notice ooo" style="margin-top:4px">Everyone gets a question and types their answer. One person secretly gets a different question. Find the odd one out!</div>
+      </div>
+      <!-- MAFIA SETTINGS -->
+      <div id="mafiaSettings" style="display:none">
+        <div class="count-wrap">
+          <label>Number of Mafia</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeMafiaCount(-1)">−</button>
+            <div class="count-display" id="mafiaCountDisplay">1</div>
+            <button class="count-btn" onclick="changeMafiaCount(1)">+</button>
+            <div class="count-label" id="mafiaCountLabel">mafia members</div>
+          </div>
+        </div>
+        <div class="chaos-toggle-wrap" id="doctorToggleWrap" style="background:rgba(39,174,96,0.05);border-color:rgba(39,174,96,0.2)">
+          <div class="chaos-toggle-header">
+            <div>
+              <div class="chaos-title" style="color:var(--doctor)">💚 DOCTOR ROLE</div>
+              <div class="chaos-desc">One player can save someone from death each night.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="doctorToggle" checked onchange="toggleDoctorRole()"/>
+              <span class="toggle-slider" style=""></span>
+            </label>
+          </div>
+        </div>
+        <div class="notice mafia" style="margin-top:4px">🃏 Roles: Mafia, Townspeople, and optionally Doctor. Mafia win when they equal or outnumber Town. Town wins by eliminating all Mafia.</div>
+      </div>
+      <!-- FA SETTINGS -->
+      <div id="faSettings" style="display:none">
+        <div class="count-wrap">
+          <label>Words per game</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeFaWords(-1)">−</button>
+            <div class="count-display" id="faWordsDisplay">3</div>
+            <button class="count-btn" onclick="changeFaWords(1)">+</button>
+            <div class="count-label" id="faWordsLabel">words</div>
+          </div>
+        </div>
+        <div class="count-wrap">
+          <label>Rounds per word <span style="color:var(--muted);font-size:10px">(auto by player count)</span></label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeFaRounds(-1)">−</button>
+            <div class="count-display" id="faRoundsDisplay">—</div>
+            <button class="count-btn" onclick="changeFaRounds(1)">+</button>
+            <div class="count-label" id="faRoundsLabel">rounds per word</div>
+          </div>
+        </div>
+        <div class="notice" style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.3);color:#f97316;margin-top:4px">🎨 One person gets a different word. Everyone draws one stroke per round. Catch the Fake Artist!</div>
+      </div>
+      <!-- BS SETTINGS -->
+      <div id="bsSettings" style="display:none">
+        <div class="count-wrap">
+          <label>Category</label>
+          <div id="bsCategorySelect" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+        </div>
+        <div class="count-wrap">
+          <label>Discussion time</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeBsDiscuss(-1)">−</button>
+            <div class="count-display" id="bsDiscussDisplay">5 min</div>
+            <button class="count-btn" onclick="changeBsDiscuss(1)">+</button>
+          </div>
+        </div>
+        <div class="notice" style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.3);color:#06b6d4;margin-top:4px">🕵️ One player gets different cards. Find the Imposter before they guess all your cards!</div>
+      </div>
+      <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 4 players to start Mafia</div>
+      <div style="height:8px"></div>
+      <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>Start Game</button>
+      <button id="devStartTestBtn" onclick="startDevGameTest()" style="display:none;background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;text-align:center;width:100%;padding:9px 0 0;letter-spacing:0.5px">Start dev game test</button>
+      <div class="chat-wrap">
+        <div class="chat-label">Lobby Chat</div>
+        <div class="chat-messages" id="lobbyChatMessages"><div class="chat-empty">No messages yet...</div></div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="lobbyChatInput" type="text" placeholder="Type a message..." maxlength="120" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
+          <button class="chat-send-btn" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WAITING -->
+<div class="screen scrollable" id="screen-waiting">
+  <div style="width:100%;max-width:440px">
+    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <div style="height:14px"></div>
+    <div class="card fadeIn">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <h2 style="flex:1;font-size:19px;font-weight:700">Waiting for host</h2>
+        <div class="live-badge">LIVE</div>
+      </div>
+      <label>Game code</label>
+      <div class="code-display" id="waitingCodeDisplay" onclick="copyCode()">----</div>
+      <div class="code-hint">tap to copy</div>
+      <div style="height:16px"></div>
+      <label>Players (<span id="waitingCount">...</span>)</label>
+      <div class="player-list" id="waitingPlayerList"></div>
+      <div style="height:10px"></div>
+      <div class="notice info" style="margin-bottom:0" id="waitingNotice">Waiting for the host to start...</div>
+      <div style="text-align:center;margin-top:10px">
+        <button id="avatarWaitBtn" onclick="triggerAvatarPicker()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;padding:4px 0">📷 Set Avatar</button>
+      </div>
+      <div class="chat-wrap">
+        <div class="chat-label">Lobby Chat</div>
+        <div class="chat-messages" id="waitingChatMessages"><div class="chat-empty">No messages yet...</div></div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="waitingChatInput" type="text" placeholder="Type a message..." maxlength="120" autocomplete="off" onkeydown="if(event.key==='Enter')sendChat()"/>
+          <button class="chat-send-btn" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SPYFALL: REVEAL -->
+<div class="screen scrollable" id="screen-reveal">
+  <div class="reveal-outer">
+    <div style="text-align:center;width:100%">
+      <button class="back-btn" onclick="devBackHome()" style="margin-bottom:8px">← Back to home</button>
+      <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
+      <div class="tagline" id="revealTagline">Game has started</div>
+    </div>
+    <div id="revealTap" class="reveal-tap">
+      <div class="hint">Your secret</div>
+      <div class="eye-icon">👁</div>
+      <div class="reveal-cta">Tap to reveal your role</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:8px">Make sure nobody else is watching</div>
+    </div>
+    <div id="revealCard" style="display:none;width:100%"></div>
+    <div id="revealActions" style="display:none;width:100%;flex-direction:column;gap:10px">
+      <button id="hideRoleBtn" class="btn btn-secondary" onclick="toggleHideRole()">🙈 Hide my role</button>
+      <button class="btn btn-primary" onclick="goToGame()">I've seen my role →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAFIA: CARD REVEAL -->
+<div class="screen scrollable" id="screen-mafia-reveal">
+  <div class="reveal-outer">
+    <div style="text-align:center;width:100%">
+      <button class="back-btn" onclick="devBackHome()" style="margin-bottom:8px">← Back to home</button>
+      <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
+      <div class="tagline">🃏 Mafia — your card</div>
+    </div>
+    <div id="mafiaRevealTap" class="reveal-tap mafia-tap">
+      <div class="hint">Your role card</div>
+      <div class="eye-icon">🃏</div>
+      <div class="reveal-cta">Tap to flip your card</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:8px">Make sure nobody else is watching</div>
+    </div>
+    <div id="mafiaRevealCard" style="display:none;width:100%"></div>
+    <div id="mafiaRevealActions" style="display:none;width:100%;flex-direction:column;gap:10px">
+      <button id="mafiaHideRoleBtn" class="btn btn-secondary" onclick="toggleMafiaHideRole()">🙈 Hide my card</button>
+      <button class="btn btn-primary" onclick="goToMafiaGame()">I've seen my card →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SPYFALL: GAME -->
+<div class="screen game-screen" id="screen-game">
+  <div style="width:100%;max-width:440px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;max-height:100dvh;overflow:hidden">
+    <button class="back-btn" onclick="leaveGame()" style="margin-bottom:10px">← Leave game</button>
+    <div class="card fadeIn">
+      <div id="chaosModeGameBanner" class="chaos-mode-banner" style="display:none">⚡ CHAOS MODE ACTIVE ⚡</div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('timer')">Timer</button>
+        <button class="tab-btn" onclick="switchTab('locations')">Locations</button>
+        <button class="tab-btn" onclick="switchTab('vote')">Vote</button>
+      </div>
+      <div class="tab-content active" id="tab-timer">
+        <div class="timer-area">
+          <div class="timer-display" id="timerDisplay">08:00</div>
+          <div class="timer-label">remaining</div>
+        </div>
+        <div class="role-summary-wrap">
+          <div id="myRoleSummary" class="role-summary-content"></div>
+          <div id="myRoleHidden" class="role-summary-hidden" style="display:none" onclick="revealRoleSummary()">
+            <div style="font-size:20px;margin-bottom:4px">🙈</div>
+            <div style="font-size:13px;color:var(--muted)">Role hidden — tap to peek</div>
+          </div>
+          <button class="hide-toggle-btn" id="hideGameRoleBtn" onclick="toggleGameRoleVisibility()">🙈 Hide my role</button>
+        </div>
+        <div class="flex-row" id="timerControls">
+          <button class="btn btn-secondary" id="timerToggleBtn" onclick="toggleTimer()">Pause</button>
+          <button class="btn btn-danger" style="flex:0.7" onclick="endGameEarly()">End Round</button>
+        </div>
+        <div id="spyGuessSection" style="display:none;margin-top:16px">
+          <div class="notice info" style="margin-bottom:10px">You're the spy — guess the location to win!</div>
+          <select id="spyGuessSelect"><option value="">-- Select a location --</option></select>
+          <button class="btn btn-primary" onclick="spyGuessLocation()">Submit Guess</button>
+        </div>
+      </div>
+      <div class="tab-content" id="tab-locations">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-family:'DM Mono',monospace;line-height:1.6" id="locationsTabDesc">All possible locations.</div>
+        <div class="location-grid" id="locationGrid"></div>
+      </div>
+      <div class="tab-content" id="tab-vote">
+        <div class="notice info" id="voteNotice">Suspect someone? Tap to accuse. Everyone votes — majority decides.</div>
+        <div style="height:10px"></div>
+        <div class="vote-list" id="voteList"></div>
+        <div id="voteStatus" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SPYFALL: RESULT -->
+<div class="screen scrollable" id="screen-result">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <button class="back-btn" onclick="devBackHome()">← Back to home</button>
+    <div id="resultBanner" class="fadeIn"></div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:14px" id="resultTitle">The spy was...</h2>
+      <div id="resultRevealBox" style="padding:18px;background:var(--surface2);border-radius:var(--radius);text-align:center"></div>
+    </div>
+    <div id="resultHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" onclick="playAgain()">Play Again</button>
+      <button class="btn btn-secondary" onclick="returnToLobby()">Return to Lobby</button>
+    </div>
+    <div id="resultNonHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <div class="notice info" style="margin-bottom:0">Waiting for host to start next game...</div>
+      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- OOO: QUESTION -->
+<div class="screen scrollable" id="screen-ooo-question">
+  <div style="width:100%;max-width:440px">
+    <div style="text-align:center;margin-bottom:14px">
+      <button class="back-btn" onclick="devBackHome()" style="margin-bottom:8px">← Back to home</button>
+      <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
+      <div style="font-size:11px;color:var(--ooo);font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-top:4px">ODD ONE OUT</div>
+      <div class="round-badge" id="oooRoundBadge">Round 1 of 3</div>
+    </div>
+    <div id="oooPreSubmit">
+      <div id="oooQuestionTap" class="reveal-tap ooo-tap" onclick="revealOOOQuestion()">
+        <div class="hint">Your question</div>
+        <div class="eye-icon">🎭</div>
+        <div class="reveal-cta">Tap to see your question</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:8px">Make sure nobody else is watching</div>
+      </div>
+      <div id="oooQuestionContent" style="display:none">
+        <div class="card fadeIn">
+          <div class="ooo-question-box" id="oooQuestionText"></div>
+          <label>Your answer</label>
+          <input id="oooAnswerInput" type="text" placeholder="Type your answer..." maxlength="80" autocomplete="off" onkeydown="if(event.key==='Enter')submitOOOAnswer()"/>
+          <button class="btn btn-ooo" id="oooSubmitBtn" onclick="submitOOOAnswer()">Submit Answer</button>
+        </div>
+      </div>
+    </div>
+    <div id="oooPostSubmit" style="display:none">
+      <div class="card fadeIn">
+        <div class="notice success" style="margin-bottom:14px">✓ Answer submitted!</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;font-family:'DM Mono',monospace">Waiting for everyone else...</div>
+        <div id="oooSubmittedList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OOO: ANSWERS + VOTE -->
+<div class="screen scrollable" id="screen-ooo-answers">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div style="text-align:center">
+      <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
+      <div style="font-size:11px;color:var(--ooo);font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-top:4px">ALL ANSWERS IN</div>
+      <div class="round-badge" id="oooAnswersRoundBadge">Round 1 of 3</div>
+    </div>
+    <div id="oooTieBanner" class="result-banner tie-banner fadeIn" style="display:none">
+      <div class="result-emoji">🤝</div>
+      <h2>TIE — REVOTE</h2>
+      <p id="oooTieBannerText">Only tied players shown · 2 minute timer</p>
+    </div>
+    <div class="card fadeIn">
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">The question was</div>
+      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.4" id="oooRevealQuestion">---</div>
+      <div id="oooAnswersList"></div>
+    </div>
+    <div class="card fadeIn">
+      <div class="timer-area" style="padding:10px 0">
+        <div class="timer-display" id="oooVoteTimerDisplay">01:00</div>
+        <div class="timer-label" id="oooTimerLabel">to discuss</div>
+      </div>
+      <div class="notice ooo" id="oooVoteNotice" style="margin-bottom:10px">Who gave the odd answer? Tap to vote.</div>
+      <div class="vote-list" id="oooVoteList"></div>
+      <div id="oooVoteStatus" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+    </div>
+  </div>
+</div>
+
+<!-- OOO: RESULT -->
+<div class="screen scrollable" id="screen-ooo-result">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <button class="back-btn" onclick="devBackHome()">← Back to home</button>
+    <div id="oooResultBanner" class="fadeIn"></div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">The odd one out was...</h2>
+      <div id="oooImpostorReveal" style="padding:18px;background:var(--surface2);border-radius:var(--radius);text-align:center;margin-bottom:14px"></div>
+      <div style="padding:12px;background:var(--surface2);border-radius:var(--radius);margin-bottom:8px">
+        <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Everyone's question</div>
+        <div style="font-size:14px;color:var(--text)" id="oooNormalQReveal"></div>
+      </div>
+      <div style="padding:12px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:var(--radius)">
+        <div style="font-size:11px;color:var(--ooo);font-family:'DM Mono',monospace;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Their question</div>
+        <div style="font-size:14px;color:var(--text)" id="oooOddQReveal"></div>
+      </div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Scoreboard</h2>
+      <div id="oooScoreboardList"></div>
+      <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:10px">Crew: +2pts for catch · Odd one out: +3pts for escaping</div>
+    </div>
+    <div id="oooNextRoundBtn" style="display:none"><button class="btn btn-ooo" onclick="oooNextRound()">Next Round →</button></div>
+    <div id="oooEndGameBtn" style="display:none"><button class="btn btn-primary" onclick="oooEndGame()">🎉 End Game</button></div>
+    <div id="oooReturnLobbyBtn" style="display:none"><button class="btn btn-secondary" onclick="returnToLobby()">Return to Lobby</button></div>
+    <div id="oooWaitingForHost" style="display:none"><div class="notice ooo">Waiting for host to continue...</div></div>
+    <div id="oooLeaveBtn" style="display:none"><button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button></div>
+  </div>
+</div>
+
+<!-- MAFIA: GAME (day phase) -->
+<div class="screen scrollable" id="screen-mafia-game">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px">
+    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+
+    <div id="mafiaDeadBanner" class="dead-spectator-banner" style="display:none">
+      <div style="font-size:32px;margin-bottom:8px">💀</div>
+      <div style="font-size:18px;font-weight:800;color:var(--spy);margin-bottom:4px">You are dead</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace">Spectating — no peeking!</div>
+    </div>
+
+    <div class="card fadeIn">
+      <div id="mafiaPhaseDisplay" class="mafia-phase-banner day">☀️ DAY 1 — DISCUSSION</div>
+
+      <!-- Day timer -->
+      <div class="timer-area" id="mafiaDayTimerArea" style="padding:10px 0 6px">
+        <div class="timer-display" id="mafiaDayTimerDisplay">03:00</div>
+        <div class="timer-label">until night</div>
+      </div>
+
+      <div class="mafia-tab-bar">
+        <button class="mafia-tab-btn active" onclick="switchMafiaTab('game')">Game</button>
+        <button class="mafia-tab-btn" onclick="switchMafiaTab('players')">Players</button>
+        <button class="mafia-tab-btn" onclick="switchMafiaTab('log')">Log</button>
+      </div>
+
+      <div class="mafia-tab-content active" id="mafia-tab-game">
+        <div style="position:relative;margin-bottom:12px">
+          <div id="mafiaRoleSummary" class="role-summary-content"></div>
+          <div id="mafiaRoleHidden" class="role-summary-hidden" style="display:none" onclick="revealMafiaRoleSummary()">
+            <div style="font-size:20px;margin-bottom:4px">🙈</div>
+            <div style="font-size:13px;color:var(--muted)">Role hidden — tap to peek</div>
+          </div>
+          <button class="hide-toggle-btn" id="hideMafiaRoleBtn" onclick="toggleMafiaGameRoleVisibility()">🙈 Hide my role</button>
+        </div>
+        <div id="mafiaVoteSection">
+          <div class="notice mafia" id="mafiaVoteNotice" style="margin-bottom:10px">Vote to eliminate someone — most votes wins.</div>
+          <div class="vote-list" id="mafiaVoteList"></div>
+          <div id="mafiaVoteStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+        </div>
+        <div id="mafiaHostControls" class="host-controls-box" style="display:none;margin-top:12px">
+          <div class="host-controls-title">⚙ Host Controls</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button id="mafiaAdvanceBtn" class="btn btn-primary" onclick="mafiaAdvancePhase()">Skip Vote → Go to Night</button>
+            <button class="btn btn-danger" onclick="mafiaEndGame()">End Game</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mafia-tab-content" id="mafia-tab-players">
+        <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px">💀 = eliminated</div>
+        <div class="player-status-grid" id="mafiaPlayerStatusList"></div>
+      </div>
+
+      <div class="mafia-tab-content" id="mafia-tab-log">
+        <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px">Game events</div>
+        <div class="mafia-log" id="mafiaGameLog"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAFIA: ELIMINATION REVEAL -->
+<div class="screen" id="screen-mafia-eliminated">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:0">
+    <div id="mafiaElimStoryWrap" style="width:100%;text-align:center"></div>
+  </div>
+</div>
+
+<!-- MAFIA: NIGHT — MAFIA DECISION ("Will you kill?") -->
+<div class="screen" id="screen-mafia-night-mafia">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <div style="text-align:center">
+      <div style="font-size:11px;font-family:'DM Mono',monospace;letter-spacing:3px;color:#e74c3c;text-transform:uppercase;margin-bottom:8px">🌙 Night Phase</div>
+      <div style="font-size:28px;font-weight:800;color:var(--text);margin-bottom:4px">Will you kill someone<br>this round?</div>
+      <div class="timer-display" id="mafiaKillDecisionTimer" style="font-size:36px;margin:12px 0;color:#e74c3c">—</div>
+    </div>
+
+    <!-- Mafia private chat (2 mafia only) -->
+    <div id="mafiaPrivateChatWrap" style="display:none;width:100%">
+      <div style="font-size:11px;color:#e74c3c;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#e74c3c;display:inline-block;animation:pulse 2s infinite"></span>Mafia only chat</div>
+      <div class="chat-messages" id="mafiaPrivateChatMessages" style="border-color:rgba(192,57,43,0.4)"><div class="chat-empty">Chat with your partner...</div></div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="mafiaPrivateChatInput" type="text" placeholder="Message your partner..." maxlength="120" autocomplete="off" style="border-color:rgba(192,57,43,0.3)" onkeydown="if(event.key==='Enter')sendMafiaPrivateChat()"/>
+        <button class="chat-send-btn" style="background:#e74c3c" onclick="sendMafiaPrivateChat()">Send</button>
+      </div>
+    </div>
+
+    <!-- Partner vote status (2 mafia) -->
+    <div id="mafiaPartnerVoteStatus" style="display:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+
+    <div id="mafiaKillYesNoSection" style="width:100%;display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-danger" id="mafiaKillYesBtn" onclick="mafiaVoteKillDecision('yes')">YES — kill someone</button>
+      <button class="btn btn-secondary" id="mafiaKillNoBtn" onclick="mafiaVoteKillDecision('no')">NO — spare them tonight</button>
+    </div>
+
+    <!-- Kill target list (shown after YES) -->
+    <div id="mafiaKillTargetSection" style="display:none;width:100%">
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px;text-align:center">Choose your target — <span id="mafiaKillTargetTimer" style="color:#e74c3c">01:00</span></div>
+      <div class="vote-list" id="mafiaKillTargetList"></div>
+      <div id="mafiaKillTargetStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c;text-align:center"></div>
+    </div>
+
+    <!-- Waiting for partner / submitted state -->
+    <div id="mafiaKillWaiting" style="display:none;text-align:center">
+      <div style="font-size:13px;font-family:'DM Mono',monospace;color:var(--muted)" id="mafiaKillWaitingText">Waiting for your partner...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAFIA: NIGHT — DOCTOR SAVE -->
+<div class="screen" id="screen-mafia-night-doctor">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <div style="text-align:center">
+      <div style="font-size:11px;font-family:'DM Mono',monospace;letter-spacing:3px;color:var(--doctor);text-transform:uppercase;margin-bottom:8px">🌙 Night Phase</div>
+      <div style="font-size:28px;font-weight:800;color:var(--text);margin-bottom:4px">Choose someone<br>to protect</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:4px">You have <span id="mafiaSaveTimerDisplay" style="color:var(--doctor);font-weight:700">01:00</span> to decide</div>
+    </div>
+    <div class="doctor-action-box" style="width:100%">
+      <div style="font-size:13px;font-weight:700;color:var(--doctor);margin-bottom:10px">💚 Who will you save tonight?</div>
+      <div class="vote-list" id="mafiaSaveList"></div>
+      <div id="mafiaSaveStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:var(--doctor);text-align:center"></div>
+    </div>
+    <div id="mafiaSaveSubmitted" style="display:none;text-align:center">
+      <div style="font-size:13px;font-family:'DM Mono',monospace;color:var(--doctor)">✓ Protection chosen — waiting for dawn...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAFIA: NIGHT — TOWN WAITING -->
+<div class="screen" id="screen-mafia-night-town">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:80vh">
+    <div style="font-size:64px" id="mafiaWaitIcon">🌙</div>
+    <div style="text-align:center">
+      <div style="font-size:24px;font-weight:800;color:var(--text);margin-bottom:8px">You must wait<br>until dawn.</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px" id="mafiaWaitSubtext">The night is unfolding...</div>
+      <div class="timer-display" id="mafiaTownTimerDisplay" style="font-size:44px;color:#e74c3c">00:30</div>
+      <div class="timer-label">until dawn</div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--border);text-align:center;margin-top:8px">No peeking 👀</div>
+  </div>
+</div>
+
+<!-- MAFIA: DAWN STORY -->
+<div class="screen" id="screen-mafia-dawn">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:0">
+    <div id="dawnStoryWrap" style="width:100%;text-align:center"></div>
+  </div>
+</div>
+
+<!-- MAFIA: RESULT -->
+<div class="screen scrollable" id="screen-mafia-result">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <button class="back-btn" onclick="devBackHome()">← Back to home</button>
+    <div id="mafiaResultBanner" class="fadeIn"></div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:14px">The Mafia were...</h2>
+      <div id="mafiaResultReveal" style="padding:18px;background:var(--surface2);border-radius:var(--radius);text-align:center;margin-bottom:12px"></div>
+      <div id="mafiaFinalRoles"></div>
+    </div>
+    <div id="mafiaResultHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <button class="btn btn-mafia" onclick="mafiaPlayAgain()">Play Again</button>
+      <button class="btn btn-secondary" onclick="returnToLobby()">Return to Lobby</button>
+    </div>
+    <div id="mafiaResultNonHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <div class="notice mafia" style="margin-bottom:0">Waiting for host...</div>
+      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIE SCREEN -->
+<div class="screen scrollable" id="screen-tie">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div class="result-banner tie-banner fadeIn">
+      <div class="result-emoji">🤝</div>
+      <h2>IT'S A TIE!</h2>
+      <p id="tieBannerText">Revote — tied players shown below</p>
+    </div>
+    <div class="card fadeIn">
+      <div class="timer-area" style="padding:10px 0">
+        <div class="timer-display" id="tieTimerDisplay">02:00</div>
+        <div class="timer-label">to revote</div>
+      </div>
+      <div class="notice info" style="margin-bottom:10px" id="tieVoteInstruction">Who is the spy?</div>
+      <div class="vote-list" id="tieVoteList"></div>
+      <div id="tieVoteStatus" style="margin-top:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+    </div>
+    <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+  </div>
+</div>
+
+<!-- OOO: GAME OVER -->
+<div class="screen scrollable" id="screen-ooo-gameover">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div class="result-banner gameover-banner fadeIn" style="position:relative;overflow:hidden">
+      <div id="gameoverWinnerAv" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;pointer-events:none"></div>
+      <div style="position:relative">
+        <div class="result-emoji">🏆</div>
+        <h2 id="gameoverTitle">PLAYER WINS!</h2>
+        <p id="gameoverSubtitle">Final results</p>
+      </div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Final Scoreboard</h2>
+      <div id="gameoverScoreboardList"></div>
+    </div>
+    <div id="gameoverReturnBtn" style="display:none">
+      <button class="btn btn-primary" onclick="returnToLobbyOOO()">Return to Lobby</button>
+    </div>
+    <div id="gameoverWaitingForHost" style="display:none">
+      <div class="notice ooo">Waiting for host to return to lobby...</div>
+    </div>
+    <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+  </div>
+</div>
+
+<!-- FAKE ARTIST: DRAW -->
+<div class="screen" id="screen-fa-draw" style="padding:0;overflow:hidden;align-items:center;justify-content:center">
+  <div style="width:100%;max-width:430px;display:flex;flex-direction:column;gap:0;height:100dvh;padding:8px;box-sizing:border-box;overflow:hidden">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-shrink:0">
+      <button class="back-btn" onclick="leaveGame()" style="margin:0">← Leave</button>
+      <div style="flex:1;text-align:center">
+        <div id="faRoundBadge" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Round 1 of 5</div>
+      </div>
+      <div id="faTurnIndicator" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);text-align:right"></div>
+    </div>
+    <div id="faWordWrap" style="margin-bottom:8px;flex-shrink:0">
+      <div id="faWordVisible" style="padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">The subject</div>
+          <div id="faWordDisplay" style="font-size:18px;font-weight:800;color:var(--accent)">???</div>
+        </div>
+        <button id="faWordHideBtn" onclick="toggleFaWord()" style="background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;padding:6px 10px;cursor:pointer">🙈 Hide</button>
+      </div>
+      <div id="faWordHidden" style="display:none;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px dashed var(--border);text-align:center;cursor:pointer" onclick="toggleFaWord()">
+        <span style="color:var(--muted);font-size:13px">Word hidden — tap to peek</span>
+      </div>
+    </div>
+    <div id="faImposterGuessBar" style="display:none;margin-bottom:8px;flex-shrink:0;padding:10px 12px;background:rgba(232,93,77,0.08);border:1px solid rgba(232,93,77,0.35);border-radius:var(--radius)">
+      <div style="font-size:10px;color:var(--spy);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">🕵️ Imposter — one guess to win</div>
+      <div style="display:flex;gap:8px">
+        <input id="faImposterGuessInput" type="text" placeholder="Guess the subject..." maxlength="40" autocomplete="off" style="flex:1;margin-bottom:0;font-size:14px;padding:9px 12px" onkeydown="if(event.key==='Enter')faImposterGuessWord()"/>
+        <button onclick="faImposterGuessWord()" style="background:var(--spy);color:#fff;border:none;padding:9px 14px;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Guess</button>
+      </div>
+      <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;line-height:1.4">Guess right = you win instantly. Guess wrong = you lose & the artists win.</div>
+    </div>
+    <div id="faCanvasBox" style="width:100%;max-width:430px;aspect-ratio:1/1;height:auto;position:relative;flex:0 1 auto;margin:0 auto;overflow:hidden;border-radius:var(--radius);background:#1a1a24;border:1px solid var(--border)">
+      <canvas id="faCanvas" width="430" height="430" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius);background:#1a1a24;display:block;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none"></canvas>
+      <canvas id="faLiveCanvas" width="430" height="430" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius);display:block;pointer-events:none;touch-action:none"></canvas>
+      <div id="faCanvasOverlay" style="position:absolute;inset:0;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;pointer-events:none">
+        <div id="faCanvasOverlayText" style="background:rgba(10,10,15,0.85);padding:12px 20px;border-radius:var(--radius);font-size:14px;font-weight:700;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;display:none"></div>
+      </div>
+    </div>
+    <div id="faTools" style="flex-shrink:0;margin-top:8px;padding:10px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div id="faColorSwatches" style="display:flex;gap:6px;flex-wrap:wrap;flex:1"></div>
+        <input type="color" id="faColorPicker" value="#e8d44d" style="width:36px;height:36px;padding:2px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;margin-bottom:0"/>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;white-space:nowrap">Size</span>
+        <input type="range" id="faBrushSize" min="2" max="24" value="6" style="flex:1;margin-bottom:0;padding:0;height:4px;background:var(--surface3);border:none;border-radius:2px;accent-color:var(--accent)"/>
+        <div id="faBrushPreview" style="width:20px;height:20px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>
+      </div>
+      <div id="faDrawBtn" style="margin-top:8px;display:none">
+        <div class="flex-row">
+          <button class="btn btn-secondary" id="faUndoBtn" style="padding:10px" onclick="faUndoStroke()" disabled>Undo</button>
+          <button class="btn btn-primary" id="faSubmitBtn" style="padding:10px" onclick="faFinishStroke()" disabled>Submit</button>
+        </div>
+      </div>
+    </div>
+    <div id="faTurnTimerDisplay" style="flex-shrink:0;margin-top:8px;text-align:center;font-family:'DM Mono',monospace;font-size:34px;font-weight:800;color:var(--accent);letter-spacing:1px;line-height:1;text-shadow:0 0 18px rgba(232,212,77,0.28)">30</div>
+    <div id="faStatusBar" style="flex-shrink:0;margin-top:4px;text-align:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--accent)"></div>
+  </div>
+</div>
+
+<!-- FAKE ARTIST: VOTE -->
+<div class="screen scrollable" id="screen-fa-vote">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div style="text-align:center">
+      <div style="font-size:11px;color:#f97316;font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">🎨 FAKE ARTIST</div>
+      <div style="font-size:22px;font-weight:800;color:var(--text)">Who is the Fake Artist?</div>
+      <div id="faVoteTimer" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:32px;color:#f97316;letter-spacing:2px">01:00</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">vote timer</div>
+    </div>
+    <!-- Replay canvas -->
+    <div style="position:relative;border-radius:var(--radius);overflow:hidden;background:#1a1a24;border:1px solid var(--border)">
+      <canvas id="faVoteCanvas" style="width:100%;display:block"></canvas>
+    </div>
+    <div class="card fadeIn">
+      <div class="notice" style="background:rgba(249,115,22,0.08);border-color:rgba(249,115,22,0.3);color:#f97316;margin-bottom:12px">Everyone votes — most votes gets eliminated.</div>
+      <div class="vote-list" id="faVoteList"></div>
+      <div id="faVoteStatus" style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FAKE ARTIST: IMPOSTER GUESS -->
+<div class="screen" id="screen-fa-guess">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:20px;padding:32px 24px;box-sizing:border-box">
+    <div style="text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🎨</div>
+      <div style="font-size:11px;color:#f97316;font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">Fake Artist Caught!</div>
+      <div id="faGuessTargetName" style="font-size:26px;font-weight:800;color:var(--spy);margin-bottom:8px"></div>
+      <div style="font-size:14px;color:var(--muted);font-family:'DM Mono',monospace">was voted out. Can they guess the word?</div>
+    </div>
+    <div id="faGuessInputSection" style="width:100%;display:none;flex-direction:column;gap:10px">
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;text-align:center">You have one chance. What was the subject?</div>
+      <input id="faGuessInput" type="text" placeholder="Type your guess..." maxlength="40" autocomplete="off" onkeydown="if(event.key==='Enter')submitFaGuess()"/>
+      <button class="btn btn-primary" onclick="submitFaGuess()">Submit Guess</button>
+    </div>
+    <div id="faGuessWaiting" style="text-align:center">
+      <div style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace" id="faGuessWaitingText">Waiting for the Fake Artist to guess...</div>
+    </div>
+  </div>
+</div>
+
+<!-- FAKE ARTIST: ROUND RESULT -->
+<div class="screen scrollable" id="screen-fa-result">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div id="faResultBanner" class="fadeIn"></div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">The Fake Artist was...</h2>
+      <div id="faResultImpostorReveal" style="padding:18px;background:var(--surface2);border-radius:var(--radius);text-align:center;margin-bottom:12px"></div>
+      <div style="padding:12px;background:var(--surface2);border-radius:var(--radius)">
+        <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">The word was</div>
+        <div id="faResultWord" style="font-size:20px;font-weight:800;color:var(--accent)"></div>
+      </div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Scores</h2>
+      <div id="faResultScoreboard"></div>
+      <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:10px">Fake Artist escapes: +3pts · Players catch imposter: +2pts each</div>
+    </div>
+    <div id="faResultHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" id="faNextWordBtn" onclick="faNextWord()">Next Word →</button>
+      <button class="btn btn-secondary" onclick="returnToLobby()">Return to Lobby</button>
+    </div>
+    <div id="faResultNonHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <div class="notice" style="background:rgba(249,115,22,0.08);border-color:rgba(249,115,22,0.3);color:#f97316;margin-bottom:0">Waiting for host...</div>
+      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAKE ARTIST: GAME OVER -->
+<div class="screen scrollable" id="screen-fa-gameover">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div class="result-banner gameover-banner fadeIn" style="border-color:#f97316;position:relative;overflow:hidden">
+      <div id="faGameoverWinnerAv" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;pointer-events:none"></div>
+      <div style="position:relative">
+        <div class="result-emoji">🎨</div>
+        <h2 id="faGameoverTitle" style="color:#f97316">PLAYER WINS!</h2>
+        <p id="faGameoverSubtitle">Final results</p>
+      </div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Final Scoreboard</h2>
+      <div id="faGameoverScoreboard"></div>
+    </div>
+    <div id="faGameoverHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" onclick="returnToLobby()">Return to Lobby</button>
+    </div>
+    <div id="faGameoverNonHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <div class="notice" style="background:rgba(249,115,22,0.08);border-color:rgba(249,115,22,0.3);color:#f97316;margin-bottom:0">Waiting for host...</div>
+      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// PASSWORD FIX V4: password handling moved to an early <head> script so it cannot be broken by the main game script.
+// =====================================================
+const ALL_LOCATIONS = [
+  {name:'Airplane',            roles:['Pilot','Flight Attendant','Passenger','Air Marshal','Mechanic']},
+  {name:'Commonwealth Bank',   roles:['Manager','Teller','Customer','Security Guard','Loan Officer']},
+  {name:'Bondi Beach',         roles:['Lifeguard','Tourist','Vendor','Surfer','Volleyball Player']},
+  {name:'Star Casino',         roles:['Dealer','Asian Investor','Player','Cocktail Server','Security']},
+  {name:'Circus',              roles:['Clown','Ringmaster','Acrobat','Animal Trainer','Ticket Seller']},
+  {name:'Hospital',            roles:['Doctor','Nurse','Patient','Surgeon','Receptionist']},
+  {name:'Hotel',               roles:['Concierge','Guest','Bellhop','Manager','Housekeeper']},
+  {name:'Military Base',       roles:['General','Soldier','Sniper','Cook','Medic']},
+  {name:'Movie Studio',        roles:['Director','Actor','Cameraman','Makeup Artist','Producer']},
+  {name:'Ocean Liner',         roles:['Captain','Crew Member','Passenger','Chef','Entertainer']},
+  {name:'Police Station',      roles:['Chief','Detective','Officer','Suspect','Lawyer']},
+  {name:'Restaurant',          roles:['Chef','Waiter','Customer','Manager','Busboy']},
+  {name:'School',              roles:['Teacher','Student','Principal','Janitor','Coach']},
+  {name:'Space Station',       roles:['Commander','Scientist','Engineer','Pilot','Doctor']},
+  {name:'Woolworths',          roles:['Cashier','Manager','Customer','Stocker','Security']},
+  {name:'Theater',             roles:['Actor','Director','Audience Member','Stage Manager','Critic']},
+  {name:'Train',               roles:['Conductor','Engineer','Passenger','Ticket Inspector','Dining Staff']},
+  {name:'Submarine',           roles:['Captain','Navigator','Cook','Engineer','Sonar Operator']},
+  {name:'Luna Park',           roles:['Ride Operator','Visitor','Performer','Security','Food Vendor']},
+  {name:'Spy HQ',              roles:['Handler','Agent','Tech Expert','Analyst','Double Agent']},
+  {name:'Gregory Hills Hotel', roles:['Chef','Footy Fan','Alcoholic','Waiter','Bartender']},
+  {name:'Macarthur Square',    roles:['Eshay','Retail Worker','Police Officer','Bowling Expert','Event Cinemas Janitor','Nandos Chef']},
+  {name:'World Gym',           roles:['Roid Head','Cleaner','BBL Baddie','Personal Trainer','Receptionist','Eshay']},
 ];
 
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(CORE_ASSETS).catch(() => null);
-    })
-  );
-});
+const OOO_QUESTIONS = [
+  {normal:"What would you find at a funeral?",odd:"What would make a funeral awkward?"},
+  {normal:"What should people do after a breakup?",odd:"What should you never do after a breakup?"},
+  {normal:"What's something good to say on a first date?",odd:"What should you never say on a first date?"},
+  {normal:"What would you say to calm someone down?",odd:"Your friend is angry. What's guaranteed to make them worse?"},
+  {normal:"Why might someone call the police?",odd:"Why might someone call their friend?"},
+  {normal:"What do people do at 3am?",odd:"What do people do at 12pm?"},
+  {normal:"What would you say in a job interview?",odd:"What would immediately end a job interview?"},
+  {normal:"What's something you say when you're meeting her parents?",odd:"What's the perfect one-liner to pick up a chick?"},
+  {normal:"What's always in your search history?",odd:"What would you never want found in your search history?"},
+  {normal:"What do people do at a casino?",odd:"What do people do at a hospital?"},
+  {normal:"What would your mother read in a text from you?",odd:"What would you say to your ex that cheated?"},
+  {normal:"What does a doctor tell you?",odd:"What does a doctor tell you that ruins your day?"},
+  {normal:"What would you overhear at a family Christmas?",odd:"What would you overhear at a dysfunctional family Christmas?"},
+  {normal:"What should never be posted on social media?",odd:"What is something good to post on social media?"},
+  {normal:"What's a fun thing to do on a date?",odd:"What's a crime you'd like to do?"},
+  {normal:"What do people do at a wedding?",odd:"What do people do at a divorce?"},
+  {normal:"What makes someone a good friend?",odd:"What makes someone a bad enemy?"},
+  {normal:"What do people say at a birthday party?",odd:"What do people say at a court hearing?"},
+  {normal:"What's in a lunchbox?",odd:"What's in an evidence bag?"},
+  {normal:"What do you do on a relaxing holiday?",odd:"What do you do when you're on the run?"},
+  {normal:"What would you find at an adult shop?",odd:"What would you find at a kid's birthday party?"},
+  {normal:"What do couples do on an anniversary?",odd:"What do couples do right before a breakup?"},
+  {normal:"What do people do to cope with bad news?",odd:"What do people do to celebrate good news?"},
+  {normal:"What's something a good boss does?",odd:"What's something that gets you fired?"},
+  {normal:"What do people bring to a housewarming?",odd:"What do people bring to a hostage negotiation?"},
+  {normal:"What makes someone immediately unattractive?",odd:"What makes someone attractive?"},
+  {normal:"What do parents say to their kids?",odd:"What do kids say that traumatises their parents?"},
+  {normal:"What's something you'd see in a prison?",odd:"What's something you'd see at a gym?"},
+  {normal:"What do people post when they're happy?",odd:"What do people post at 2am when they're not okay?"},
+  {normal:"What does a good doctor say?",odd:"What does a bad psychic say?"},
+  {normal:"What do people do on New Year's Eve?",odd:"What do people regret on New Year's Day?"},
+  {normal:"What do people do when they're jealous?",odd:"What do people do when they're genuinely happy for someone?"},
+  {normal:"What do people do when they're drunk and shouldn't?",odd:"What do people do sober that's actually impressive?"},
+  {normal:"What's a red flag in a relationship?",odd:"What would make you want to marry a woman instantly?"},
+  {normal:"What's something a bad parent says?",odd:"What's something a great parent says?"},
+  {normal:"What do people say behind someone's back?",odd:"What do people say to someone's face that actually matters?"},
+  {normal:"What's something people do that ruins a friendship?",odd:"What's something that makes a friendship last forever?"},
+  {normal:"What's a terrible piece of life advice?",odd:"What's the best piece of advice you've ever received?"},
+  {normal:"Why do people get married?",odd:"Why do people get divorced?"},
+  {normal:"Why do people go to therapy?",odd:"Why do people avoid therapy?"},
+  {normal:"Why would someone move countries?",odd:"Why would someone need to leave the country quickly?"},
+  {normal:"Where would you hide a body?",odd:"Where would you hide a birthday present?"},
+  {normal:"Who would you want by your side in a crisis?",odd:"Who would you specifically not tell about a crisis?"},
+  {normal:"Who do people look up to?",odd:"Who do people despise?"},
+  {normal:"Why do people get a dog?",odd:"Why do people get a lawyer?"},
+  {normal:"Why do average people change their name?",odd:"Why do people change their name urgently?"},
+  {normal:"How do you make someone feel welcome?",odd:"How do you make an entire room uncomfortable?"},
+  {normal:"How do you get away with a crime?",odd:"How do you make someone feel special?"},
+  {normal:"How do you get someone to confess?",odd:"How do you become someone people trust?"},
+  {normal:"How do you prepare for a police interrogation?",odd:"How do you prepare for a job interview?"},
+  {normal:"How do you dispose of evidence?",odd:"How do you celebrate a win?"},
+  {normal:"Who would you call to make a problem disappear?",odd:"Who would you call for a favour?"},
+  {normal:"Who makes a neighbourhood nervous?",odd:"Who makes a neighbourhood feel safe?"},
+  {normal:"Where do people go when they can't be found?",odd:"Where do people go to start fresh?"},
+  {normal:"Where do you go when you don't want to be seen?",odd:"Where do you go when you want to feel alive?"},
+  {normal:"Why do people flee a city overnight?",odd:"Why do people move to a new city?"},
+  {normal:"Why do people change their identity?",odd:"Why do people change careers?"},
+  {normal:"What do you pack if you're never coming back?",odd:"What do you pack for a weekend trip?"},
+  {normal:"What makes a house get condemned?",odd:"What makes a house feel like a home?"},
+  {normal:"What do wanted criminals dream about?",odd:"What do kids dream about becoming?"},
+  {normal:"What's the first thing you do when you're on the run?",odd:"What's the first thing you do in a new country?"},
+  {normal:"What would you find in a getaway driver's pocket?",odd:"What would you find in a hero's pocket?"},
+  {normal:"Who shouldn't know where you live?",odd:"Who do you want at your wedding?"},
+  {normal:"Where do people go after a court verdict?",odd:"Where do people go on a first anniversary?"},
+  {normal:"Why do people never leave a small town even though they should?",odd:"Why do people stay in a small town?"},
+  {normal:"How do you earn a restraining order?",odd:"How do you earn respect?"},
+  {normal:"How do you end up on a watchlist?",odd:"How do you make a good first impression?"},
+];
 
-self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => {
-        return Promise.all(
-          keys
-            .filter(key => key !== CACHE_NAME)
-            .map(key => caches.delete(key))
-        );
-      })
-      .then(() => self.clients.claim())
-  );
-});
+const LOCATIONS_PER_GAME = 12;
+const TIMER_DURATION = 8*60;
+const CHAOS_TIMER_DURATION = 6*60;
+const OOO_VOTE_DURATION = 60;
+const OOO_DISCUSS_DURATION = 30;
+const MAFIA_DAY_TIMER_FIRST = 30;
+const MAFIA_DAY_TIMER_REST = 5*60;
+const MAFIA_NIGHT_TIMER = 30;
 
-self.addEventListener("message", event => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    self.skipWaiting();
+// =====================================================
+// STATE
+// =====================================================
+let myId = localStorage.getItem('sf_myId');
+if(!myId){myId=Math.random().toString(36).slice(2,12);localStorage.setItem('sf_myId',myId);}
+let myProfile={coins:0,wins:0,ownedItems:{},equipped:{}};
+let currentShopTab='names';
+const REWARD_AMOUNTS={
+  spyfall:{spy:100,innocent:10},
+  mafia:{mafia:100,civilian:50},
+  bs:{imposter:150,innocent:50},
+  ooo:{imposter:75,normal:10},
+  fa:{imposter:75,normal:10}
+};
+const SHOP_ITEMS=[
+  {id:'name_gold',type:'nameColor',label:'Gold Name',price:100,value:'#e8d44d'},
+  {id:'name_red',type:'nameColor',label:'Red Name',price:100,value:'#e85d4d'},
+  {id:'name_cyan',type:'nameColor',label:'Cyan Name',price:100,value:'#06b6d4'},
+  {id:'name_purple',type:'nameColor',label:'Purple Name',price:125,value:'#a78bfa'},
+  {id:'animated_chrispy_glow',type:'animatedName',label:'Chrispy Glow Name',price:250,value:'chrispyGlow'},
+  {id:'animated_neon_flicker',type:'animatedName',label:'Neon Flicker Name',price:300,value:'neonFlicker'},
+  {id:'animated_rainbow_shift',type:'animatedName',label:'Rainbow Shift Name',price:1000,value:'rainbowShift'},
+  {id:'animated_bounce_pop',type:'animatedName',label:'Bounce Pop Name',price:275,value:'bouncePop'},
+  {id:'animated_glitch_name',type:'animatedName',label:'Glitch Name',price:350,value:'glitchName'},
+  {id:'animated_fire_flicker',type:'animatedName',label:'Fire Flicker Name',price:400,value:'fireFlicker'},
+  {id:'animated_frost_shimmer',type:'animatedName',label:'Frost Shimmer Name',price:400,value:'frostShimmer'},
+  {id:'animated_ocean_wave',type:'animatedName',label:'Ocean Wave Name',price:500,value:'oceanWave'},
+  {id:'animated_candy_shift',type:'animatedName',label:'Candy Shift Name',price:550,value:'candyShift'},
+  {id:'animated_aurora_glow',type:'animatedName',label:'Aurora Glow Name',price:650,value:'auroraGlow'},
+  {id:'animated_blood_moon',type:'animatedName',label:'Blood Moon Name',price:700,value:'bloodMoon'},
+  {id:'animated_galaxy_flow',type:'animatedName',label:'Galaxy Flow Name',price:800,value:'galaxyFlow'},
+  {id:'animated_inferno_name',type:'animatedName',label:'Inferno Name',price:1100,value:'infernoName'},
+  {id:'frame_gold',type:'avatarFrame',label:'Gold Avatar Frame',price:150,value:'gold'},
+  {id:'frame_neon',type:'avatarFrame',label:'Neon Avatar Frame',price:200,value:'neon'},
+  {id:'frame_fire',type:'avatarFrame',label:'Fire Avatar Frame',price:300,value:'fire'},
+  {id:'frame_ice',type:'avatarFrame',label:'Ice Avatar Frame',price:300,value:'ice'},
+  {id:'frame_rainbow',type:'avatarFrame',label:'Rainbow Avatar Frame',price:1000,value:'rainbow'},
+  {id:'frame_shadow',type:'avatarFrame',label:'Shadow Avatar Frame',price:350,value:'shadow'},
+  {id:'frame_ocean',type:'avatarFrame',label:'Ocean Wave Avatar Frame',price:500,value:'ocean'},
+  {id:'frame_candy',type:'avatarFrame',label:'Candy Shift Avatar Frame',price:550,value:'candy'},
+  {id:'frame_aurora',type:'avatarFrame',label:'Aurora Glow Avatar Frame',price:650,value:'aurora'},
+  {id:'frame_blood_moon',type:'avatarFrame',label:'Blood Moon Avatar Frame',price:700,value:'bloodmoon'},
+  {id:'frame_galaxy',type:'avatarFrame',label:'Galaxy Flow Avatar Frame',price:800,value:'galaxy'},
+  {id:'frame_inferno',type:'avatarFrame',label:'Inferno Avatar Frame',price:1100,value:'inferno'},
+  {id:'win_rays',type:'winAnim',label:'Golden Rays',price:900,value:'rays',icon:'🌟'},
+  {id:'win_confetti',type:'winAnim',label:'Confetti Blast',price:950,value:'confetti',icon:'🎉'},
+  {id:'win_fireworks',type:'winAnim',label:'Fireworks',price:1000,value:'fireworks',icon:'🎆'},
+  {id:'win_golden_confetti',type:'winAnim',label:'Golden Confetti',price:1100,value:'goldConfetti',icon:'✨'},
+  {id:'win_crown',type:'winAnim',label:'Golden Crown',price:1500,value:'crown',icon:'👑'},
+  {id:'win_inferno',type:'winAnim',label:'Inferno Triumph',price:2200,value:'inferno',icon:'🔥'}
+];
+let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
+let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
+let roleVisible=true,revealVisible=true,mafiaCardVisible=true;
+let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localFaWords=3,localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;
+let chatListener=null,mafiaPrivateChatListener=null;
+// Night phase local state
+let mafiaKillDecision=null; // 'yes'|'no' — local kill decision before committing
+let mafiaPartnerDecision=null; // what the other mafia said
+
+// =====================================================
+// UTILS
+// =====================================================
+const randInt=n=>Math.floor(Math.random()*n);
+const pick=arr=>arr[randInt(arr.length)];
+const shuffle=arr=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=randInt(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const genCode=()=>{const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:4},()=>c[randInt(c.length)]).join('');};
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');document.body.classList.toggle('no-scroll',id==='game');}
+function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
+function setLoading(btnId,loading,text){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${text}`:text;}
+function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// =====================================================
+// PERMANENT PROFILE / COINS / SHOP
+// =====================================================
+function userRef(){return db.ref('users/'+myId);}
+const PROFILE_STORAGE_KEY='chrispy_profile_'+myId;
+function loadLocalProfile(){
+  try{return JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY)||'{}')||{};}
+  catch(e){return {};}
+}
+function saveLocalProfile(){
+  try{
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify({
+      coins:myProfile.coins||0,
+      wins:myProfile.wins||0,
+      ownedItems:myProfile.ownedItems||{},
+      equipped:myProfile.equipped||{},
+      name:myProfile.name||'',
+      avatar:myProfile.avatar||myAvatar||null,
+      savedAt:Date.now()
+    }));
+  }catch(e){console.warn('Local profile save failed',e);}
+}
+function normaliseProfile(saved){
+  saved=saved||{};
+  return {
+    coins:saved.coins||0,
+    wins:saved.wins||0,
+    ownedItems:saved.ownedItems||{},
+    equipped:saved.equipped||{},
+    name:saved.name||'',
+    avatar:saved.avatar||myAvatar||null
+  };
+}
+async function loadMyProfile(){
+  const localSaved=loadLocalProfile();
+  if(Object.keys(localSaved).length){
+    myProfile=normaliseProfile(localSaved);
+    if(myProfile.avatar&&!myAvatar){myAvatar=myProfile.avatar;localStorage.setItem('sf_avatar',myAvatar);}
+    renderShop();updateAvatarBtns();
   }
-});
+  try{
+    const snap=await userRef().once('value');
+    const cloudSaved=snap.val()||{};
+    const localTime=localSaved.savedAt||0;
+    const cloudTime=cloudSaved.savedAt||cloudSaved.lastUpdatedAt||cloudSaved.lastDevCoinSetAt||0;
+    const saved=(cloudTime>=localTime)?cloudSaved:localSaved;
+    myProfile=normaliseProfile(saved);
+    if(myProfile.avatar&&!myAvatar){myAvatar=myProfile.avatar;localStorage.setItem('sf_avatar',myAvatar);}
+    saveLocalProfile();
+    renderShop();updateAvatarBtns();
+  }catch(e){console.warn('Profile cloud load failed; using local profile',e);renderShop();updateAvatarBtns();}
+}
+async function saveProfileBasics(name){
+  const updates={lastSeen:serverTimestamp(),savedAt:Date.now()};
+  if(name){updates.name=name;myProfile.name=name;}
+  if(myAvatar){updates.avatar=myAvatar;myProfile.avatar=myAvatar;}
+  saveLocalProfile();
+  try{
+    await userRef().update(updates);
+  }catch(e){
+    // Do not block creating/joining games if permanent profile saving fails.
+    // The local browser backup still keeps coins/cosmetics for this device.
+    console.warn('Profile save failed; continuing with local profile',e);
+  }
+}
+function makePlayerData(name,isHost){
+  return {id:myId,name,isHost,joinedAt:Date.now(),online:true,avatar:myAvatar||null,cosmetics:{equipped:myProfile.equipped||{}}};
+}
+function isNameShopItem(item){return item&&(item.type==='nameColor'||item.type==='animatedName');}
+function equipShopItem(item){
+  myProfile.equipped={...(myProfile.equipped||{})};
+  if(isNameShopItem(item)){
+    // Only one name customisation at a time. This removes the previous name colour/animation.
+    delete myProfile.equipped.nameColor;
+    delete myProfile.equipped.animatedName;
+  }
+  if(item.type==='avatarFrame'){
+    // Only one avatar frame at a time.
+    delete myProfile.equipped.avatarFrame;
+  }
+  if(item.type==='winAnim'){
+    delete myProfile.equipped.winAnim;
+  }
+  myProfile.equipped[item.type]=item.value;
+}
+function isShopItemEquipped(item){
+  if(!item||!myProfile.equipped)return false;
+  return myProfile.equipped[item.type]===item.value;
+}
+function shopItemCategory(item){
+  return isNameShopItem(item)?'Name':item.type==='avatarFrame'?'Frame':item.type==='winAnim'?'Win':'Item';
+}
+function shopItemPreview(item){
+  const sampleName=esc((document.getElementById('playerName')&&document.getElementById('playerName').value.trim())||myProfile.name||'Chris');
+  if(item.type==='nameColor'){
+    return `<div class="shop-preview"><span class="shop-preview-name player-cosmetic-name" style="color:${item.value}">${sampleName}</span></div>`;
+  }
+  if(item.type==='animatedName'){
+    return `<div class="shop-preview"><span class="shop-preview-name player-cosmetic-name" style="animation:${item.value} 5.5s linear infinite">${sampleName}</span></div>`;
+  }
+  if(item.type==='avatarFrame'){
+    return `<div class="shop-preview">${avatarImg(myAvatar, 'shop-preview-frame av-frame-'+item.value)}</div>`;
+  }
+  if(item.type==='winAnim'){
+    return `<div class="shop-preview"><div class="win-anim-shop-preview" onclick="event.stopPropagation();previewWinAnim('${item.value}')" style="cursor:pointer" title="Tap to preview">${item.icon||'🏆'}</div></div>`;
+  }
+  return `<div class="shop-preview"></div>`;
+}
+function switchShopTab(tab){
+  currentShopTab=tab;
+  ['names','frames','wins','owned'].forEach(t=>{
+    const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(el)el.classList.toggle('active',t===currentShopTab);
+  });
+  renderShop();
+}
+function renderShop(){
+  const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
+  const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
+  ['names','frames','wins','owned'].forEach(t=>{
+    const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(el)el.classList.toggle('active',t===currentShopTab);
+  });
+  const list=document.getElementById('shopItems');if(!list)return;
+  let items=SHOP_ITEMS.filter(item=>{
+    const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
+    if(currentShopTab==='names')return isNameShopItem(item);
+    if(currentShopTab==='frames')return item.type==='avatarFrame';
+    if(currentShopTab==='wins')return item.type==='winAnim';
+    if(currentShopTab==='owned')return owned;
+    return true;
+  }).sort((a,b)=>(a.price||0)-(b.price||0)||String(a.label).localeCompare(String(b.label)));
+  if(!items.length){
+    list.innerHTML=`<div class="shop-section-empty">No owned items yet.<br>Buy something from the Names or Frames tab.</div>`;
+    return;
+  }
+  list.innerHTML=items.map(item=>{
+    const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
+    const equipped=isShopItemEquipped(item);
+    const canBuy=(myProfile.coins||0)>=item.price;
+    const label=equipped?'Equipped':owned?'Equip':'Buy';
+    const mainBtnClass=owned?'btn-secondary':'btn-primary';
+    const priceText=owned?`Owned · sell for <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`:`<img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`;
+    const sellBtn=owned?`<button class="btn shop-item-btn shop-sell-btn" onclick="sellItem('${item.id}')">Sell</button>`:'';
+    const category=`<span class="shop-type-pill">${shopItemCategory(item)}</span>`;
+    return `<div class="shop-item">${shopItemPreview(item)}<div class="shop-item-info"><div class="shop-item-name">${item.label}</div><div class="shop-item-price">${priceText}</div>${category}</div><div class="shop-item-actions"><button class="btn ${mainBtnClass} shop-item-btn" onclick="buyOrEquipItem('${item.id}')" ${equipped||(!owned&&!canBuy)?'disabled':''}>${label}</button>${sellBtn}</div></div>`;
+  }).join('');
+}
+function refreshMyCosmeticsDisplay(){
+  if(localGame&&localGame.players&&localGame.players[myId]){
+    localGame.players[myId].cosmetics={equipped:myProfile.equipped||{}};
+  }
+  const cur=document.querySelector('.screen.active');
+  if(!localGame||!cur)return;
+  if(cur.id==='screen-lobby')renderLobby(localGame);
+  else if(cur.id==='screen-waiting')renderWaiting(localGame);
+  else if(cur.id==='screen-game')renderGame(localGame);
+  else if(cur.id==='screen-mafia-game')renderMafiaGame(localGame);
+}
+async function syncMyCosmeticsToGame(){
+  if(!gameCode)return;
+  const updates={cosmetics:{equipped:myProfile.equipped||{}}};
+  const nameInput=document.getElementById('playerName');
+  if(nameInput&&nameInput.value.trim())updates.name=nameInput.value.trim();
+  if(myAvatar)updates.avatar=myAvatar;
+  await gameRefFor(gameCode).child('players/'+myId).update(updates);
+}
 
-self.addEventListener("fetch", event => {
-  const request = event.request;
+async function devSetCoins(amount){
+  const input=document.getElementById('devCoinInput');
+  let value=(amount!==undefined)?amount:parseInt(input&&input.value,10);
+  if(!Number.isFinite(value)||value<0)value=0;
+  value=Math.floor(value);
+  myProfile.coins=value;
+  saveLocalProfile();
+  await userRef().update({coins:value,savedAt:Date.now(),lastDevCoinSetAt:Date.now()});
+  renderShop();
+  if(input)input.value=value;
+  const status=document.getElementById('devStatus');
+  if(status){status.style.display='block';status.textContent='Coins set to '+value;}
+}
 
-  if (request.method !== "GET") return;
+async function buyOrEquipItem(itemId){
+  const item=SHOP_ITEMS.find(i=>i.id===itemId);if(!item)return;
+  const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
+  if(!owned){
+    if((myProfile.coins||0)<item.price)return;
+    myProfile.coins=(myProfile.coins||0)-item.price;
+    myProfile.ownedItems={...(myProfile.ownedItems||{}),[item.id]:true};
+  }
+  // Buying an item also equips it instantly, replacing the previous item in that category.
+  equipShopItem(item);
+  saveLocalProfile();
+  renderShop();
+  refreshMyCosmeticsDisplay();
+  try{
+    await userRef().update({coins:myProfile.coins,ownedItems:myProfile.ownedItems,equipped:myProfile.equipped,savedAt:Date.now()});
+    await syncMyCosmeticsToGame();
+  }catch(e){console.warn('Shop update failed',e);}
+  renderShop();
+}
+async function sellItem(itemId){
+  const item=SHOP_ITEMS.find(i=>i.id===itemId);if(!item)return;
+  const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
+  if(!owned)return;
+  myProfile.coins=(myProfile.coins||0)+item.price;
+  myProfile.ownedItems={...(myProfile.ownedItems||{})};
+  delete myProfile.ownedItems[item.id];
+  if(isShopItemEquipped(item)){
+    myProfile.equipped={...(myProfile.equipped||{})};
+    if(isNameShopItem(item)){
+      delete myProfile.equipped.nameColor;
+      delete myProfile.equipped.animatedName;
+    }else{
+      delete myProfile.equipped[item.type];
+    }
+  }
+  saveLocalProfile();
+  renderShop();
+  refreshMyCosmeticsDisplay();
+  try{
+    await userRef().update({coins:myProfile.coins,ownedItems:myProfile.ownedItems,equipped:myProfile.equipped,savedAt:Date.now()});
+    await syncMyCosmeticsToGame();
+  }catch(e){console.warn('Sell failed',e);}
+  renderShop();
+}
 
-  const url = new URL(request.url);
+function playerNameHtml(p){
+  const eq=(p.cosmetics&&p.cosmetics.equipped)||{};
+  const styles=[];
+  if(eq.nameColor)styles.push(`color:${eq.nameColor}`);
+  if(eq.animatedName)styles.push(`animation:${eq.animatedName} 5.5s linear infinite`);
+  const style=styles.length?` style="${styles.join(';')}"`:'';
+  return `<span class="player-cosmetic-name"${style}>${esc(p.name)}</span>`;
+}
+function playerNameWithYou(p, label='you'){
+  return `${playerNameHtml(p)}${p.id===myId?` <span style="color:var(--muted);font-size:11px">(${label})</span>`:''}`;
+}
+function playerAvatar(p, extraClass=''){
+  const eq=(p.cosmetics&&p.cosmetics.equipped)||{};
+  const frame=eq.avatarFrame?` av-frame-${eq.avatarFrame}`:'';
+  return avatarImg(p.avatar, (extraClass?extraClass:'')+frame);
+}
 
-  // Always check network first for the app page so updates are found quickly.
-  if (request.mode === "navigate" || url.pathname.endsWith("/index.html")) {
-    event.respondWith(
-      fetch(request, { cache: "no-store" })
-        .then(response => {
-          const copy = response.clone();
+function resultAvatarHtml(p, fallback='🏆'){
+  if(p)return playerAvatar(p,'result-avatar');
+  return `<div class="result-emoji">${fallback}</div>`;
+}
+function resultAvatarGroupHtml(players, fallback='🏆'){
+  const winners=(players||[]).filter(Boolean);
+  if(!winners.length)return `<div class="result-emoji">${fallback}</div>`;
+  if(winners.length===1)return resultAvatarHtml(winners[0],fallback);
+  return `<div class="result-avatar-group">${winners.slice(0,8).map(p=>playerAvatar(p,'result-avatar')).join('')}</div>`;
+}
 
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put("./index.html", copy);
-          });
+function rewardRoundKey(game,prefix){
+  // Stable per-round key: changes every time a new result is created,
+  // but stays identical for all players/devices viewing that same result.
+  const stamp=game.rewardRoundId||game.resultRoundId||game.finishedAt||game.updatedAt;
+  if(!stamp)return null;
+  return prefix+'_'+String(stamp).replace(/[^a-zA-Z0-9_-]/g,'');
+}
 
-          return response;
-        })
-        .catch(() => {
-          return caches.match("./index.html").then(cached => {
-            return cached || caches.match("./");
-          });
-        })
-    );
+function rewardDataForGame(game){
+  const players=Object.values(game.players||{});
+  if(!players.length)return null;
+  const rewards={};
+  const add=(id,amount)=>{if(id&&amount>0)rewards[id]=(rewards[id]||0)+amount;};
 
+  // Spyfall final result
+  if((game.mode==='spyfall'||(!['ooo','mafia','fa','bs'].includes(game.mode)))&&game.status==='result'&&game.result){
+    const spyIds=game.spyIds||[game.spyId].filter(Boolean);
+    if(game.chaosMode){
+      if(game.result&&game.result.spyWins)spyIds.forEach(id=>add(id,REWARD_AMOUNTS.spyfall.spy));
+      else add(game.innocentId,REWARD_AMOUNTS.spyfall.innocent);
+    }else{
+      if(game.result&&game.result.spyWins)spyIds.forEach(id=>add(id,REWARD_AMOUNTS.spyfall.spy));
+      else players.filter(p=>!spyIds.includes(p.id)).forEach(p=>add(p.id,REWARD_AMOUNTS.spyfall.innocent));
+    }
+    const roundKey=rewardRoundKey(game,'spyfall_round');
+    if(!roundKey)return null;
+    return {key:roundKey,mode:'spyfall',rewards};
+  }
+
+  // Mafia final result
+  if(game.mode==='mafia'&&game.status==='result'&&game.mafiaResult){
+    const mafiaIds=game.mafiaIds||[];
+    if(game.mafiaResult.winner==='mafia')mafiaIds.forEach(id=>add(id,REWARD_AMOUNTS.mafia.mafia));
+    else players.filter(p=>!mafiaIds.includes(p.id)).forEach(p=>add(p.id,REWARD_AMOUNTS.mafia.civilian));
+    const roundKey=rewardRoundKey(game,'mafia_round');
+    if(!roundKey)return null;
+    return {key:roundKey,mode:'mafia',rewards};
+  }
+
+  // Blind Spot final result
+  if(game.mode==='bs'&&game.status==='result'&&game.bsResult){
+    if(game.bsResult.winner==='imposter')add(game.bsImposterId,REWARD_AMOUNTS.bs.imposter);
+    else players.filter(p=>p.id!==game.bsImposterId).forEach(p=>add(p.id,REWARD_AMOUNTS.bs.innocent));
+    const roundKey=rewardRoundKey(game,'bs_round');
+    if(!roundKey)return null;
+    return {key:roundKey,mode:'bs',rewards};
+  }
+
+  // Odd One Out round result
+  if(game.mode==='ooo'&&game.oooPhase==='result'&&game.oooResult){
+    const round=game.oooRound||0;
+    if(game.oooResult.caught)players.filter(p=>p.id!==game.oooImposterId).forEach(p=>add(p.id,REWARD_AMOUNTS.ooo.normal));
+    else add(game.oooImposterId,REWARD_AMOUNTS.ooo.imposter);
+    return {key:'ooo_round_'+round,mode:'ooo',rewards};
+  }
+
+  // Fake Artist word/round result
+  if(game.mode==='fa'&&game.faPhase==='result'&&game.faResult){
+    const wordIndex=game.faWordIndex||0;
+    if(game.faResult.townWins)players.filter(p=>p.id!==game.faImposterId).forEach(p=>add(p.id,REWARD_AMOUNTS.fa.normal));
+    else add(game.faImposterId,REWARD_AMOUNTS.fa.imposter);
+    return {key:'fa_word_'+wordIndex,mode:'fa',rewards};
+  }
+
+  return null;
+}
+
+function winnerIdsForGame(game){
+  const data=rewardDataForGame(game);
+  return data?Object.keys(data.rewards||{}):[];
+}
+
+// =====================================================
+// WIN ANIMATIONS (solo-winner only)
+// =====================================================
+const WIN_ANIM_SEEN=new Set();
+function getMyWinAnim(){return (myProfile.equipped&&myProfile.equipped.winAnim)||null;}
+
+// Determine if I am a SOLO winner of this game (the only person who won).
+function amSoloWinnerOfGame(game){
+  const winners=winnerIdsForGame(game);
+  return winners.length===1 && winners[0]===myId;
+}
+
+function clearWinAnim(){
+  const ov=document.getElementById('winAnimOverlay');
+  if(ov){ov.classList.remove('active');ov.innerHTML='';ov.style.display='none';}
+  document.body.classList.remove('inferno-win-theme');
+  document.body.classList.remove('gold-win-theme');
+  document.querySelectorAll('.win-crown-landed').forEach(el=>el.remove());
+}
+
+function previewWinAnim(value){
+  playWinAnim(value,true);
+}
+
+// Renders a full-screen overlay effect for ~2.6s
+function playWinAnim(value,isPreview){
+  const ov=document.getElementById('winAnimOverlay');
+  if(!ov||!value)return;
+  ov.innerHTML='';
+  ov.style.display='block';
+  ov.classList.add('active');
+  document.body.classList.toggle('inferno-win-theme', value==='inferno'&&!isPreview);
+  document.body.classList.toggle('gold-win-theme', value==='crown'&&!isPreview);
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  const palette=['#e8d44d','#e85d4d','#4de8a0','#06b6d4','#a78bfa','#f97316','#ff4fd8','#ffffff'];
+  const goldPalette=['#fff6cf','#ffe98a','#f7d24d','#e8b94d','#fffbe6','#ffd700'];
+
+  function dropConfetti(count,colors,delayMax,durMin,durMax){
+    for(let i=0;i<count;i++){
+      const p=document.createElement('div');p.className='win-confetti-piece';
+      p.style.left=rand(-2,102)+'vw';
+      p.style.background=colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDuration=rand(durMin,durMax)+'s';
+      p.style.animationDelay=rand(0,delayMax)+'s';
+      p.style.width=rand(8,16)+'px';p.style.height=rand(12,22)+'px';
+      ov.appendChild(p);
+    }
+  }
+  function dropGlitter(count){
+    for(let i=0;i<count;i++){
+      const g=document.createElement('div');g.className='win-glitter'+(Math.random()>0.5?' tw':'');
+      const sz=rand(4,9);
+      g.style.left=rand(-2,102)+'vw';
+      g.style.width=sz+'px';g.style.height=sz+'px';
+      g.style.animationDuration=rand(2.0,2.9)+'s';
+      g.style.animationDelay=rand(0,0.7)+'s';
+      ov.appendChild(g);
+    }
+  }
+  function burst(cx,cy,col,n,distMin,distMax,dur){
+    for(let i=0;i<n;i++){
+      const ang=(Math.PI*2*i)/n + rand(-0.05,0.05),dist=rand(distMin,distMax);
+      const f=document.createElement('div');f.className='win-firework';
+      f.style.left=cx+'vw';f.style.top=cy+'vh';f.style.background=col;
+      f.style.boxShadow='0 0 10px '+col+',0 0 18px '+col;
+      f.style.width=rand(5,9)+'px';f.style.height=f.style.width;
+      f.animate([{transform:'translate(0,0) scale(1.2)',opacity:1},{transform:`translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist}px) scale(0)`,opacity:0}],{duration:dur,easing:'cubic-bezier(0.15,0.7,0.3,1)',fill:'forwards'});
+      ov.appendChild(f);
+    }
+  }
+
+  if(value==='confetti'){
+    // INTENSIFIED: many more pieces, layered waves
+    dropConfetti(200,palette,0.8,1.8,3.0);
+    dropConfetti(80,palette,1.4,2.2,3.0);
+  } else if(value==='goldConfetti'){
+    // Golden confetti + glowing glitter falling together
+    dropConfetti(170,goldPalette,0.9,1.8,2.9);
+    dropGlitter(130);
+    const rays=document.createElement('div');rays.className='win-rays';rays.style.opacity='0.7';ov.appendChild(rays);
+  } else if(value==='fireworks'){
+    // INTENSIFIED: more bursts, bigger, overlapping
+    for(let b=0;b<14;b++){
+      const cx=rand(10,90),cy=rand(12,55),col=palette[Math.floor(Math.random()*palette.length)];
+      setTimeout(()=>{ if(ov.classList.contains('active')) burst(cx,cy,col,rand(30,40)|0,80,200,1100); }, b*180);
+    }
+  } else if(value==='crown'){
+    // INTENSIFIED: rays + heavy gold confetti + glitter
+    const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
+    const rays2=document.createElement('div');rays2.className='win-rays';rays2.style.animationDelay='0.4s';rays2.style.animationDuration='2.4s';ov.appendChild(rays2);
+    dropConfetti(110,goldPalette,0.9,1.9,2.9);
+    dropGlitter(70);
+    if(isPreview){
+      // Preview: simple centered crown drop
+      const c=document.createElement('div');c.className='win-crown';c.textContent='👑';ov.appendChild(c);
+    } else {
+      // Real win: land the crown on the winner's avatar
+      landCrownOnWinnerAvatar();
+    }
+  } else if(value==='rays'){
+    const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
+    const rays2=document.createElement('div');rays2.className='win-rays';rays2.style.animationDelay='0.3s';rays2.style.animationDuration='2.4s';ov.appendChild(rays2);
+  } else if(value==='inferno'){
+    // INTENSIFIED: more flames + embers + flash
+    for(let i=0;i<30;i++){
+      const f=document.createElement('div');f.className='win-flame';
+      f.style.left=rand(-2,102)+'vw';
+      f.style.width=rand(40,90)+'px';
+      f.style.height=rand(160,340)+'px';
+      f.style.animationDuration=rand(1.4,2.6)+'s';
+      f.style.animationDelay=rand(0,0.9)+'s';
+      ov.appendChild(f);
+    }
+    // embers (small orange glitter-like)
+    for(let i=0;i<60;i++){
+      const e=document.createElement('div');e.className='win-firework';
+      const col=['#fde047','#f97316','#ef4444'][Math.floor(Math.random()*3)];
+      e.style.left=rand(0,100)+'vw';e.style.top=rand(60,100)+'vh';
+      e.style.background=col;e.style.boxShadow='0 0 8px '+col;
+      e.style.width=rand(3,7)+'px';e.style.height=e.style.width;
+      e.animate([{transform:'translateY(0) scale(1)',opacity:1},{transform:`translateY(-${rand(200,500)}px) scale(0)`,opacity:0}],{duration:rand(1400,2400),delay:rand(0,800),easing:'ease-out',fill:'forwards'});
+      ov.appendChild(e);
+    }
+    const flash=document.createElement('div');flash.className='win-inferno-flash';ov.appendChild(flash);
+  }
+
+  // Victory text for non-preview plays
+  if(!isPreview){
+    const t=document.createElement('div');t.className='win-victory-text'+(value==='inferno'?' inferno-text':value==='crown'?' gold-text':'');t.textContent='VICTORY';
+    ov.appendChild(t);
+  }
+
+  clearTimeout(window.__winAnimTimer);
+  window.__winAnimTimer=setTimeout(clearWinAnim, isPreview?2900:3000);
+}
+
+// Called whenever a game result is shown — plays MY win anim if I solo-won.
+function landCrownOnWinnerAvatar(){
+  // Find the most prominent winner avatar on the active result screen.
+  const screen=document.querySelector('.screen.active');
+  if(!screen){return;}
+  // Prefer the banner avatar, then the reveal box avatar.
+  let target=screen.querySelector('.result-banner .result-avatar')
+    || screen.querySelector('.result-banner .av, .result-banner .av-placeholder, .result-banner .av-inferno-wrap')
+    || screen.querySelector('#resultRevealBox .av, #resultRevealBox .av-placeholder')
+    || screen.querySelector('[id$="ResultReveal"] .av, [id$="ResultReveal"] .av-placeholder, [id$="ResultImposter"] .av, [id$="ImpostorReveal"] .av');
+  // Retry shortly if the result DOM is not painted yet.
+  if(!target){setTimeout(landCrownOnWinnerAvatar,120);return;}
+  const place=()=>{
+    const r=target.getBoundingClientRect();
+    if(r.width===0){setTimeout(place,120);return;}
+    const crown=document.createElement('div');
+    crown.className='win-crown-landed landing';
+    crown.textContent='👑';
+    // size relative to avatar
+    const sz=Math.max(40,r.width*1.15);
+    crown.style.fontSize=sz+'px';
+    crown.style.left=(r.left+r.width/2)+'px';
+    // sit the crown so its base overlaps the top of the avatar
+    crown.style.top=(r.top - sz*0.62)+'px';
+    document.body.appendChild(crown);
+    crown.addEventListener('animationend',()=>{
+      crown.classList.remove('landing');
+      crown.classList.add('bobbing');
+    },{once:true});
+  };
+  place();
+}
+
+function maybePlayMyWinAnim(game){
+  if(!game)return;
+  const data=rewardDataForGame(game);
+  if(!data||!data.key)return;
+  const seenKey='winanim_'+(gameCode||'dev')+'_'+data.key;
+  if(WIN_ANIM_SEEN.has(seenKey))return;
+  if(!amSoloWinnerOfGame(game))return;
+  const anim=getMyWinAnim();
+  if(!anim)return;
+  WIN_ANIM_SEEN.add(seenKey);
+  setTimeout(()=>playWinAnim(anim,false),400);
+}
+
+
+async function awardCoinsForFinishedGame(game){
+  if(!gameCode)return;
+  const data=rewardDataForGame(game);
+  if(!data||!data.key||!data.rewards||!Object.keys(data.rewards).length)return;
+
+  // Any connected client may try to create the reward event, but this transaction
+  // allows only ONE client to claim it. This prevents double rewards if multiple
+  // players reach the result screen at the same time.
+  try{
+    const eventRef=gameRefFor(gameCode).child('rewardEvents/'+data.key);
+    const claimed=await eventRef.transaction(current=>{
+      if(current)return;
+      return {
+        awardedAt:Date.now(),
+        mode:data.mode,
+        rewards:data.rewards,
+        awardedBy:myId
+      };
+    });
+
+    if(!claimed||!claimed.committed)return;
+
+    await Promise.all(Object.entries(data.rewards).map(([id,amount])=>db.ref('users/'+id).transaction(user=>{
+      user=user||{};
+      user.coins=(user.coins||0)+amount;
+      user.wins=(user.wins||0)+1;
+      user.lastRewardedAt=Date.now();
+      return user;
+    })));
+
+    // Keep old fields for compatibility with older builds/dev inspection.
+    await gameRefFor(gameCode).update({
+      rewardsAwarded:data.mode==='ooo'||data.mode==='fa'?false:true,
+      rewardedWinnerIds:Object.keys(data.rewards),
+      rewardCoins:data.rewards
+    });
+
+    if(data.rewards[myId])await loadMyProfile();
+  }catch(e){console.warn('Reward failed',e);}
+}
+
+function ensureCoinEarnedMessage(){
+  const screen=document.querySelector('.screen.active');
+  if(!screen)return null;
+
+  // Keep only one permanent reward message visible on the current result screen.
+  screen.querySelectorAll('.coin-earned-inline').forEach(el=>el.remove());
+
+  const el=document.createElement('div');
+  el.className='coin-earned-inline';
+  el.innerHTML='You earned <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> <span class="coin-earned-number" id="coinEarnedNumberInline">0</span> coins!';
+
+  const anchors=['resultBanner','mafiaResultBanner','oooResultBanner','faResultBanner','bsResultBanner'];
+  const anchor=anchors.map(id=>document.getElementById(id)).find(node=>node&&screen.contains(node));
+  if(anchor&&anchor.parentNode)anchor.insertAdjacentElement('afterend',el);
+  else{
+    const card=screen.querySelector('.card')||screen.firstElementChild||screen;
+    card.insertBefore(el,card.firstChild);
+  }
+  return el;
+}
+function animateCoinEarned(amount){
+  amount=Math.max(0,Math.floor(Number(amount)||0));
+  if(!amount)return;
+  const msg=ensureCoinEarnedMessage();
+  if(!msg)return;
+  const num=msg.querySelector('.coin-earned-number');
+  if(!num)return;
+  const duration=950;
+  const start=performance.now();
+  function tick(now){
+    const t=Math.min(1,(now-start)/duration);
+    const eased=1-Math.pow(1-t,3);
+    num.textContent=Math.round(amount*eased);
+    if(t<1)requestAnimationFrame(tick);
+    else num.textContent=amount;
+  }
+  requestAnimationFrame(tick);
+}
+function handleMyRewardDisplays(game){
+  if(!gameCode||!game||!game.rewardEvents)return;
+  Object.entries(game.rewardEvents||{}).forEach(([key,event])=>{
+    const amount=event&&event.rewards&&event.rewards[myId];
+    if(!amount)return;
+    const seenKey='sf_reward_seen_'+gameCode+'_'+key+'_'+myId;
+    if(localStorage.getItem(seenKey))return;
+    localStorage.setItem(seenKey,'1');
+    myProfile.coins=(myProfile.coins||0)+amount;
+    myProfile.wins=(myProfile.wins||0)+1;
+    saveLocalProfile();
+    renderShop();
+    // Delay slightly so the correct result screen is visible before placing the permanent message.
+    setTimeout(()=>animateCoinEarned(amount),220);
+    loadMyProfile().catch(()=>{});
+  });
+}
+
+
+
+const MODE_LABELS={spyfall:'🕵️ Spyfall',ooo:'🎭 Odd One Out',mafia:'🃏 Mafia',fa:'🎨 Fake Artist',bs:'🕵️ Blind Spot'};
+function toggleModeDropdown(id){
+  const wrap=document.getElementById(id);
+  if(!wrap)return;
+  document.querySelectorAll('.custom-mode-wrap').forEach(el=>{if(el!==wrap)el.classList.remove('open');});
+  wrap.classList.toggle('open');
+}
+function closeModeDropdown(id){
+  const wrap=document.getElementById(id);
+  if(wrap)wrap.classList.remove('open');
+}
+function updateModeDropdownLabels(mode){
+  const label=MODE_LABELS[mode]||MODE_LABELS.spyfall;
+  const home=document.getElementById('homeModeCurrent');if(home)home.textContent=label;
+  const lobby=document.getElementById('lobbyModeCurrent');if(lobby)lobby.textContent=label;
+}
+function openShopModal(){
+  renderShop();
+  const modal=document.getElementById('shopModalBackdrop');
+  if(modal)modal.classList.add('open');
+}
+function closeShopModal(event){
+  if(event&&event.target&&event.currentTarget&&event.target!==event.currentTarget)return;
+  const modal=document.getElementById('shopModalBackdrop');
+  if(modal)modal.classList.remove('open');
+}
+document.addEventListener('keydown',function(event){if(event.key==='Escape')closeShopModal();});
+
+// =====================================================
+// GAME MODE (lobby)
+// =====================================================
+function setGameMode(mode){
+  localGameMode=mode;
+  updateModeUI(mode);
+  updateModeDropdownLabels(mode);
+  closeModeDropdown('lobbyModeDropdown');
+  if(gameCode)updateGame(gameCode,{mode});
+}
+function updateModeUI(mode){
+  updateModeDropdownLabels(mode);
+  document.getElementById('modeTabSpyfall').className='custom-mode-option mode-tab'+(mode==='spyfall'?' active-spyfall':'');
+  document.getElementById('modeTabOoo').className='custom-mode-option mode-tab'+(mode==='ooo'?' active-ooo':'');
+  document.getElementById('modeTabMafia').className='custom-mode-option mode-tab'+(mode==='mafia'?' active-mafia':'');
+  document.getElementById('modeTabFa').className='custom-mode-option mode-tab'+(mode==='fa'?' active-fa':'');
+  document.getElementById('modeTabBs').className='custom-mode-option mode-tab'+(mode==='bs'?' active-bs':'');
+  document.getElementById('spyfallSettings').style.display=mode==='spyfall'?'block':'none';
+  document.getElementById('oooSettings').style.display=mode==='ooo'?'block':'none';
+  document.getElementById('mafiaSettings').style.display=mode==='mafia'?'block':'none';
+  document.getElementById('faSettings').style.display=mode==='fa'?'block':'none';
+  document.getElementById('bsSettings').style.display=mode==='bs'?'block':'none';
+  if(mode==='bs')renderBsCategorySelect();
+  const minNotice=document.getElementById('minPlayersNotice');
+  if(mode==='mafia'){minNotice.textContent='Need at least 4 players to start Mafia';}
+  else{minNotice.textContent='Need at least 3 players to start';}
+  document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':mode==='mafia'?'Start Mafia':mode==='fa'?'Start Fake Artist':mode==='bs'?'Start Blind Spot':'Start Game';
+}
+function changeOOORounds(delta){
+  localOOORounds=Math.min(10,Math.max(1,localOOORounds+delta));
+  document.getElementById('oooRoundsDisplay').textContent=localOOORounds;
+  document.getElementById('oooRoundsLabel').textContent=`round${localOOORounds!==1?'s':''}`;
+  if(gameCode)updateGame(gameCode,{oooTotalRounds:localOOORounds});
+}
+function toggleDoctorRole(){
+  localDoctorEnabled=document.getElementById('doctorToggle').checked;
+  const wrap=document.getElementById('doctorToggleWrap');
+  wrap.style.background=localDoctorEnabled?'rgba(39,174,96,0.05)':'rgba(30,30,40,0.5)';
+  wrap.style.borderColor=localDoctorEnabled?'rgba(39,174,96,0.2)':'rgba(42,42,58,0.8)';
+  if(gameCode)updateGame(gameCode,{doctorEnabled:localDoctorEnabled});
+}
+function maxMafia(n){return Math.max(1,Math.floor((n-1)/3));}
+function changeMafiaCount(delta){
+  const n=localGame?Object.keys(localGame.players||{}).length:4;
+  localMafiaCount=Math.min(maxMafia(n),Math.max(1,localMafiaCount+delta));
+  updateMafiaCountUI(n);
+  if(gameCode)updateGame(gameCode,{mafiaCount:localMafiaCount});
+}
+function updateMafiaCountUI(n){
+  const max=maxMafia(n);localMafiaCount=Math.min(localMafiaCount,max);
+  document.getElementById('mafiaCountDisplay').textContent=localMafiaCount;
+  document.getElementById('mafiaCountLabel').textContent=`of ${max} max for ${n} players`;
+}
+
+// =====================================================
+// SPY COUNT / CHAOS
+// =====================================================
+function maxSpies(n){if(n<=4)return 1;if(n<=7)return 2;return 3;}
+function changeSpyCount(delta){
+  const n=localGame?Object.keys(localGame.players||{}).length:3;
+  localSpyCount=Math.min(maxSpies(n),Math.max(1,localSpyCount+delta));
+  updateSpyCountUI(n);
+  if(gameCode)updateGame(gameCode,{spyCount:localSpyCount});
+}
+function updateSpyCountUI(n){
+  const max=maxSpies(n);localSpyCount=Math.min(localSpyCount,max);
+  document.getElementById('spyCountDisplay').textContent=localSpyCount;
+  document.getElementById('spyCountLabel').textContent=`of ${max} max for ${n} players`;
+}
+function toggleChaosMode(){
+  localChaosMode=document.getElementById('chaosModeToggle').checked;
+  document.getElementById('chaosModeWrap').classList.toggle('chaos-on',localChaosMode);
+  if(gameCode)updateGame(gameCode,{chaosMode:localChaosMode});
+}
+
+// =====================================================
+// FIREBASE
+// =====================================================
+function gameRefFor(code){return db.ref('games/'+code);}
+let serverTimeOffset=0;
+db.ref('.info/serverTimeOffset').on('value',snap=>{serverTimeOffset=snap.val()||0;});
+function syncedNow(){return Date.now()+serverTimeOffset;}
+function serverTimestamp(){return firebase.database.ServerValue.TIMESTAMP;}
+function listenToGame(code,callback){
+  if(gameListener&&gameRef)gameRef.off('value',gameListener);
+  gameRef=gameRefFor(code);
+  gameListener=gameRef.on('value',snap=>{const data=snap.val();if(data){localGame=data;callback(data);}});
+}
+function stopListening(){if(gameListener&&gameRef){gameRef.off('value',gameListener);gameListener=null;}}
+function updateGame(code,updates){
+  const finalUpdates={...(updates||{}),updatedAt:serverTimestamp()};
+  if(updates&&updates.status==='result'&&!('finishedAt' in updates))finalUpdates.finishedAt=serverTimestamp();
+  if(updates&&updates.status&&updates.status!=='result')finalUpdates.finishedAt=null;
+  return gameRefFor(code).update(finalUpdates);
+}
+
+// Deletes finished/result games after 24 hours.
+async function cleanupOldGames(){
+  try{
+    const snap=await db.ref('games').once('value');
+    if(!snap.exists())return;
+
+    const now=syncedNow();
+    const oneDay=24*60*60*1000;
+    const deletes={};
+
+    snap.forEach(child=>{
+      const game=child.val()||{};
+      const finishedAt=game.finishedAt||(game.status==='result'?game.updatedAt:null);
+      if(game.status==='result'&&finishedAt&&now-finishedAt>oneDay){
+        deletes[child.key]=null;
+      }
+    });
+
+    if(Object.keys(deletes).length){
+      await db.ref('games').update(deletes);
+      console.log('Cleaned up old finished games:',Object.keys(deletes));
+    }
+  }catch(e){
+    console.warn('Game cleanup failed',e);
+  }
+}
+
+// =====================================================
+// PRESENCE
+// =====================================================
+function setupPresence(){
+  if(!gameCode)return;
+  const ref=gameRefFor(gameCode).child('players/'+myId+'/online');
+  ref.set(true);ref.onDisconnect().set(false);
+  gameRefFor(gameCode).child('players/'+myId).onDisconnect().update({online:false});
+}
+function watchPresence(game){
+  if(!amHost)return;
+  Object.values(game.players||{}).forEach(p=>{if(p.id!==myId&&p.online===false)handlePlayerLeft(p.id,game);});
+}
+async function handlePlayerLeft(leftId,game){
+  if(!amHost||!gameCode)return;
+  const snap=await gameRefFor(gameCode).once('value');const fg=snap.val();if(!fg)return;
+  if(fg.status==='lobby')await gameRefFor(gameCode).child('players/'+leftId).remove();
+  if(fg.hostId===leftId){
+    const rem=Object.values(fg.players||{}).filter(p=>p.id!==leftId).sort((a,b)=>a.joinedAt-b.joinedAt);
+    if(rem.length>0){
+      const nh=rem[0];
+      await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);
+      await gameRefFor(gameCode).child('hostId').set(nh.id);
+      if(nh.id===myId){amHost=true;}
+    }
+  }
+}
+
+// =====================================================
+// CREATE / JOIN
+// =====================================================
+async function createGame(){
+  const name=document.getElementById('playerName').value.trim();
+  if(!name)return showError('homeError','Please enter your name');
+  setLoading('createBtn',true,'Creating...');
+  const code=genCode();gameCode=code;amHost=true;
+  await saveProfileBasics(name);
+  const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
+  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,players:{[myId]:makePlayerData(name,true)},createdAt:Date.now(),updatedAt:Date.now()};
+  try{
+    await gameRefFor(code).set(game);
+    document.getElementById('gameCodeDisplay').textContent=code;
+    setupPresence();showScreen('lobby');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
+    updateModeUI(localGameMode);
+    if(localGameMode!=='spyfall')updateGame(code,{mode:localGameMode});
+  }catch(e){showError('homeError','Could not connect to Firebase.');console.error(e);}
+  setLoading('createBtn',false,'Create New Game');
+}
+async function joinGame(){
+  const name=document.getElementById('playerName').value.trim();
+  if(!name)return showError('homeError','Please enter your name');
+  const code=document.getElementById('joinCode').value.trim().toUpperCase();
+  if(code.length<4)return showError('homeError','Enter a valid 4-letter code');
+  setLoading('joinBtn',true,'...');
+  try{
+    const snap=await gameRefFor(code).once('value');const game=snap.val();
+    if(!game){setLoading('joinBtn',false,'Join');return showError('homeError','Game not found');}
+    if(game.status!=='lobby'){setLoading('joinBtn',false,'Join');return showError('homeError','Game already started');}
+    gameCode=code;amHost=false;
+    await saveProfileBasics(name);
+    const existing=game.players&&game.players[myId];
+    if(!existing)await gameRefFor(code).child('players/'+myId).set(makePlayerData(name,false));
+    else await gameRefFor(code).child('players/'+myId).update({online:true,name,avatar:myAvatar||null,cosmetics:{equipped:myProfile.equipped||{}}});
+    setupPresence();document.getElementById('waitingCodeDisplay').textContent=code;
+    showScreen('waiting');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
+  }catch(e){showError('homeError','Connection error');console.error(e);}
+  setLoading('joinBtn',false,'Join');
+}
+
+// =====================================================
+// GAME UPDATE LISTENER
+// =====================================================
+function onGameUpdate(game){
+  const cur=(document.querySelector('.screen.active')||{}).id;
+  if(game&&game.status==='lobby'&&game.players&&!game.players[myId]&&gameCode){
+    alert('You were removed from the lobby.');
+    devBackHome();
+    return;
+  }
+  if(game.hostId===myId&&!amHost)amHost=true;
+  if(game.hostId!==myId&&amHost)amHost=false;
+  if(amHost)watchPresence(game);
+  awardCoinsForFinishedGame(game);
+  handleMyRewardDisplays(game);
+
+  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result'];
+
+  // LOBBY
+  if(game.status==='lobby'){
+    if(cur==='screen-lobby')renderLobby(game);
+    if(cur==='screen-waiting'){
+      renderWaiting(game);
+      if(game.hostId===myId){renderLobby(game);showScreen('lobby');}
+      const notice=document.getElementById('waitingNotice');
+      if(game.mode==='mafia'){notice.className='notice mafia';notice.textContent='🃏 Mode: Mafia';}
+      else if(game.mode==='ooo'){notice.className='notice ooo';notice.textContent=`🎭 Mode: Odd One Out — ${game.oooTotalRounds||3} rounds`;}
+      else if(game.chaosMode){notice.className='notice chaos';notice.textContent='⚡ Host enabled CHAOS MODE!';}
+      else{notice.className='notice info';notice.textContent='Waiting for the host to start...';}
+    }
+    if(allGameScreens.includes(cur)){
+      clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);
+      if(amHost||game.hostId===myId){renderLobby(game);showScreen('lobby');}
+      else{renderWaiting(game);showScreen('waiting');}
+    }
     return;
   }
 
-  // For local files, use cached version first but update the cache in the background.
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      caches.match(request).then(cached => {
-        const networkFetch = fetch(request)
-          .then(response => {
-            const copy = response.clone();
-
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(request, copy);
-            });
-
-            return response;
-          })
-          .catch(() => cached);
-
-        return cached || networkFetch;
-      })
-    );
+  // BLIND SPOT
+  if(game.mode==='bs'){
+    if(game.status==='lobby'){
+      if(cur==='screen-lobby')renderLobby(game);
+      if(cur==='screen-waiting')renderWaiting(game);
+      if(allGameScreens.includes(cur)){if(amHost){renderLobby(game);showScreen('lobby');}else{renderWaiting(game);showScreen('waiting');}}
+      return;
+    }
+    if(game.status==='playing'){
+      const phase=game.bsPhase;
+      if(phase==='reveal'){
+        if(cur!=='screen-bs-reveal'){enterBsReveal(game);}
+        else{renderBsReveal(game);if(!bsRevealTimerInterval)startBsRevealCountdown(game);}
+        return;
+      }
+      if(phase==='discussion'){
+        if(cur!=='screen-bs-game'){enterBsGame(game);}
+        else{renderBsGame(game);if(!bsDiscussTimerInterval)startBsDiscussTimer(game);}
+        return;
+      }
+      if(phase==='result'){
+        if(cur!=='screen-bs-result')showBsResult(game);
+        return;
+      }
+    }
+    if(game.status==='result'){if(cur!=='screen-bs-result')showBsResult(game);return;}
+    return;
   }
-});
+
+  // FAKE ARTIST
+  if(game.mode==='fa'){
+    if(game.status==='lobby'){
+      if(cur==='screen-lobby')renderLobby(game);
+      if(cur==='screen-waiting'){renderWaiting(game);}
+      if(allGameScreens.includes(cur)){
+        if(amHost){renderLobby(game);showScreen('lobby');}
+        else{renderWaiting(game);showScreen('waiting');}
+      }
+      return;
+    }
+    if(game.status==='playing'){
+      const faScreens=['screen-fa-draw','screen-fa-vote','screen-fa-guess'];
+      const phase=game.faPhase;
+      if(phase==='draw'){
+        if(cur!=='screen-fa-draw'){enterFaDraw(game);}
+        else{updateFaDrawScreen(game);}
+        return;
+      }
+      if(phase==='vote'){
+        if(cur!=='screen-fa-vote'){enterFaVote(game);}
+        else{updateFaVoteScreen(game);}
+        return;
+      }
+      if(phase==='guess'){
+        if(cur!=='screen-fa-guess'){enterFaGuess(game);}
+        return;
+      }
+      if(phase==='result'){
+        if(cur!=='screen-fa-result'){showFaResult(game);}
+        return;
+      }
+    }
+    if(game.status==='result'){
+      if(cur!=='screen-fa-gameover'){showFaGameOver(game);}
+      return;
+    }
+    return;
+  }
+
+  // MAFIA
+  if(game.mode==='mafia'&&game.status==='playing'){
+    if(cur==='screen-mafia-reveal'){return;} // stay on reveal until player taps
+    const mafiaScreens=['screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn'];
+    const phase=game.mafiaPhase;
+    // Enter from lobby/waiting/other
+    if(!mafiaScreens.includes(cur)&&cur!=='screen-mafia-reveal'){enterMafiaReveal(game);return;}
+    // Dawn transition
+    if(phase==='dawn'){
+      if(cur!=='screen-mafia-dawn'){showMafiaDawnStory(game);}
+      else{renderMafiaDawnAliveCount(game);}
+      return;
+    }
+    // Elimination reveal
+    if(phase==='eliminated'){
+      if(cur!=='screen-mafia-eliminated'){showMafiaEliminationReveal(game);}
+      return;
+    }
+    // Night transition
+    if(phase==='night'){
+      const nightScreens=['screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town'];
+      if(!nightScreens.includes(cur)){enterMafiaNight(game);return;}
+      updateMafiaNightScreens(game);
+      return;
+    }
+    // Day
+    if(phase==='day'){
+      if(cur!=='screen-mafia-game'){showScreen('mafia-game');}
+      renderMafiaGame(game);
+      return;
+    }
+    return;
+  }
+  if(game.mode==='mafia'&&game.status==='result'){
+    if(cur!=='screen-mafia-result')showMafiaResult(game);
+    return;
+  }
+
+  // OOO
+  if(game.mode==='ooo'&&game.status==='playing'){
+    if(game.oooPhase==='question'){
+      if(cur!=='screen-ooo-question')enterOOOQuestionScreen(game);
+      else updateOOOWaitingState(game);
+    } else if(game.oooPhase==='answers'){
+      if(cur!=='screen-ooo-answers'){showOOOAnswers(game);}
+      else{
+        const tb=document.getElementById('oooTieBanner');
+        if(tb)tb.style.display=game.oooTied?'block':'none';
+        updateOOOAnswers(game);if(amHost)checkAllVoted(game);
+      }
+    } else if(game.oooPhase==='result'){
+      if(cur!=='screen-ooo-result')showOOOResult(game);
+    }
+    return;
+  }
+  if(game.mode==='ooo'&&game.status==='result'){
+    if(game.oooPhase==='gameover'){if(cur!=='screen-ooo-gameover')showOOOGameOver(game);}
+    else{if(cur!=='screen-ooo-result')showOOOResult(game);}
+    return;
+  }
+
+  // SPYFALL TIE
+  if(game.tiePhase&&game.mode!=='ooo'){
+    if(cur!=='screen-tie')showTieScreen(game);
+    else updateTieVoteList(game);
+    return;
+  }
+
+  // SPYFALL
+  if(game.status==='playing'&&game.mode!=='ooo'&&game.mode!=='mafia'){
+    const relaunch=['screen-lobby','screen-waiting','screen-home','screen-result','screen-tie'];
+    if(relaunch.includes(cur))enterRevealScreen(game);
+    else if(cur==='screen-game')renderGame(game);
+  }
+  if(game.status==='result'&&game.mode!=='ooo'&&game.mode!=='mafia'){
+    if(cur!=='screen-result')showResultScreen(game);
+  }
+}
+
+
+function isDevUnlocked(){return sessionStorage.getItem('sf_dev_unlocked')==='1';}
+function canShowLobbyPlayerMenu(){return !!(localGame&&localGame.status==='lobby'&&(amHost||isDevUnlocked()));}
+function lobbyPlayerMenuHtml(p){
+  if(!canShowLobbyPlayerMenu())return '';
+  const hostOptions=(amHost||isDevUnlocked())&&p.id!==myId?`<button class="danger" onclick="kickLobbyPlayer('${p.id}')">Kick player</button>${!p.isHost?`<button onclick="setLobbyHost('${p.id}')">Set as host</button>`:''}`:'';
+  const devOptions=isDevUnlocked()?`${hostOptions?'<div class="lobby-player-menu-divider"></div>':''}<button onclick="devSetPlayerCoins('${p.id}')">Set coins</button><button onclick="devChangePlayerName('${p.id}')">Change Name</button><button onclick="devChangePlayerAvatar('${p.id}')">Change Avatar</button>`:'';
+  const menuContent=hostOptions+devOptions;
+  if(!menuContent)return '';
+  return `<div class="lobby-player-menu-wrap"><button class="lobby-player-menu-btn" onclick="toggleLobbyPlayerMenu(event,'${p.id}')">⋯</button><div class="lobby-player-menu" id="lobbyPlayerMenu_${p.id}">${menuContent}</div></div>`;
+}
+function toggleLobbyPlayerMenu(event,playerId){
+  if(event)event.stopPropagation();
+  document.querySelectorAll('.lobby-player-menu').forEach(el=>{if(el.id!=='lobbyPlayerMenu_'+playerId)el.classList.remove('open');});
+  const el=document.getElementById('lobbyPlayerMenu_'+playerId);
+  if(el)el.classList.toggle('open');
+}
+function closeLobbyPlayerMenus(){document.querySelectorAll('.lobby-player-menu').forEach(el=>el.classList.remove('open'));}
+async function kickLobbyPlayer(playerId){
+  closeLobbyPlayerMenus();
+  if(!gameCode||playerId===myId)return;
+  const player=(localGame&&localGame.players&&localGame.players[playerId])||{};
+  if(!confirm(`Kick ${player.name||'this player'} from the lobby?`))return;
+  await gameRefFor(gameCode).child('players/'+playerId).remove();
+}
+async function setLobbyHost(playerId){
+  closeLobbyPlayerMenus();
+  if(!gameCode||!localGame||!localGame.players||!localGame.players[playerId])return;
+  const updates={hostId:playerId,updatedAt:Date.now()};
+  Object.keys(localGame.players||{}).forEach(id=>updates['players/'+id+'/isHost']=(id===playerId));
+  await gameRefFor(gameCode).update(updates);
+  amHost=playerId===myId;
+}
+async function devSetPlayerCoins(playerId){
+  closeLobbyPlayerMenus();
+  if(!isDevUnlocked())return;
+  const player=(localGame&&localGame.players&&localGame.players[playerId])||{};
+  const value=prompt(`Set coins for ${player.name||'player'}:`, playerId===myId?(myProfile.coins||0):'');
+  if(value===null)return;
+  let coins=parseInt(value,10);
+  if(!Number.isFinite(coins)||coins<0)coins=0;
+  coins=Math.floor(coins);
+  await db.ref('users/'+playerId).update({coins,savedAt:Date.now(),lastDevCoinSetAt:Date.now()});
+  if(playerId===myId){myProfile.coins=coins;saveLocalProfile();renderShop();}
+  alert(`Coins set to ${coins}.`);
+}
+async function devChangePlayerName(playerId){
+  closeLobbyPlayerMenus();
+  if(!isDevUnlocked())return;
+  const player=(localGame&&localGame.players&&localGame.players[playerId])||{};
+  const name=prompt('Change player name:', player.name||'');
+  if(name===null)return;
+  const clean=name.trim().slice(0,20);
+  if(!clean)return;
+  if(gameCode)await gameRefFor(gameCode).child('players/'+playerId).update({name:clean});
+  await db.ref('users/'+playerId).update({name:clean,savedAt:Date.now()}).catch(()=>{});
+  if(playerId===myId){myProfile.name=clean;const input=document.getElementById('playerName');if(input)input.value=clean;saveLocalProfile();}
+}
+let pendingLobbyAvatarPlayerId=null;
+function ensureLobbyAvatarInput(){
+  let input=document.getElementById('lobbyPlayerAvatarInput');
+  if(input)return input;
+  input=document.createElement('input');
+  input.type='file';input.id='lobbyPlayerAvatarInput';input.accept='image/*';input.style.display='none';
+  input.addEventListener('change', onLobbyPlayerAvatarChosen);
+  document.body.appendChild(input);
+  return input;
+}
+function devChangePlayerAvatar(playerId){
+  closeLobbyPlayerMenus();
+  if(!isDevUnlocked())return;
+  pendingLobbyAvatarPlayerId=playerId;
+  const input=ensureLobbyAvatarInput();
+  input.value='';
+  input.click();
+}
+function onLobbyPlayerAvatarChosen(e){
+  const file=e.target.files&&e.target.files[0];
+  const playerId=pendingLobbyAvatarPlayerId;
+  pendingLobbyAvatarPlayerId=null;
+  if(!file||!playerId)return;
+  const reader=new FileReader();
+  reader.onload=ev=>saveLobbyPlayerAvatar(playerId, ev.target.result);
+  reader.readAsDataURL(file);
+}
+function saveLobbyPlayerAvatar(playerId,dataUrl){
+  const img=new Image();
+  img.onload=async()=>{
+    const size=150;const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;
+    const ctx=canvas.getContext('2d');const s=Math.min(img.width,img.height);const ox=(img.width-s)/2;const oy=(img.height-s)/2;
+    ctx.drawImage(img,ox,oy,s,s,0,0,size,size);
+    const compressed=canvas.toDataURL('image/jpeg',0.78);
+    if(gameCode)await gameRefFor(gameCode).child('players/'+playerId).update({avatar:compressed,avatarUpdatedAt:Date.now()});
+    await db.ref('users/'+playerId).update({avatar:compressed,savedAt:Date.now()}).catch(()=>{});
+    if(playerId===myId){myAvatar=compressed;localStorage.setItem('sf_avatar',compressed);myProfile.avatar=compressed;saveLocalProfile();updateAvatarBtns();renderShop();}
+  };
+  img.src=dataUrl;
+}
+
+// =====================================================
+// LOBBY / WAITING RENDER
+// =====================================================
+function renderLobby(game){
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const n=players.length;
+  document.getElementById('lobbyCount').textContent=n;
+  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}${lobbyPlayerMenuHtml(p)}</div>`).join('');
+  const minPlayers=localGameMode==='mafia'?4:3;
+  const ok=n>=minPlayers;
+  document.getElementById('startBtn').disabled=!ok;
+  document.getElementById('minPlayersNotice').style.display=ok?'none':'block';
+  if(game.spyCount&&game.spyCount!==localSpyCount)localSpyCount=game.spyCount;
+  updateSpyCountUI(n);
+  if(game.mafiaCount&&game.mafiaCount!==localMafiaCount)localMafiaCount=game.mafiaCount;
+  updateMafiaCountUI(n);
+  if(game.doctorEnabled!==undefined&&game.doctorEnabled!==localDoctorEnabled){
+    localDoctorEnabled=game.doctorEnabled;
+    document.getElementById('doctorToggle').checked=localDoctorEnabled;
+    const wrap=document.getElementById('doctorToggleWrap');
+    wrap.style.background=localDoctorEnabled?'rgba(39,174,96,0.05)':'rgba(30,30,40,0.5)';
+    wrap.style.borderColor=localDoctorEnabled?'rgba(39,174,96,0.2)':'rgba(42,42,58,0.8)';
+  }
+  if(game.chaosMode!==undefined){localChaosMode=game.chaosMode;document.getElementById('chaosModeToggle').checked=localChaosMode;document.getElementById('chaosModeWrap').classList.toggle('chaos-on',localChaosMode);}
+  if(game.mode&&game.mode!==localGameMode){localGameMode=game.mode;updateModeUI(game.mode);}
+  if(game.oooTotalRounds&&game.oooTotalRounds!==localOOORounds){localOOORounds=game.oooTotalRounds;document.getElementById('oooRoundsDisplay').textContent=localOOORounds;document.getElementById('oooRoundsLabel').textContent=`round${localOOORounds!==1?'s':''}`;}
+  const spyCountWrap=document.querySelector('.count-wrap');
+  if(localChaosMode&&spyCountWrap){spyCountWrap.style.opacity='0.4';spyCountWrap.style.pointerEvents='none';}
+  else if(spyCountWrap){spyCountWrap.style.opacity='1';spyCountWrap.style.pointerEvents='auto';}
+  if(game.faTotalWords&&game.faTotalWords!==localFaWords){localFaWords=game.faTotalWords;document.getElementById('faWordsDisplay').textContent=localFaWords;document.getElementById('faWordsLabel').textContent=localFaWords===1?'word':'words';}
+  if(game.faTotalRounds&&game.faTotalRounds!==localFaRounds){localFaRounds=game.faTotalRounds;document.getElementById('faRoundsDisplay').textContent=localFaRounds;document.getElementById('faRoundsLabel').textContent='rounds per word';}
+  if(game.bsCategory&&game.bsCategory!==localBsCategory){localBsCategory=game.bsCategory;renderBsCategorySelect();}
+  if(game.bsDiscussMinutes&&game.bsDiscussMinutes!==localBsDiscussMinutes){localBsDiscussMinutes=game.bsDiscussMinutes;const el=document.getElementById('bsDiscussDisplay');if(el)el.textContent=localBsDiscussMinutes+' min';}
+  document.getElementById('startBtn').textContent=localGameMode==='ooo'?'Start Odd One Out':localGameMode==='mafia'?'Start Mafia':localGameMode==='fa'?'Start Fake Artist':localGameMode==='bs'?'Start Blind Spot':'Start Game';
+  updateDevLobbyButton();
+}
+function renderWaiting(game){
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  document.getElementById('waitingCount').textContent=players.length;
+  document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
+}
+
+// =====================================================
+// START GAME (dispatcher)
+// =====================================================
+async function startGame(){
+  const game=localGame;if(!game)return;
+  if(localGameMode==='ooo'||game.mode==='ooo'){await startOOOGame();return;}
+  if(localGameMode==='mafia'||game.mode==='mafia'){await startMafiaGame();return;}
+  if(localGameMode==='fa'||game.mode==='fa'){await startFaGame();return;}
+  if(localGameMode==='bs'||game.mode==='bs'){await startBsGame();return;}
+  // Spyfall
+  const players=Object.values(game.players||{});if(players.length<3)return;
+  const isChaos=localChaosMode;
+  const locName=pick(game.locations);
+  const locObj=ALL_LOCATIONS.find(l=>l.name===locName)||ALL_LOCATIONS[0];
+  const shuffledRoles=shuffle(locObj.roles);
+  const roles={};let spyIds=[],innocentId=null;
+  if(isChaos){
+    const idx=randInt(players.length);innocentId=players[idx].id;
+    players.forEach(p=>{roles[p.id]=p.id===innocentId?'__INNOCENT__':'__CHAOS_SPY__';});
+    spyIds=players.filter(p=>p.id!==innocentId).map(p=>p.id);
+  } else {
+    const count=Math.min(localSpyCount,maxSpies(players.length));
+    const sp=shuffle([...players]);spyIds=sp.slice(0,count).map(p=>p.id);
+    players.forEach((p,i)=>{roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});
+  }
+  const duration=isChaos?CHAOS_TIMER_DURATION:TIMER_DURATION;
+  await updateGame(gameCode,{status:'playing',mode:'spyfall',spyIds,innocentId,spyId:spyIds[0]||null,currentLocation:locObj.name,roles,timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:duration,votes:{},result:null,spyGuess:null,chaosMode:isChaos,spyCount:spyIds.length});
+}
+
+// =====================================================
+// MAFIA: START GAME
+// =====================================================
+async function startMafiaGame(){
+  const game=localGame;if(!game)return;
+  const players=Object.values(game.players||{});
+  if(players.length<4)return;
+  const count=Math.min(localMafiaCount,maxMafia(players.length));
+  const shuffled=shuffle([...players]);
+  const mafiaIds=shuffled.slice(0,count).map(p=>p.id);
+  const nonMafia=shuffled.slice(count);
+  const mafiaRoles={};
+  mafiaIds.forEach(id=>{mafiaRoles[id]='mafia';});
+  const useDoctor=localDoctorEnabled&&nonMafia.length>1;
+  let doctorAssigned=false;
+  nonMafia.forEach(p=>{
+    if(!doctorAssigned&&useDoctor){mafiaRoles[p.id]='doctor';doctorAssigned=true;}
+    else{mafiaRoles[p.id]='town';}
+  });
+  await updateGame(gameCode,{
+    status:'playing',mode:'mafia',
+    mafiaRoles,mafiaIds,
+    mafiaPhase:'day',mafiaDay:1,
+    doctorEnabled:localDoctorEnabled,
+    mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},
+    mafiaDayTimerStart:Date.now(),mafiaDayTimerDuration:MAFIA_DAY_TIMER_FIRST,
+    mafiaNightStart:null,
+    mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],
+    mafiaResult:null,mafiaCount:count,
+    votes:{},result:null,
+  });
+}
+
+// =====================================================
+// MAFIA: PLAYING CARD RENDER
+// =====================================================
+function getMafiaCardHTML(role){
+  const configs={
+    mafia:{cls:'card-mafia',rank:'M',suit:'♠',icon:'🔴',name:'MAFIA',desc:'Kill one each night.\nBlend in during the day.'},
+    doctor:{cls:'card-doctor',rank:'Dr',suit:'♥',icon:'💚',name:'DOCTOR',desc:'Save one player\nfrom death each night.'},
+    town:{cls:'card-town',rank:'C',suit:'♣',icon:'⬜',name:'CIVILIAN',desc:'Discuss by day.\nFind all Mafia.'},
+  };
+  const c=configs[role]||configs.town;
+  // Generate suit pattern
+  const suits=['♠','♥','♦','♣'];
+  const pattern=Array.from({length:40},()=>suits[randInt(4)]).join(' ');
+  return `
+    <div class="playing-card-wrap">
+      <div class="playing-card ${c.cls}">
+        <div class="card-pattern">${pattern}</div>
+        <div class="card-inner-border"></div>
+        <div class="card-corner top-left">
+          <div class="card-corner-rank">${c.rank}</div>
+          <div class="card-corner-suit">${c.suit}</div>
+        </div>
+        <div class="card-center">
+          <div class="card-center-icon">${c.icon}</div>
+          <div class="card-role-name">${c.name}</div>
+          <div class="card-role-desc">${c.desc.replace(/\n/g,'<br>')}</div>
+        </div>
+        <div class="card-corner bottom-right">
+          <div class="card-corner-rank">${c.rank}</div>
+          <div class="card-corner-suit">${c.suit}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// =====================================================
+// MAFIA: REVEAL SCREEN
+// =====================================================
+function enterMafiaReveal(game){
+  mafiaCardVisible=true;
+  const role=(game.mafiaRoles&&game.mafiaRoles[myId])||'town';
+  const mafiaIds=game.mafiaIds||[];
+  document.getElementById('mafiaRevealTap').style.display='block';
+  document.getElementById('mafiaRevealCard').style.display='none';
+  document.getElementById('mafiaRevealActions').style.display='none';
+  showScreen('mafia-reveal');
+
+  document.getElementById('mafiaRevealTap').onclick=()=>{
+    document.getElementById('mafiaRevealTap').style.display='none';
+    const cardEl=document.getElementById('mafiaRevealCard');
+    let extra='';
+    if(role==='mafia'&&mafiaIds.length>1){
+      const teammates=mafiaIds.filter(id=>id!==myId).map(id=>(game.players&&game.players[id]&&game.players[id].name)||'?');
+      extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:#e74c3c;margin-bottom:6px">YOUR MAFIA TEAM</div><div style="font-family:'DM Mono',monospace;font-size:14px">${teammates.map(n=>esc(n)).join(', ')}</div></div>`;
+    } else if(role==='mafia'){
+      extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;color:#e74c3c;font-family:'DM Mono',monospace">You are the only Mafia member. Blend in.</div></div>`;
+    } else if(role==='doctor'){
+      extra=`<div class="doctor-action-box" style="margin-top:12px"><div style="font-size:12px;color:var(--doctor);font-family:'DM Mono',monospace">Each night you can protect one player from being killed by Mafia.</div></div>`;
+    }
+    cardEl.innerHTML=getMafiaCardHTML(role)+extra;
+    cardEl.style.display='block';
+    document.getElementById('mafiaRevealActions').style.display='flex';
+    document.getElementById('mafiaHideRoleBtn').textContent='🙈 Hide my card';
+  };
+}
+function toggleMafiaHideRole(){
+  mafiaCardVisible=!mafiaCardVisible;
+  const card=document.getElementById('mafiaRevealCard');
+  const btn=document.getElementById('mafiaHideRoleBtn');
+  if(mafiaCardVisible){card.style.opacity='1';card.style.filter='none';card.style.pointerEvents='auto';btn.textContent='🙈 Hide my card';}
+  else{card.style.opacity='0.05';card.style.filter='blur(10px)';card.style.pointerEvents='none';btn.textContent='👁 Show my card';}
+}
+function goToMafiaGame(){if(!localGame)return;renderMafiaGame(localGame);showScreen('mafia-game');}
+
+// =====================================================
+// MAFIA: DAY SCREEN RENDER
+// =====================================================
+function renderMafiaGame(game){
+  if(!game||game.mode!=='mafia')return;
+  const day=game.mafiaDay||1;
+  const eliminated=game.mafiaEliminated||{};
+  const myRole=(game.mafiaRoles&&game.mafiaRoles[myId])||'town';
+  const amDead=!!eliminated[myId];
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const alivePlayers=players.filter(p=>!eliminated[p.id]);
+
+  document.getElementById('mafiaPhaseDisplay').className='mafia-phase-banner day';
+  document.getElementById('mafiaPhaseDisplay').textContent=`☀️ DAY ${day} — DISCUSSION & VOTE`;
+  document.getElementById('mafiaDeadBanner').style.display=amDead?'block':'none';
+
+  const roleColors={mafia:'#e74c3c',doctor:'var(--doctor)',town:'var(--muted)'};
+  const roleIcons={mafia:'🔴',doctor:'💚',town:'⬜'};
+  const roleLabel={mafia:'MAFIA',doctor:'DOCTOR',town:'CIVILIAN'};
+  const roleSummary=document.getElementById('mafiaRoleSummary');
+  const roleHidden=document.getElementById('mafiaRoleHidden');
+  const hideBtn=document.getElementById('hideMafiaRoleBtn');
+  if(roleSummary)roleSummary.innerHTML=`<span style="color:${roleColors[myRole]};font-weight:700">${roleIcons[myRole]} ${roleLabel[myRole]}</span>`;
+  // Restore visibility state without resetting it on every re-render
+  if(roleHidden&&roleHidden.style.display==='block'){
+    if(roleSummary)roleSummary.style.display='none';
+    if(hideBtn)hideBtn.textContent='👁 Show my role';
+  } else {
+    if(roleSummary)roleSummary.style.display='block';
+    if(roleHidden)roleHidden.style.display='none';
+    if(hideBtn)hideBtn.textContent='🙈 Hide my role';
+  }
+
+  document.getElementById('mafiaPlayerStatusList').innerHTML=players.map(p=>{
+    const isDead=!!eliminated[p.id];
+    return`<div class="player-status-item ${isDead?'dead-player':''}"><div class="status-dot ${isDead?'dead':'alive'}"></div><div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${isDead?`<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--spy)">💀 eliminated</div>`:''}</div>`;
+  }).join('');
+
+  const log=game.mafiaLog||[];
+  document.getElementById('mafiaGameLog').innerHTML=log.slice().reverse().map(l=>`<div class="mafia-log-item ${l.type||'system'}">${esc(l.text)}</div>`).join('')||`<div style="color:var(--muted);font-size:13px;font-family:'DM Mono',monospace">No events yet.</div>`;
+
+  renderMafiaDayVote(game,alivePlayers,amDead);
+  document.getElementById('mafiaHostControls').style.display=amHost?'block':'none';
+  startMafiaDayTimer(game);
+  if(amHost)checkMafiaWin(game);
+}
+
+function renderMafiaDayVote(game,alivePlayers,amDead){
+  const day=game.mafiaDay||1;
+  const votes=game.mafiaVotes||{};
+  const myVote=votes[myId];
+  const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  const n=alivePlayers.length;
+  const noticeEl=document.getElementById('mafiaVoteNotice');
+  const voteList=document.getElementById('mafiaVoteList');
+  const voteStatus=document.getElementById('mafiaVoteStatus');
+
+  if(day===1){
+    // Day 1 — discussion only, no voting
+    if(noticeEl){noticeEl.className='notice info';noticeEl.textContent='Day 1 — discuss and get to know each other. No voting today.';}
+    if(voteList)voteList.innerHTML='';
+    if(voteStatus)voteStatus.textContent='Voting begins from Day 2';
+    return;
+  }
+
+  // Day 2+ — voting enabled
+  if(noticeEl){
+    noticeEl.className='notice mafia';
+    noticeEl.textContent=amDead?'You are dead — spectating only.':'Vote to eliminate. Tap again to withdraw your vote.';
+  }
+  if(voteList)voteList.innerHTML=alivePlayers.map(p=>{
+    const vc=voteCounts[p.id]||0;
+    const clickable=!amDead&&p.id!==myId;
+    const isMyVote=myVote===p.id;
+    return`<div class="vote-item ${isMyVote?'mafia-voted':''}" onclick="${clickable?`castMafiaVote('${p.id}')`:''}" style="${!clickable&&!amDead?'opacity:0.55;pointer-events:none':''}">${playerAvatar(p)}<div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#e74c3c">${vc}</div>`:''}${isMyVote?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
+  }).join('');
+  const voted=Object.keys(votes).filter(id=>{const elim=game.mafiaEliminated||{};return!elim[id];}).length;
+  if(voteStatus)voteStatus.textContent=`${voted} of ${n} alive players voted`;
+  if(amHost&&voted>=n&&n>0)resolveMafiaDayVote(game);
+}
+
+// =====================================================
+// MAFIA: ELIMINATION REVEAL SCREEN
+// =====================================================
+function showMafiaEliminationReveal(game){
+  const elimId=game.mafiaElimRevealId;
+  const isTie=game.mafiaElimRevealTie;
+  const players=game.players||{};
+  const mafiaIds=game.mafiaIds||[];
+  const eliminated=game.mafiaEliminated||{};
+  const day=game.mafiaDay||1;
+  const alivePlayers=Object.values(players).filter(p=>!eliminated[p.id]);
+  const aliveCount=alivePlayers.length;
+  let icon,titleCls,title,storyHTML;
+  if(game.mafiaElimRevealDay1){
+    icon='🌙';titleCls='quiet';title='Night falls...';
+    storyHTML=`<p class="dawn-story-text">Day 1 is over. Everyone gets to know each other — no vote today.</p><p class="dawn-story-text" style="margin-top:8px;font-size:14px">The night begins now.</p>`;
+  } else if(isTie){
+    icon='🤝';titleCls='quiet';title='The vote was tied!';
+    storyHTML=`<p class="dawn-story-text">The group couldn't agree. <strong>Nobody was eliminated.</strong></p><p class="dawn-story-text" style="margin-top:8px;font-size:14px">Night falls without a verdict...</p>`;
+  } else if(elimId&&players[elimId]){
+    const elimName=players[elimId].name;
+    const isMafia=mafiaIds.includes(elimId);
+    const role=(game.mafiaRoles&&game.mafiaRoles[elimId])||'town';
+    const rLabel={mafia:'MAFIA',doctor:'DOCTOR',town:'CIVILIAN'};
+    if(isMafia){
+      icon='🎉';titleCls='saved';title='Mafia caught!';
+      storyHTML=`<p class="dawn-story-text">The group voted out <em style="color:var(--spy)">${esc(elimName)}</em>.</p><p class="dawn-story-text saved-name" style="margin-top:8px"><em>${esc(elimName)}</em> was <strong>MAFIA</strong>. The civilians got one!</p>`;
+    } else {
+      icon='😬';titleCls='death';title='Wrong call...';
+      storyHTML=`<p class="dawn-story-text">The group voted out <em>${esc(elimName)}</em>.</p><p class="dawn-story-text" style="margin-top:8px;"><em>${esc(elimName)}</em> was <strong style="color:var(--spy)">${esc(rLabel[role]||role.toUpperCase())}</strong>. An innocent was eliminated.</p>`;
+    }
+  } else {
+    icon='🌙';titleCls='quiet';title='Night falls...';
+    storyHTML=`<p class="dawn-story-text">Nobody was eliminated. The night begins.</p>`;
+  }
+  const hostControls=amHost
+    ?`<div class="dawn-day-label" style="margin-bottom:12px">Night begins now</div><button class="btn btn-danger dawn-continue-btn" onclick="mafiaStartNightFromElim()" style="background:#e74c3c;color:#fff">Begin Night →</button>`
+    :`<div class="dawn-day-label" style="margin-top:8px">Waiting for host to begin night...</div>`;
+
+  document.getElementById('mafiaElimStoryWrap').innerHTML=`
+    <div class="dawn-screen-bg">
+      <div class="dawn-eyebrow">☀️ Day ${day} — Vote Result</div>
+      <div class="dawn-icon">${icon}</div>
+      <div class="dawn-title ${titleCls}">${title}</div>
+      <div class="dawn-divider"></div>
+      ${storyHTML}
+      <div class="dawn-alive-count">${aliveCount} player${aliveCount!==1?'s':''} remain</div>
+      <div style="height:28px"></div>
+      ${hostControls}
+    </div>`;
+  showScreen('mafia-eliminated');
+}
+
+async function mafiaStartNightFromElim(){
+  if(!amHost||!gameCode||!localGame)return;
+  await updateGame(gameCode,{mafiaPhase:'night',mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaNightStart:Date.now()});
+}
+
+
+// =====================================================
+// MAFIA: DAY TIMER
+// =====================================================
+function startMafiaDayTimer(game){
+  clearInterval(mafiaTimerInterval);
+  const start=game.mafiaDayTimerStart;
+  const duration=game.mafiaDayTimerDuration||MAFIA_DAY_TIMER_FIRST;
+  if(!start)return;
+  mafiaTimerInterval=setInterval(()=>{
+    const g=localGame;
+    if(!g||g.mafiaPhase!=='day'){clearInterval(mafiaTimerInterval);return;}
+    const elapsed=Math.floor((Date.now()-start)/1000);
+    const remaining=Math.max(0,duration-elapsed);
+    const m=Math.floor(remaining/60).toString().padStart(2,'0');
+    const s=(remaining%60).toString().padStart(2,'0');
+    const el=document.getElementById('mafiaDayTimerDisplay');
+    if(el){el.textContent=`${m}:${s}`;el.className='timer-display'+(remaining<30?' danger':remaining<60?' warning':'');}
+    if(remaining===0){clearInterval(mafiaTimerInterval);if(amHost)resolveMafiaDayVote(localGame);}
+  },500);
+}
+
+// =====================================================
+// MAFIA: NIGHT ENTRY
+// =====================================================
+function enterMafiaNight(game){
+  clearInterval(mafiaTimerInterval);
+  clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;
+  stopMafiaPrivateChat();
+  mafiaKillDecision=null;
+  const myRole=(game.mafiaRoles&&game.mafiaRoles[myId])||'town';
+  const eliminated=game.mafiaEliminated||{};
+  const amDead=!!eliminated[myId];
+  if(amDead){showScreen('mafia-night-town');renderMafiaTownWait(game);return;}
+  if(myRole==='mafia'){showScreen('mafia-night-mafia');renderMafiaNightMafia(game);return;}
+  if(myRole==='doctor'){showScreen('mafia-night-doctor');renderMafiaNightDoctor(game);return;}
+  showScreen('mafia-night-town');renderMafiaTownWait(game);
+}
+
+function updateMafiaNightScreens(game){
+  const cur=(document.querySelector('.screen.active')||{}).id;
+  if(cur==='screen-mafia-night-mafia')renderMafiaNightMafia(game);
+  else if(cur==='screen-mafia-night-doctor')renderMafiaNightDoctor(game);
+  else if(cur==='screen-mafia-night-town')renderMafiaTownWait(game);
+}
+
+// =====================================================
+// MAFIA: NIGHT — MAFIA SCREEN
+// =====================================================
+function renderMafiaNightMafia(game){
+  const mafiaIds=game.mafiaIds||[];
+  const eliminated=game.mafiaEliminated||{};
+  const aliveMafia=mafiaIds.filter(id=>!eliminated[id]);
+  const isTwoMafia=aliveMafia.length>=2;
+  const killDecisions=game.mafiaKillDecisions||{};
+  const myDecision=killDecisions[myId];
+  const partnerIds=aliveMafia.filter(id=>id!==myId);
+  const partnerDecision=partnerIds.length>0?killDecisions[partnerIds[0]]:null;
+
+  document.getElementById('mafiaPrivateChatWrap').style.display=isTwoMafia?'block':'none';
+  if(isTwoMafia)setupMafiaPrivateChat(game);
+
+  const pvs=document.getElementById('mafiaPartnerVoteStatus');
+  if(isTwoMafia&&pvs){pvs.style.display='block';pvs.textContent=!partnerDecision?"Your partner hasn't decided yet...":`Your partner voted: ${partnerDecision.toUpperCase()}`;}
+  else if(pvs){pvs.style.display='none';}
+
+  startMafiaNightDecisionTimer(game);
+
+  if(myDecision){
+    document.getElementById('mafiaKillYesNoSection').style.display='none';
+    document.getElementById('mafiaKillTargetSection').style.display='none';
+    document.getElementById('mafiaKillWaiting').style.display='block';
+    document.getElementById('mafiaKillWaitingText').textContent=myDecision==='yes'?'Waiting for everyone to act...':'You chose to spare them tonight. Waiting for dawn...';
+    return;
+  }
+
+  const showingTarget=document.getElementById('mafiaKillTargetSection').style.display==='block';
+  if(!showingTarget){
+    document.getElementById('mafiaKillYesNoSection').style.display='flex';
+    document.getElementById('mafiaKillTargetSection').style.display='none';
+    document.getElementById('mafiaKillWaiting').style.display='none';
+  }
+  if(showingTarget){
+    const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+    const targets=players.filter(p=>!mafiaIds.includes(p.id)&&!eliminated[p.id]);
+    const myKillVote=(game.mafiaKillVotes||{})[myId];
+    document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>`<div class="vote-item ${myKillVote===p.id?'mafia-voted':''}" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameHtml(p)}</div>${myKillVote===p.id?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`).join('');
+    document.getElementById('mafiaKillTargetStatus').textContent=(game.mafiaKillVotes||{})[myId]?'Target selected — waiting for others...':'Choose your target';
+  }
+}
+
+let mafiaDecisionTimerInterval=null;
+
+function startMafiaNightDecisionTimer(game){
+  if(mafiaDecisionTimerInterval)return;
+  const nightStart=game.mafiaNightStart;
+  if(!nightStart)return;
+  mafiaDecisionTimerInterval=setInterval(()=>{
+    const g=localGame;if(!g||g.mafiaPhase!=='night'){clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;return;}
+    const elapsed=Math.floor((Date.now()-nightStart)/1000);
+    const remaining=Math.max(0,MAFIA_NIGHT_TIMER-elapsed);
+    const m=Math.floor(remaining/60).toString().padStart(2,'0');
+    const s=(remaining%60).toString().padStart(2,'0');
+    const timeStr=`${m}:${s}`;
+    const kdEl=document.getElementById('mafiaKillDecisionTimer');if(kdEl){kdEl.textContent=timeStr;kdEl.style.color=remaining<20?'var(--spy)':'#e74c3c';}
+    const sdEl=document.getElementById('mafiaSaveTimerDisplay');if(sdEl){sdEl.textContent=timeStr;sdEl.style.color=remaining<20?'var(--spy)':'var(--doctor)';}
+    const twEl=document.getElementById('mafiaTownTimerDisplay');if(twEl){twEl.textContent=timeStr;twEl.style.color=remaining<20?'var(--spy)':'#e74c3c';}
+    if(remaining===0){clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;if(amHost)mafiaAdvanceToDawn();}
+  },500);
+}
+
+async function mafiaVoteKillDecision(decision){
+  if(!gameCode||!localGame)return;
+  const game=localGame;
+  const mafiaIds=game.mafiaIds||[];
+  const eliminated=game.mafiaEliminated||{};
+  const aliveMafia=mafiaIds.filter(id=>!eliminated[id]);
+  const isTwoMafia=aliveMafia.length>=2;
+
+  if(isTwoMafia){
+    await gameRefFor(gameCode).child('mafiaKillDecisions/'+myId).set(decision);
+    mafiaKillDecision=decision;
+    const decisions={...(game.mafiaKillDecisions||{}),[myId]:decision};
+    const allDecided=aliveMafia.every(id=>decisions[id]);
+    if(allDecided){
+      const anyYes=aliveMafia.some(id=>decisions[id]==='yes');
+      if(anyYes){showKillTargetList(game);}
+      else{
+        // Both said no — show waiting, timer still runs to completion
+        document.getElementById('mafiaKillYesNoSection').style.display='none';
+        document.getElementById('mafiaKillTargetSection').style.display='none';
+        document.getElementById('mafiaKillWaiting').style.display='block';
+        document.getElementById('mafiaKillWaitingText').textContent='Both chose to spare tonight. Waiting for timer...';
+      }
+    } else {renderMafiaNightMafia(game);}
+  } else {
+    if(decision==='yes'){showKillTargetList(game);}
+    else{
+      mafiaKillDecision='no';
+      await gameRefFor(gameCode).child('mafiaKillDecisions/'+myId).set('no');
+      // Timer still runs — show waiting state
+      document.getElementById('mafiaKillYesNoSection').style.display='none';
+      document.getElementById('mafiaKillTargetSection').style.display='none';
+      document.getElementById('mafiaKillWaiting').style.display='block';
+      document.getElementById('mafiaKillWaitingText').textContent='Sparing them tonight. Waiting for timer...';
+    }
+  }
+}
+
+function showKillTargetList(game){
+  document.getElementById('mafiaKillYesNoSection').style.display='none';
+  document.getElementById('mafiaKillTargetSection').style.display='block';
+  document.getElementById('mafiaKillWaiting').style.display='none';
+  const mafiaIds=game.mafiaIds||[];
+  const eliminated=game.mafiaEliminated||{};
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const targets=players.filter(p=>!mafiaIds.includes(p.id)&&!eliminated[p.id]);
+  document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>`<div class="vote-item" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameHtml(p)}</div></div>`).join('');
+  document.getElementById('mafiaKillTargetStatus').textContent='Choose your target';
+}
+
+async function selectKillTarget(targetId){
+  if(!gameCode||!localGame)return;
+  await gameRefFor(gameCode).child('mafiaKillVotes/'+myId).set(targetId);
+  await gameRefFor(gameCode).child('mafiaKillDecisions/'+myId).set('yes');
+  document.getElementById('mafiaKillTargetSection').style.display='none';
+  document.getElementById('mafiaKillWaiting').style.display='block';
+  document.getElementById('mafiaKillWaitingText').textContent='Target locked in. Waiting for the timer...';
+  // Timer runs to completion — do NOT advance to dawn here
+}
+
+function setupMafiaPrivateChat(game){
+  if(mafiaPrivateChatListener)return;
+  const chatKey='mafiaPrivateChat_'+gameCode+'_'+game.mafiaDay;
+  mafiaPrivateChatListener=db.ref('games/'+gameCode+'/'+chatKey).on('value',snap=>{
+    const data=snap.val();
+    const messages=data?Object.values(data).sort((a,b)=>a.ts-b.ts):[];
+    const el=document.getElementById('mafiaPrivateChatMessages');if(!el)return;
+    if(messages.length===0){el.innerHTML='<div class="chat-empty">Chat with your partner...</div>';return;}
+    el.innerHTML=messages.map(m=>{const isMe=m.uid===myId;const time=new Date(m.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});return`<div class="chat-msg"><span class="chat-name ${isMe?'you':'other'}">${esc(m.name)}</span><span style="color:var(--text)">${esc(m.text)}</span><span class="chat-time">${time}</span></div>`;}).join('');
+    el.scrollTop=el.scrollHeight;
+  });
+}
+function stopMafiaPrivateChat(){
+  if(mafiaPrivateChatListener&&gameCode&&localGame){
+    const chatKey='mafiaPrivateChat_'+gameCode+'_'+(localGame.mafiaDay||1);
+    db.ref('games/'+gameCode+'/'+chatKey).off('value',mafiaPrivateChatListener);
+  }
+  mafiaPrivateChatListener=null;
+}
+async function sendMafiaPrivateChat(){
+  const input=document.getElementById('mafiaPrivateChatInput');if(!input)return;
+  const text=input.value.trim();if(!text||!gameCode||!localGame)return;
+  input.value='';
+  const game=localGame;const player=game.players&&game.players[myId];const name=player?player.name:'Unknown';
+  const chatKey='mafiaPrivateChat_'+gameCode+'_'+game.mafiaDay;
+  await db.ref('games/'+gameCode+'/'+chatKey).push().set({uid:myId,name,text,ts:Date.now()});
+}
+
+// =====================================================
+// MAFIA: NIGHT — DOCTOR SCREEN
+// =====================================================
+function renderMafiaNightDoctor(game){
+  const eliminated=game.mafiaEliminated||{};
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const alivePlayers=players.filter(p=>!eliminated[p.id]);
+  const saveVote=game.mafiaSaveVote;
+  const mafiaIds=game.mafiaIds||[];
+  const aliveMafia=mafiaIds.filter(id=>!eliminated[id]);
+  startMafiaNightDecisionTimer(game);
+  if(saveVote){
+    document.getElementById('mafiaSaveList').style.display='none';
+    document.getElementById('mafiaSaveStatus').style.display='none';
+    document.getElementById('mafiaSaveSubmitted').style.display='block';
+    return;
+  }
+  document.getElementById('mafiaSaveSubmitted').style.display='none';
+  document.getElementById('mafiaSaveList').style.display='block';
+  document.getElementById('mafiaSaveStatus').style.display='block';
+  document.getElementById('mafiaSaveList').innerHTML=alivePlayers.map(p=>`<div class="vote-item ${saveVote===p.id?'voted':''}" onclick="castMafiaSaveVote('${p.id}')"><div style="font-size:20px">💊</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p,'me')}</div>${saveVote===p.id?'<div style="color:var(--doctor);font-size:13px">✓</div>':''}</div>`).join('');
+  document.getElementById('mafiaSaveStatus').textContent='Choose who to protect tonight';
+}
+
+// =====================================================
+// MAFIA: NIGHT — TOWN WAITING
+// =====================================================
+function renderMafiaTownWait(game){
+  startMafiaNightDecisionTimer(game);
+  const eliminated=game.mafiaEliminated||{};
+  const amDead=!!eliminated[myId];
+  document.getElementById('mafiaWaitIcon').textContent=amDead?'💀':'🌙';
+  document.getElementById('mafiaWaitSubtext').textContent=amDead?"You're dead — no peeking!":'The night is unfolding...';
+}
+
+// MAFIA ROLE VISIBILITY
+let mafiaRoleVisibleInGame=true;
+function toggleMafiaGameRoleVisibility(){
+  mafiaRoleVisibleInGame=!mafiaRoleVisibleInGame;
+  const s=document.getElementById('mafiaRoleSummary');
+  const h=document.getElementById('mafiaRoleHidden');
+  const b=document.getElementById('hideMafiaRoleBtn');
+  if(mafiaRoleVisibleInGame){s.style.display='block';h.style.display='none';b.textContent='🙈 Hide my role';}
+  else{s.style.display='none';h.style.display='block';b.textContent='👁 Show my role';}
+}
+function revealMafiaRoleSummary(){
+  mafiaRoleVisibleInGame=true;
+  document.getElementById('mafiaRoleSummary').style.display='block';
+  document.getElementById('mafiaRoleHidden').style.display='none';
+  document.getElementById('hideMafiaRoleBtn').textContent='🙈 Hide my role';
+}
+
+// MAFIA VOTES
+async function castMafiaVote(targetId){
+  if(!gameCode||!localGame||localGame.mafiaPhase!=='day')return;
+  const elim=localGame.mafiaEliminated||{};
+  if(elim[myId])return; // dead players cannot vote
+  if((localGame.mafiaDay||1)===1)return; // no voting on day 1
+  const currentVote=(localGame.mafiaVotes||{})[myId];
+  if(currentVote===targetId){
+    // Tap same player again = withdraw vote
+    await gameRefFor(gameCode).child('mafiaVotes/'+myId).remove();
+  } else {
+    await gameRefFor(gameCode).child('mafiaVotes/'+myId).set(targetId);
+  }
+}
+async function castMafiaSaveVote(targetId){
+  if(!gameCode||!localGame||localGame.mafiaPhase!=='night')return;
+  await gameRefFor(gameCode).child('mafiaSaveVote').set(targetId);
+  renderMafiaNightDoctor(localGame);
+}
+// DAY VOTE RESOLUTION (host) — called when timer expires
+async function resolveMafiaDayVote(game){
+  if(!amHost||!game)return;
+  // Day 1 — no voting, just advance to night
+  if((game.mafiaDay||1)===1){
+    await updateGame(gameCode,{
+      mafiaPhase:'eliminated',
+      mafiaEliminated:game.mafiaEliminated||{},
+      mafiaLog:[...(game.mafiaLog||[]),{text:'Day 1: Discussion only — no vote. Night begins.',type:'system',ts:Date.now()}],
+      mafiaVotes:{},
+      mafiaElimRevealId:null,
+      mafiaElimRevealTie:false,
+      mafiaElimRevealDay1:true,
+    });
+    return;
+  }
+  const votes=game.mafiaVotes||{};
+  const eliminated={...(game.mafiaEliminated||{})};
+  const alivePlayers=Object.values(game.players||{}).filter(p=>!eliminated[p.id]);
+  const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const log=[...(game.mafiaLog||[])];
+  let elimId=null,isTie=false;
+
+  if(Object.keys(counts).length===0){
+    // Nobody voted — quiet night
+    isTie=true;
+    log.push({text:`Day ${game.mafiaDay}: Nobody voted. Night falls without a verdict.`,type:'system',ts:Date.now()});
+  } else {
+    const maxVotes=Math.max(...Object.values(counts),0);
+    const topIds=Object.entries(counts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+    if(topIds.length===1){
+      elimId=topIds[0];
+      eliminated[elimId]=true;
+      const elimName=(game.players&&game.players[elimId]&&game.players[elimId].name)||'?';
+      const role=(game.mafiaRoles&&game.mafiaRoles[elimId])||'town';
+      log.push({text:`Day ${game.mafiaDay}: ${elimName} was eliminated by vote. They were ${role.toUpperCase()}.`,type:'vote-out',ts:Date.now()});
+    } else {
+      isTie=true;
+      log.push({text:`Day ${game.mafiaDay}: The vote was tied. Nobody eliminated.`,type:'system',ts:Date.now()});
+    }
+  }
+
+  await updateGame(gameCode,{
+    mafiaPhase:'eliminated',
+    mafiaEliminated:eliminated,
+    mafiaLog:log,
+    mafiaVotes:{},
+    mafiaElimRevealId:elimId,
+    mafiaElimRevealTie:isTie,
+  });
+  // Check win after potential elimination
+  if(elimId)checkMafiaWin({...game,mafiaEliminated:eliminated});
+}
+
+// HOST ADVANCE PHASE (host skips day early)
+async function mafiaAdvancePhase(){
+  const game=localGame;if(!game)return;
+  if(game.mafiaPhase==='day'){
+    clearInterval(mafiaTimerInterval);
+    await resolveMafiaDayVote(game);
+  }
+}
+async function mafiaAdvanceToDawn(){
+  const game=localGame;if(!game)return;
+  if(game.mafiaPhase!=='night')return;
+  const killVotes=game.mafiaKillVotes||{};
+  const saveVote=game.mafiaSaveVote;
+  const eliminated={...(game.mafiaEliminated||{})};
+  const log=[...(game.mafiaLog||[])];
+
+  const killCounts={};Object.values(killVotes).forEach(v=>{killCounts[v]=(killCounts[v]||0)+1;});
+  let killTarget=null;
+  if(Object.keys(killCounts).length>0){
+    killTarget=Object.entries(killCounts).sort((a,b)=>b[1]-a[1])[0][0];
+  }
+
+  let dawnEliminated=null,dawnSaved=null;
+
+  if(killTarget){
+    const killName=(game.players&&game.players[killTarget]&&game.players[killTarget].name)||'?';
+    if(saveVote===killTarget){
+      dawnSaved=killTarget;
+      log.push({text:`Night ${game.mafiaDay}: The Mafia targeted ${killName}, but the Doctor saved them!`,type:'saved',ts:Date.now()});
+    } else {
+      dawnEliminated=killTarget;
+      eliminated[killTarget]=true;
+      log.push({text:`Night ${game.mafiaDay}: ${killName} was killed by the Mafia.`,type:'death',ts:Date.now()});
+    }
+  } else {
+    log.push({text:`Night ${game.mafiaDay}: The Mafia couldn't agree on a target. No one died.`,type:'system',ts:Date.now()});
+  }
+
+  await updateGame(gameCode,{mafiaPhase:'dawn',mafiaEliminated:eliminated,mafiaLog:log,mafiaVotes:{},mafiaDawnEliminated:dawnEliminated,mafiaDawnSaved:dawnSaved});
+}
+async function mafiaAdvanceToDay(){
+  const game=localGame;if(!game)return;
+  clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;
+  stopMafiaPrivateChat();
+  showScreen('mafia-game');
+  await updateGame(gameCode,{
+    mafiaPhase:'day',mafiaDay:(game.mafiaDay||1)+1,
+    mafiaKillVotes:{},mafiaSaveVote:null,mafiaVotes:{},mafiaKillDecisions:{},
+    mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,
+    mafiaDayTimerStart:Date.now(),mafiaDayTimerDuration:MAFIA_DAY_TIMER_REST,
+    mafiaNightStart:null,
+  });
+  checkMafiaWin(localGame);
+}
+
+// DAWN STORY SCREEN
+function showMafiaDawnStory(game){
+  const eliminated=game.mafiaEliminated||{};
+  const players=game.players||{};
+  const dawnElimId=game.mafiaDawnEliminated;
+  const dawnSaved=game.mafiaDawnSaved;
+  const day=game.mafiaDay||1;
+  const allPlayers=Object.values(players);
+  const alivePlayers=allPlayers.filter(p=>!eliminated[p.id]);
+  const aliveCount=alivePlayers.length;
+
+  let icon,titleClass,title,storyHTML;
+
+  if(dawnElimId&&players[dawnElimId]){
+    // Someone was killed
+    const deadName=players[dawnElimId].name;
+    icon='☠️';titleClass='death';title='A body is found...';
+    storyHTML=`<p class="dawn-story-text">The civilians wake to find <em>${esc(deadName)}</em> dead in the street.</p><p class="dawn-story-text" style="margin-top:8px;font-size:14px">The Mafia struck in the night.</p>`;
+  } else if(dawnSaved&&players[dawnSaved]){
+    // Doctor saved someone
+    const savedName=players[dawnSaved].name;
+    icon='🌿';titleClass='saved';title='The Doctor saves the day';
+    storyHTML=`<p class="dawn-story-text">The Mafia chose to target <em style="color:var(--spy)">${esc(savedName)}</em>,</p><p class="dawn-story-text saved-name">but the Doctor came to the rescue. <em>${esc(savedName)}</em> survives.</p>`;
+  } else {
+    // No kill, no doctor (mafia couldn't agree / no doctor)
+    icon='🌅';titleClass='quiet';title='A quiet night...';
+    storyHTML=`<p class="dawn-story-text">The civilians stir. No one was found dead.</p><p class="dawn-story-text" style="margin-top:8px;font-size:14px">The Mafia couldn't agree on a target.</p>`;
+  }
+
+  const nextDay=day+1;
+  const hostControls=amHost
+    ?`<div class="dawn-day-label">Next up: Day ${nextDay}</div><button class="btn btn-primary dawn-continue-btn" onclick="mafiaAdvanceToDay()">Start Day ${nextDay} →</button>`
+    :`<div class="dawn-day-label" style="margin-top:8px">Waiting for host to continue...</div>`;
+
+  document.getElementById('dawnStoryWrap').innerHTML=`
+    <div class="dawn-screen-bg">
+      <div class="dawn-eyebrow">🌅 Dawn — Night ${day} Results</div>
+      <div class="dawn-icon">${icon}</div>
+      <div class="dawn-title ${titleClass}">${title}</div>
+      <div class="dawn-divider"></div>
+      ${storyHTML}
+      <div class="dawn-alive-count">${aliveCount} player${aliveCount!==1?'s':''} remain</div>
+      <div style="height:28px"></div>
+      ${hostControls}
+    </div>`;
+
+  showScreen('mafia-dawn');
+}
+
+function renderMafiaDawnAliveCount(game){
+  // Update alive count if it changes while on dawn screen
+  const eliminated=game.mafiaEliminated||{};
+  const aliveCount=Object.values(game.players||{}).filter(p=>!eliminated[p.id]).length;
+  const el=document.querySelector('.dawn-alive-count');
+  if(el)el.textContent=`${aliveCount} player${aliveCount!==1?'s':''} remain`;
+}
+
+// WIN CONDITION
+function checkMafiaWin(game){
+  if(!amHost||!game)return;
+  const eliminated=game.mafiaEliminated||{};
+  const players=Object.values(game.players||{});
+  const alivePlayers=players.filter(p=>!eliminated[p.id]);
+  const mafiaIds=game.mafiaIds||[];
+  const aliveMafia=mafiaIds.filter(id=>!eliminated[id]);
+  const aliveTown=alivePlayers.filter(p=>!mafiaIds.includes(p.id));
+  if(aliveMafia.length===0){endMafiaGame('town',game);}
+  else if(aliveMafia.length>=aliveTown.length){endMafiaGame('mafia',game);}
+}
+async function endMafiaGame(winner,game){
+  const log=[...(game.mafiaLog||[])];
+  log.push({text:winner==='town'?'All Mafia eliminated — Civilians win!':'Mafia equals or outnumbers Civilians — Mafia wins!',type:winner==='town'?'saved':'death',ts:Date.now()});
+  await updateGame(gameCode,{status:'result',mafiaResult:{winner},mafiaLog:log,timerRunning:false});
+}
+async function mafiaEndGame(){
+  if(!confirm('End the Mafia game now?'))return;
+  const game=localGame;if(!game)return;
+  await updateGame(gameCode,{status:'result',mafiaResult:{winner:'town',forced:true},timerRunning:false});
+}
+
+// MAFIA RESULT SCREEN
+function showMafiaResult(game){
+  const r=game.mafiaResult||{};
+  const winner=r.winner||'town';
+  const mafiaIds=game.mafiaIds||[];
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const mafiaPlayers=mafiaIds.map(id=>game.players&&game.players[id]).filter(Boolean);
+  const bannerEl=document.getElementById('mafiaResultBanner');
+  const townPlayers=players.filter(p=>!mafiaIds.includes(p.id));
+  if(winner==='mafia'){
+    bannerEl.innerHTML=`<div class="result-banner mafia-wins">${resultAvatarGroupHtml(mafiaPlayers,'🔴')}<h2>Mafia Wins!</h2><p>The civilians were overrun.</p></div>`;
+  } else {
+    bannerEl.innerHTML=`<div class="result-banner town-wins">${resultAvatarGroupHtml(townPlayers,'🎉')}<h2>Civilians Win!</h2><p>All Mafia members eliminated.</p></div>`;
+  }
+  document.getElementById('mafiaResultReveal').innerHTML=`${resultAvatarGroupHtml(mafiaPlayers,'🔴')}<div style="font-size:20px;font-weight:800;color:#e74c3c">${mafiaPlayers.map(p=>esc(p.name)).join(', ')||'Unknown'}</div>`;
+  // Show all roles
+  const roleLabel={mafia:'🔴 MAFIA',doctor:'💚 DOCTOR',town:'⬜ CIVILIAN'};
+  document.getElementById('mafiaFinalRoles').innerHTML=players.map(p=>{
+    const role=(game.mafiaRoles&&game.mafiaRoles[p.id])||'town';
+    return`<div class="player-item"><div class="player-name">${playerNameHtml(p)}</div><div class="player-badge">${roleLabel[role]||role}</div></div>`;
+  }).join('');
+  document.getElementById('mafiaResultHostBtns').style.display=amHost?'flex':'none';
+  document.getElementById('mafiaResultNonHostBtns').style.display=!amHost?'flex':'none';
+  showScreen('mafia-result');
+  maybePlayMyWinAnim(game);
+}
+async function mafiaPlayAgain(){
+  if(!amHost)return;
+  await startMafiaGame();
+}
+
+// =====================================================
+// SPYFALL: REVEAL
+// =====================================================
+function enterRevealScreen(game){
+  revealVisible=true;
+  const isChaos=game.chaosMode;
+  const spyIds=game.spyIds||[game.spyId];
+  const isSpy=spyIds.includes(myId);
+  const isInnocent=game.innocentId===myId;
+  const myRole=game.roles&&game.roles[myId];
+  document.getElementById('revealTap').style.display='block';
+  document.getElementById('revealCard').style.display='none';
+  document.getElementById('revealActions').style.display='none';
+  document.getElementById('revealTagline').textContent=isChaos?'⚡ CHAOS MODE':'Spyfall — Game started';
+  document.getElementById('revealTap').className='reveal-tap';
+  showScreen('reveal');
+  document.getElementById('revealTap').onclick=()=>{
+    document.getElementById('revealTap').style.display='none';
+    const card=document.getElementById('revealCard');
+    if(isChaos){
+      if(isInnocent){card.innerHTML=`<div class="role-card chaos-innocent-card"><div class="role-label">✓ You are the INNOCENT</div><div class="role-name" style="color:var(--safe)">INNOCENT</div><div class="location-line" style="margin-top:14px">You are at</div><div class="location-name">${esc(game.currentLocation)}</div></div><div class="chaos-warning" style="margin-top:10px">🎯 Everyone else is bluffing. Vote to catch a spy.</div>`;}
+      else{card.innerHTML=`<div class="role-card chaos-spy-card"><div class="role-label">⚡ You are a SPY</div><div class="role-name">SPY</div><div style="font-size:14px;color:var(--muted);margin-top:8px">You do NOT know the location.</div></div><div class="chaos-warning" style="margin-top:10px">🤫 Bluff convincingly. Make the Innocent vote wrong.</div>`;}
+    } else {
+      if(isSpy){card.innerHTML=`<div class="role-card spy-card"><div class="role-label">⚠ You are the spy</div><div class="role-name">SPY</div><div style="font-size:14px;color:var(--muted);margin-top:8px">You do not know the location.</div></div><div class="spy-warning" style="margin-top:10px">🎯 Figure out where everyone is. Guess the location to win.</div>`;}
+      else{card.innerHTML=`<div class="role-card safe-card"><div class="role-label">✓ You are not the spy</div><div class="role-name">${esc(myRole)}</div><div class="location-line" style="margin-top:14px">You are at</div><div class="location-name">${esc(game.currentLocation)}</div></div>`;}
+    }
+    card.style.display='block';
+    document.getElementById('revealActions').style.display='flex';
+    document.getElementById('hideRoleBtn').textContent='🙈 Hide my role';
+  };
+}
+function toggleHideRole(){
+  revealVisible=!revealVisible;
+  const card=document.getElementById('revealCard');
+  const btn=document.getElementById('hideRoleBtn');
+  if(revealVisible){card.style.opacity='1';card.style.filter='none';card.style.pointerEvents='auto';btn.textContent='🙈 Hide my role';}
+  else{card.style.opacity='0.05';card.style.filter='blur(8px)';card.style.pointerEvents='none';btn.textContent='👁 Show my role';}
+}
+function goToGame(){if(!localGame)return;roleVisible=true;initGameScreen(localGame);showScreen('game');}
+
+// =====================================================
+// SPYFALL: GAME SCREEN
+// =====================================================
+function initGameScreen(game){
+  const isChaos=game.chaosMode;
+  const spyIds=game.spyIds||[game.spyId];
+  const isSpy=spyIds.includes(myId);
+  document.getElementById('chaosModeGameBanner').style.display=isChaos?'block':'none';
+  document.getElementById('locationGrid').innerHTML=game.locations.map(loc=>`<div class="location-chip">${esc(loc)}</div>`).join('');
+  document.getElementById('locationsTabDesc').textContent=isChaos?(spyIds.includes(myId)?"All locations. You don't know which is real.":'Highlighted = real location. Only you know.'):'All possible locations.';
+  const sel=document.getElementById('spyGuessSelect');
+  sel.innerHTML='<option value="">-- Select a location --</option>'+game.locations.map(l=>`<option value="${l}">${esc(l)}</option>`).join('');
+  const showGuess=isChaos?(isSpy&&game.innocentId!==myId):isSpy;
+  document.getElementById('spyGuessSection').style.display=showGuess?'block':'none';
+  if(isChaos){document.getElementById('voteNotice').className='notice chaos';document.getElementById('voteNotice').textContent=game.innocentId===myId?'⚡ You are the Innocent — vote to catch a spy.':'⚡ Blend in. Make the Innocent vote wrong.';}
+  else{document.getElementById('voteNotice').className='notice info';document.getElementById('voteNotice').textContent='Suspect someone? Everyone votes — majority decides.';}
+  document.getElementById('timerControls').style.display=amHost?'flex':'none';
+  updateRoleSummary(game);
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{if(localGame&&localGame.status==='playing'&&localGame.mode!=='ooo'&&localGame.mode!=='mafia')tickTimer(localGame);},500);
+  renderGame(game);
+}
+function renderGame(game){
+  tickTimer(game);updateVoteList(game);updateTimerBtn(game);
+  document.getElementById('timerControls').style.display=amHost?'flex':'none';
+  if(amHost&&game.status==='playing'&&game.mode!=='ooo'&&game.mode!=='mafia'&&!game.tiePhase){
+    const votes=game.votes||{};
+    const n=Object.keys(game.players||{}).length;
+    if(Object.keys(votes).length>=n&&n>0){
+      const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+      const majority=Math.ceil(n/2);
+      let resolved=false;
+      for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority){resolveGame('vote',pid);resolved=true;break;}}
+      if(!resolved)handleSpyfallTie(votes,game);
+    }
+  }
+}
+function updateRoleSummary(game){
+  const isChaos=game.chaosMode;const spyIds=game.spyIds||[game.spyId];const isSpy=spyIds.includes(myId);const isInnocent=game.innocentId===myId;const el=document.getElementById('myRoleSummary');
+  if(isChaos){
+    if(isInnocent)el.innerHTML=`<span style="color:var(--safe);font-weight:700">✓ INNOCENT</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Location: ${esc(game.currentLocation)}</span>`;
+    else el.innerHTML=`<span style="color:var(--chaos);font-weight:700">⚡ SPY</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Bluff — you don't know the location</span>`;
+  } else {
+    if(isSpy)el.innerHTML=`<span style="color:var(--spy);font-weight:700">🕵️ SPY</span><br><span style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">Guess the location to win if caught</span>`;
+    else{const role=game.roles&&game.roles[myId];el.innerHTML=`<span style="color:var(--safe);font-weight:700">${esc(role)}</span><span style="color:var(--muted);font-size:13px"> at </span><span style="font-weight:700">${esc(game.currentLocation)}</span>`;}
+  }
+}
+function toggleGameRoleVisibility(){
+  roleVisible=!roleVisible;
+  const s=document.getElementById('myRoleSummary');const h=document.getElementById('myRoleHidden');const b=document.getElementById('hideGameRoleBtn');const sg=document.getElementById('spyGuessSection');
+  if(roleVisible){
+    s.style.display='block';h.style.display='none';b.textContent='🙈 Hide my role';
+    if(sg&&sg.dataset.spyVisible==='true')sg.style.display='block';
+  } else {
+    s.style.display='none';h.style.display='block';b.textContent='👁 Show my role';
+    if(sg){sg.dataset.spyVisible=sg.style.display!=='none'?'true':'false';sg.style.display='none';}
+  }
+}
+function revealRoleSummary(){
+  roleVisible=true;
+  document.getElementById('myRoleSummary').style.display='block';
+  document.getElementById('myRoleHidden').style.display='none';
+  document.getElementById('hideGameRoleBtn').textContent='🙈 Hide my role';
+  const sg=document.getElementById('spyGuessSection');
+  if(sg&&sg.dataset.spyVisible==='true')sg.style.display='block';
+}
+function tickTimer(game){
+  if(!game.timerStart)return;
+  const elapsed=game.timerRunning?Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0):(game.timerOffset||0);
+  const remaining=Math.max(0,game.timerDuration-elapsed);
+  const m=Math.floor(remaining/60).toString().padStart(2,'0');const s=(remaining%60).toString().padStart(2,'0');
+  const el=document.getElementById('timerDisplay');el.textContent=`${m}:${s}`;
+  el.className='timer-display'+(remaining<60?' danger':remaining<120?' warning':'');
+  if(remaining===0&&game.timerRunning&&amHost)resolveGame('timeout');
+}
+function updateTimerBtn(game){const btn=document.getElementById('timerToggleBtn');if(btn)btn.textContent=game.timerRunning?'Pause':'Resume';}
+async function toggleTimer(){
+  const game=localGame;if(!game)return;
+  if(game.timerRunning){const e=Math.floor((Date.now()-game.timerStart)/1000)+(game.timerOffset||0);await updateGame(gameCode,{timerRunning:false,timerOffset:e});}
+  else{await updateGame(gameCode,{timerRunning:true,timerStart:Date.now(),timerOffset:game.timerOffset||0});}
+}
+
+// =====================================================
+// SPYFALL: VOTE + RESOLVE
+// =====================================================
+function updateVoteList(game){
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const myVote=game.votes&&game.votes[myId];
+  const voteCounts={};Object.values(game.votes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  const n=players.length;
+  document.getElementById('voteList').innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="castVote('${p.id}')">${playerAvatar(p)}<div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--spy);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('voteStatus').textContent=`${Object.keys(game.votes||{}).length} of ${n} voted`;
+}
+async function castVote(targetId){
+  const game=localGame;if(!game||game.status!=='playing'||game.mode==='ooo'||game.mode==='mafia')return;
+  if(game.tiePhase){const _tp=game.tiePlayerIds;const _tpa=Array.isArray(_tp)?_tp:Object.values(_tp||{});if(!_tp||!_tpa.includes(targetId))return;}
+  await gameRefFor(gameCode).child('votes/'+myId).set(targetId);
+  if(amHost){
+    const votes={...(game.votes||{}),[myId]:targetId};
+    const n=Object.keys(game.players||{}).length;
+    if(Object.keys(votes).length>=n){
+      const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+      const majority=Math.ceil(n/2);
+      if(game.tiePhase){
+        await resolveSpyfallTieVotes(votes,game);
+      } else {
+        let resolved=false;
+        for(const[pid,cnt]of Object.entries(counts)){if(cnt>=majority){await resolveGame('vote',pid);resolved=true;break;}}
+        if(!resolved)await handleSpyfallTie(votes,game);
+      }
+    }
+  }
+}
+async function resolveGame(reason,accusedId=null){
+  const game=localGame;if(!game||game.status!=='playing'||game.mode==='ooo'||game.mode==='mafia')return;
+  const isChaos=game.chaosMode;const spyIds=game.spyIds||[game.spyId];
+  let spyWins=false,description='';
+  if(isChaos){
+    if(reason==='timeout'){spyWins=true;description='Time ran out — spies fooled the Innocent!';}
+    else if(reason==='vote'){if(spyIds.includes(accusedId)){spyWins=false;description='Innocent correctly identified a spy!';}else{spyWins=true;description='Wrong person accused — spies win!';}}
+    else if(reason==='early'){spyWins=false;description='Round ended early.';}
+  } else {
+    if(reason==='timeout'){spyWins=true;description='Time ran out — spy escaped!';}
+    else if(reason==='vote'){if(spyIds.includes(accusedId)){spyWins=false;description='Correct! A spy was caught!';}else{spyWins=true;description='Wrong person — spy wins!';}}
+    else if(reason==='spy_guess_correct'){spyWins=true;description='Spy correctly guessed the location!';}
+    else if(reason==='spy_guess_wrong'){spyWins=false;description='Spy guessed the wrong location!';}
+    else if(reason==='early'){spyWins=false;description='Round ended early.';}
+  }
+  await updateGame(gameCode,{status:'result',timerRunning:false,tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,result:{spyWins,description,reason,accusedId}});
+}
+
+// =====================================================
+// SPYFALL: TIE SYSTEM
+// =====================================================
+async function handleSpyfallTie(votes,game){
+  const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const maxVotes=Math.max(...Object.values(counts),0);
+  const tiedIds=Object.entries(counts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+  if((game.tieRound||0)>=1){
+    if(tiedIds.length===1)await resolveGame('vote',tiedIds[0]);
+    else await resolveGame('timeout');
+    return;
+  }
+  await updateGame(gameCode,{tiePhase:true,tiePlayerIds:tiedIds,tieStart:Date.now(),tieRound:1,votes:{}});
+}
+async function resolveSpyfallTieVotes(votes,game){
+  const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const maxVotes=Math.max(...Object.values(counts),0);
+  const topIds=Object.entries(counts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+  await updateGame(gameCode,{tiePhase:false});
+  if(topIds.length===1)await resolveGame('vote',topIds[0]);
+  else await resolveGame('timeout');
+}
+function showTieScreen(game){
+  clearInterval(tieTimerInterval);
+  clearInterval(oooVoteTimerInterval);
+  const isOOO=game.mode==='ooo';
+  const _rawTied=isOOO?(game.oooTiePlayerIds||[]):(game.tiePlayerIds||[]);
+  const tiedIds=Array.isArray(_rawTied)?_rawTied:Object.values(_rawTied);
+  const tiedNames=tiedIds.map(id=>(game.players&&game.players[id]&&game.players[id].name)||'?');
+  document.getElementById('tieBannerText').textContent=tiedNames.join(' & ')+' are tied';
+  document.getElementById('tieVoteInstruction').textContent=isOOO?'Who gave the odd answer?':'Who is the spy?';
+  document.getElementById('tieVoteInstruction').className=isOOO?'notice ooo':'notice info';
+  updateTieVoteList(game);
+  showScreen('tie');
+  tieTimerInterval=setInterval(()=>{const g=localGame;if(!g)return;const inTie=g.mode==='ooo'?g.oooPhase==='tie':g.tiePhase;if(!inTie){clearInterval(tieTimerInterval);return;}tickTieTimer(g);},500);
+}
+function updateTieVoteList(game){
+  const isOOO=game.mode==='ooo';
+  const _rawTied=isOOO?(game.oooTiePlayerIds||[]):(game.tiePlayerIds||[]);
+  const tiedIds=Array.isArray(_rawTied)?_rawTied:Object.values(_rawTied);
+  const votes=isOOO?(game.oooVotes||{}):(game.votes||{});
+  const myVote=votes[myId];
+  const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  const n=Object.keys(game.players||{}).length;
+  const voteClass=isOOO?'ooo-voted':'voted';
+  const voteColor=isOOO?'var(--ooo)':'var(--spy)';
+  document.getElementById('tieVoteList').innerHTML=tiedIds.map(id=>{
+    const p=game.players&&game.players[id];const vc=voteCounts[id]||0;
+    const fn=isOOO?`castOOOVote('${id}')`:`castVote('${id}')`;
+    return`<div class="vote-item ${myVote===id?voteClass:''}" onclick="${fn}"><div style="font-size:20px">${isOOO?'🎭':'🕵️'}</div><div style="flex:1;font-size:14px;font-weight:600">${p?playerNameWithYou(p):'?'}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:${voteColor}">${vc}/${n}</div>`:''}${myVote===id?`<div style="color:${voteColor};font-size:13px">✓</div>`:''}</div>`;
+  }).join('');
+  document.getElementById('tieVoteStatus').textContent=`${Object.keys(votes).length} of ${n} voted`;
+}
+function tickTieTimer(game){
+  const isOOO=game.mode==='ooo';
+  const start=isOOO?game.oooTieStart:game.tieStart;
+  if(!start)return;
+  const elapsed=Math.floor((Date.now()-start)/1000);
+  const remaining=Math.max(0,120-elapsed);
+  const m=Math.floor(remaining/60).toString().padStart(2,'0');const s=(remaining%60).toString().padStart(2,'0');
+  const el=document.getElementById('tieTimerDisplay');if(!el)return;
+  el.textContent=`${m}:${s}`;
+  el.className='timer-display'+(remaining<30?' danger':remaining<60?' warning':'');
+  if(remaining===0&&amHost){
+    clearInterval(tieTimerInterval);
+    const votes=isOOO?(game.oooVotes||{}):(game.votes||{});
+    const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+    const maxVotes=Math.max(...Object.values(counts),0);
+    const topIds=Object.entries(counts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+    if(isOOO){resolveOOOTieVotes(game,votes);}
+    else{updateGame(gameCode,{tiePhase:false}).then(()=>{if(topIds.length===1)resolveGame('vote',topIds[0]);else resolveGame('timeout');});}
+  }
+}
+
+async function spyGuessLocation(){
+  const guess=document.getElementById('spyGuessSelect').value;if(!guess)return;
+  const game=localGame;if(!game)return;
+  await gameRefFor(gameCode).child('spyGuess').set(guess);
+  if(guess===game.currentLocation)await resolveGame('spy_guess_correct');
+  else await resolveGame('spy_guess_wrong');
+}
+async function endGameEarly(){if(!confirm('End the round now?'))return;await resolveGame('early');}
+
+// =====================================================
+// SPYFALL: RESULT
+// =====================================================
+function showResultScreen(game){
+  clearInterval(timerInterval);
+  const r=game.result;const isChaos=game.chaosMode;const spyIds=game.spyIds||[game.spyId];
+  const allPlayers=Object.values(game.players||{});
+  const innocentPlayer=game.innocentId&&game.players&&game.players[game.innocentId];
+  const spyPlayers=spyIds.map(id=>game.players&&game.players[id]).filter(Boolean);
+  const crewPlayers=allPlayers.filter(p=>!spyIds.includes(p.id));
+  document.getElementById('resultTitle').textContent=isChaos?'The Innocent was...':(spyIds.length>1?'The spies were...':'The spy was...');
+  if(isChaos){
+    document.getElementById('resultRevealBox').innerHTML=`${resultAvatarHtml(innocentPlayer,'🎭')}<div style="font-size:22px;font-weight:800;color:var(--safe)">${esc((innocentPlayer&&innocentPlayer.name)||'Unknown')}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation)}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">Spies: ${spyPlayers.map(p=>esc(p.name)).join(', ')}</div>`;
+  } else {
+    document.getElementById('resultRevealBox').innerHTML=`${resultAvatarGroupHtml(spyPlayers,'🕵️')}<div style="font-size:22px;font-weight:800;color:var(--spy)">${spyPlayers.map(p=>esc(p.name)).join(' & ')||'Unknown'}</div><div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">Location was: ${esc(game.currentLocation||'?')}</div>`;
+  }
+  const banner=document.getElementById('resultBanner');
+  if(isChaos){
+    if(r.spyWins)banner.innerHTML=`<div class="result-banner chaos-spies-win">${resultAvatarGroupHtml(spyPlayers,'⚡')}<h2>Spies Win!</h2><p>${esc(r.description)}</p></div>`;
+    else banner.innerHTML=`<div class="result-banner crew-wins">${resultAvatarHtml(innocentPlayer,'🎉')}<h2>Innocent Wins!</h2><p>${esc(r.description)}</p></div>`;
+  } else {
+    if(r.spyWins)banner.innerHTML=`<div class="result-banner spy-wins">${resultAvatarGroupHtml(spyPlayers,'🕵️')}<h2>Spy Wins!</h2><p>${esc(r.description)}</p></div>`;
+    else banner.innerHTML=`<div class="result-banner crew-wins">${resultAvatarGroupHtml(crewPlayers,'🎉')}<h2>Crew Wins!</h2><p>${esc(r.description)}</p></div>`;
+  }
+  document.getElementById('resultHostBtns').style.display=amHost?'flex':'none';
+  document.getElementById('resultNonHostBtns').style.display=!amHost?'flex':'none';
+  showScreen('result');
+  maybePlayMyWinAnim(game);
+}
+
+// =====================================================
+// ODD ONE OUT: START
+// =====================================================
+async function startOOOGame(){
+  const game=localGame;if(!game)return;
+  const players=Object.values(game.players||{});if(players.length<3)return;
+  const usedQ=game.oooLastQuestion||'';
+  const available=OOO_QUESTIONS.filter(q=>q.normal!==usedQ);
+  const q=pick(available.length>0?available:OOO_QUESTIONS);
+  const imposterId=players[randInt(players.length)].id;
+  const scores=game.oooScores||{};
+  players.forEach(p=>{if(scores[p.id]===undefined)scores[p.id]=0;});
+  await updateGame(gameCode,{
+    status:'playing',mode:'ooo',oooPhase:'question',
+    oooRound:(game.oooRound||0)+1,oooTotalRounds:game.oooTotalRounds||localOOORounds||3,
+    oooQuestionNormal:q.normal,oooQuestionOdd:q.odd,oooLastQuestion:q.normal,
+    oooImposterId:imposterId,oooAnswers:{},oooVotes:{},oooVoteStart:null,oooResult:null,oooScores:scores,oooTied:false,oooTiedPlayerIds:null,oooVoteDuration:null,
+  });
+}
+
+// =====================================================
+// ODD ONE OUT: QUESTION SCREEN
+// =====================================================
+function enterOOOQuestionScreen(game){
+  document.getElementById('oooRoundBadge').textContent=`Round ${game.oooRound} of ${game.oooTotalRounds}`;
+  document.getElementById('oooPreSubmit').style.display='block';
+  document.getElementById('oooPostSubmit').style.display='none';
+  document.getElementById('oooQuestionTap').style.display='block';
+  document.getElementById('oooQuestionContent').style.display='none';
+  document.getElementById('oooAnswerInput').value='';
+  const oooSubmitBtn=document.getElementById('oooSubmitBtn');
+  if(oooSubmitBtn){oooSubmitBtn.disabled=false;oooSubmitBtn.textContent='Submit Answer';}
+  if(game.oooAnswers&&game.oooAnswers[myId])showOOOWaitingState(game);
+  showScreen('ooo-question');
+}
+function updateOOOWaitingState(game){if(game.oooAnswers&&game.oooAnswers[myId])showOOOWaitingState(game);}
+function showOOOWaitingState(game){
+  document.getElementById('oooPreSubmit').style.display='none';
+  document.getElementById('oooPostSubmit').style.display='block';
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const answers=game.oooAnswers||{};
+  document.getElementById('oooSubmittedList').innerHTML=players.map(p=>`<div class="player-item"><div class="player-dot ${answers[p.id]?'':'offline'}"></div><div class="player-name">${playerNameHtml(p)}</div>${answers[p.id]?'<div class="player-badge" style="color:var(--safe)">✓ answered</div>':'<div class="player-badge">thinking...</div>'}</div>`).join('');
+}
+function revealOOOQuestion(){
+  const game=localGame;if(!game)return;
+  const isOdd=game.oooImposterId===myId;
+  const question=isOdd?game.oooQuestionOdd:game.oooQuestionNormal;
+  document.getElementById('oooQuestionTap').style.display='none';
+  document.getElementById('oooQuestionText').textContent=question;
+  document.getElementById('oooQuestionContent').style.display='block';
+  setTimeout(()=>document.getElementById('oooAnswerInput').focus(),100);
+}
+async function submitOOOAnswer(){
+  const answer=document.getElementById('oooAnswerInput').value.trim();
+  if(!answer||!gameCode)return;
+  const btn=document.getElementById('oooSubmitBtn');btn.disabled=true;btn.textContent='Submitting...';
+  await gameRefFor(gameCode).child('oooAnswers/'+myId).set(answer);
+  const game=localGame;
+  const totalPlayers=Object.keys(game.players||{}).length;
+  const answers={...(game.oooAnswers||{}),[myId]:answer};
+  showOOOWaitingState({...game,oooAnswers:answers});
+  document.getElementById('oooPreSubmit').style.display='none';
+  document.getElementById('oooPostSubmit').style.display='block';
+  if(Object.keys(answers).length>=totalPlayers){
+    await updateGame(gameCode,{oooPhase:'answers',oooVoteStart:Date.now()+(OOO_DISCUSS_DURATION*1000)});
+  }
+}
+
+// =====================================================
+// ODD ONE OUT: ANSWERS + VOTE
+// =====================================================
+function showOOOAnswers(game){
+  clearInterval(oooVoteTimerInterval);
+  document.getElementById('oooAnswersRoundBadge').textContent=`Round ${game.oooRound} of ${game.oooTotalRounds}`;
+  document.getElementById('oooRevealQuestion').textContent=game.oooQuestionNormal;
+  const tb=document.getElementById('oooTieBanner');
+  if(tb){
+    tb.style.display=game.oooTied?'block':'none';
+    if(game.oooTied){
+      const tids=Array.isArray(game.oooTiedPlayerIds)?game.oooTiedPlayerIds:Object.values(game.oooTiedPlayerIds||{});
+      const names=tids.map(id=>(game.players&&game.players[id]&&game.players[id].name)||'?');
+      const el=document.getElementById('oooTieBannerText');
+      if(el)el.textContent=names.join(' & ')+' tied · 2 minute revote';
+    }
+  }
+  updateOOOAnswers(game);
+  showScreen('ooo-answers');
+  oooVoteTimerInterval=setInterval(()=>{if(localGame&&localGame.oooPhase==='answers')tickOOOVoteTimer(localGame);},500);
+}
+function updateOOOAnswers(game){
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const answers=game.oooAnswers||{};
+  const myVote=game.oooVotes&&game.oooVotes[myId];
+  const voteCounts={};Object.values(game.oooVotes||{}).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  const n=players.length;
+  document.getElementById('oooAnswersList').innerHTML=players.map(p=>`<div class="answer-item"><div class="answer-name">${playerNameHtml(p)}</div><div class="answer-text">${esc(answers[p.id]||'...')}</div></div>`).join('');
+  const tiedArr=game.oooTied?(Array.isArray(game.oooTiedPlayerIds)?game.oooTiedPlayerIds:Object.values(game.oooTiedPlayerIds||{})):null;
+  const votablePlayers=tiedArr?players.filter(p=>tiedArr.includes(p.id)):players;
+  const noticeEl=document.getElementById('oooVoteNotice');
+  if(noticeEl){if(game.oooTied){noticeEl.className='notice info';noticeEl.textContent='Tie! Only vote for tied players.';}else{noticeEl.className='notice ooo';noticeEl.textContent='Who gave the odd answer? Tap to vote.';}}
+  document.getElementById('oooVoteList').innerHTML=votablePlayers.map(p=>{const vc=voteCounts[p.id]||0;return`<div class="vote-item ${myVote===p.id?'ooo-voted':''}" onclick="castOOOVote('${p.id}')">${playerAvatar(p)}<div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--ooo)">${vc}/${n}</div>`:''}${myVote===p.id?'<div style="color:var(--ooo);font-size:13px">✓</div>':''}</div>`;}).join('');
+  document.getElementById('oooVoteStatus').textContent=`${Object.keys(game.oooVotes||{}).length} of ${n} voted`;
+  if(amHost)checkAllVoted(game);
+}
+function checkAllVoted(game){
+  if(game.oooPhase==='answers'&&game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
+  const n=Object.keys(game.players||{}).length;
+  const votes=Object.keys(game.oooVotes||{}).length;
+  if(votes>=n&&game.oooPhase==='answers')resolveOOORound(game);
+}
+function tickOOOVoteTimer(game){
+  if(!game.oooVoteStart)return;
+  const now=Date.now();
+  const el=document.getElementById('oooVoteTimerDisplay');
+  const label=document.getElementById('oooTimerLabel');
+  const voteNotice=document.getElementById('oooVoteNotice');
+  const voteList=document.getElementById('oooVoteList');
+  const voteStatus=document.getElementById('oooVoteStatus');
+  if(!el)return;
+  if(now<game.oooVoteStart){
+    const remaining=Math.ceil((game.oooVoteStart-now)/1000);
+    const s=remaining.toString().padStart(2,'0');
+    el.textContent=`00:${s}`;
+    el.className='timer-display'+(remaining<10?' warning':'');
+    if(label)label.textContent='to discuss';
+    if(voteNotice){voteNotice.className='notice info';voteNotice.textContent='Read the answers and discuss...';}
+    if(voteList){voteList.style.opacity='0.25';voteList.style.pointerEvents='none';}
+    if(voteStatus)voteStatus.textContent='Voting opens in '+remaining+'s';
+    return;
+  }
+  if(label)label.textContent='to vote';
+  if(voteNotice){voteNotice.className='notice ooo';voteNotice.textContent='Who gave the odd answer? Tap to vote.';}
+  if(voteList){voteList.style.opacity='1';voteList.style.pointerEvents='auto';}
+  const elapsed=Math.floor((now-game.oooVoteStart)/1000);
+  const remaining=Math.max(0,OOO_VOTE_DURATION-elapsed);
+  const m=Math.floor(remaining/60).toString().padStart(2,'0');const s=(remaining%60).toString().padStart(2,'0');
+  el.textContent=`${m}:${s}`;
+  el.className='timer-display'+(remaining<10?' danger':remaining<20?' warning':'');
+  if(voteStatus)voteStatus.textContent='';
+  if(remaining===0&&amHost){clearInterval(oooVoteTimerInterval);resolveOOORound(game);}
+}
+async function castOOOVote(targetId){
+  const game=localGame;if(!game||game.oooPhase!=='answers')return;
+  if(game.oooVoteStart&&Date.now()<game.oooVoteStart)return;
+  if(game.oooTied){const _t=game.oooTiedPlayerIds;const _ta=Array.isArray(_t)?_t:Object.values(_t||{});if(!_ta.includes(targetId))return;}
+  if(!localGame.oooVotes)localGame.oooVotes={};
+  localGame.oooVotes[myId]=targetId;
+  updateOOOAnswers(localGame);
+  try{await gameRefFor(gameCode).child('oooVotes/'+myId).set(targetId);}catch(e){}
+  if(amHost){
+    const n=Object.keys(localGame.players||{}).length;
+    if(Object.keys(localGame.oooVotes||{}).length>=n)await resolveOOORound(localGame);
+  }
+}
+async function resolveOOORound(game){
+  if(!game||game.oooPhase!=='answers')return;
+  const votes=game.oooVotes||{};
+  const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  let maxVotes=0;
+  for(const cnt of Object.values(voteCounts)){if(cnt>maxVotes)maxVotes=cnt;}
+  const topIds=Object.entries(voteCounts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+  if(topIds.length>1&&!game.oooTied){
+    await updateGame(gameCode,{oooPhase:'answers',oooTied:true,oooTiedPlayerIds:topIds,oooVotes:{},oooVoteStart:Date.now(),oooVoteDuration:120});
+    return;
+  }
+  const accusedId=topIds[0]||null;
+  const caught=accusedId===game.oooImposterId&&topIds.length===1;
+  const scores={...(game.oooScores||{})};
+  const players=Object.values(game.players||{});
+  if(caught){players.forEach(p=>{if(p.id!==game.oooImposterId)scores[p.id]=(scores[p.id]||0)+2;});}
+  else{scores[game.oooImposterId]=(scores[game.oooImposterId]||0)+3;}
+  const impostorName=(game.players&&game.players[game.oooImposterId]&&game.players[game.oooImposterId].name)||'Unknown';
+  const description=caught?`${impostorName} was caught!`:`${impostorName} blended in and escaped!`;
+  const result={caught,description,accusedId};
+  localGame.oooPhase='result';localGame.oooScores=scores;localGame.oooResult=result;
+  try{await updateGame(gameCode,{oooPhase:'result',oooScores:scores,oooResult:result});}catch(e){}
+  showOOOResult(localGame);
+}
+
+// =====================================================
+// ODD ONE OUT: RESULT
+// =====================================================
+function showOOOResult(game){
+  clearInterval(oooVoteTimerInterval);
+  const r=game.oooResult||{};
+  const impostorPlayer=game.players&&game.players[game.oooImposterId];
+  document.getElementById('oooImpostorReveal').innerHTML=`${resultAvatarHtml(impostorPlayer,'🎭')}<div style="font-size:22px;font-weight:800;color:var(--ooo)">${esc((impostorPlayer&&impostorPlayer.name)||'Unknown')}</div>`;
+  document.getElementById('oooNormalQReveal').textContent=game.oooQuestionNormal||'';
+  document.getElementById('oooOddQReveal').textContent=game.oooQuestionOdd||'';
+  const banner=document.getElementById('oooResultBanner');
+  const oooPlayers=Object.values(game.players||{});
+  const normalQuestionPlayers=oooPlayers.filter(p=>p.id!==game.oooImposterId);
+  if(r.caught)banner.innerHTML=`<div class="result-banner ooo-caught">${resultAvatarGroupHtml(normalQuestionPlayers,'🎉')}<h2>Caught!</h2><p>${esc(r.description)}</p></div>`;
+  else banner.innerHTML=`<div class="result-banner ooo-escaped">${resultAvatarHtml(impostorPlayer,'🎭')}<h2>Escaped!</h2><p>${esc(r.description)}</p></div>`;
+  const players=oooPlayers.sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
+  document.getElementById('oooScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${playerAvatar(p,'av-sm')}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||`#${i+1}`}</div><div class="scoreboard-name">${playerNameHtml(p)}${p.id===game.oooImposterId?' 🎭':''}</div><div class="scoreboard-pts">${game.oooScores[p.id]||0} pts</div></div>`).join('');
+  const isLastRound=game.oooRound>=game.oooTotalRounds||game.status==='result';
+  document.getElementById('oooNextRoundBtn').style.display=(!isLastRound&&amHost)?'block':'none';
+  document.getElementById('oooEndGameBtn').style.display=(isLastRound&&amHost)?'block':'none';
+  document.getElementById('oooReturnLobbyBtn').style.display=amHost?'block':'none';
+  document.getElementById('oooWaitingForHost').style.display=!amHost?'block':'none';
+  document.getElementById('oooLeaveBtn').style.display=!amHost?'block':'none';
+  showScreen('ooo-result');
+  maybePlayMyWinAnim(game);
+}
+async function oooNextRound(){await startOOOGame();}
+async function oooEndGame(){await updateGame(gameCode,{status:'result',oooPhase:'gameover'});}
+function showOOOGameOver(game){
+  clearInterval(oooVoteTimerInterval);
+  const players=oooPlayers.sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
+  const winner=players[0];
+  const score=(game.oooScores&&game.oooScores[winner.id])||0;
+  document.getElementById('gameoverTitle').textContent=winner.name.toUpperCase()+' WINS!';
+  document.getElementById('gameoverSubtitle').textContent='with '+score+' point'+(score!==1?'s':'');
+  document.getElementById('gameoverScoreboardList').innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${playerAvatar(p,'av-sm')}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${(game.oooScores&&game.oooScores[p.id])||0} pts</div></div>`).join('');
+  document.getElementById('gameoverReturnBtn').style.display=amHost?'block':'none';
+  document.getElementById('gameoverWaitingForHost').style.display=!amHost?'block':'none';
+  showScreen('ooo-gameover');
+}
+async function returnToLobbyOOO(){await returnToLobby();}
+async function resolveOOOTieVotes(game,votes){
+  const counts={};Object.values(votes||{}).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const maxVotes=Math.max(...Object.values(counts),0);
+  const topIds=Object.entries(counts).filter(([,c])=>c===maxVotes).map(([id])=>id);
+  const accused=topIds.length===1?topIds[0]:null;
+  const caught=accused===game.oooImposterId;
+  const scores={...(game.oooScores||{})};
+  const players=Object.values(game.players||{});
+  if(caught){players.forEach(p=>{if(p.id!==game.oooImposterId)scores[p.id]=(scores[p.id]||0)+2;});}
+  else{scores[game.oooImposterId]=(scores[game.oooImposterId]||0)+3;}
+  const impostorName=(game.players&&game.players[game.oooImposterId]&&game.players[game.oooImposterId].name)||'Unknown';
+  const desc=caught?impostorName+' was caught after a tie-breaker!':'Tie! '+impostorName+' escaped!';
+  const result={caught,description:desc,accusedId:accused};
+  localGame.oooPhase='result';localGame.oooScores=scores;localGame.oooResult=result;
+  try{await updateGame(gameCode,{oooPhase:'result',oooScores:scores,oooResult:result,oooTiePlayerIds:null});}catch(e){}
+  showOOOResult(localGame);
+}
+
+// =====================================================
+// PLAY AGAIN / LEAVE / RETURN TO LOBBY
+// =====================================================
+async function playAgain(){
+  if(!amHost)return;
+  const game=localGame;if(!game)return;
+  const isChaos=game.chaosMode;
+  const players=Object.values(game.players||{});if(players.length<3)return;
+  const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
+  const locName=pick(newLocations);
+  const locObj=ALL_LOCATIONS.find(l=>l.name===locName)||ALL_LOCATIONS[0];
+  const shuffledRoles=shuffle(locObj.roles);
+  const roles={};let spyIds=[],innocentId=null;
+  if(isChaos){
+    const idx=randInt(players.length);innocentId=players[idx].id;
+    players.forEach(p=>{roles[p.id]=p.id===innocentId?'__INNOCENT__':'__CHAOS_SPY__';});
+    spyIds=players.filter(p=>p.id!==innocentId).map(p=>p.id);
+  } else {
+    const count=Math.min(game.spyCount||1,maxSpies(players.length));
+    const sp=shuffle([...players]);spyIds=sp.slice(0,count).map(p=>p.id);
+    players.forEach((p,i)=>{roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});
+  }
+  const duration=isChaos?CHAOS_TIMER_DURATION:TIMER_DURATION;
+  await updateGame(gameCode,{status:'playing',mode:'spyfall',spyIds,innocentId,spyId:spyIds[0]||null,currentLocation:locObj.name,roles,locations:newLocations,timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:duration,votes:{},result:null,spyGuess:null,chaosMode:isChaos,spyCount:spyIds.length,tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0});
+}
+async function returnToLobby(){
+  if(!amHost)return;
+  const game=localGame;if(!game)return;
+  const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,chat:null});
+}
+async function leaveGame(){
+  clearWinAnim();
+  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();
+  if(gameCode){
+    try{
+      const snap=await gameRefFor(gameCode).once('value');const game=snap.val();
+      if(game){
+        if(game.status==='lobby'){
+          await gameRefFor(gameCode).child('players/'+myId).remove();
+          if(game.hostId===myId){const rem=Object.values(game.players||{}).filter(p=>p.id!==myId).sort((a,b)=>a.joinedAt-b.joinedAt);if(rem.length>0){const nh=rem[0];await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);await gameRefFor(gameCode).child('hostId').set(nh.id);}}
+        } else {await gameRefFor(gameCode).child('players/'+myId+'/online').set(false);}
+      }
+    }catch(e){console.error(e);}
+  }
+  gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;faCanvasCleanup();bsCleanup();
+  showScreen('home');
+}
+
+// =====================================================
+// CHAT
+// =====================================================
+function setupChat(code){
+  if(chatListener)db.ref('games/'+code+'/chat').off('value',chatListener);
+  chatListener=db.ref('games/'+code+'/chat').on('value',snap=>{
+    const data=snap.val();const messages=data?Object.values(data).sort((a,b)=>a.ts-b.ts):[];renderChat(messages);
+  });
+}
+function stopChat(){if(chatListener&&gameCode){db.ref('games/'+gameCode+'/chat').off('value',chatListener);chatListener=null;}}
+function renderChat(messages){
+  ['lobbyChatMessages','waitingChatMessages'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    if(messages.length===0){el.innerHTML='<div class="chat-empty">No messages yet...</div>';return;}
+    el.innerHTML=messages.map(m=>{const isMe=m.uid===myId;const time=new Date(m.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});return`<div class="chat-msg"><span class="chat-name ${isMe?'you':'other'}">${esc(m.name)}</span><span style="color:var(--text)">${esc(m.text)}</span><span class="chat-time">${time}</span></div>`;}).join('');
+    el.scrollTop=el.scrollHeight;
+  });
+}
+async function sendChat(){
+  const cur=(document.querySelector('.screen.active')||{}).id;
+  const inputId=cur==='screen-lobby'?'lobbyChatInput':'waitingChatInput';
+  const input=document.getElementById(inputId);if(!input)return;
+  const text=input.value.trim();if(!text||!gameCode)return;
+  input.value='';
+  const game=localGame;const player=game&&game.players&&game.players[myId];const name=player?player.name:'Unknown';
+  await db.ref('games/'+gameCode+'/chat').push().set({uid:myId,name,text,ts:Date.now()});
+}
+
+// =====================================================
+// DEV PANEL
+// =====================================================
+function toggleDevPanel(){
+  const panel=document.getElementById('devPanel');const arrow=document.getElementById('devArrow');const open=panel.style.display==='none';
+  if(open){
+    if(sessionStorage.getItem('sf_dev_unlocked')!=='1'){
+      const pw=prompt('Enter dev password:');
+      if(pw!=='chrispyiscool@123!'){alert('Incorrect password.');return;}
+      sessionStorage.setItem('sf_dev_unlocked','1');
+    }
+  }
+  panel.style.display=open?'block':'none';arrow.textContent=open?'▼':'▶';
+  updateDevLobbyButton();
+}
+function updateDevLobbyButton(){
+  const btn=document.getElementById('devStartTestBtn');if(!btn)return;
+  const devUnlocked=sessionStorage.getItem('sf_dev_unlocked')==='1';
+  const inLobby=(document.querySelector('.screen.active')||{}).id==='screen-lobby';
+  btn.style.display=(devUnlocked&&inLobby&&amHost)?'block':'none';
+}
+async function startDevGameTest(){
+  if(sessionStorage.getItem('sf_dev_unlocked')!=='1')return;
+  if(!gameCode||!localGame||!amHost)return;
+  const now=Date.now();const bots={};
+  for(let i=1;i<=5;i++){bots['dev_bot_'+i]={id:'dev_bot_'+i,name:'Bot '+i,isHost:false,joinedAt:now+i,online:true,devBot:true};}
+  const btn=document.getElementById('devStartTestBtn');
+  if(btn){btn.disabled=true;btn.textContent='Adding 5 bots...';}
+  try{
+    if(gameCode==='DEV0'){localGame.players={...(localGame.players||{}),...bots};renderLobby(localGame);}
+    else{await gameRefFor(gameCode).child('players').update(bots);}
+    if(btn)btn.textContent='5 dev bots added';
+    setTimeout(()=>{if(btn)btn.textContent='Start dev game test';},1800);
+  }catch(e){console.error(e);alert('Could not add dev bots.');}
+  if(btn)btn.disabled=false;
+}
+function devShowStatus(msg){const el=document.getElementById('devStatus');el.textContent='✓ '+msg;el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
+function devMockGame(overrides={}){
+  const spyCount=1;const chaosMode=overrides.chaosMode||false;
+  const loc=ALL_LOCATIONS[randInt(ALL_LOCATIONS.length)];const shuffledRoles=shuffle(loc.roles);
+  const mockPlayers={[myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},'dev_p4':{id:'dev_p4',name:'Player 4',isHost:false,joinedAt:Date.now()+3,online:true}};
+  const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
+  if(!locations.includes(loc.name))locations[0]=loc.name;
+  const base={code:'DEV0',status:'playing',hostId:myId,mode:'spyfall',locations,currentLocation:loc.name,roles:{},spyId:null,spyIds:[],innocentId:null,spyGuess:null,votes:{},result:null,timerStart:Date.now(),timerDuration:TIMER_DURATION,timerRunning:true,timerOffset:0,spyCount,chaosMode,players:mockPlayers,oooScores:{},createdAt:Date.now()};
+  const playerIds=Object.keys(mockPlayers);
+  if(chaosMode){base.innocentId=overrides.forceInnocent?myId:'dev_p2';playerIds.forEach(id=>{base.roles[id]=id===base.innocentId?'__INNOCENT__':'__CHAOS_SPY__';});base.spyIds=playerIds.filter(id=>id!==base.innocentId);}
+  else{let spyIds=overrides.forceSpy?[myId]:['dev_p2'];base.spyIds=spyIds;base.spyId=spyIds[0];playerIds.forEach((id,i)=>{base.roles[id]=spyIds.includes(id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});}
+  return{...base,...overrides};
+}
+function devStartAs(role){
+  const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
+  gameCode='DEV0';amHost=true;
+  let game;
+  if(role==='crew'){game=devMockGame({chaosMode:false});game.spyIds=['dev_p2'];game.spyId='dev_p2';const loc=ALL_LOCATIONS.find(l=>l.name===game.currentLocation);game.roles[myId]=shuffle((loc&&loc.roles)||['Crew Member'])[0];}
+  else if(role==='spy'){game=devMockGame({chaosMode:false,forceSpy:true});}
+  else if(role==='chaos-innocent'){game=devMockGame({chaosMode:true,forceInnocent:true});}
+  else if(role==='chaos-spy'){game=devMockGame({chaosMode:true});game.innocentId='dev_p2';game.spyIds=['dev_p3','dev_p4',myId];game.roles[myId]='__CHAOS_SPY__';game.roles['dev_p2']='__INNOCENT__';}
+  localGame=game;enterRevealScreen(game);devShowStatus(`Started as ${role}`);
+}
+function devOOO(type){
+  const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
+  gameCode='DEV0';amHost=true;
+  const q=OOO_QUESTIONS[0];
+  const mockPlayers={[myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},'dev_p4':{id:'dev_p4',name:'Player 4',isHost:false,joinedAt:Date.now()+3,online:true}};
+  const base={code:'DEV0',status:'playing',mode:'ooo',hostId:myId,oooRound:1,oooTotalRounds:3,oooQuestionNormal:q.normal,oooQuestionOdd:q.odd,oooImposterId:type==='odd'?myId:'dev_p2',oooAnswers:{},oooVotes:{},oooVoteStart:null,oooResult:null,oooScores:{[myId]:4,'dev_p2':2,'dev_p3':6,'dev_p4':0},players:mockPlayers};
+  localGame=base;
+  if(type==='normal'||type==='odd'){enterOOOQuestionScreen(base);devShowStatus(`OOO: ${type==='odd'?'You are the odd one out':'You have normal question'}`);}
+  else if(type==='answers'){
+    base.oooPhase='answers';base.oooVoteStart=Date.now()+(8*1000);
+    base.oooAnswers={[myId]:'The beach',dev_p2:'Sunscreen',dev_p3:'Sandcastles',dev_p4:'A broken flip flop'};
+    base.oooVotes={};
+    localGame=base;showOOOAnswers(base);devShowStatus('OOO: Answers');
+  } else if(type==='result'){
+    base.oooPhase='result';base.oooResult={caught:true,description:'dev_p2 was caught!'};
+    localGame=base;showOOOResult(base);devShowStatus('OOO: Result screen');
+  }
+}
+function devMafiaTest(role){
+  const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
+  gameCode='DEV0';amHost=true;
+  const mockPlayers={[myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},'dev_p4':{id:'dev_p4',name:'Player 4',isHost:false,joinedAt:Date.now()+3,online:true},'dev_p5':{id:'dev_p5',name:'Player 5',isHost:false,joinedAt:Date.now()+4,online:true}};
+  const mafiaRoles={[myId]:role,dev_p2:role==='mafia'?'mafia':'town',dev_p3:'town',dev_p4:role==='doctor'?'town':'doctor',dev_p5:'town'};
+  const mafiaIds=Object.entries(mafiaRoles).filter(([,r])=>r==='mafia').map(([id])=>id);
+  const game={code:'DEV0',status:'playing',mode:'mafia',hostId:myId,mafiaRoles,mafiaIds,mafiaPhase:'day',mafiaDay:1,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaDayTimerStart:Date.now(),mafiaDayTimerDuration:MAFIA_DAY_TIMER_FIRST,mafiaNightStart:null,mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],mafiaResult:null,players:mockPlayers,createdAt:Date.now()};
+  localGame=game;enterMafiaReveal(game);devShowStatus(`Mafia: you are ${role}`);
+}
+function devBsTest(variant){
+  const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
+  gameCode='DEV0';amHost=true;
+  const mockPlayers={
+    [myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},
+    'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},
+    'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true},
+    'dev_p4':{id:'dev_p4',name:'Player 4',isHost:false,joinedAt:Date.now()+3,online:true},
+  };
+  const sampleSet=BS_CARD_SETS['Geography'][0];
+  const isImpostor=variant==='imposter';
+  const imposterId=isImpostor?myId:'dev_p2';
+  const base={
+    code:'DEV0',status:'playing',mode:'bs',hostId:myId,
+    bsCategory:'Geography',
+    bsCards:sampleSet.cards,
+    bsClues:sampleSet.clues,
+    bsImposterId:imposterId,
+    bsKnownCardIdx:0,
+    bsReady:{[myId]:true,'dev_p2':true,'dev_p3':true,'dev_p4':true},
+    bsRevealStart:Date.now()-5000,
+    bsDiscussStart:Date.now()-10000,
+    bsDiscussMinutes:5,
+    bsVotes:{},
+    bsGuesses:[],
+    bsCorrectGuesses:[],
+    bsIncorrectCount:0,
+    bsResult:null,
+    players:mockPlayers,
+    createdAt:Date.now(),
+  };
+  if(variant==='innocent'||variant==='imposter'){
+    base.bsPhase='reveal';
+    base.bsRevealStart=Date.now();
+    localGame=base;
+    enterBsReveal(base);
+    devShowStatus(`BS: You are ${isImpostor?'IMPOSTER':'INNOCENT'}`);
+  } else if(variant==='discussion'){
+    base.bsPhase='discussion';
+    base.bsDiscussStart=Date.now();
+    localGame=base;
+    enterBsGame(base);
+    devShowStatus('BS: Discussion phase');
+  } else if(variant==='result'){
+    base.bsPhase='result';
+    base.bsResult={winner:'innocents',reason:'voted_out',eliminatedId:'dev_p2'};
+    localGame=base;
+    showBsResult(base);
+    devShowStatus('BS: Result screen');
+  }
+}
+function devGoScreen(screen){
+  const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
+  gameCode='DEV0';amHost=true;
+  if(screen==='lobby'){
+    const mockGame={code:'DEV0',status:'lobby',hostId:myId,mode:'spyfall',locations:shuffle(ALL_LOCATIONS).slice(0,12).map(l=>l.name),players:{[myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Player 2',isHost:false,joinedAt:Date.now()+1,online:true},'dev_p3':{id:'dev_p3',name:'Player 3',isHost:false,joinedAt:Date.now()+2,online:true}},spyCount:1,chaosMode:false,oooTotalRounds:3,mafiaCount:1,createdAt:Date.now()};
+    localGame=mockGame;document.getElementById('gameCodeDisplay').textContent='DEV0';renderLobby(mockGame);showScreen('lobby');
+  } else if(screen==='waiting'){
+    const mockGame={code:'DEV0',status:'lobby',hostId:'dev_p2',mode:'spyfall',players:{[myId]:{id:myId,name:'You (Dev)',isHost:false,joinedAt:Date.now(),online:true},'dev_p2':{id:'dev_p2',name:'Host Player',isHost:true,joinedAt:Date.now()-1,online:true}},chaosMode:false,createdAt:Date.now()};
+    localGame=mockGame;amHost=false;document.getElementById('waitingCodeDisplay').textContent='DEV0';renderWaiting(mockGame);showScreen('waiting');
+  } else if(screen==='game'){const game=devMockGame({});localGame=game;initGameScreen(game);showScreen('game');}
+  else if(screen==='result-crew'){const game=devMockGame({});game.status='result';game.timerRunning=false;game.result={spyWins:false,description:'Correct! A spy was caught!',reason:'vote',accusedId:'dev_p2'};localGame=game;showResultScreen(game);}
+  else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
+  devShowStatus(`Jumped to: ${screen}`);
+}
+function devBackHome(){clearWinAnim();clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
+
+
+
+
+// =====================================================
+// HOME MODE SELECT
+// =====================================================
+function selectHomeMode(mode){
+  localGameMode=mode;
+  document.getElementById('homeTileSpyfall').classList.toggle('selected',mode==='spyfall');
+  document.getElementById('homeTileOoo').classList.toggle('selected',mode==='ooo');
+  document.getElementById('homeTileMafia').classList.toggle('selected',mode==='mafia');
+  document.getElementById('homeTileFa').classList.toggle('selected',mode==='fa');
+  const bsTile=document.getElementById('homeTileBs');if(bsTile)bsTile.classList.toggle('selected',mode==='bs');
+  updateModeDropdownLabels(mode);
+  closeModeDropdown('homeModeDropdown');
+}
+
+// =====================================================
+// UI HELPERS
+// =====================================================
+function switchTab(tab){['timer','locations','vote'].forEach((t,i)=>{document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);document.getElementById('tab-'+t).classList.toggle('active',t===tab);});}
+function switchMafiaTab(tab){['game','players','log'].forEach(t=>{document.querySelector(`.mafia-tab-btn[onclick="switchMafiaTab('${t}')"]`).classList.toggle('active',t===tab);document.getElementById('mafia-tab-'+t).classList.toggle('active',t===tab);});}
+function copyCode(){
+  const code=gameCode||'----';
+  navigator.clipboard&&navigator.clipboard.writeText(code).then(()=>{['gameCodeDisplay','waitingCodeDisplay'].forEach(id=>{const el=document.getElementById(id);if(el&&el.closest('.screen.active')){const orig=el.textContent;el.textContent='COPIED!';setTimeout(()=>el.textContent=orig,1200);}});});
+}
+
+// =====================================================
+// FAKE ARTIST: WORDS + STATE — FIXED STABLE VERSION
+// =====================================================
+const FA_WORDS = [
+  'Shark','Volcano','Astronaut','Rollercoaster','Lighthouse',
+  'Tornado','Submarine','Cactus','Pirate','Snowman',
+  'Robot','Waterfall','Dinosaur','Hot Air Balloon','Dragon',
+  'Igloo','Treasure Chest','Thunderstorm','Quicksand','Palm Tree',
+  'Black Hole','Avalanche','Puppet','Bonfire','Whirlpool'
+];
+const FA_CANVAS_SIZE = 430;
+const FA_TURN_SECONDS = 30;
+const FA_VOTE_SECONDS = 60;
+const FA_SWATCH_COLORS=['#e8d44d','#e85d4d','#4de8a0','#3498db','#a78bfa','#f97316','#ffffff','#000000'];
+
+let faCanvas=null,faCtx=null,faLiveCanvas=null,faLiveCtx=null,faIsDrawing=false,faHasDrawn=false,faWordHidden=false,faLastTurnIndex=null;
+let faStrokeListener=null,faLiveStrokeListener=null,faLiveStrokes={},faCurrentStroke=[],faTurnTimerInterval=null,faVoteTimerInterval=null,faTimeoutHandledFor=null,faVoteResolving=false,faLastLiveUpdate=0;
+
+function faCanvasCleanup(){
+  if(faCanvas){
+    faCanvas.removeEventListener('mousedown',faOnDown);
+    faCanvas.removeEventListener('mousemove',faOnMove);
+    faCanvas.removeEventListener('mouseup',faOnUp);
+    faCanvas.removeEventListener('mouseleave',faOnUp);
+    faCanvas.removeEventListener('touchstart',faOnTouchStart);
+    faCanvas.removeEventListener('touchmove',faOnTouchMove);
+    faCanvas.removeEventListener('touchend',faOnTouchEnd);
+  }
+  if(faStrokeListener&&gameCode){
+    db.ref('games/'+gameCode+'/faStrokes').off('value',faStrokeListener);
+    faStrokeListener=null;
+  }
+  if(faLiveStrokeListener&&gameCode){
+    db.ref('games/'+gameCode+'/faLiveStroke').off('value',faLiveStrokeListener);
+    faLiveStrokeListener=null;
+  }
+  if(faTurnTimerInterval){clearInterval(faTurnTimerInterval);faTurnTimerInterval=null;}
+  if(faVoteTimerInterval){clearInterval(faVoteTimerInterval);faVoteTimerInterval=null;}
+  faCanvas=null;faCtx=null;faLiveCanvas=null;faLiveCtx=null;faIsDrawing=false;faHasDrawn=false;faLiveStrokes={};faCurrentStroke=[];faLastTurnIndex=null;faTimeoutHandledFor=null;faVoteResolving=false;faLastLiveUpdate=0;
+}
+
+function faRoundsForPlayers(n){return n<=5?5:3;}
+function faStrokesArray(strokes){return Array.isArray(strokes)?strokes:Object.values(strokes||{});}
+
+function changeFaWords(d){
+  localFaWords=Math.min(10,Math.max(1,(localFaWords||3)+d));
+  const dEl=document.getElementById('faWordsDisplay');if(dEl)dEl.textContent=localFaWords;
+  const lEl=document.getElementById('faWordsLabel');if(lEl)lEl.textContent=localFaWords===1?'word':'words';
+  if(gameCode)updateGame(gameCode,{faTotalWords:localFaWords});
+}
+function changeFaRounds(d){
+  const n=localGame?Object.keys(localGame.players||{}).length:4;
+  const auto=faRoundsForPlayers(n);
+  if(localFaRounds===0)localFaRounds=auto;
+  localFaRounds=Math.min(10,Math.max(1,localFaRounds+d));
+  const dEl=document.getElementById('faRoundsDisplay');if(dEl)dEl.textContent=localFaRounds;
+  const lEl=document.getElementById('faRoundsLabel');if(lEl)lEl.textContent='rounds per word';
+  if(gameCode)updateGame(gameCode,{faTotalRounds:localFaRounds});
+}
+
+async function faImposterGuessWord(){
+  const game=localGame;if(!game||game.mode!=='fa'||game.faPhase!=='draw')return;
+  if(game.faImposterId!==myId)return;
+  const input=document.getElementById('faImposterGuessInput');if(!input)return;
+  const guess=input.value.trim();if(!guess)return;
+  input.disabled=true;
+  const word=(game.faWord||'').toLowerCase().trim();
+  const correct=guess.toLowerCase().trim()===word;
+  // Imposter guesses: correct => imposter wins; wrong => town wins.
+  // resolveFaRound(townWins, impostorGuess)
+  await resolveFaRound(game, !correct, correct?guess:guess);
+}
+
+async function startFaGame(){
+  const game=localGame;if(!game)return;
+  const players=Object.values(game.players||{});if(players.length<3)return;
+  const n=players.length;
+  const totalRounds=localFaRounds>0?localFaRounds:faRoundsForPlayers(n);
+  const totalWords=localFaWords||3;
+  const turnOrder=shuffle([...players]).map(p=>p.id);
+  const imposterId=turnOrder[Math.floor(Math.random()*turnOrder.length)];
+  const word=pick(FA_WORDS);
+  const scores={};players.forEach(p=>{scores[p.id]=0;});
+  await updateGame(gameCode,{
+    status:'playing',mode:'fa',faPhase:'draw',
+    faWord:word,faImposterId:imposterId,
+    faStrokes:{},faLiveStroke:{},faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:firebase.database.ServerValue.TIMESTAMP,
+    faRound:1,faTotalRounds:totalRounds,
+    faWordIndex:1,faTotalWords:totalWords,
+    faScores:scores,faVotes:{},faGuess:null,faResult:null,faAccusedId:null,
+    faUsedWords:[word],
+  });
+}
+
+function enterFaDraw(game){
+  faCanvasCleanup();
+  faVoteResolving=false;
+  faWordHidden=false;
+  const gi=document.getElementById('faImposterGuessInput');if(gi){gi.disabled=false;gi.value='';}
+  showScreen('fa-draw');
+  setTimeout(()=>setupFaCanvas(localGame||game),50);
+}
+
+function setupFaCanvas(game){
+  faCanvas=document.getElementById('faCanvas');
+  faLiveCanvas=document.getElementById('faLiveCanvas');
+  if(!faCanvas)return;
+  faCanvas.width=FA_CANVAS_SIZE;
+  faCanvas.height=FA_CANVAS_SIZE;
+  faCanvas.style.width='100%';
+  faCanvas.style.height='100%';
+  faCtx=faCanvas.getContext('2d');
+  faCtx.lineCap='round';faCtx.lineJoin='round';
+  if(faLiveCanvas){
+    faLiveCanvas.width=FA_CANVAS_SIZE;
+    faLiveCanvas.height=FA_CANVAS_SIZE;
+    faLiveCanvas.style.width='100%';
+    faLiveCanvas.style.height='100%';
+    faLiveCtx=faLiveCanvas.getContext('2d');
+    faLiveCtx.lineCap='round';faLiveCtx.lineJoin='round';
+  }
+  faClearCanvas();
+  faClearLiveCanvas();
+
+  const swatchWrap=document.getElementById('faColorSwatches');
+  if(swatchWrap){
+    swatchWrap.innerHTML=FA_SWATCH_COLORS.map(c=>`<div onclick="faSetColor('${c}')" style="width:26px;height:26px;border-radius:50%;background:${c};border:2px solid transparent;cursor:pointer;transition:transform 0.1s;flex-shrink:0" id="faSwatch_${c.replace('#','')}"></div>`).join('');
+  }
+  faSetColor('#e8d44d');
+  const brush=document.getElementById('faBrushSize');
+  if(brush){brush.oninput=()=>faUpdateBrushPreview();}
+  const picker=document.getElementById('faColorPicker');
+  if(picker){picker.oninput=e=>faSetColor(e.target.value);}
+
+  faLiveStrokes=game&&game.faLiveStroke?game.faLiveStroke:{};
+  replayFaStrokes(faStrokesArray(game&&game.faStrokes));
+  if(gameCode){
+    faStrokeListener=db.ref('games/'+gameCode+'/faStrokes').on('value',snap=>{
+      if(localGame)localGame.faStrokes=snap.val()||{};
+      replayFaStrokes(faStrokesArray(snap.val()));
+    });
+    faLiveStrokeListener=db.ref('games/'+gameCode+'/faLiveStroke').on('value',snap=>{
+      faLiveStrokes=snap.val()||{};
+      faRenderLiveStrokes();
+    });
+  }
+
+  faCanvas.addEventListener('mousedown',faOnDown);
+  faCanvas.addEventListener('mousemove',faOnMove);
+  faCanvas.addEventListener('mouseup',faOnUp);
+  faCanvas.addEventListener('mouseleave',faOnUp);
+  faCanvas.addEventListener('touchstart',faOnTouchStart,{passive:false});
+  faCanvas.addEventListener('touchmove',faOnTouchMove,{passive:false});
+  faCanvas.addEventListener('touchend',faOnTouchEnd,{passive:false});
+  updateFaDrawScreen(game||localGame);
+}
+
+function faClearCanvas(){
+  if(!faCtx||!faCanvas)return;
+  faCtx.fillStyle='#1a1a24';
+  faCtx.fillRect(0,0,faCanvas.width,faCanvas.height);
+}
+function faClearLiveCanvas(){
+  if(!faLiveCtx||!faLiveCanvas)return;
+  faLiveCtx.clearRect(0,0,faLiveCanvas.width,faLiveCanvas.height);
+}
+function faDrawStrokeOnCtx(ctx,s){
+  if(!ctx||!s||!s.points||!s.points.length)return;
+  ctx.strokeStyle=s.color||'#fff';ctx.lineWidth=s.size||6;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(s.points[0].x,s.points[0].y);s.points.forEach(p=>ctx.lineTo(p.x,p.y));ctx.stroke();
+}
+function faRenderLiveStrokes(){
+  faClearLiveCanvas();
+  const currentIdx=localGame?(localGame.faTurnIndex||0):null;
+  Object.values(faLiveStrokes||{}).forEach(s=>{
+    if(!s||!s.points||!s.points.length)return;
+    if(currentIdx!==null&&s.turnIndex!==undefined&&s.turnIndex!==currentIdx)return;
+    faDrawStrokeOnCtx(faLiveCtx,s);
+  });
+}
+function faSetColor(hex){
+  const picker=document.getElementById('faColorPicker');if(picker)picker.value=hex;
+  FA_SWATCH_COLORS.forEach(c=>{const el=document.getElementById('faSwatch_'+c.replace('#',''));if(el)el.style.border=c===hex?'2px solid white':'2px solid transparent';});
+  faUpdateBrushPreview();
+}
+function faUpdateBrushPreview(){
+  const preview=document.getElementById('faBrushPreview');if(!preview)return;
+  const sz=parseInt((document.getElementById('faBrushSize')||{}).value)||6;
+  const col=(document.getElementById('faColorPicker')||{}).value||'#e8d44d';
+  preview.style.width=Math.max(8,sz)+'px';preview.style.height=Math.max(8,sz)+'px';preview.style.background=col;
+}
+function faCurrentTurnId(game){const order=game&&game.faTurnOrder||[];const idx=game&&game.faTurnIndex||0;return order.length?order[idx%order.length]:null;}
+function faCanDraw(game){return !!game&&game.faPhase==='draw'&&faCurrentTurnId(game)===myId&&!faHasDrawn;}
+function faCanStartStroke(game){return faCanDraw(game)&&!faCurrentStroke.length&&!faIsDrawing;}
+
+function updateFaDrawScreen(game){
+  if(!game||game.mode!=='fa')return;
+  const tOrder=game.faTurnOrder||[];
+  const tIdx=game.faTurnIndex||0;
+  const currentTurnId=faCurrentTurnId(game);
+  const isMyTurn=currentTurnId===myId;
+  const currentPlayer=(game.players&&game.players[currentTurnId]&&game.players[currentTurnId].name)||'?';
+  const round=Math.floor(tIdx/(tOrder.length||1))+1;
+  const totalRounds=game.faTotalRounds||5;
+  const wordIndex=game.faWordIndex||1;
+  const totalWords=game.faTotalWords||3;
+  const isImpostor=game.faImposterId===myId;
+
+  if(faLastTurnIndex!==tIdx){
+    faLastTurnIndex=tIdx;
+    faHasDrawn=false;faIsDrawing=false;faCurrentStroke=[];faTimeoutHandledFor=null;faLastLiveUpdate=0;faClearLiveCanvas();
+  }
+
+  const roundEl=document.getElementById('faRoundBadge');if(roundEl)roundEl.textContent=`Word ${wordIndex}/${totalWords} · Round ${Math.min(round,totalRounds)}/${totalRounds}`;
+  const turnEl=document.getElementById('faTurnIndicator');
+  if(turnEl){turnEl.textContent=isMyTurn?'YOUR TURN':currentPlayer+"'s turn";turnEl.style.color=isMyTurn?'var(--safe)':'var(--muted)';}
+
+  const wordEl=document.getElementById('faWordDisplay');
+  if(wordEl){wordEl.textContent=isImpostor?'???':(game.faWord||'???');wordEl.style.color=isImpostor?'var(--spy)':'var(--accent)';}
+
+  // Imposter in-game guess bar
+  const guessBar=document.getElementById('faImposterGuessBar');
+  if(guessBar)guessBar.style.display=isImpostor?'block':'none';
+
+  const canDraw=faCanDraw(game);
+  const canStartStroke=faCanStartStroke(game);
+  if(faCanvas){faCanvas.style.cursor=canStartStroke?'crosshair':'default';faCanvas.style.pointerEvents=canStartStroke?'auto':'none';}
+
+  const overlayText=document.getElementById('faCanvasOverlayText');
+  if(overlayText){
+    overlayText.style.display='block';
+    if(faHasDrawn){
+      overlayText.textContent='Submitted — waiting for the next turn...';
+      overlayText.style.color='var(--muted)';
+    } else if(isMyTurn&&faCurrentStroke.length){
+      overlayText.textContent='1 line drawn — Submit or Undo';
+      overlayText.style.color='var(--accent)';
+    } else {
+      overlayText.textContent=isMyTurn?'✏️ Your turn — draw one line':currentPlayer+"'s turn to draw...";
+      overlayText.style.color=isMyTurn?'var(--safe)':'var(--muted)';
+    }
+  }
+
+  const drawBtn=document.getElementById('faDrawBtn');
+  if(drawBtn){
+    drawBtn.style.display=canDraw?'block':'none';
+    faUpdateStrokeButtons();
+  }
+  const toolsEl=document.getElementById('faTools');
+  if(toolsEl){toolsEl.style.opacity=canDraw?'1':'0.45';toolsEl.style.pointerEvents=canDraw?'auto':'none';}
+
+  startFaTurnTimer(game);
+}
+
+function startFaTurnTimer(game){
+  if(faTurnTimerInterval){clearInterval(faTurnTimerInterval);faTurnTimerInterval=null;}
+  const tick=()=>{
+    const g=localGame||game;if(!g||g.mode!=='fa'||g.faPhase!=='draw')return;
+    const started=g.faTurnStartedAt||Date.now();
+    const elapsed=Math.floor((Date.now()-started)/1000);
+    const remaining=Math.max(0,FA_TURN_SECONDS-elapsed);
+    const currentTurnId=faCurrentTurnId(g);
+    const currentPlayer=(g.players&&g.players[currentTurnId]&&g.players[currentTurnId].name)||'?';
+    const statusEl=document.getElementById('faStatusBar');
+    const order=g.faTurnOrder||[];const total=order.length||1;const completed=(g.faTurnIndex||0)%total;
+    const timerEl=document.getElementById('faTurnTimerDisplay');
+    if(timerEl){
+      timerEl.textContent=String(remaining).padStart(2,'0');
+      timerEl.style.color=remaining<=5?'var(--spy)':'var(--accent)';
+      timerEl.style.transform=remaining<=5?'scale(1.08)':'scale(1)';
+    }
+    if(statusEl){
+      statusEl.textContent=`${currentTurnId===myId?'YOUR TURN':currentPlayer+"'s turn"} · ${completed}/${total} drawn this round`;
+      statusEl.style.color=remaining<=5?'var(--spy)':'var(--accent)';
+    }
+    if(remaining<=0&&amHost&&faTimeoutHandledFor!==(g.faTurnIndex||0)){
+      faTimeoutHandledFor=g.faTurnIndex||0;
+      faAdvanceTurn(g.faTurnIndex||0,true);
+    }
+  };
+  tick();
+  faTurnTimerInterval=setInterval(tick,250);
+}
+
+function faGetPos(e){
+  if(!faCanvas)return{x:0,y:0};
+  const rect=faCanvas.getBoundingClientRect();
+  return{x:(e.clientX-rect.left)*(FA_CANVAS_SIZE/rect.width),y:(e.clientY-rect.top)*(FA_CANVAS_SIZE/rect.height)};
+}
+function faOnDown(e){
+  const g=localGame;if(!faCanStartStroke(g)||!faLiveCtx)return;
+  faIsDrawing=true;faCurrentStroke=[];
+  const pos=faGetPos(e);faCurrentStroke.push(pos);
+  faClearLiveCanvas();
+  faLiveCtx.beginPath();faLiveCtx.moveTo(pos.x,pos.y);
+  faBroadcastLiveStroke(true);
+  faUpdateStrokeButtons();
+  e.preventDefault();
+}
+function faOnMove(e){
+  if(!faIsDrawing||!faLiveCtx)return;
+  const pos=faGetPos(e);faCurrentStroke.push(pos);
+  const color=(document.getElementById('faColorPicker')||{}).value||'#e8d44d';
+  const size=parseInt((document.getElementById('faBrushSize')||{}).value)||6;
+  faLiveCtx.strokeStyle=color;faLiveCtx.lineWidth=size;
+  const prev=faCurrentStroke[faCurrentStroke.length-2]||faCurrentStroke[0];
+  faLiveCtx.beginPath();faLiveCtx.moveTo(prev.x,prev.y);faLiveCtx.lineTo(pos.x,pos.y);faLiveCtx.stroke();
+  faBroadcastLiveStroke(false);
+  faUpdateStrokeButtons();
+  e.preventDefault();
+}
+function faOnUp(e){if(!faIsDrawing)return;faIsDrawing=false;faBroadcastLiveStroke(true);faUpdateStrokeButtons();updateFaDrawScreen(localGame);if(e&&e.preventDefault)e.preventDefault();}
+function faBroadcastLiveStroke(force){
+  if(!gameCode||!localGame||!faCurrentStroke.length||faHasDrawn)return;
+  const now=Date.now();
+  if(!force&&now-faLastLiveUpdate<25)return;
+  faLastLiveUpdate=now;
+  const color=(document.getElementById('faColorPicker')||{}).value||'#e8d44d';
+  const size=parseInt((document.getElementById('faBrushSize')||{}).value)||6;
+  db.ref('games/'+gameCode+'/faLiveStroke/'+myId).set({
+    playerId:myId,
+    color,
+    size,
+    points:faCurrentStroke.map(p=>({x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10})),
+    ts:now,
+    turnIndex:(localGame.faTurnIndex||0)
+  }).catch(()=>{});
+}
+
+function faUpdateStrokeButtons(){
+  const hasStroke=faCurrentStroke.length>0&&!faHasDrawn;
+  const undo=document.getElementById('faUndoBtn');if(undo)undo.disabled=!hasStroke;
+  const submit=document.getElementById('faSubmitBtn');if(submit)submit.disabled=!hasStroke;
+}
+function faUndoStroke(){
+  if(!faCurrentStroke.length||faHasDrawn)return;
+  faIsDrawing=false;faCurrentStroke=[];faLastLiveUpdate=0;
+  if(gameCode)db.ref('games/'+gameCode+'/faLiveStroke/'+myId).remove().catch(()=>{});
+  replayFaStrokes(localGame&&localGame.faStrokes);
+  faRenderLiveStrokes();
+  faUpdateStrokeButtons();
+  updateFaDrawScreen(localGame);
+}
+function faOnTouchStart(e){if(e.cancelable)e.preventDefault();if(e.touches&&e.touches[0])faOnDown(e.touches[0]);}
+function faOnTouchMove(e){if(e.cancelable)e.preventDefault();if(e.touches&&e.touches[0])faOnMove(e.touches[0]);}
+function faOnTouchEnd(e){if(e.cancelable)e.preventDefault();faOnUp(e);}
+
+async function faFinishStroke(){
+  const g=localGame;if(!g||!gameCode||faHasDrawn||!faCurrentStroke.length)return;
+  const expectedIdx=g.faTurnIndex||0;
+  if(faCurrentTurnId(g)!==myId)return;
+  faHasDrawn=true;
+  faUpdateStrokeButtons();
+  const btnWrap=document.getElementById('faDrawBtn');if(btnWrap)btnWrap.style.display='none';
+  const color=(document.getElementById('faColorPicker')||{}).value||'#e8d44d';
+  const size=parseInt((document.getElementById('faBrushSize')||{}).value)||6;
+  const stroke={playerId:myId,color,size,points:faCurrentStroke.map(p=>({x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10})),ts:Date.now(),turnIndex:expectedIdx};
+  await db.ref('games/'+gameCode+'/faStrokes').push(stroke);
+  await db.ref('games/'+gameCode+'/faLiveStroke/'+myId).remove().catch(()=>{});
+  faCurrentStroke=[];
+  await faAdvanceTurn(expectedIdx,false);
+}
+
+async function faAdvanceTurn(expectedIdx,fromTimeout){
+  if(!gameCode)return;
+  const snap=await gameRefFor(gameCode).once('value');
+  const game=snap.val();if(!game||game.mode!=='fa'||game.faPhase!=='draw')return;
+  if((game.faTurnIndex||0)!==expectedIdx)return;
+  const order=game.faTurnOrder||[];const total=order.length;if(!total)return;
+  const newIdx=expectedIdx+1;
+  const completedRounds=Math.floor(newIdx/total);
+  const totalRounds=game.faTotalRounds||5;
+  if(completedRounds>=totalRounds){
+    await updateGame(gameCode,{faTurnIndex:newIdx,faPhase:'vote',faVotes:{},faVoteStartedAt:firebase.database.ServerValue.TIMESTAMP});
+  } else {
+    await updateGame(gameCode,{faTurnIndex:newIdx,faTurnStartedAt:firebase.database.ServerValue.TIMESTAMP});
+  }
+}
+
+function replayFaStrokes(strokes){
+  if(!faCtx||!faCanvas)return;
+  faClearCanvas();
+  const permanent=faStrokesArray(strokes).sort((a,b)=>(a.ts||0)-(b.ts||0));
+  permanent.forEach(s=>faDrawStrokeOnCtx(faCtx,s));
+  faRenderLiveStrokes();
+}
+function toggleFaWord(){
+  faWordHidden=!faWordHidden;
+  const visible=document.getElementById('faWordVisible');const hidden=document.getElementById('faWordHidden');
+  if(visible)visible.style.display=faWordHidden?'none':'flex';
+  if(hidden)hidden.style.display=faWordHidden?'block':'none';
+}
+
+function enterFaVote(game){
+  if(faTurnTimerInterval){clearInterval(faTurnTimerInterval);faTurnTimerInterval=null;}
+  if(faVoteTimerInterval){clearInterval(faVoteTimerInterval);faVoteTimerInterval=null;}
+  faVoteResolving=false;
+  showScreen('fa-vote');
+  setTimeout(()=>setupFaVoteCanvas(game),50);
+  updateFaVoteScreen(game);
+}
+function setupFaVoteCanvas(game){
+  const vc=document.getElementById('faVoteCanvas');if(!vc)return;
+  vc.width=FA_CANVAS_SIZE;vc.height=FA_CANVAS_SIZE;vc.style.width='100%';vc.style.height='auto';
+  const vCtx=vc.getContext('2d');
+  vCtx.fillStyle='#1a1a24';vCtx.fillRect(0,0,vc.width,vc.height);
+  const strokes=faStrokesArray(game&&game.faStrokes).sort((a,b)=>(a.ts||0)-(b.ts||0));
+  strokes.forEach(s=>{
+    if(!s.points||!s.points.length)return;
+    vCtx.strokeStyle=s.color||'#fff';vCtx.lineWidth=s.size||6;vCtx.lineCap='round';vCtx.lineJoin='round';
+    vCtx.beginPath();vCtx.moveTo(s.points[0].x,s.points[0].y);s.points.forEach(p=>vCtx.lineTo(p.x,p.y));vCtx.stroke();
+  });
+}
+function updateFaVoteScreen(game){
+  const votes=game.faVotes||{};const myVote=votes[myId];
+  const players=Object.values(game.players||{}).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));
+  const n=players.length;const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  const list=document.getElementById('faVoteList');
+  if(list){list.innerHTML=players.map(p=>{const vc=voteCounts[p.id]||0;const clickable=p.id!==myId;return`<div class="vote-item ${myVote===p.id?'voted':''}" onclick="${clickable?`castFaVote('${p.id}')`:''}" style="${!clickable?'opacity:0.5;pointer-events:none':''}">${playerAvatar(p)}<div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#f97316">${vc}</div>`:''}${myVote===p.id?'<div style="color:#f97316;font-size:13px">✓</div>':''}</div>`;}).join('');}
+  const status=document.getElementById('faVoteStatus');if(status)status.textContent=`${Object.keys(votes).length} of ${n} voted`;
+  startFaVoteTimer(game);
+  if(amHost&&Object.keys(votes).length>=n&&n>0)resolveFaVote(game,'all-voted');
+}
+function startFaVoteTimer(game){
+  if(faVoteTimerInterval){clearInterval(faVoteTimerInterval);faVoteTimerInterval=null;}
+  if(!game||game.faPhase!=='vote')return;
+  if(!game.faVoteStartedAt&&amHost&&gameCode){
+    gameRefFor(gameCode).child('faVoteStartedAt').set(firebase.database.ServerValue.TIMESTAMP);
+    return;
+  }
+  const tick=()=>{
+    const g=localGame||game;if(!g||g.faPhase!=='vote')return;
+    const started=g.faVoteStartedAt||Date.now();
+    const elapsed=Math.floor((Date.now()-started)/1000);
+    const remaining=Math.max(0,FA_VOTE_SECONDS-elapsed);
+    const timer=document.getElementById('faVoteTimer');
+    if(timer){
+      const mm=String(Math.floor(remaining/60)).padStart(2,'0');
+      const ss=String(remaining%60).padStart(2,'0');
+      timer.textContent=`${mm}:${ss}`;
+      timer.style.color=remaining<=10?'var(--spy)':'#f97316';
+    }
+    if(remaining<=0&&amHost)resolveFaVote(g,'timer');
+  };
+  tick();
+  faVoteTimerInterval=setInterval(tick,250);
+}
+async function castFaVote(targetId){
+  if(!gameCode||!localGame||localGame.faPhase!=='vote')return;
+  await gameRefFor(gameCode).child('faVotes/'+myId).set(targetId);
+  if(amHost){const votes={...(localGame.faVotes||{}),[myId]:targetId};const n=Object.keys(localGame.players||{}).length;if(Object.keys(votes).length>=n)resolveFaVote({...localGame,faVotes:votes},'all-voted');}
+}
+async function resolveFaVote(game,reason){
+  if(!amHost||faVoteResolving||!game||game.faPhase!=='vote')return;
+  faVoteResolving=true;
+  if(faVoteTimerInterval){clearInterval(faVoteTimerInterval);faVoteTimerInterval=null;}
+  const votes=game.faVotes||{};const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const maxV=Math.max(...Object.values(counts),0);const topIds=Object.entries(counts).filter(([,c])=>c===maxV).map(([id])=>id);
+  const accusedId=(maxV>0&&topIds.length===1)?topIds[0]:null;
+  if(accusedId===game.faImposterId){await resolveFaRound(game,true,null);}
+  else{await resolveFaRound(game,false,null);}
+}
+
+function enterFaGuess(game){
+  showScreen('fa-guess');
+  const accusedId=game.faAccusedId;const accusedName=(game.players&&game.players[accusedId]&&game.players[accusedId].name)||'?';
+  const target=document.getElementById('faGuessTargetName');if(target)target.textContent=accusedName;
+  const isImpostor=myId===accusedId;
+  const inputSection=document.getElementById('faGuessInputSection');if(inputSection)inputSection.style.display=isImpostor?'flex':'none';
+  const waiting=document.getElementById('faGuessWaiting');if(waiting)waiting.style.display=isImpostor?'none':'block';
+  const waitingText=document.getElementById('faGuessWaitingText');if(waitingText)waitingText.textContent=`${accusedName} is guessing the word...`;
+  if(isImpostor)setTimeout(()=>{const input=document.getElementById('faGuessInput');if(input)input.focus();},100);
+  if(gameCode){
+    db.ref('games/'+gameCode+'/faGuess').off('value');
+    db.ref('games/'+gameCode+'/faGuess').on('value',snap=>{const guess=snap.val();if(guess&&amHost){db.ref('games/'+gameCode+'/faGuess').off('value');checkFaGuess(localGame,guess);}});
+  }
+}
+async function submitFaGuess(){
+  const input=document.getElementById('faGuessInput');if(!input)return;
+  const guess=input.value.trim();if(!guess)return;
+  input.disabled=true;await gameRefFor(gameCode).child('faGuess').set(guess);
+  const inputSection=document.getElementById('faGuessInputSection');if(inputSection)inputSection.style.display='none';
+  const waiting=document.getElementById('faGuessWaiting');if(waiting)waiting.style.display='block';
+  const waitingText=document.getElementById('faGuessWaitingText');if(waitingText)waitingText.textContent='Guess submitted! Waiting for result...';
+}
+async function checkFaGuess(game,guess){
+  if(!amHost||!game)return;
+  const word=(game.faWord||'').toLowerCase().trim();
+  const correct=guess.toLowerCase().trim()===word;
+  await resolveFaRound(game,!correct,correct?guess:null);
+}
+async function resolveFaRound(game,townWins,impostorGuess){
+  // Allow ANY client to resolve a guess-driven result (imposter may not be host).
+  const scores={...(game.faScores||{})};const players=Object.values(game.players||{});
+  if(townWins){players.forEach(p=>{if(p.id!==game.faImposterId)scores[p.id]=(scores[p.id]||0)+2;});}
+  else{scores[game.faImposterId]=(scores[game.faImposterId]||0)+3;}
+  await updateGame(gameCode,{faPhase:'result',faScores:scores,faResult:{townWins,impostorGuess}});
+}
+
+function showFaResult(game){
+  const r=game.faResult||{};const impostorPlayer=game.players&&game.players[game.faImposterId];const impostorName=(impostorPlayer&&impostorPlayer.name)||'Unknown';
+  const bannerEl=document.getElementById('faResultBanner');
+  const faPlayers=Object.values(game.players||{});
+  const normalWordPlayers=faPlayers.filter(p=>p.id!==game.faImposterId);
+  if(bannerEl){bannerEl.innerHTML=r.townWins?`<div class="result-banner crew-wins">${resultAvatarGroupHtml(normalWordPlayers,'🎉')}<h2>Players Win!</h2><p>${r.impostorGuess?`The Fake Artist guessed wrong (&quot;${esc(r.impostorGuess)}&quot;)`:'The Fake Artist was voted out'}.</p></div>`:`<div class="result-banner" style="background:linear-gradient(135deg,#1a0a00,#0f0500);border:2px solid #f97316;animation:none">${resultAvatarHtml(impostorPlayer,'🎨')}<h2 style="color:#f97316">Fake Artist Wins!</h2><p>${r.impostorGuess?`Correctly guessed &quot;${esc(r.impostorGuess)}&quot;!`:'Escaped undetected.'}</p></div>`;}
+  const reveal=document.getElementById('faResultImpostorReveal');if(reveal)reveal.innerHTML=`${resultAvatarHtml(impostorPlayer,'🎨')}<div style="font-size:20px;font-weight:800;color:#f97316">${esc(impostorName)}</div>`;
+  const word=document.getElementById('faResultWord');if(word)word.textContent=game.faWord||'?';
+  const players=Object.values(game.players||{}).sort((a,b)=>((game.faScores&&game.faScores[b.id])||0)-((game.faScores&&game.faScores[a.id])||0));
+  const board=document.getElementById('faResultScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${playerAvatar(p,'av-sm')}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${playerNameHtml(p)}${p.id===game.faImposterId?' 🎨':''}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
+  const wordIndex=game.faWordIndex||1;const totalWords=game.faTotalWords||3;const isLastWord=wordIndex>=totalWords;
+  const nextBtn=document.getElementById('faNextWordBtn');if(nextBtn)nextBtn.textContent=isLastWord?'See Final Scores':'Next Word →';
+  const hostBtns=document.getElementById('faResultHostBtns');if(hostBtns)hostBtns.style.display=amHost?'flex':'none';
+  const nonHostBtns=document.getElementById('faResultNonHostBtns');if(nonHostBtns)nonHostBtns.style.display=!amHost?'flex':'none';
+  showScreen('fa-result');
+  maybePlayMyWinAnim(game);
+}
+async function faNextWord(){
+  if(!amHost||!localGame)return;
+  const game=localGame;const wordIndex=game.faWordIndex||1;const totalWords=game.faTotalWords||3;
+  if(wordIndex>=totalWords){await updateGame(gameCode,{status:'result'});return;}
+  const players=Object.values(game.players||{});const n=players.length;const totalRounds=localFaRounds>0?localFaRounds:(game.faTotalRounds||faRoundsForPlayers(n));
+  const turnOrder=shuffle([...players]).map(p=>p.id);const imposterId=turnOrder[Math.floor(Math.random()*turnOrder.length)];
+  const usedWords=game.faUsedWords||[];const available=FA_WORDS.filter(w=>!usedWords.includes(w));const word=pick(available.length>0?available:FA_WORDS);
+  faHasDrawn=false;faCurrentStroke=[];
+  faVoteResolving=false;
+  await updateGame(gameCode,{faPhase:'draw',faWord:word,faImposterId:imposterId,faStrokes:{},faLiveStroke:{},faTurnOrder:turnOrder,faTurnIndex:0,faTurnStartedAt:firebase.database.ServerValue.TIMESTAMP,faRound:1,faTotalRounds:totalRounds,faWordIndex:wordIndex+1,faVotes:{},faVoteStartedAt:null,faVoteEndReason:null,faGuess:null,faResult:null,faAccusedId:null,faUsedWords:[...usedWords,word]});
+}
+function showFaGameOver(game){
+  const players=Object.values(game.players||{}).sort((a,b)=>((game.faScores&&game.faScores[b.id])||0)-((game.faScores&&game.faScores[a.id])||0));
+  const winner=players[0]||{name:'Player',id:''};const score=(game.faScores&&game.faScores[winner.id])||0;
+  const title=document.getElementById('faGameoverTitle');if(title)title.textContent=winner.name.toUpperCase()+' WINS!';
+  const faWinAv=document.getElementById('faGameoverWinnerAv');
+  if(faWinAv){if(winner.avatar){faWinAv.innerHTML=`<img src="${winner.avatar}" style="width:160px;height:160px;border-radius:50%;object-fit:cover;opacity:0.18;filter:blur(1px)"/>`;faWinAv.style.display='flex';}else{faWinAv.style.display='none';}}
+  const subtitle=document.getElementById('faGameoverSubtitle');if(subtitle)subtitle.textContent='with '+score+' point'+(score!==1?'s':'');
+  const board=document.getElementById('faGameoverScoreboard');if(board)board.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}">${playerAvatar(p,'av-sm')}<div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${(game.faScores&&game.faScores[p.id])||0} pts</div></div>`).join('');
+  const hostBtns=document.getElementById('faGameoverHostBtns');if(hostBtns)hostBtns.style.display=amHost?'flex':'none';
+  const nonHostBtns=document.getElementById('faGameoverNonHostBtns');if(nonHostBtns)nonHostBtns.style.display=!amHost?'flex':'none';
+  showScreen('fa-gameover');
+}
+
+// FA rounds display init
+(function(){
+  const el=document.getElementById('faRoundsDisplay');
+  if(el)el.textContent='Auto';
+})();
+
+// =====================================================
+// BLIND SPOT: CARD SETS
+// =====================================================
+const BS_CARD_SETS = {
+  'Geography': [
+    {cards:['Eiffel Tower','Arc de Triomphe','Louvre'],clues:['France','Europe','Tourism']},
+    {cards:['Mount Everest','K2','Kilimanjaro'],clues:['Mountains','Altitude','Climbing']},
+    {cards:['Amazon River','Nile River','Mississippi River'],clues:['Rivers','Water','Long']},
+    {cards:['Sahara Desert','Gobi Desert','Atacama Desert'],clues:['Dry','Sand','Hot']},
+    {cards:['Sydney Opera House','Harbour Bridge','Bondi Beach'],clues:['Australia','Iconic','Coastal']},
+  ],
+  'Movies': [
+    {cards:['The Godfather','Goodfellas','Scarface'],clues:['Crime','Mafia','Classic']},
+    {cards:['Titanic','Avatar','Avengers: Endgame'],clues:['Blockbuster','Hollywood','Billion dollar']},
+    {cards:['The Dark Knight','Iron Man','Spider-Man'],clues:['Superhero','Comic','Action']},
+    {cards:['Toy Story','The Lion King','Finding Nemo'],clues:['Animated','Family','Disney']},
+    {cards:['Inception','Interstellar','The Matrix'],clues:['Mind-bending','Sci-fi','Philosophy']},
+  ],
+  'Actors': [
+    {cards:['Leonardo DiCaprio','Brad Pitt','Tom Hanks'],clues:['Hollywood','Oscar','Male']},
+    {cards:['Meryl Streep','Cate Blanchett','Natalie Portman'],clues:['Actress','Oscar','Female']},
+    {cards:['Will Smith','Denzel Washington','Jamie Foxx'],clues:['Actor','Acclaimed','Male']},
+    {cards:['Chris Evans','Chris Hemsworth','Chris Pratt'],clues:['Marvel','Action','Chris']},
+    {cards:['Robert De Niro','Al Pacino','Joe Pesci'],clues:['Italian-American','Crime films','Legendary']},
+  ],
+  'Foods': [
+    {cards:['Sushi','Ramen','Tempura'],clues:['Japanese','Asia','Restaurant']},
+    {cards:['Pizza','Pasta','Risotto'],clues:['Italian','Carbs','Delicious']},
+    {cards:['Tacos','Burritos','Guacamole'],clues:['Mexican','Spicy','Wrap']},
+    {cards:['Croissant','Baguette','Crème Brûlée'],clues:['French','Bakery','Fancy']},
+    {cards:['Burger','Hot Dog','Fries'],clues:['American','Fast food','Unhealthy']},
+  ],
+  'Sports': [
+    {cards:['LeBron James','Kobe Bryant','Michael Jordan'],clues:['Basketball','NBA','GOAT debate']},
+    {cards:['Cristiano Ronaldo','Lionel Messi','Neymar'],clues:['Football','Soccer','World class']},
+    {cards:['Roger Federer','Rafael Nadal','Novak Djokovic'],clues:['Tennis','Grand Slam','GOAT debate']},
+    {cards:['100m Sprint','Marathon','Long Jump'],clues:['Athletics','Olympics','Running']},
+    {cards:['Super Bowl','World Series','Stanley Cup'],clues:['Trophy','American sports','Championship']},
+  ],
+  'Animals': [
+    {cards:['Lion','Tiger','Leopard'],clues:['Big cat','Predator','Wild']},
+    {cards:['Dolphin','Whale','Shark'],clues:['Ocean','Marine','Swimming']},
+    {cards:['Eagle','Hawk','Falcon'],clues:['Bird','Predator','Sky']},
+    {cards:['Elephant','Rhino','Hippo'],clues:['Large','Africa','Heavy']},
+    {cards:['Cobra','Python','Anaconda'],clues:['Snake','Reptile','Dangerous']},
+  ],
+  'Music': [
+    {cards:['Michael Jackson','Prince','David Bowie'],clues:['Legend','Pop','Icon']},
+    {cards:['The Beatles','Rolling Stones','Led Zeppelin'],clues:['Classic rock','British','Band']},
+    {cards:['Eminem','Jay-Z','Kendrick Lamar'],clues:['Hip-hop','Rapper','Lyrical']},
+    {cards:['Beyoncé','Rihanna','Adele'],clues:['Female','Pop','Voice']},
+    {cards:['Grammy','Oscar','Emmy'],clues:['Award','Hollywood','Ceremony']},
+  ],
+  'Science': [
+    {cards:['Albert Einstein','Isaac Newton','Nikola Tesla'],clues:['Scientist','Physics','Genius']},
+    {cards:['Black Hole','Neutron Star','White Dwarf'],clues:['Space','Stellar','Astronomy']},
+    {cards:['DNA','RNA','Protein'],clues:['Biology','Cell','Molecule']},
+    {cards:['Periodic Table','Atom','Electron'],clues:['Chemistry','Science','Element']},
+    {cards:['Volcano','Earthquake','Tsunami'],clues:['Natural disaster','Earth','Destructive']},
+  ],
+  'History': [
+    {cards:['Julius Caesar','Napoleon Bonaparte','Alexander the Great'],clues:['Conqueror','Ancient','Empire']},
+    {cards:['World War I','World War II','Cold War'],clues:['War','20th century','Global conflict']},
+    {cards:['Cleopatra','Marie Antoinette','Queen Victoria'],clues:['Queen','Female ruler','Historical']},
+    {cards:['Colosseum','Great Wall of China','Machu Picchu'],clues:['Ancient','Wonder','Monument']},
+    {cards:['Moon Landing','Wright Brothers','Titanic Sinking'],clues:['Historic event','Famous','Changed history']},
+  ],
+  'Technology': [
+    {cards:['iPhone','Android','Nokia'],clues:['Phone','Mobile','Technology']},
+    {cards:['Facebook','Instagram','TikTok'],clues:['Social media','App','Followers']},
+    {cards:['Google','Amazon','Microsoft'],clues:['Tech giant','Company','Billion dollar']},
+    {cards:['Bitcoin','Ethereum','Dogecoin'],clues:['Crypto','Digital','Currency']},
+    {cards:['PlayStation','Xbox','Nintendo'],clues:['Gaming','Console','Controller']},
+  ],
+  'TV Shows': [
+    {cards:['Breaking Bad','The Wire','The Sopranos'],clues:['Drama','Crime','Acclaimed']},
+    {cards:['Friends','Seinfeld','The Office'],clues:['Comedy','Sitcom','Classic']},
+    {cards:['Game of Thrones','The Crown','Succession'],clues:['HBO','Drama','Power']},
+    {cards:['Stranger Things','Black Mirror','Westworld'],clues:['Sci-fi','Thriller','Netflix']},
+    {cards:['The Simpsons','Family Guy','South Park'],clues:['Animated','Adult','Comedy']},
+  ],
+  'Brands': [
+    {cards:['Nike','Adidas','Puma'],clues:['Sportswear','Shoe','Brand']},
+    {cards:['Ferrari','Lamborghini','Porsche'],clues:['Luxury car','Fast','Expensive']},
+    {cards:['Rolex','Patek Philippe','Audemars Piguet'],clues:['Watch','Luxury','Swiss']},
+    {cards:['Louis Vuitton','Gucci','Chanel'],clues:['Fashion','Luxury','Designer']},
+    {cards:["McDonald's",'KFC','Burger King'],clues:['Fast food','Chain','Franchise']},
+  ],
+  'Australian': [
+    {cards:['Tim Tams','Vegemite','Pavlova'],clues:['Australian food','Iconic','Local']},
+    {cards:['AFL','NRL','Cricket'],clues:['Australian sport','Popular','National']},
+    {cards:['Sydney','Melbourne','Brisbane'],clues:['Australian city','Capital','Urban']},
+    {cards:['Drop Bear','Kangaroo','Platypus'],clues:['Australian animal','Unique','Wildlife']},
+    {cards:['Bondi','Byron Bay','Noosa'],clues:['Australian beach','Surf','Holiday']},
+  ],
+  'Internet': [
+    {cards:['Reddit','4chan','Twitter'],clues:['Forum','Online','Community']},
+    {cards:['YouTube','Twitch','Kick'],clues:['Streaming','Video','Content']},
+    {cards:['ChatGPT','Gemini','Claude'],clues:['AI','Chatbot','Language model']},
+    {cards:['Discord','Slack','Teams'],clues:['Messaging','App','Chat']},
+    {cards:['Minecraft','Fortnite','Roblox'],clues:['Game','Online','Popular']},
+  ],
+  'Slang': [
+    {cards:['Rizz','Slay','No Cap'],clues:['Gen Z','Slang','Trendy']},
+    {cards:['Banger','Slaps','Fire'],clues:['Music slang','Good','Compliment']},
+    {cards:['Ghost','Breadcrumb','Situationship'],clues:['Dating','Relationship','Modern']},
+    {cards:["Ratio'd",'Caught in 4K','Rent Free'],clues:['Internet','Called out','Social media']},
+    {cards:['Big W','Big L','Cooked'],clues:['Australian slang','Result','Reaction']},
+  ],
+};
+const BS_CATEGORIES = Object.keys(BS_CARD_SETS);
+
+// Levenshtein distance for fuzzy matching
+function levenshtein(a, b) {
+  a = a.toLowerCase().trim();
+  b = b.toLowerCase().trim();
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, (_, i) => Array.from({length: n+1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+    dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+function bsFuzzyMatch(guess, target) {
+  const g = guess.toLowerCase().trim().replace(/[^a-z0-9 ]/g, '');
+  const t = target.toLowerCase().trim().replace(/[^a-z0-9 ]/g, '');
+  if (g === t) return true;
+  // Allow 1 typo for short words, 2 for longer
+  const threshold = t.length <= 5 ? 1 : 2;
+  if (levenshtein(g, t) <= threshold) return true;
+  // Also check if guess contains the target or vice versa
+  if (g.includes(t) || t.includes(g)) return true;
+  return false;
+}
+
+
+
+function renderBsCategorySelect(){
+  const el=document.getElementById('bsCategorySelect');if(!el)return;
+  el.innerHTML=BS_CATEGORIES.map(c=>`<div onclick="bsSelectCategory('${c}')" style="padding:6px 12px;border-radius:20px;font-size:12px;font-family:'DM Mono',monospace;cursor:pointer;border:1px solid ${localBsCategory===c?'#06b6d4':'var(--border)'};background:${localBsCategory===c?'rgba(6,182,212,0.15)':'var(--surface2)'};color:${localBsCategory===c?'#06b6d4':'var(--muted)'}">${c}</div>`).join('');
+}
+function bsSelectCategory(cat){
+  localBsCategory=cat;
+  renderBsCategorySelect();
+  if(gameCode)updateGame(gameCode,{bsCategory:cat});
+}
+
+// =====================================================
+// BLIND SPOT: STATE
+// =====================================================
+let bsDiscussTimerInterval=null,bsRevealTimerInterval=null,bsRefresherUsed=false,bsCardsVisible=false,bsRefresherTimeout=null;
+
+function changeBsDiscuss(delta){
+  const options=[3,5,10,15];
+  let idx=options.indexOf(localBsDiscussMinutes);
+  idx=Math.max(0,Math.min(options.length-1,idx+delta));
+  localBsDiscussMinutes=options[idx];
+  const el=document.getElementById('bsDiscussDisplay');
+  if(el)el.textContent=localBsDiscussMinutes+' min';
+  if(gameCode)updateGame(gameCode,{bsDiscussMinutes:localBsDiscussMinutes});
+}
+
+// =====================================================
+// BLIND SPOT: START
+// =====================================================
+async function startBsGame(){
+  const game=localGame;if(!game)return;
+  const players=Object.values(game.players||{});if(players.length<3)return;
+  const cat=localBsCategory||BS_CATEGORIES[0];
+  const sets=BS_CARD_SETS[cat]||[];
+  if(!sets.length)return;
+  const set=sets[Math.floor(Math.random()*sets.length)];
+  const imposter=players[Math.floor(Math.random()*players.length)];
+  // Pick which card the imposter knows
+  const knownIdx=Math.floor(Math.random()*3);
+  const scores={};players.forEach(p=>{scores[p.id]=0;});
+  await updateGame(gameCode,{
+    status:'playing',mode:'bs',
+    bsPhase:'reveal',
+    bsCategory:cat,
+    bsCards:set.cards,
+    bsClues:set.clues,
+    bsImposterId:imposter.id,
+    bsKnownCardIdx:knownIdx,
+    bsReady:{},
+    bsRevealStart:serverTimestamp(),
+    bsDiscussStart:null,
+    bsDiscussMinutes:localBsDiscussMinutes,
+    bsVotes:{},
+    bsGuesses:[],
+    bsCorrectGuesses:[],
+    bsIncorrectCount:0,
+    bsResult:null,
+    votes:{},result:null,
+  });
+}
+
+// =====================================================
+// BLIND SPOT: REVEAL SCREEN
+// =====================================================
+function enterBsReveal(game){
+  bsRefresherUsed=false;bsCardsVisible=false;
+  showScreen('bs-reveal');
+  renderBsReveal(game);
+  startBsRevealCountdown(game);
+}
+
+function renderBsReveal(game){
+  const isImpostor=game.bsImposterId===myId;
+  const cards=game.bsCards||[];
+  const clues=game.bsClues||[];
+  const knownIdx=game.bsKnownCardIdx||0;
+
+  const roleBadge=document.getElementById('bsRoleBadge');
+  if(roleBadge){
+    if(isImpostor){
+      roleBadge.style.background='rgba(232,93,77,0.12)';
+      roleBadge.style.border='1px solid rgba(232,93,77,0.4)';
+      roleBadge.style.color='var(--spy)';
+      roleBadge.textContent='🕵️ You are the IMPOSTER';
+    } else {
+      roleBadge.style.background='rgba(6,182,212,0.08)';
+      roleBadge.style.border='1px solid rgba(6,182,212,0.3)';
+      roleBadge.style.color='#06b6d4';
+      roleBadge.textContent='✓ You are INNOCENT';
+    }
+  }
+
+  const cardEmojis=['🎴','🃏','🀄'];
+  const cardsEl=document.getElementById('bsRevealCards');
+  if(!cardsEl)return;
+
+  if(isImpostor){
+    // Show known card with emoji, unknown cards as grey with clues only
+    cardsEl.innerHTML=cards.map((c,i)=>{
+      if(i===knownIdx){
+        return`<div style="padding:16px;background:var(--surface2);border:2px solid rgba(6,182,212,0.5);border-radius:var(--radius);display:flex;align-items:center;gap:12px">
+          <div style="font-size:32px">${cardEmojis[i]}</div>
+          <div><div style="font-size:11px;color:#06b6d4;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Known Card</div><div style="font-size:18px;font-weight:800;color:var(--text)">${esc(c)}</div></div>
+        </div>`;
+      } else {
+        const clue=clues[i]||clues[i%clues.length]||'?';
+        return`<div style="padding:16px;background:rgba(232,93,77,0.06);border:1px solid rgba(232,93,77,0.25);border-radius:var(--radius)">
+          <div style="font-size:11px;color:var(--spy);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Unknown — Clue only</div>
+          <div style="font-size:15px;font-weight:700;color:var(--spy)">🔍 ${esc(clue)}</div>
+        </div>`;
+      }
+    }).join('');
+  } else {
+    cardsEl.innerHTML=cards.map((c,i)=>`
+      <div style="padding:16px;background:var(--surface2);border:2px solid rgba(6,182,212,0.4);border-radius:var(--radius);display:flex;align-items:center;gap:12px">
+        <div style="font-size:32px">${cardEmojis[i]}</div>
+        <div><div style="font-size:11px;color:#06b6d4;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Card ${i+1}</div><div style="font-size:18px;font-weight:800;color:var(--text)">${esc(c)}</div></div>
+      </div>`).join('');
+  }
+
+  updateBsReadyCount(game);
+}
+
+function updateBsReadyCount(game){
+  const ready=Object.keys(game.bsReady||{}).length;
+  const total=Object.keys(game.players||{}).length;
+  const alreadyReady=!!(game.bsReady&&game.bsReady[myId]);
+  document.getElementById('bsReadyBtn').style.display=alreadyReady?'none':'block';
+  document.getElementById('bsRevealReadySection').style.display=alreadyReady?'none':'block';
+  document.getElementById('bsAlreadyReady').style.display=alreadyReady?'block':'none';
+  const readyEl=document.getElementById('bsReadyCountConfirmed');
+  if(readyEl)readyEl.textContent=`${ready} of ${total} ready`;
+  const countEl=document.getElementById('bsReadyCount');
+  if(countEl)countEl.textContent=`${ready} of ${total} ready`;
+}
+
+function startBsRevealCountdown(game){
+  if(bsRevealTimerInterval){clearInterval(bsRevealTimerInterval);bsRevealTimerInterval=null;}
+  const start=game.bsRevealStart;if(!start)return;
+  const tick=()=>{
+    const g=localGame||game;
+    if(!g||g.bsPhase!=='reveal'){clearInterval(bsRevealTimerInterval);bsRevealTimerInterval=null;return;}
+    const elapsed=Math.floor((syncedNow()-start)/1000);
+    const remaining=Math.max(0,30-elapsed);
+    const el=document.getElementById('bsRevealCountdown');
+    if(el)el.textContent=remaining;
+    // Check if all ready
+    const ready=Object.keys(g.bsReady||{}).length;
+    const total=Object.keys(g.players||{}).length;
+    if((remaining===0||ready>=total)&&amHost){
+      clearInterval(bsRevealTimerInterval);bsRevealTimerInterval=null;
+      bsStartDiscussion();
+    }
+  };
+  tick();
+  bsRevealTimerInterval=setInterval(tick,500);
+}
+
+async function bsPressReady(){
+  if(!gameCode||!localGame)return;
+  await gameRefFor(gameCode).child('bsReady/'+myId).set(true);
+}
+
+async function bsStartDiscussion(){
+  if(!amHost||!gameCode||!localGame)return;
+  await updateGame(gameCode,{bsPhase:'discussion',bsDiscussStart:serverTimestamp()});
+}
+
+// =====================================================
+// BLIND SPOT: DISCUSSION SCREEN
+// =====================================================
+function enterBsGame(game){
+  bsCardsVisible=false;
+  showScreen('bs-game');
+  renderBsGame(game);
+  startBsDiscussTimer(game);
+}
+
+function renderBsGame(game){
+  const isImpostor=game.bsImposterId===myId;
+  const cards=game.bsCards||[];
+  const clues=game.bsClues||[];
+  const knownIdx=game.bsKnownCardIdx||0;
+  const correctGuesses=game.bsCorrectGuesses||[];
+  const incorrectCount=game.bsIncorrectCount||0;
+  const maxIncorrect=5;
+  const cat=game.bsCategory||'';
+
+  document.getElementById('bsCategoryBadge').textContent='Category: '+cat;
+
+  // Role badge
+  const rb=document.getElementById('bsGameRoleBadge');
+  if(rb){
+    if(isImpostor){
+      rb.style.background='rgba(232,93,77,0.1)';
+      rb.style.border='1px solid rgba(232,93,77,0.3)';
+      rb.style.color='var(--spy)';
+      rb.textContent=`🕵️ IMPOSTER — ${correctGuesses.length}/2 cards found`;
+    } else {
+      rb.style.background='rgba(6,182,212,0.08)';
+      rb.style.border='1px solid rgba(6,182,212,0.3)';
+      rb.style.color='#06b6d4';
+      rb.textContent=`✓ INNOCENT — imposter has ${correctGuesses.length}/2 cards`;
+    }
+  }
+  // Shared progress visible to EVERYONE (incl. imposter)
+  const sharedProg=document.getElementById('bsSharedProgress');
+  if(sharedProg){
+    sharedProg.style.display='block';
+    sharedProg.innerHTML=`🕵️ Imposter has guessed <span style="color:#06b6d4;font-weight:800">${correctGuesses.length} / 2</span> cards correct`;
+  }
+
+  // Vote list
+  renderBsVoteList(game);
+
+  // Show/hide imposter tools
+  const guessSection=document.getElementById('bsImpostorGuessSection');
+  if(guessSection)guessSection.style.display=isImpostor?'block':'none';
+
+  if(isImpostor){
+    const gp=document.getElementById('bsGuessProgress');
+    const gl=document.getElementById('bsGuessesLeft');
+    if(gp)gp.textContent=`Correct: ${correctGuesses.length} / 2`;
+    if(gl){
+      const remaining=maxIncorrect-incorrectCount;
+      gl.textContent=remaining>0?`Wrong guesses: ${incorrectCount} / ${maxIncorrect} (${remaining} left)`:`No guesses left!`;
+      gl.style.color=remaining<=1?'var(--spy)':'var(--muted)';
+    }
+  }
+
+  // Show refresher for innocents, view cards for imposter
+  const refresherBtn=document.getElementById('bsRefresherBtn');
+  const viewBtn=document.getElementById('bsViewCardsBtn');
+  if(isImpostor){
+    if(viewBtn)viewBtn.style.display='block';
+    if(refresherBtn)refresherBtn.style.display='none';
+  } else {
+    if(viewBtn)viewBtn.style.display='none';
+    if(refresherBtn){
+      refresherBtn.style.display='block';
+      refresherBtn.disabled=bsRefresherUsed;
+      refresherBtn.style.opacity=bsRefresherUsed?'0.4':'1';
+      refresherBtn.textContent=bsRefresherUsed?'🔄 Refresher used':'🔄 Refresher ×1';
+    }
+  }
+}
+
+function renderBsVoteList(game){
+  const votes=game.bsVotes||{};
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const myVote=votes[myId];
+  const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+
+  const listEl=document.getElementById('bsVoteList');
+  if(listEl)listEl.innerHTML=players.map(p=>{
+    const vc=voteCounts[p.id]||0;
+    const isMyVote=myVote===p.id;
+    const clickable=p.id!==myId;
+    return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isMyVote?'rgba(6,182,212,0.1)':'var(--surface2)'};border:1px solid ${isMyVote?'rgba(6,182,212,0.5)':'var(--border)'};border-radius:var(--radius);cursor:${clickable?'pointer':'default'}" onclick="${clickable?`bsCastVote('${p.id}')`:''}"}>${playerAvatar(p)}
+      <div style="flex:1;font-size:13px;font-weight:600">${playerNameWithYou(p)}</div>
+      ${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#06b6d4;min-width:20px;text-align:center">${vc}</div>`:'<div style="min-width:20px"></div>'}
+      ${isMyVote?'<div style="color:#06b6d4;font-size:12px">✓</div>':''}
+    </div>`;
+  }).join('');
+
+  const total=players.length;
+  const voted=Object.keys(votes).length;
+  const statusEl=document.getElementById('bsVoteStatus');
+  if(statusEl)statusEl.textContent=`${voted} of ${total} voted`;
+
+  // Auto-resolve when all voted
+  if(amHost&&voted>=total&&total>0)bsResolveVote(game);
+}
+
+async function bsCastVote(targetId){
+  if(!gameCode||!localGame||localGame.bsPhase!=='discussion')return;
+  const currentVote=(localGame.bsVotes||{})[myId];
+  if(currentVote===targetId){
+    await gameRefFor(gameCode).child('bsVotes/'+myId).remove();
+  } else {
+    await gameRefFor(gameCode).child('bsVotes/'+myId).set(targetId);
+  }
+}
+
+function startBsDiscussTimer(game){
+  if(bsDiscussTimerInterval){clearInterval(bsDiscussTimerInterval);bsDiscussTimerInterval=null;}
+  const start=game.bsDiscussStart;if(!start)return;
+  const duration=(game.bsDiscussMinutes||5)*60;
+  const tick=()=>{
+    const g=localGame||game;
+    if(!g||g.bsPhase!=='discussion'){clearInterval(bsDiscussTimerInterval);bsDiscussTimerInterval=null;return;}
+    const elapsed=Math.floor((syncedNow()-start)/1000);
+    const remaining=Math.max(0,duration-elapsed);
+    const m=Math.floor(remaining/60).toString().padStart(2,'0');
+    const s=(remaining%60).toString().padStart(2,'0');
+    const el=document.getElementById('bsDiscussTimer');
+    if(el){el.textContent=`${m}:${s}`;el.style.color=remaining<60?'var(--spy)':remaining<120?'var(--accent)':'var(--text)';}
+    if(remaining===0&&amHost){clearInterval(bsDiscussTimerInterval);bsDiscussTimerInterval=null;bsResolveVote(localGame||g);}
+  };
+  tick();
+  bsDiscussTimerInterval=setInterval(tick,500);
+}
+
+// View cards button
+function bsShowCards(){
+  const game=localGame;if(!game)return;
+  const isImpostor=game.bsImposterId===myId;
+  const cards=game.bsCards||[];
+  const clues=game.bsClues||[];
+  const knownIdx=game.bsKnownCardIdx||0;
+  const correctGuesses=game.bsCorrectGuesses||[];
+  const overlay=document.getElementById('bsCardOverlay');
+  const content=document.getElementById('bsCardOverlayContent');
+  if(!overlay||!content)return;
+
+  if(bsCardsVisible){
+    overlay.style.display='none';
+    bsCardsVisible=false;
+    document.getElementById('bsViewCardsBtn').textContent='👁 View Cards';
+    return;
+  }
+
+  bsCardsVisible=true;
+  document.getElementById('bsViewCardsBtn').textContent='✕ Hide Cards';
+
+  const cardEmojis=['🎴','🃏','🀄'];
+  if(isImpostor){
+    content.innerHTML=cards.map((c,i)=>{
+      const isKnown=i===knownIdx||correctGuesses.includes(c);
+      if(isKnown){
+        return`<div style="padding:14px;background:var(--surface2);border:2px solid rgba(6,182,212,0.4);border-radius:var(--radius);display:flex;align-items:center;gap:10px">
+          <div style="font-size:28px">${cardEmojis[i]}</div>
+          <div style="font-size:15px;font-weight:800;color:var(--text)">${esc(c)}</div>
+        </div>`;
+      } else {
+        const clue=clues[i]||clues[i%clues.length]||'?';
+        return`<div style="padding:14px;background:rgba(232,93,77,0.06);border:1px solid rgba(232,93,77,0.2);border-radius:var(--radius)">
+          <div style="font-size:11px;color:var(--spy);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Unknown</div>
+          <div style="font-size:14px;font-weight:700;color:var(--spy)">🔍 ${esc(clue)}</div>
+        </div>`;
+      }
+    }).join('');
+  } else {
+    content.innerHTML=cards.map((c,i)=>`
+      <div style="padding:14px;background:var(--surface2);border:1px solid rgba(6,182,212,0.3);border-radius:var(--radius);display:flex;align-items:center;gap:10px">
+        <div style="font-size:28px">${cardEmojis[i]}</div>
+        <div style="font-size:15px;font-weight:800;color:var(--text)">${esc(c)}</div>
+      </div>`).join('');
+  }
+  overlay.style.display='block';
+}
+
+// Refresher for innocents
+function bsUseRefresher(){
+  if(bsRefresherUsed||!localGame)return;
+  const game=localGame;
+  const cards=game.bsCards||[];
+  const overlay=document.getElementById('bsCardOverlay');
+  const content=document.getElementById('bsCardOverlayContent');
+  if(!overlay||!content)return;
+  bsRefresherUsed=true;
+  const btn=document.getElementById('bsRefresherBtn');
+  if(btn){btn.disabled=true;btn.style.opacity='0.4';btn.textContent='🔄 Refresher used';}
+  const cardEmojis=['🎴','🃏','🀄'];
+  content.innerHTML=cards.map((c,i)=>`
+    <div style="padding:14px;background:var(--surface2);border:2px solid rgba(6,182,212,0.4);border-radius:var(--radius);display:flex;align-items:center;gap:10px">
+      <div style="font-size:28px">${cardEmojis[i]}</div>
+      <div style="font-size:15px;font-weight:800;color:var(--text)">${esc(c)}</div>
+    </div>`).join('');
+  overlay.style.display='block';
+  if(bsRefresherTimeout)clearTimeout(bsRefresherTimeout);
+  bsRefresherTimeout=setTimeout(()=>{overlay.style.display='none';bsCardsVisible=false;if(btn)btn.textContent='🔄 Refresher used';},3000);
+}
+
+// Imposter guess
+async function bsSubmitGuess(){
+  if(!gameCode||!localGame)return;
+  const game=localGame;
+  if(game.bsImposterId!==myId)return;
+  const input=document.getElementById('bsGuessInput');
+  if(!input)return;
+  const guess=input.value.trim();
+  if(!guess)return;
+  input.value='';
+
+  const cards=game.bsCards||[];
+  const knownIdx=game.bsKnownCardIdx||0;
+  const correctGuesses=game.bsCorrectGuesses||[];
+  const incorrectCount=game.bsIncorrectCount||0;
+
+  // Check against unguessed cards (not the known card, not already guessed)
+  let matched=null;
+  for(let i=0;i<cards.length;i++){
+    if(i===knownIdx)continue;
+    if(correctGuesses.includes(cards[i]))continue;
+    if(bsFuzzyMatch(guess,cards[i])){matched=cards[i];break;}
+  }
+
+  if(matched){
+    const newCorrect=[...correctGuesses,matched];
+    // Check win condition: imposter knows 1 card already, so they only need to guess the other 2
+    const allFound=newCorrect.length>=2;
+    const guessEntry={guess,matched,correct:true,ts:Date.now()};
+    const newGuesses=[...(game.bsGuesses||[]),guessEntry];
+    if(allFound){
+      await updateGame(gameCode,{
+        bsCorrectGuesses:newCorrect,
+        bsGuesses:newGuesses,
+        status:'result',
+        bsPhase:'result',
+        bsResult:{winner:'imposter',reason:'guessed_all'},
+      });
+    } else {
+      await updateGame(gameCode,{bsCorrectGuesses:newCorrect,bsGuesses:newGuesses});
+    }
+  } else {
+    const newIncorrect=incorrectCount+1;
+    const guessEntry={guess,correct:false,ts:Date.now()};
+    const newGuesses=[...(game.bsGuesses||[]),guessEntry];
+    if(newIncorrect>=5){
+      await updateGame(gameCode,{
+        bsIncorrectCount:newIncorrect,
+        bsGuesses:newGuesses,
+        status:'result',
+        bsPhase:'result',
+        bsResult:{winner:'innocents',reason:'guess_limit'},
+      });
+    } else {
+      await updateGame(gameCode,{bsIncorrectCount:newIncorrect,bsGuesses:newGuesses});
+    }
+  }
+}
+
+// Vote resolution
+async function bsResolveVote(game){
+  if(!amHost||!game)return;
+  const votes=game.bsVotes||{};
+  const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const maxV=Math.max(...Object.values(counts),0);
+  const topIds=Object.entries(counts).filter(([,c])=>c===maxV).map(([id])=>id);
+  if(topIds.length===1){
+    const eliminated=topIds[0];
+    const winner=eliminated===game.bsImposterId?'innocents':'imposter';
+    const reason=winner==='innocents'?'voted_out':'wrong_elimination';
+    await updateGame(gameCode,{status:'result',bsPhase:'result',bsResult:{winner,reason,eliminatedId:eliminated}});
+  } else {
+    // Tie — extend 60 seconds
+    const tieStart=Date.now();
+    await gameRefFor(gameCode).update({bsDiscussStart:tieStart,bsDiscussMinutes:1,bsTie:true});
+  }
+}
+
+// =====================================================
+// BLIND SPOT: RESULT SCREEN
+// =====================================================
+function showBsResult(game){
+  if(bsDiscussTimerInterval){clearInterval(bsDiscussTimerInterval);bsDiscussTimerInterval=null;}
+  if(bsRevealTimerInterval){clearInterval(bsRevealTimerInterval);bsRevealTimerInterval=null;}
+
+  const r=game.bsResult||{};
+  const imposterPlayer=game.players&&game.players[game.bsImposterId];
+  const imposterName=(imposterPlayer&&imposterPlayer.name)||'Unknown';
+  const cards=game.bsCards||[];
+  const clues=game.bsClues||[];
+  const guesses=game.bsGuesses||[];
+  const votes=game.bsVotes||{};
+
+  // Banner
+  const bannerEl=document.getElementById('bsResultBanner');
+  const bsPlayers=Object.values(game.players||{});
+  const bsInnocentPlayers=bsPlayers.filter(p=>p.id!==game.bsImposterId);
+  if(r.winner==='innocents'){
+    const reason=r.reason==='guess_limit'?'Imposter ran out of guesses!':'Imposter was voted out!';
+    bannerEl.innerHTML=`<div class="result-banner crew-wins">${resultAvatarGroupHtml(bsInnocentPlayers,'🎉')}<h2>Innocents Win!</h2><p>${reason}</p></div>`;
+  } else {
+    bannerEl.innerHTML=`<div class="result-banner" style="background:linear-gradient(135deg,#1a0505,#0f0202);border:2px solid var(--spy)">${resultAvatarHtml(imposterPlayer,'🕵️')}<h2 style="color:var(--spy)">Imposter Wins!</h2><p>All cards identified!</p></div>`;
+  }
+
+  // Imposter reveal
+  document.getElementById('bsResultImposter').innerHTML=`${resultAvatarHtml(imposterPlayer,'🕵️')}<div style="font-size:20px;font-weight:800;color:var(--spy)">${esc(imposterName)}</div>`;
+
+  // Cards
+  const cardEmojis=['🎴','🃏','🀄'];
+  const knownIdx=game.bsKnownCardIdx||0;
+  document.getElementById('bsResultCards').innerHTML=cards.map((c,i)=>`
+    <div style="padding:12px 14px;background:${i===knownIdx?'rgba(6,182,212,0.08)':'var(--surface2)'};border:1px solid ${i===knownIdx?'rgba(6,182,212,0.3)':'var(--border)'};border-radius:var(--radius);display:flex;align-items:center;gap:10px">
+      <div style="font-size:24px">${cardEmojis[i]}</div>
+      <div style="flex:1;font-size:14px;font-weight:700">${esc(c)}</div>
+      ${i===knownIdx?`<div style="font-family:'DM Mono',monospace;font-size:10px;color:#06b6d4;text-transform:uppercase">imposter knew</div>`:''}
+    </div>`).join('');
+
+  // Clues
+  document.getElementById('bsResultClues').innerHTML=clues.map(cl=>`<div style="padding:8px 12px;background:rgba(232,93,77,0.08);border:1px solid rgba(232,93,77,0.2);border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:13px;color:var(--spy)">🔍 ${esc(cl)}</div>`).join('');
+
+  // Guesses
+  const guessEl=document.getElementById('bsResultGuesses');
+  if(!guesses.length){
+    guessEl.innerHTML=`<div style="color:var(--muted);font-size:13px;font-family:'DM Mono',monospace">No guesses made</div>`;
+  } else {
+    guessEl.innerHTML=guesses.map(g=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius);border:1px solid ${g.correct?'rgba(77,232,160,0.3)':'rgba(232,93,77,0.3)'};margin-bottom:6px">
+      <div style="font-size:16px">${g.correct?'✅':'❌'}</div>
+      <div style="flex:1;font-size:13px;font-family:'DM Mono',monospace">${esc(g.guess)}${g.correct&&g.matched?` → ${esc(g.matched)}`:''}</div>
+    </div>`).join('');
+  }
+
+  // Final votes
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const voteCounts={};Object.values(votes).forEach(v=>{voteCounts[v]=(voteCounts[v]||0)+1;});
+  document.getElementById('bsResultVotes').innerHTML=players.map(p=>{
+    const vc=voteCounts[p.id]||0;
+    const isElim=r.eliminatedId===p.id;
+    return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isElim?'rgba(232,93,77,0.08)':'var(--surface2)'};border:1px solid ${isElim?'rgba(232,93,77,0.3)':'var(--border)'};border-radius:var(--radius);margin-bottom:6px">
+      <div style="flex:1;font-size:13px;font-weight:600">${playerNameHtml(p)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:${vc>0?'#06b6d4':'var(--muted)'}">${vc}</div>
+      ${isElim?"<div style='font-size:11px;color:var(--spy);font-family:DM Mono,monospace'>eliminated</div>":""}
+    </div>`;
+  }).join('');
+
+  document.getElementById('bsResultHostBtns').style.display=amHost?'flex':'none';
+  document.getElementById('bsResultNonHostBtns').style.display=!amHost?'flex':'none';
+  showScreen('bs-result');
+  maybePlayMyWinAnim(game);
+}
+
+// =====================================================
+// BLIND SPOT: CLEANUP
+// =====================================================
+function bsCleanup(){
+  if(bsDiscussTimerInterval){clearInterval(bsDiscussTimerInterval);bsDiscussTimerInterval=null;}
+  if(bsRevealTimerInterval){clearInterval(bsRevealTimerInterval);bsRevealTimerInterval=null;}
+  if(bsRefresherTimeout){clearTimeout(bsRefresherTimeout);bsRefresherTimeout=null;}
+  bsRefresherUsed=false;bsCardsVisible=false;
+}
+
+
+// =====================================================
+// AVATARS
+// =====================================================
+let myAvatar = localStorage.getItem('sf_avatar') || null;
+
+function ensureAvatarCropperUI(){
+  if(document.getElementById('avatarCropBackdrop') && document.getElementById('avatarFileInput')) return;
+  if(!document.getElementById('avatarCropBackdrop')){
+    const wrap=document.createElement('div');
+    wrap.className='avatar-crop-backdrop';
+    wrap.id='avatarCropBackdrop';
+    wrap.innerHTML=`<div class="avatar-crop-modal" onclick="event.stopPropagation()"><div class="avatar-crop-header"><h2>Crop Avatar</h2><button class="avatar-crop-close" onclick="closeAvatarCropper()">×</button></div><div class="avatar-crop-frame" id="avatarCropFrame"><img id="avatarCropImg" class="avatar-crop-img" alt="" draggable="false"/><div class="avatar-crop-guide"></div></div><div class="avatar-crop-help">Drag to reposition · use zoom · square crop saves as your avatar</div><div class="avatar-zoom-row"><span>Zoom</span><input id="avatarCropZoom" type="range" min="1" max="3" step="0.01" value="1" oninput="avatarCropZoomChanged(this.value)"/></div><div class="flex-row"><button class="btn btn-secondary" onclick="closeAvatarCropper()">Cancel</button><button class="btn btn-primary" onclick="saveAvatarFromCropper()">Save Avatar</button></div></div>`;
+    wrap.addEventListener('click', closeAvatarCropper);
+    document.body.appendChild(wrap);
+  }
+  const frame=document.getElementById('avatarCropFrame');
+  if(frame && !frame.__avatarCropEventsAdded){
+    frame.addEventListener('pointerdown', avatarCropPointerDown);
+    frame.addEventListener('pointermove', avatarCropPointerMove);
+    frame.addEventListener('pointerup', avatarCropPointerUp);
+    frame.addEventListener('pointercancel', avatarCropPointerUp);
+    frame.__avatarCropEventsAdded=true;
+  }
+  if(!document.getElementById('avatarFileInput')){
+    const input=document.createElement('input');
+    input.type='file';input.id='avatarFileInput';input.accept='image/*';input.style.display='none';
+    input.addEventListener('change', onAvatarFileChosen);
+    document.body.appendChild(input);
+  }
+}
+
+function triggerAvatarPicker(){
+  ensureAvatarCropperUI();
+  const input=document.getElementById('avatarFileInput');
+  if(input) input.click();
+}
+
+function onAvatarFileChosen(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  e.target.value = '';
+  const reader = new FileReader();
+  reader.onload = ev => openAvatarCropper(ev.target.result);
+  reader.readAsDataURL(file);
+}
+
+let avatarCropState = null;
+
+function openAvatarCropper(dataUrl){
+  ensureAvatarCropperUI();
+  const cropImg = document.getElementById('avatarCropImg');
+  const zoom = document.getElementById('avatarCropZoom');
+  const modal = document.getElementById('avatarCropBackdrop');
+  const frame = document.getElementById('avatarCropFrame');
+  if(!cropImg || !zoom || !modal || !frame){
+    saveCroppedAvatarFromCenter(dataUrl);
+    return;
+  }
+
+  const img = new Image();
+  img.onload = () => {
+    avatarCropState = {
+      dataUrl,
+      img,
+      x:0,
+      y:0,
+      zoom:1,
+      dragging:false,
+      startX:0,
+      startY:0,
+      startOffsetX:0,
+      startOffsetY:0
+    };
+    cropImg.src = dataUrl;
+    zoom.value = '1';
+    modal.classList.add('open');
+    modal.style.display='flex';
+    requestAnimationFrame(updateAvatarCropView);
+  };
+  img.src = dataUrl;
+}
+
+function closeAvatarCropper(){
+  const modal = document.getElementById('avatarCropBackdrop');
+  if(modal){ modal.classList.remove('open'); modal.style.display='none'; }
+  avatarCropState = null;
+}
+
+function getAvatarCropMetrics(){
+  const frame = document.getElementById('avatarCropFrame');
+  if(!avatarCropState || !frame) return null;
+  const cropSize = frame.clientWidth;
+  const img = avatarCropState.img;
+  const baseScale = Math.max(cropSize / img.width, cropSize / img.height);
+  const scale = baseScale * avatarCropState.zoom;
+  const renderW = img.width * scale;
+  const renderH = img.height * scale;
+  return {cropSize,img,scale,renderW,renderH};
+}
+
+function clampAvatarCrop(){
+  const m = getAvatarCropMetrics();
+  if(!m || !avatarCropState) return;
+  const maxX = Math.max(0, (m.renderW - m.cropSize) / 2);
+  const maxY = Math.max(0, (m.renderH - m.cropSize) / 2);
+  avatarCropState.x = Math.max(-maxX, Math.min(maxX, avatarCropState.x));
+  avatarCropState.y = Math.max(-maxY, Math.min(maxY, avatarCropState.y));
+}
+
+function updateAvatarCropView(){
+  const cropImg = document.getElementById('avatarCropImg');
+  if(!cropImg || !avatarCropState) return;
+  const m = getAvatarCropMetrics();
+  if(!m) return;
+  clampAvatarCrop();
+  cropImg.style.width = m.renderW + 'px';
+  cropImg.style.height = m.renderH + 'px';
+  cropImg.style.transform = `translate(-50%,-50%) translate3d(${avatarCropState.x}px, ${avatarCropState.y}px, 0)`;
+}
+
+function avatarCropZoomChanged(value){
+  if(!avatarCropState) return;
+  avatarCropState.zoom = parseFloat(value) || 1;
+  updateAvatarCropView();
+}
+
+function avatarCropPointerDown(e){
+  if(!avatarCropState) return;
+  const frame = document.getElementById('avatarCropFrame');
+  avatarCropState.dragging = true;
+  avatarCropState.startX = e.clientX;
+  avatarCropState.startY = e.clientY;
+  avatarCropState.startOffsetX = avatarCropState.x;
+  avatarCropState.startOffsetY = avatarCropState.y;
+  if(frame) frame.classList.add('dragging');
+  if(frame && frame.setPointerCapture) frame.setPointerCapture(e.pointerId);
+}
+
+function avatarCropPointerMove(e){
+  if(!avatarCropState || !avatarCropState.dragging) return;
+  avatarCropState.x = avatarCropState.startOffsetX + (e.clientX - avatarCropState.startX);
+  avatarCropState.y = avatarCropState.startOffsetY + (e.clientY - avatarCropState.startY);
+  updateAvatarCropView();
+}
+
+function avatarCropPointerUp(e){
+  if(!avatarCropState) return;
+  avatarCropState.dragging = false;
+  const frame = document.getElementById('avatarCropFrame');
+  if(frame) frame.classList.remove('dragging');
+}
+
+function saveAvatarFromCropper(){
+  if(!avatarCropState) return;
+  const m = getAvatarCropMetrics();
+  if(!m) return;
+
+  const canvasSize = 150;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvasSize;
+  canvas.height = canvasSize;
+  const ctx = canvas.getContext('2d');
+
+  const leftInFrame = (m.cropSize - m.renderW) / 2 + avatarCropState.x;
+  const topInFrame = (m.cropSize - m.renderH) / 2 + avatarCropState.y;
+  let sx = -leftInFrame / m.scale;
+  let sy = -topInFrame / m.scale;
+  const sourceSize = m.cropSize / m.scale;
+
+  sx = Math.max(0, Math.min(m.img.width - sourceSize, sx));
+  sy = Math.max(0, Math.min(m.img.height - sourceSize, sy));
+
+  ctx.drawImage(m.img, sx, sy, sourceSize, sourceSize, 0, 0, canvasSize, canvasSize);
+  saveAvatarCompressed(canvas.toDataURL('image/jpeg', 0.78));
+  closeAvatarCropper();
+}
+
+function saveCroppedAvatarFromCenter(dataUrl){
+  const img = new Image();
+  img.onload = () => {
+    const size = 150;
+    const canvas = document.createElement('canvas');
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const s = Math.min(img.width, img.height);
+    const ox = (img.width - s) / 2;
+    const oy = (img.height - s) / 2;
+    ctx.drawImage(img, ox, oy, s, s, 0, 0, size, size);
+    saveAvatarCompressed(canvas.toDataURL('image/jpeg', 0.78));
+  };
+  img.src = dataUrl;
+}
+
+function saveAvatarCompressed(compressed){
+  myAvatar = compressed;
+  localStorage.setItem('sf_avatar', compressed);
+  myProfile.avatar = compressed;
+  saveLocalProfile();
+  updateAvatarBtns();
+
+  if(localGame && localGame.players && localGame.players[myId]){
+    localGame.players[myId].avatar = compressed;
+    localGame.players[myId].cosmetics = {equipped: myProfile.equipped || {}};
+  }
+  renderShop();
+  refreshMyCosmeticsDisplay();
+
+  userRef().update({avatar:compressed,savedAt:Date.now(),lastSeen:serverTimestamp()}).catch(e=>console.warn('Avatar profile save failed',e));
+  if(gameCode){
+    gameRefFor(gameCode).child('players/'+myId).update({
+      avatar: compressed,
+      cosmetics: {equipped: myProfile.equipped || {}},
+      avatarUpdatedAt: Date.now()
+    }).catch(e=>console.warn('Avatar game sync failed',e));
+  }
+}
+
+function updateAvatarBtns(){
+  const label = myAvatar ? '📷 Change Avatar' : '📷 Set Avatar';
+  ['avatarHomeBtn','avatarWaitBtn'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.textContent=label;
+  });
+}
+
+function avatarImg(av, extraClass=''){
+  const classes=(extraClass||'').trim();
+  if(classes.includes('av-frame-inferno')){
+    const wrapClass=`av av-inferno-wrap ${classes}`.trim().replace(/\s+/g,' ');
+    if(av) return `<span class="${wrapClass}"><img src="${av}" class="av-inferno-photo" alt=""/></span>`;
+    return `<span class="${wrapClass} av-placeholder">👤</span>`;
+  }
+  if(av) return `<img src="${av}" class="av${extraClass?' '+extraClass:''}" alt=""/>`;
+  return `<div class="av-placeholder${extraClass?' '+extraClass:''}">👤</div>`;
+}
+
+// Upload avatar when joining/creating a game
+function uploadMyAvatar(){
+  if(myAvatar && gameCode){
+    gameRefFor(gameCode).child('players/'+myId).update({avatar:myAvatar,cosmetics:{equipped:myProfile.equipped||{}}});
+  }
+}
+
+// =====================================================
+document.addEventListener('click', closeLobbyPlayerMenus);
+cleanupOldGames();
+loadMyProfile();
+updateAvatarBtns();
+ensureAvatarCropperUI();
+var joinCodeEl=document.getElementById('joinCode');
+if(joinCodeEl){joinCodeEl.addEventListener('input',function(e){e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});}
+var playerNameEl=document.getElementById('playerName');
+if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});}
+// Password listeners are handled by the early PASSWORD FIX V4 script in the <head>.
+</script>
+
+<script>
+  // CHRISPY GAMES PWA UPDATE HANDLER
+  // Shows a small button when a new deployed version is available.
+  let chrispyWaitingWorker = null;
+
+  function showAppUpdateButton(worker) {
+    chrispyWaitingWorker = worker || chrispyWaitingWorker;
+    const btn = document.getElementById('updateAvailableBtn');
+    if (btn) btn.classList.add('show');
+  }
+
+  function applyAppUpdate() {
+    if (chrispyWaitingWorker) {
+      chrispyWaitingWorker.postMessage({ type: 'SKIP_WAITING' });
+    } else {
+      window.location.reload();
+    }
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(function (registration) {
+          if (registration.waiting) {
+            showAppUpdateButton(registration.waiting);
+          }
+
+          registration.addEventListener('updatefound', function () {
+            const newWorker = registration.installing;
+            if (!newWorker) return;
+
+            newWorker.addEventListener('statechange', function () {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                showAppUpdateButton(newWorker);
+              }
+            });
+          });
+
+          // Ask the browser to check for an update each time the app opens.
+          if (registration.update) registration.update();
+        })
+        .catch(function (error) {
+          console.log('Service worker registration failed:', error);
+        });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+    });
+  }
+</script>
+
+
+<!-- BLIND SPOT: REVEAL -->
+<div class="screen scrollable" id="screen-bs-reveal">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px;padding-bottom:20px">
+    <div style="text-align:center">
+      <div style="font-size:11px;color:#06b6d4;font-family:'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">🕵️ BLIND SPOT</div>
+      <div style="font-size:22px;font-weight:800;color:var(--text)" id="bsRevealTitle">Study your cards</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px" id="bsRevealSubtitle">Memorise them — they disappear when discussion starts</div>
+    </div>
+    <!-- Role badge -->
+    <div id="bsRoleBadge" style="padding:12px 16px;border-radius:var(--radius);text-align:center;font-weight:800;font-size:15px"></div>
+    <!-- Cards -->
+    <div id="bsRevealCards" style="display:flex;flex-direction:column;gap:10px"></div>
+    <!-- Countdown -->
+    <div style="text-align:center;margin-top:4px">
+      <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px">Auto-advancing in</div>
+      <div id="bsRevealCountdown" style="font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:#06b6d4">30</div>
+    </div>
+    <!-- Ready button -->
+    <div id="bsRevealReadySection">
+      <button class="btn btn-primary" id="bsReadyBtn" onclick="bsPressReady()" style="background:#06b6d4;color:#000">I AM READY</button>
+      <div id="bsReadyCount" style="text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:8px">0 / 0 ready</div>
+    </div>
+    <div id="bsAlreadyReady" style="display:none;text-align:center;padding:14px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.3);border-radius:var(--radius)">
+      <div style="font-size:16px;font-weight:800;color:#06b6d4">✓ You're ready!</div>
+      <div id="bsReadyCountConfirmed" style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">Waiting for others...</div>
+    </div>
+  </div>
+</div>
+
+<!-- BLIND SPOT: GAME (discussion) -->
+<div class="screen" id="screen-bs-game">
+  <div style="width:100%;max-width:440px;height:100dvh;display:flex;flex-direction:column;padding:12px;box-sizing:border-box;gap:8px">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+      <div style="flex:1">
+        <div style="font-size:10px;color:#06b6d4;font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase">🕵️ BLIND SPOT</div>
+        <div id="bsCategoryBadge" style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace"></div>
+      </div>
+      <div style="text-align:right">
+        <div id="bsDiscussTimer" style="font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--text)">05:00</div>
+        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">remaining</div>
+      </div>
+    </div>
+    <!-- Role + imposter progress -->
+    <div id="bsGameRoleBadge" style="padding:8px 12px;border-radius:var(--radius);font-size:13px;font-weight:700;flex-shrink:0"></div>
+    <div id="bsSharedProgress" style="padding:8px 12px;border-radius:var(--radius);font-size:13px;font-weight:600;flex-shrink:0;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);color:var(--text);text-align:center;font-family:'DM Mono',monospace"></div>
+    <!-- Vote list -->
+    <div style="flex-shrink:0">
+      <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">LIVE VOTES</div>
+      <div id="bsVoteList" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div id="bsVoteStatus" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;text-align:center"></div>
+    </div>
+    <!-- Imposter guess section -->
+    <div id="bsImpostorGuessSection" style="display:none;flex-shrink:0">
+      <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">IMPOSTER TOOLS</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input id="bsGuessInput" type="text" placeholder="Guess a card..." maxlength="40" autocomplete="off" style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')bsSubmitGuess()"/>
+        <button onclick="bsSubmitGuess()" style="background:#06b6d4;color:#000;border:none;padding:8px 14px;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Guess</button>
+      </div>
+      <div id="bsGuessProgress" style="font-family:'DM Mono',monospace;font-size:12px;color:#06b6d4;margin-bottom:6px"></div>
+      <div id="bsGuessesLeft" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--spy)"></div>
+    </div>
+    <!-- Action buttons -->
+    <div style="flex-shrink:0;display:flex;gap:8px">
+      <button id="bsViewCardsBtn" onclick="bsShowCards()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer">👁 View Cards</button>
+      <button id="bsRefresherBtn" onclick="bsUseRefresher()" style="flex:1;background:var(--surface2);border:1px solid rgba(6,182,212,0.4);color:#06b6d4;padding:10px;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:none">🔄 Refresher ×1</button>
+    </div>
+    <!-- Card overlay (shown on view cards) -->
+    <div id="bsCardOverlay" style="display:none;flex:1;overflow-y:auto">
+      <div id="bsCardOverlayContent" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BLIND SPOT: RESULT -->
+<div class="screen scrollable" id="screen-bs-result">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <div id="bsResultBanner" class="fadeIn"></div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">The Imposter was...</h2>
+      <div id="bsResultImposter" style="padding:18px;background:var(--surface2);border-radius:var(--radius);text-align:center;margin-bottom:12px"></div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">The full card set</div>
+        <div id="bsResultCards" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Imposter's Clues</h2>
+      <div id="bsResultClues" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Guess History</h2>
+      <div id="bsResultGuesses"></div>
+    </div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:12px">Final Votes</h2>
+      <div id="bsResultVotes"></div>
+    </div>
+    <div id="bsResultHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" onclick="returnToLobby()" style="background:#06b6d4;color:#000">Return to Lobby</button>
+    </div>
+    <div id="bsResultNonHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <div class="notice" style="background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.3);color:#06b6d4">Waiting for host...</div>
+      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    </div>
+
+
+<div class="avatar-crop-backdrop" id="avatarCropBackdrop">
+  <div class="avatar-crop-modal" onclick="event.stopPropagation()">
+    <div class="avatar-crop-header">
+      <h2>Crop Avatar</h2>
+      <button class="avatar-crop-close" onclick="closeAvatarCropper()">×</button>
+    </div>
+    <div class="avatar-crop-frame" id="avatarCropFrame" onpointerdown="avatarCropPointerDown(event)" onpointermove="avatarCropPointerMove(event)" onpointerup="avatarCropPointerUp(event)" onpointercancel="avatarCropPointerUp(event)">
+      <img id="avatarCropImg" class="avatar-crop-img" alt="" draggable="false"/>
+      <div class="avatar-crop-guide"></div>
+    </div>
+    <div class="avatar-crop-help">Drag to reposition · use zoom · square crop saves as your avatar</div>
+    <div class="avatar-zoom-row">
+      <span>Zoom</span>
+      <input id="avatarCropZoom" type="range" min="1" max="3" step="0.01" value="1" oninput="avatarCropZoomChanged(this.value)"/>
+    </div>
+    <div class="flex-row">
+      <button class="btn btn-secondary" onclick="closeAvatarCropper()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAvatarFromCropper()">Save Avatar</button>
+    </div>
+  </div>
+</div>
+
+<button id="updateAvailableBtn" class="update-available-btn" onclick="applyAppUpdate()">
+  Update available <span>tap to refresh</span>
+</button>
+
+<input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="onAvatarFileChosen(event)"/>
+</body>
+</html>
