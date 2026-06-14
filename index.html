@@ -2080,7 +2080,17 @@ const randInt=n=>Math.floor(Math.random()*n);
 const pick=arr=>arr[randInt(arr.length)];
 const shuffle=arr=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=randInt(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
 const genCode=()=>{const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:4},()=>c[randInt(c.length)]).join('');};
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');document.body.classList.toggle('no-scroll',id==='game');}
+function clearWinTheme(){
+  document.body.classList.remove('inferno-win-theme');
+  document.body.classList.remove('gold-win-theme');
+}
+function showScreen(id){
+  const winThemeScreens=['result','ooo-result','ooo-gameover','mafia-result','bs-result','guess-final'];
+  if(!winThemeScreens.includes(id))clearWinTheme();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  document.body.classList.toggle('no-scroll',id==='game');
+}
 function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
 function setLoading(btnId,loading,text){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${text}`:text;}
 function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -2447,8 +2457,8 @@ function amSoloWinnerOfGame(game){
 function clearWinAnim(){
   const ov=document.getElementById('winAnimOverlay');
   if(ov){ov.classList.remove('active');ov.innerHTML='';ov.style.display='none';}
-  document.body.classList.remove('inferno-win-theme');
-  document.body.classList.remove('gold-win-theme');
+  // Keep gold/inferno result-screen theme active after the 3-second animation ends.
+  // The theme is cleared automatically when leaving the individual win/result screen.
   document.querySelectorAll('.win-crown-landed').forEach(el=>el.remove());
 }
 
@@ -3266,7 +3276,7 @@ function renderLobby(game){
   const n=players.length;
   document.getElementById('lobbyCount').textContent=n;
   document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}${lobbyPlayerMenuHtml(p)}</div>`).join('');
-  const minPlayers=localGameMode==='mafia'?4:3;
+  const minPlayers=localGameMode==='mafia'?4:(localGameMode==='guess'?2:3);
   const ok=n>=minPlayers;
   document.getElementById('startBtn').disabled=!ok;
   document.getElementById('minPlayersNotice').style.display=ok?'none':'block';
