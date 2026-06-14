@@ -777,11 +777,11 @@ select option{background:var(--surface2)}
 
 /* ===== PWA UPDATE AVAILABLE BUTTON ===== */
 /* ===== GUESSING GAME ===== */
-.guess-accent{color:#e8d44d}
+.guess-accent{color:#f97316}
 .guess-category-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 12px}
 .guess-category-btn{padding:10px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .15s}
-.guess-category-btn:hover{border-color:var(--accent);color:var(--accent)}
-.guess-category-btn.selected{border-color:var(--accent);background:rgba(232,212,77,.12);color:var(--accent);box-shadow:0 0 0 1px rgba(232,212,77,.18)}
+.guess-category-btn:hover{border-color:#f97316;color:#f97316}
+.guess-category-btn.selected{border-color:#f97316;background:rgba(249,115,22,.12);color:#f97316;box-shadow:0 0 0 1px rgba(249,115,22,.18)}
 .guess-player-row{padding:11px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px}
 .guess-player-top{display:flex;align-items:center;gap:10px;cursor:pointer}
 .guess-status{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.8px;padding:4px 8px;border-radius:999px;background:var(--surface3);color:var(--muted)}
@@ -789,14 +789,14 @@ select option{background:var(--surface2)}
 .guess-status.wait{color:var(--muted);border:1px solid var(--border)}
 .guess-detail{display:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);line-height:1.7}
 .guess-player-row.open .guess-detail{display:block}
-.guess-timer{font-family:'DM Mono',monospace;font-size:44px;font-weight:500;letter-spacing:3px;color:var(--accent);text-align:center}
+.guess-timer{font-family:'DM Mono',monospace;font-size:44px;font-weight:500;letter-spacing:3px;color:#f97316;text-align:center}
 .guess-mini-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;text-align:center}
 .guess-correct-box{padding:18px;background:rgba(77,232,160,.08);border:1px solid rgba(77,232,160,.28);border-radius:var(--radius-lg);text-align:center;margin-bottom:12px}
 .guess-correct-title{font-size:22px;font-weight:800;color:var(--safe);margin-bottom:5px}
 .guess-points-earned{font-family:'DM Mono',monospace;color:var(--accent);font-size:13px}
-#homeTileGuess,#modeTabGuess{border-color:rgba(232,212,77,.45);background:rgba(232,212,77,.075)}
-#homeTileGuess:hover,#modeTabGuess:hover,#homeTileGuess.selected,#modeTabGuess.active-guess{border-color:var(--accent);background:rgba(232,212,77,.14);box-shadow:0 0 0 1px rgba(232,212,77,.25)}
-#homeTileGuess .custom-mode-name,#modeTabGuess .custom-mode-name{color:var(--accent)}
+#homeTileGuess,#modeTabGuess{border-color:rgba(249,115,22,.45);background:rgba(249,115,22,.075)}
+#homeTileGuess:hover,#modeTabGuess:hover,#homeTileGuess.selected,#modeTabGuess.active-guess{border-color:#f97316;background:rgba(249,115,22,.14);box-shadow:0 0 0 1px rgba(249,115,22,.25)}
+#homeTileGuess .custom-mode-name,#modeTabGuess .custom-mode-name{color:#f97316}
 
 .update-available-btn{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:12000;display:none;align-items:center;justify-content:center;gap:8px;width:calc(100% - 36px);max-width:420px;padding:13px 16px;border:none;border-radius:var(--radius-lg);background:var(--accent);color:#0a0a0f;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:.3px;box-shadow:0 14px 40px rgba(0,0,0,.45);cursor:pointer}
 .update-available-btn.show{display:flex;animation:fadeIn .2s ease}
@@ -2400,6 +2400,7 @@ function updateModeUI(mode){
   if(mode==='bs')renderBsCategorySelect();
   const minNotice=document.getElementById('minPlayersNotice');
   if(mode==='mafia'){minNotice.textContent='Need at least 4 players to start Mafia';}
+  else if(mode==='guess'){minNotice.textContent='Need at least 2 players to start Guessing Game';}
   else{minNotice.textContent='Need at least 3 players to start';}
   document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':mode==='mafia'?'Start Mafia':mode==='fa'?'Start Fake Artist':mode==='bs'?'Start Blind Spot':mode==='guess'?'Start Guessing Game':'Start Game';
 }
@@ -2894,7 +2895,7 @@ function renderLobby(game){
   const n=players.length;
   document.getElementById('lobbyCount').textContent=n;
   document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}${lobbyPlayerMenuHtml(p)}</div>`).join('');
-  const minPlayers=localGameMode==='mafia'?4:localGameMode==='guess'?2:3;
+  const minPlayers=localGameMode==='mafia'?4:3;
   const ok=n>=minPlayers;
   document.getElementById('startBtn').disabled=!ok;
   document.getElementById('minPlayersNotice').style.display=ok?'none':'block';
@@ -5133,6 +5134,43 @@ function bsFuzzyMatch(guess, target) {
   return false;
 }
 
+function normalizeGuessText(value){
+  return String(value||'')
+    .toLowerCase()
+    .replace(/&/g,' and ')
+    .replace(/[^a-z0-9 ]/g,' ')
+    .replace(/(a|an|the)/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function guessFuzzyMatch(guess,target){
+  const g=normalizeGuessText(guess);
+  const t=normalizeGuessText(target);
+  if(!g||!t)return false;
+  if(g===t)return true;
+  const gt=g.split(' ').filter(Boolean);
+  const tt=t.split(' ').filter(Boolean);
+  // Multi-word answers must include the important words, so "surgeon" will not pass for "plastic surgeon".
+  if(tt.length>1){
+    if(gt.length<tt.length)return false;
+    const used=new Set();
+    for(const token of tt){
+      let found=false;
+      for(let i=0;i<gt.length;i++){
+        if(used.has(i))continue;
+        const d=levenshtein(gt[i],token);
+        const maxErr=token.length<=4?0:token.length<=7?1:2;
+        if(gt[i]===token||d<=maxErr){used.add(i);found=true;break;}
+      }
+      if(!found)return false;
+    }
+    return true;
+  }
+  // Single-word answers allow small typos, but not broad substring matching.
+  const threshold=t.length<=5?1:2;
+  return levenshtein(g,t)<=threshold;
+}
+
 
 
 function renderBsCategorySelect(){
@@ -5942,7 +5980,7 @@ async function startGuessRound(round,scores,usedGivers){
   await updateGame(gameCode,{
     status:'playing',mode:'guess',guessPhase:'setup',guessRound:round,guessTotalRounds:localGuessRounds,guessDiscussMinutes:localGuessDiscussMinutes,
     guessAnswerGiverId:giver.id,guessCategory:null,guessAnswer:null,guessAnswerReady:false,guessGuesses:{},guessCorrectOrder:[],
-    guessScores:scores||{},guessUsedGivers:[...used,giver.id],guessResult:null,guessFinalResult:null,guessTimerStart:null,guessTimerDuration:localGuessDiscussMinutes*60,guessRoundId:Date.now()
+    guessScores:scores||{},guessUsedGivers:[...used,giver.id],guessResult:null,guessFinalResult:null,guessTimerStart:null,guessTimerDuration:localGuessDiscussMinutes*60,guessTimerRunning:false,guessTimerOffset:0,guessRoundId:Date.now()
   });
 }
 function guessPlayerList(game){return Object.values(game.players||{}).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));}
@@ -5966,18 +6004,24 @@ async function guessAnswerReady(){
   const answer=(document.getElementById('guessAnswerInput')||{}).value.trim();
   if(!localGame.guessCategory){showError('guessSetupError','Pick a category first');return;}
   if(!answer){showError('guessSetupError','Type the secret answer');return;}
-  await updateGame(gameCode,{guessAnswer:answer,guessAnswerReady:true,guessPhase:'discussion',guessTimerStart:syncedNow(),guessTimerDuration:(localGame.guessDiscussMinutes||localGuessDiscussMinutes)*60,guessGuesses:{},guessCorrectOrder:[]});
+  await updateGame(gameCode,{guessAnswer:answer,guessAnswerReady:true,guessPhase:'discussion',guessTimerStart:syncedNow(),guessTimerDuration:(localGame.guessDiscussMinutes||localGuessDiscussMinutes)*60,guessTimerRunning:true,guessTimerOffset:0,guessGuesses:{},guessCorrectOrder:[]});
 }
 function formatGuessTime(seconds){seconds=Math.max(0,Math.ceil(seconds));const m=Math.floor(seconds/60),s=seconds%60;return `${m}:${String(s).padStart(2,'0')}`;}
+function guessRemainingSeconds(game){
+  const duration=game.guessTimerDuration||300;
+  const offset=game.guessTimerOffset||0;
+  if(game.guessTimerRunning===false)return duration-offset;
+  const start=game.guessTimerStart||syncedNow();
+  return duration-(offset+((syncedNow()-start)/1000));
+}
 function startGuessTimer(game){
   clearInterval(guessTimerInterval);
   guessTimerInterval=setInterval(()=>{
     if(!localGame||localGame.mode!=='guess'||localGame.guessPhase!=='discussion'){clearInterval(guessTimerInterval);return;}
-    const duration=localGame.guessTimerDuration||300;
-    const start=localGame.guessTimerStart||syncedNow();
-    const remaining=duration-((syncedNow()-start)/1000);
+    const remaining=guessRemainingSeconds(localGame);
     const el=document.getElementById('guessTimerDisplay');if(el)el.textContent=formatGuessTime(remaining);
-    if(remaining<=0){
+    const pauseBtn=document.getElementById('guessPauseTimerBtn');if(pauseBtn)pauseBtn.textContent=localGame.guessTimerRunning===false?'Resume Timer':'Pause Timer';
+    if(remaining<=0&&localGame.guessTimerRunning!==false){
       clearInterval(guessTimerInterval);
       if(amHost||localGame.hostId===myId)resolveGuessRound('time');
     }
@@ -6002,17 +6046,43 @@ function renderGuessGame(game){
     }
   }
   renderGuessPlayers(game);
+  renderGuessHostControls(game);
 }
+
 function renderGuessPlayers(game){
   const players=guessPlayerList(game);
   const list=document.getElementById('guessPlayersList');if(!list)return;
   const order=game.guessCorrectOrder||[];const guesses=game.guessGuesses||{};
+  const isGiver=myId===game.guessAnswerGiverId;
   list.innerHTML=players.filter(p=>p.id!==game.guessAnswerGiverId).map(p=>{
     const ok=order.includes(p.id);
     const all=(guesses[p.id]||[]).map(g=>g.text||g.guess||'').filter(Boolean);
     const detail=all.length?all.map((g,i)=>`${i+1}. ${esc(g)}`).join('<br>'):'No guesses submitted';
-    return `<div class="guess-player-row" onclick="this.classList.toggle('open')"><div class="guess-player-top">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div><div class="guess-status ${ok?'ok':'wait'}">${ok?'Guessed':'Still guessing'}</div></div><div class="guess-detail">${detail}</div></div>`;
+    const openAttr=isGiver?`onclick="this.classList.toggle('open')"`:'';
+    const detailHtml=isGiver?`<div class="guess-detail">${detail}</div>`:'';
+    return `<div class="guess-player-row ${isGiver?'can-open':''}" ${openAttr}><div class="guess-player-top">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div><div class="guess-status ${ok?'ok':'wait'}">${ok?'Guessed':'Still guessing'}</div></div>${detailHtml}</div>`;
   }).join('');
+}
+function renderGuessHostControls(game){
+  const wrap=document.getElementById('guessHostControls');if(!wrap)return;
+  if(!amHost){wrap.style.display='none';wrap.innerHTML='';return;}
+  wrap.style.display='flex';
+  const paused=game.guessTimerRunning===false;
+  wrap.innerHTML=`<button class="btn btn-secondary" id="guessPauseTimerBtn" onclick="toggleGuessTimer()">${paused?'Resume Timer':'Pause Timer'}</button><button class="btn btn-danger" onclick="endGuessRoundNow()">End Round</button>`;
+}
+async function toggleGuessTimer(){
+  const game=localGame;if(!game||game.mode!=='guess'||game.guessPhase!=='discussion'||!amHost)return;
+  const duration=game.guessTimerDuration||300;
+  if(game.guessTimerRunning===false){
+    await updateGame(gameCode,{guessTimerRunning:true,guessTimerStart:syncedNow(),guessTimerOffset:game.guessTimerOffset||0});
+  }else{
+    const elapsed=(game.guessTimerOffset||0)+((syncedNow()-(game.guessTimerStart||syncedNow()))/1000);
+    await updateGame(gameCode,{guessTimerRunning:false,guessTimerOffset:Math.min(duration,Math.max(0,elapsed))});
+  }
+}
+async function endGuessRoundNow(){
+  if(!localGame||localGame.mode!=='guess'||localGame.guessPhase!=='discussion'||!amHost)return;
+  await resolveGuessRound('host');
 }
 async function submitGuessAnswer(){
   if(!localGame||myId===localGame.guessAnswerGiverId)return;
@@ -6021,7 +6091,7 @@ async function submitGuessAnswer(){
   const guesses={...(localGame.guessGuesses||{})};
   const mine=[...(guesses[myId]||[])];
   mine.push({text:guess,ts:Date.now()});guesses[myId]=mine;
-  const correct=bsFuzzyMatch(guess,localGame.guessAnswer||'');
+  const correct=guessFuzzyMatch(guess,localGame.guessAnswer||'');
   const order=[...(localGame.guessCorrectOrder||[])];
   const scores={...(localGame.guessScores||{})};
   const updates={guessGuesses:guesses};
@@ -6184,6 +6254,7 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
     <div class="card fadeIn">
       <div class="guess-mini-label">Discussion ends in</div>
       <div class="guess-timer" id="guessTimerDisplay">--:--</div>
+      <div id="guessHostControls" class="flex-row" style="display:none;margin-top:12px"></div>
       <div style="height:12px"></div>
       <div id="guessGameMain"></div>
       <div style="height:12px"></div>
