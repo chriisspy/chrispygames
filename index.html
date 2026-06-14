@@ -482,7 +482,7 @@ select option{background:var(--surface2)}
 .custom-mode-wrap.open .custom-mode-menu{display:flex;flex-direction:column;gap:8px;animation:fadeIn 0.18s ease}
 .custom-mode-option{width:100%;display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);text-align:left;cursor:pointer;transition:all 0.15s}
 .custom-mode-option:hover{border-color:var(--accent);transform:translateY(-1px)}
-.custom-mode-option.selected,.custom-mode-option.active-spyfall,.custom-mode-option.active-ooo,.custom-mode-option.active-mafia,.custom-mode-option.active-fa,.custom-mode-option.active-bs{background:rgba(232,212,77,0.06);border-color:var(--accent)}
+.custom-mode-option.selected,.custom-mode-option.active-spyfall,.custom-mode-option.active-ooo,.custom-mode-option.active-mafia,.custom-mode-option.active-fa,.custom-mode-option.active-bs,.custom-mode-option.active-guess{background:rgba(232,212,77,0.06);border-color:var(--accent)}
 .custom-mode-icon{font-size:22px;width:28px;text-align:center;flex-shrink:0}
 .custom-mode-option > span:not(.custom-mode-icon){display:flex;flex-direction:column;align-items:flex-start;gap:4px;line-height:1.15}
 .custom-mode-name{display:block;font-size:13px;font-weight:800;color:var(--text);letter-spacing:1px;text-transform:uppercase;line-height:1.15}
@@ -519,8 +519,8 @@ select option{background:var(--surface2)}
 .shop-modal-header h2{flex:1;font-size:22px;font-weight:800;margin:0}
 .shop-close-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'DM Mono',monospace;font-size:16px;cursor:pointer}
 .shop-close-btn:hover{color:var(--text);border-color:var(--accent)}
-.shop-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:12px}
-.shop-tab{padding:9px 4px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.shop-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:var(--surface2);padding:5px;border-radius:var(--radius);margin-bottom:12px}
+.shop-tab{padding:9px 6px;border:none;border-radius:9px;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s}
 .shop-tab:hover{color:var(--text);background:var(--surface3)}
 .shop-tab.active{background:var(--accent);color:#0a0a0f}
 .shop-preview{width:54px;min-width:54px;display:flex;align-items:center;justify-content:center}
@@ -776,152 +776,35 @@ select option{background:var(--surface2)}
 
 
 /* ===== PWA UPDATE AVAILABLE BUTTON ===== */
+/* ===== GUESSING GAME ===== */
+.guess-accent{color:#e8d44d}
+.guess-category-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 12px}
+.guess-category-btn{padding:10px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .15s}
+.guess-category-btn:hover{border-color:var(--accent);color:var(--accent)}
+.guess-category-btn.selected{border-color:var(--accent);background:rgba(232,212,77,.12);color:var(--accent);box-shadow:0 0 0 1px rgba(232,212,77,.18)}
+.guess-player-row{padding:11px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px}
+.guess-player-top{display:flex;align-items:center;gap:10px;cursor:pointer}
+.guess-status{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.8px;padding:4px 8px;border-radius:999px;background:var(--surface3);color:var(--muted)}
+.guess-status.ok{color:var(--safe);background:rgba(77,232,160,.08);border:1px solid rgba(77,232,160,.22)}
+.guess-status.wait{color:var(--muted);border:1px solid var(--border)}
+.guess-detail{display:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);line-height:1.7}
+.guess-player-row.open .guess-detail{display:block}
+.guess-timer{font-family:'DM Mono',monospace;font-size:44px;font-weight:500;letter-spacing:3px;color:var(--accent);text-align:center}
+.guess-mini-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;text-align:center}
+.guess-correct-box{padding:18px;background:rgba(77,232,160,.08);border:1px solid rgba(77,232,160,.28);border-radius:var(--radius-lg);text-align:center;margin-bottom:12px}
+.guess-correct-title{font-size:22px;font-weight:800;color:var(--safe);margin-bottom:5px}
+.guess-points-earned{font-family:'DM Mono',monospace;color:var(--accent);font-size:13px}
+#homeTileGuess,#modeTabGuess{border-color:rgba(232,212,77,.45);background:rgba(232,212,77,.075)}
+#homeTileGuess:hover,#modeTabGuess:hover,#homeTileGuess.selected,#modeTabGuess.active-guess{border-color:var(--accent);background:rgba(232,212,77,.14);box-shadow:0 0 0 1px rgba(232,212,77,.25)}
+#homeTileGuess .custom-mode-name,#modeTabGuess .custom-mode-name{color:var(--accent)}
+
 .update-available-btn{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:12000;display:none;align-items:center;justify-content:center;gap:8px;width:calc(100% - 36px);max-width:420px;padding:13px 16px;border:none;border-radius:var(--radius-lg);background:var(--accent);color:#0a0a0f;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:.3px;box-shadow:0 14px 40px rgba(0,0,0,.45);cursor:pointer}
 .update-available-btn.show{display:flex;animation:fadeIn .2s ease}
 .update-available-btn span{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;opacity:.78;text-transform:uppercase;letter-spacing:1px}
 
-
-/* ===== WIN ANIMATIONS ===== */
-.win-anim-overlay{position:fixed;inset:0;z-index:13000;pointer-events:none;display:none;overflow:hidden}
-.win-anim-overlay.active{display:block}
-.win-anim-shop-preview{width:54px;min-width:54px;height:40px;border-radius:8px;background:var(--surface3);border:1px solid var(--border);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px}
-@keyframes winConfettiFall{0%{transform:translateY(-20vh) rotate(0deg);opacity:1}100%{transform:translateY(120vh) rotate(720deg);opacity:0.2}}
-.win-confetti-piece{position:absolute;top:-20px;width:11px;height:16px;border-radius:2px;animation:winConfettiFall linear forwards}
-@keyframes winFirework{0%{transform:scale(0);opacity:1}70%{opacity:1}100%{transform:scale(1);opacity:0}}
-.win-firework{position:absolute;width:6px;height:6px;border-radius:50%;animation:winFirework 1.1s ease-out forwards}
-@keyframes winRays{0%{opacity:0;transform:scale(0.4) rotate(0deg)}30%{opacity:0.85}100%{opacity:0;transform:scale(2.2) rotate(140deg)}}
-.win-rays{position:absolute;left:50%;top:42%;width:140vmax;height:140vmax;margin-left:-70vmax;margin-top:-70vmax;background:repeating-conic-gradient(from 0deg,rgba(232,212,77,0.0) 0deg,rgba(232,212,77,0.22) 6deg,rgba(232,212,77,0.0) 12deg);animation:winRays 1.8s ease-out forwards}
-@keyframes winCrownDrop{0%{transform:translate(-50%,-160px) scale(0.4) rotate(-20deg);opacity:0}45%{transform:translate(-50%,0) scale(1.2) rotate(6deg);opacity:1}62%{transform:translate(-50%,8px) scale(0.95) rotate(-3deg)}100%{transform:translate(-50%,0) scale(1) rotate(0deg);opacity:1}}
-.win-crown{position:absolute;left:50%;top:24%;font-size:84px;filter:drop-shadow(0 8px 24px rgba(232,212,77,0.6));animation:winCrownDrop 1.1s cubic-bezier(0.34,1.56,0.64,1) forwards}
-@keyframes winFlameRise{0%{transform:translateY(40px) scaleY(0.4);opacity:0}25%{opacity:1}100%{transform:translateY(-110vh) scaleY(1.4);opacity:0}}
-.win-flame{position:absolute;bottom:-10vh;width:60px;border-radius:50% 50% 40% 40%;background:radial-gradient(circle at 50% 80%,#fde047,#f97316 45%,#ef4444 75%,transparent);filter:blur(2px);animation:winFlameRise ease-in forwards}
-.win-inferno-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(249,115,22,0.5),transparent 60%);animation:winInfFlash 1.6s ease-out forwards}
-@keyframes winInfFlash{0%,100%{opacity:0}8%,40%{opacity:0.85}20%{opacity:0.4}}
-@keyframes winGlitterFall{0%{transform:translateY(-12vh) scale(0.4) rotate(0deg);opacity:0}15%{opacity:1}100%{transform:translateY(118vh) scale(1) rotate(360deg);opacity:0}}
-.win-glitter{position:absolute;top:-12vh;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#ffe98a 40%,#e8b94d 75%,transparent);box-shadow:0 0 8px 2px rgba(255,225,120,0.9),0 0 16px 4px rgba(232,185,77,0.5);animation:winGlitterFall linear forwards;will-change:transform,opacity}
-@keyframes winGlitterTwinkle{0%,100%{opacity:0.35;transform:scale(0.7)}50%{opacity:1;transform:scale(1.25)}}
-.win-glitter.tw{animation:winGlitterFall linear forwards,winGlitterTwinkle 0.5s ease-in-out infinite}
-@keyframes winTextPop{0%{transform:translate(-50%,-50%) scale(0.3);opacity:0}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}70%{transform:translate(-50%,-50%) scale(0.96)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
-.win-anim-overlay .win-victory-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Syne',sans-serif;font-size:clamp(30px,10vw,60px);font-weight:800;letter-spacing:-1px;text-align:center;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,0.7);animation:winTextPop 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;white-space:nowrap}
-
-/* ===== INFERNO WIN THEME (applied to <body> while inferno win plays) ===== */
-@keyframes infThemePulse{0%,100%{filter:saturate(1.15) brightness(1.02)}50%{filter:saturate(1.4) brightness(1.1)}}
-@keyframes infGlowPulse{0%,100%{box-shadow:0 0 14px rgba(249,115,22,.55),0 0 32px rgba(239,68,68,.35),inset 0 0 18px rgba(249,115,22,.18)}50%{box-shadow:0 0 26px rgba(253,224,71,.7),0 0 54px rgba(249,115,22,.55),inset 0 0 26px rgba(239,68,68,.28)}}
-@keyframes infTextGlow{0%,100%{text-shadow:0 0 8px rgba(249,115,22,.7),0 0 18px rgba(239,68,68,.5)}50%{text-shadow:0 0 16px rgba(253,224,71,.9),0 0 36px rgba(249,115,22,.7)}}
-@keyframes infAvatarGlow{0%,100%{box-shadow:0 0 14px rgba(249,115,22,.8),0 0 30px rgba(239,68,68,.55),0 0 48px rgba(253,224,71,.3);border-color:#f97316}50%{box-shadow:0 0 24px rgba(253,224,71,.95),0 0 52px rgba(249,115,22,.7),0 0 78px rgba(239,68,68,.45);border-color:#fde047}}
-
-body.inferno-win-theme{background:radial-gradient(ellipse at 50% 30%,#2a0f04 0%,#1a0702 45%,#0a0402 100%)!important}
-/* Tint the active result screen warm */
-body.inferno-win-theme .screen.active{background:radial-gradient(ellipse at 50% 25%,rgba(249,115,22,.10),transparent 70%)}
-/* Cards on the win screen get a glowing ember border + warm bg */
-body.inferno-win-theme .screen.active .card,
-body.inferno-win-theme .screen.active .result-banner,
-body.inferno-win-theme .screen.active #resultRevealBox,
-body.inferno-win-theme .screen.active [id$="ResultReveal"],
-body.inferno-win-theme .screen.active [id$="ResultImposter"],
-body.inferno-win-theme .screen.active #mafiaResultReveal{
-  border-color:#f97316!important;
-  background:linear-gradient(145deg,#2a1004,#1a0a04)!important;
-  animation:infGlowPulse 1.6s ease-in-out infinite;
-}
-/* Headings + key text glow warm */
-body.inferno-win-theme .screen.active h2,
-body.inferno-win-theme .screen.active .result-banner h2{
-  color:#fde047!important;
-  animation:infTextGlow 1.6s ease-in-out infinite;
-}
-body.inferno-win-theme .screen.active .result-banner p,
-body.inferno-win-theme .screen.active .scoreboard-pts{color:#ffb86b!important}
-/* Buttons warm */
-body.inferno-win-theme .screen.active .btn-primary,
-body.inferno-win-theme .screen.active .btn-mafia{
-  background:linear-gradient(135deg,#f97316,#ef4444)!important;color:#fff!important;
-  box-shadow:0 0 18px rgba(249,115,22,.5);
-}
-/* THE WINNER'S AVATAR — red/orange glow */
-body.inferno-win-theme .result-avatar,
-body.inferno-win-theme .result-banner .result-avatar,
-body.inferno-win-theme .result-banner .av.result-avatar,
-body.inferno-win-theme .result-banner .av-placeholder.result-avatar,
-body.inferno-win-theme #resultRevealBox .av,
-body.inferno-win-theme #resultRevealBox .av-placeholder,
-body.inferno-win-theme [id$="ResultReveal"] .av,
-body.inferno-win-theme [id$="ResultReveal"] .av-placeholder,
-body.inferno-win-theme [id$="ResultImposter"] .av,
-body.inferno-win-theme [id$="ResultImposter"] .av-placeholder{
-  border:2px solid #f97316!important;
-  animation:infAvatarGlow 1.3s ease-in-out infinite!important;
-}
-/* Scoreboard 'me' row glow */
-body.inferno-win-theme .screen.active .scoreboard-item.me{
-  border-color:#f97316!important;
-  box-shadow:0 0 14px rgba(249,115,22,.4);
-}
-/* Victory text already warm for inferno */
-.win-victory-text.inferno-text{color:#fde047;text-shadow:0 0 14px #f97316,0 0 30px #ef4444,0 0 50px rgba(253,224,71,.6)}
-
-/* ===== GOLD WIN THEME (Golden Crown) ===== */
-@keyframes goldGlowPulse{0%,100%{box-shadow:0 0 14px rgba(232,212,77,.55),0 0 32px rgba(255,215,0,.32),inset 0 0 18px rgba(232,212,77,.16)}50%{box-shadow:0 0 26px rgba(255,235,140,.75),0 0 56px rgba(232,212,77,.55),inset 0 0 26px rgba(255,215,0,.26)}}
-@keyframes goldTextGlow{0%,100%{text-shadow:0 0 8px rgba(232,212,77,.7),0 0 18px rgba(255,215,0,.5)}50%{text-shadow:0 0 16px rgba(255,245,180,.95),0 0 38px rgba(232,212,77,.7)}}
-@keyframes goldAvatarGlow{0%,100%{box-shadow:0 0 14px rgba(232,212,77,.8),0 0 30px rgba(255,215,0,.5),0 0 48px rgba(255,235,140,.3);border-color:#e8d44d}50%{box-shadow:0 0 26px rgba(255,245,180,.95),0 0 56px rgba(232,212,77,.7),0 0 84px rgba(255,215,0,.45);border-color:#fff3b0}}
-
-body.gold-win-theme{background:radial-gradient(ellipse at 50% 28%,#2a2406 0%,#1a1604 45%,#0a0902 100%)!important}
-body.gold-win-theme .screen.active{background:radial-gradient(ellipse at 50% 25%,rgba(232,212,77,.12),transparent 70%)}
-body.gold-win-theme .screen.active .card,
-body.gold-win-theme .screen.active .result-banner,
-body.gold-win-theme .screen.active #resultRevealBox,
-body.gold-win-theme .screen.active [id$="ResultReveal"],
-body.gold-win-theme .screen.active [id$="ResultImposter"],
-body.gold-win-theme .screen.active [id$="ImpostorReveal"],
-body.gold-win-theme .screen.active #mafiaResultReveal{
-  border-color:#e8d44d!important;
-  background:linear-gradient(145deg,#2a2406,#1a1604)!important;
-  animation:goldGlowPulse 1.6s ease-in-out infinite;
-}
-body.gold-win-theme .screen.active h2,
-body.gold-win-theme .screen.active .result-banner h2{
-  color:#ffe98a!important;
-  animation:goldTextGlow 1.6s ease-in-out infinite;
-}
-body.gold-win-theme .screen.active .result-banner p,
-body.gold-win-theme .screen.active .scoreboard-pts{color:#ffd700!important}
-body.gold-win-theme .screen.active .btn-primary,
-body.gold-win-theme .screen.active .btn-mafia,
-body.gold-win-theme .screen.active .btn-ooo{
-  background:linear-gradient(135deg,#f7d24d,#e8b94d)!important;color:#1a1400!important;
-  box-shadow:0 0 18px rgba(232,212,77,.5);
-}
-body.gold-win-theme .result-avatar,
-body.gold-win-theme .result-banner .result-avatar,
-body.gold-win-theme .result-banner .av.result-avatar,
-body.gold-win-theme .result-banner .av-placeholder.result-avatar,
-body.gold-win-theme #resultRevealBox .av,
-body.gold-win-theme #resultRevealBox .av-placeholder,
-body.gold-win-theme [id$="ResultReveal"] .av,
-body.gold-win-theme [id$="ResultReveal"] .av-placeholder,
-body.gold-win-theme [id$="ResultImposter"] .av,
-body.gold-win-theme [id$="ResultImposter"] .av-placeholder,
-body.gold-win-theme [id$="ImpostorReveal"] .av,
-body.gold-win-theme [id$="ImpostorReveal"] .av-placeholder{
-  border:2px solid #e8d44d!important;
-  animation:goldAvatarGlow 1.3s ease-in-out infinite!important;
-}
-body.gold-win-theme .screen.active .scoreboard-item.me{
-  border-color:#e8d44d!important;
-  box-shadow:0 0 14px rgba(232,212,77,.4);
-}
-.win-victory-text.gold-text{color:#ffe98a;text-shadow:0 0 14px #e8d44d,0 0 30px #ffd700,0 0 50px rgba(255,245,180,.6)}
-
-/* Crown that lands on the winner's avatar */
-@keyframes crownLand{0%{transform:translate(-50%,-220px) scale(0.5) rotate(-22deg);opacity:0}40%{opacity:1}55%{transform:translate(-50%,4px) scale(1.18) rotate(8deg)}70%{transform:translate(-50%,-2px) scale(0.96) rotate(-4deg)}85%{transform:translate(-50%,1px) scale(1.04) rotate(2deg)}100%{transform:translate(-50%,0) scale(1) rotate(0deg);opacity:1}}
-@keyframes crownBob{0%,100%{transform:translate(-50%,0) rotate(0deg)}50%{transform:translate(-50%,-4px) rotate(2deg)}}
-.win-crown-landed{position:fixed;z-index:13050;font-size:54px;pointer-events:none;filter:drop-shadow(0 4px 14px rgba(232,212,77,0.85)) drop-shadow(0 0 22px rgba(255,215,0,0.6));will-change:transform}
-.win-crown-landed.landing{animation:crownLand 1.0s cubic-bezier(0.34,1.56,0.64,1) forwards}
-.win-crown-landed.bobbing{animation:crownBob 1.4s ease-in-out infinite}
 </style>
 </head>
 <body>
-<div class="win-anim-overlay" id="winAnimOverlay"></div>
 <!-- PASSWORD -->
 <div class="screen active" id="screen-password">
   <div class="logo">CHRISPY<span>GAMES</span></div>
@@ -955,6 +838,7 @@ body.gold-win-theme .screen.active .scoreboard-item.me{
       <button class="custom-mode-option" id="homeTileMafia" onclick="selectHomeMode('mafia')"><span class="custom-mode-icon">🃏</span><span><span class="custom-mode-name">Mafia</span><span class="custom-mode-desc">Civilians vs Mafia</span></span></button>
       <button class="custom-mode-option" id="homeTileFa" onclick="selectHomeMode('fa')"><span class="custom-mode-icon">🎨</span><span><span class="custom-mode-name">Fake Artist</span><span class="custom-mode-desc">Draw the imposter</span></span></button>
       <button class="custom-mode-option" id="homeTileBs" onclick="selectHomeMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
+      <button class="custom-mode-option" id="homeTileGuess" onclick="selectHomeMode('guess')"><span class="custom-mode-icon">❓</span><span><span class="custom-mode-name">Guessing Game</span><span class="custom-mode-desc">Guess the answer</span></span></button>
     </div>
   </div>
   <div class="card fadeIn">
@@ -983,7 +867,6 @@ body.gold-win-theme .screen.active .scoreboard-item.me{
       <div class="shop-tabs">
         <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Names</button>
         <button class="shop-tab" id="shopTabFrames" onclick="switchShopTab('frames')">Frames</button>
-        <button class="shop-tab" id="shopTabWins" onclick="switchShopTab('wins')">Wins</button>
         <button class="shop-tab" id="shopTabOwned" onclick="switchShopTab('owned')">Owned</button>
       </div>
       <div class="shop-grid" id="shopItems"></div>
@@ -1072,15 +955,6 @@ body.gold-win-theme .screen.active .scoreboard-item.me{
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-galaxy">👤</div><div class="dev-preview-sample">Galaxy Flow Frame</div></div><div class="dev-preview-value">value: galaxy</div></div>
           <div class="dev-preview-row"><div class="dev-frame-preview"><div class="av-placeholder av-frame-inferno">👤</div><div class="dev-preview-sample">Inferno Frame</div></div><div class="dev-preview-value">value: inferno</div></div>
         </div>
-        <div class="dev-section-label" style="margin-top:10px">Win Animation Previews</div>
-        <div class="dev-grid">
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('rays')">🌟 Golden Rays</button>
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('confetti')">🎉 Confetti</button>
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('fireworks')">🎆 Fireworks</button>
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('goldConfetti')">✨ Golden Confetti</button>
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('crown')">👑 Golden Crown</button>
-          <button class="dev-btn dev-btn-neutral" onclick="previewWinAnim('inferno')">🔥 Inferno</button>
-        </div>
         <div class="dev-section-label" style="margin-top:10px">Jump to Screen</div>
         <div class="dev-grid">
           <button class="dev-btn dev-btn-neutral" onclick="devGoScreen('lobby')">Lobby</button>
@@ -1127,6 +1001,7 @@ body.gold-win-theme .screen.active .scoreboard-item.me{
           <button class="custom-mode-option mode-tab" id="modeTabMafia" onclick="setGameMode('mafia')"><span class="custom-mode-icon">🃏</span><span><span class="custom-mode-name">Mafia</span><span class="custom-mode-desc">Civilians vs Mafia</span></span></button>
           <button class="custom-mode-option mode-tab" id="modeTabFa" onclick="setGameMode('fa')"><span class="custom-mode-icon">🎨</span><span><span class="custom-mode-name">Fake Artist</span><span class="custom-mode-desc">Draw the imposter</span></span></button>
           <button class="custom-mode-option mode-tab" id="modeTabBs" onclick="setGameMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabGuess" onclick="setGameMode('guess')"><span class="custom-mode-icon">❓</span><span><span class="custom-mode-name">Guessing Game</span><span class="custom-mode-desc">Guess the answer</span></span></button>
         </div>
       </div>
       <!-- SPYFALL SETTINGS -->
@@ -1228,6 +1103,27 @@ body.gold-win-theme .screen.active .scoreboard-item.me{
           </div>
         </div>
         <div class="notice" style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.3);color:#06b6d4;margin-top:4px">🕵️ One player gets different cards. Find the Imposter before they guess all your cards!</div>
+      </div>
+      <!-- GUESSING GAME SETTINGS -->
+      <div id="guessSettings" style="display:none">
+        <div class="count-wrap">
+          <label>Discussion time</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeGuessDiscuss(-1)">−</button>
+            <div class="count-display" id="guessDiscussDisplay">5 min</div>
+            <button class="count-btn" onclick="changeGuessDiscuss(1)">+</button>
+          </div>
+        </div>
+        <div class="count-wrap">
+          <label>Number of rounds</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeGuessRounds(-1)">−</button>
+            <div class="count-display" id="guessRoundsDisplay">3</div>
+            <button class="count-btn" onclick="changeGuessRounds(1)">+</button>
+            <div class="count-label" id="guessRoundsLabel">rounds</div>
+          </div>
+        </div>
+        <div class="notice info" style="margin-top:4px">❓ One answer giver chooses a category and secret answer. Everyone else guesses for points.</div>
       </div>
       <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 4 players to start Mafia</div>
       <div style="height:8px"></div>
@@ -1724,14 +1620,6 @@ body.gold-win-theme .screen.active .scoreboard-item.me{
         <span style="color:var(--muted);font-size:13px">Word hidden — tap to peek</span>
       </div>
     </div>
-    <div id="faImposterGuessBar" style="display:none;margin-bottom:8px;flex-shrink:0;padding:10px 12px;background:rgba(232,93,77,0.08);border:1px solid rgba(232,93,77,0.35);border-radius:var(--radius)">
-      <div style="font-size:10px;color:var(--spy);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">🕵️ Imposter — one guess to win</div>
-      <div style="display:flex;gap:8px">
-        <input id="faImposterGuessInput" type="text" placeholder="Guess the subject..." maxlength="40" autocomplete="off" style="flex:1;margin-bottom:0;font-size:14px;padding:9px 12px" onkeydown="if(event.key==='Enter')faImposterGuessWord()"/>
-        <button onclick="faImposterGuessWord()" style="background:var(--spy);color:#fff;border:none;padding:9px 14px;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Guess</button>
-      </div>
-      <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;line-height:1.4">Guess right = you win instantly. Guess wrong = you lose & the artists win.</div>
-    </div>
     <div id="faCanvasBox" style="width:100%;max-width:430px;aspect-ratio:1/1;height:auto;position:relative;flex:0 1 auto;margin:0 auto;overflow:hidden;border-radius:var(--radius);background:#1a1a24;border:1px solid var(--border)">
       <canvas id="faCanvas" width="430" height="430" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius);background:#1a1a24;display:block;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none"></canvas>
       <canvas id="faLiveCanvas" width="430" height="430" style="position:absolute;inset:0;width:100%;height:100%;border-radius:var(--radius);display:block;pointer-events:none;touch-action:none"></canvas>
@@ -1975,7 +1863,8 @@ const REWARD_AMOUNTS={
   mafia:{mafia:100,civilian:50},
   bs:{imposter:150,innocent:50},
   ooo:{imposter:75,normal:10},
-  fa:{imposter:75,normal:10}
+  fa:{imposter:75,normal:10},
+  guess:{winner:50}
 };
 const SHOP_ITEMS=[
   {id:'name_gold',type:'nameColor',label:'Gold Name',price:100,value:'#e8d44d'},
@@ -2006,18 +1895,12 @@ const SHOP_ITEMS=[
   {id:'frame_aurora',type:'avatarFrame',label:'Aurora Glow Avatar Frame',price:650,value:'aurora'},
   {id:'frame_blood_moon',type:'avatarFrame',label:'Blood Moon Avatar Frame',price:700,value:'bloodmoon'},
   {id:'frame_galaxy',type:'avatarFrame',label:'Galaxy Flow Avatar Frame',price:800,value:'galaxy'},
-  {id:'frame_inferno',type:'avatarFrame',label:'Inferno Avatar Frame',price:1100,value:'inferno'},
-  {id:'win_rays',type:'winAnim',label:'Golden Rays',price:900,value:'rays',icon:'🌟'},
-  {id:'win_confetti',type:'winAnim',label:'Confetti Blast',price:950,value:'confetti',icon:'🎉'},
-  {id:'win_fireworks',type:'winAnim',label:'Fireworks',price:1000,value:'fireworks',icon:'🎆'},
-  {id:'win_golden_confetti',type:'winAnim',label:'Golden Confetti',price:1100,value:'goldConfetti',icon:'✨'},
-  {id:'win_crown',type:'winAnim',label:'Golden Crown',price:1500,value:'crown',icon:'👑'},
-  {id:'win_inferno',type:'winAnim',label:'Inferno Triumph',price:2200,value:'inferno',icon:'🔥'}
+  {id:'frame_inferno',type:'avatarFrame',label:'Inferno Avatar Frame',price:1100,value:'inferno'}
 ];
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
 let roleVisible=true,revealVisible=true,mafiaCardVisible=true;
-let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localFaWords=3,localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;
+let localSpyCount=1,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localFaWords=3,localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;let localGuessDiscussMinutes=5,localGuessRounds=3,guessTimerInterval=null;
 let chatListener=null,mafiaPrivateChatListener=null;
 // Night phase local state
 let mafiaKillDecision=null; // 'yes'|'no' — local kill decision before committing
@@ -2115,9 +1998,6 @@ function equipShopItem(item){
     // Only one avatar frame at a time.
     delete myProfile.equipped.avatarFrame;
   }
-  if(item.type==='winAnim'){
-    delete myProfile.equipped.winAnim;
-  }
   myProfile.equipped[item.type]=item.value;
 }
 function isShopItemEquipped(item){
@@ -2125,7 +2005,7 @@ function isShopItemEquipped(item){
   return myProfile.equipped[item.type]===item.value;
 }
 function shopItemCategory(item){
-  return isNameShopItem(item)?'Name':item.type==='avatarFrame'?'Frame':item.type==='winAnim'?'Win':'Item';
+  return isNameShopItem(item)?'Name':item.type==='avatarFrame'?'Frame':'Item';
 }
 function shopItemPreview(item){
   const sampleName=esc((document.getElementById('playerName')&&document.getElementById('playerName').value.trim())||myProfile.name||'Chris');
@@ -2138,14 +2018,11 @@ function shopItemPreview(item){
   if(item.type==='avatarFrame'){
     return `<div class="shop-preview">${avatarImg(myAvatar, 'shop-preview-frame av-frame-'+item.value)}</div>`;
   }
-  if(item.type==='winAnim'){
-    return `<div class="shop-preview"><div class="win-anim-shop-preview" onclick="event.stopPropagation();previewWinAnim('${item.value}')" style="cursor:pointer" title="Tap to preview">${item.icon||'🏆'}</div></div>`;
-  }
   return `<div class="shop-preview"></div>`;
 }
 function switchShopTab(tab){
   currentShopTab=tab;
-  ['names','frames','wins','owned'].forEach(t=>{
+  ['names','frames','owned'].forEach(t=>{
     const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.classList.toggle('active',t===currentShopTab);
   });
@@ -2154,7 +2031,7 @@ function switchShopTab(tab){
 function renderShop(){
   const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
   const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
-  ['names','frames','wins','owned'].forEach(t=>{
+  ['names','frames','owned'].forEach(t=>{
     const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.classList.toggle('active',t===currentShopTab);
   });
@@ -2163,7 +2040,6 @@ function renderShop(){
     const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
     if(currentShopTab==='names')return isNameShopItem(item);
     if(currentShopTab==='frames')return item.type==='avatarFrame';
-    if(currentShopTab==='wins')return item.type==='winAnim';
     if(currentShopTab==='owned')return owned;
     return true;
   }).sort((a,b)=>(a.price||0)-(b.price||0)||String(a.label).localeCompare(String(b.label)));
@@ -2305,7 +2181,7 @@ function rewardDataForGame(game){
   const add=(id,amount)=>{if(id&&amount>0)rewards[id]=(rewards[id]||0)+amount;};
 
   // Spyfall final result
-  if((game.mode==='spyfall'||(!['ooo','mafia','fa','bs'].includes(game.mode)))&&game.status==='result'&&game.result){
+  if((game.mode==='spyfall'||(!['ooo','mafia','fa','bs','guess'].includes(game.mode)))&&game.status==='result'&&game.result){
     const spyIds=game.spyIds||[game.spyId].filter(Boolean);
     if(game.chaosMode){
       if(game.result&&game.result.spyWins)spyIds.forEach(id=>add(id,REWARD_AMOUNTS.spyfall.spy));
@@ -2327,6 +2203,14 @@ function rewardDataForGame(game){
     const roundKey=rewardRoundKey(game,'mafia_round');
     if(!roundKey)return null;
     return {key:roundKey,mode:'mafia',rewards};
+  }
+
+  // Guessing Game final result
+  if(game.mode==='guess'&&game.status==='result'&&game.guessFinalResult){
+    (game.guessFinalResult.winnerIds||[]).forEach(id=>add(id,REWARD_AMOUNTS.guess.winner));
+    const roundKey=rewardRoundKey(game,'guess_game');
+    if(!roundKey)return null;
+    return {key:roundKey,mode:'guess',rewards};
   }
 
   // Blind Spot final result
@@ -2361,189 +2245,6 @@ function winnerIdsForGame(game){
   const data=rewardDataForGame(game);
   return data?Object.keys(data.rewards||{}):[];
 }
-
-// =====================================================
-// WIN ANIMATIONS (solo-winner only)
-// =====================================================
-const WIN_ANIM_SEEN=new Set();
-function getMyWinAnim(){return (myProfile.equipped&&myProfile.equipped.winAnim)||null;}
-
-// Determine if I am a SOLO winner of this game (the only person who won).
-function amSoloWinnerOfGame(game){
-  const winners=winnerIdsForGame(game);
-  return winners.length===1 && winners[0]===myId;
-}
-
-function clearWinAnim(){
-  const ov=document.getElementById('winAnimOverlay');
-  if(ov){ov.classList.remove('active');ov.innerHTML='';ov.style.display='none';}
-  document.body.classList.remove('inferno-win-theme');
-  document.body.classList.remove('gold-win-theme');
-  document.querySelectorAll('.win-crown-landed').forEach(el=>el.remove());
-}
-
-function previewWinAnim(value){
-  playWinAnim(value,true);
-}
-
-// Renders a full-screen overlay effect for ~2.6s
-function playWinAnim(value,isPreview){
-  const ov=document.getElementById('winAnimOverlay');
-  if(!ov||!value)return;
-  ov.innerHTML='';
-  ov.style.display='block';
-  ov.classList.add('active');
-  document.body.classList.toggle('inferno-win-theme', value==='inferno'&&!isPreview);
-  document.body.classList.toggle('gold-win-theme', value==='crown'&&!isPreview);
-  const rand=(a,b)=>a+Math.random()*(b-a);
-  const palette=['#e8d44d','#e85d4d','#4de8a0','#06b6d4','#a78bfa','#f97316','#ff4fd8','#ffffff'];
-  const goldPalette=['#fff6cf','#ffe98a','#f7d24d','#e8b94d','#fffbe6','#ffd700'];
-
-  function dropConfetti(count,colors,delayMax,durMin,durMax){
-    for(let i=0;i<count;i++){
-      const p=document.createElement('div');p.className='win-confetti-piece';
-      p.style.left=rand(-2,102)+'vw';
-      p.style.background=colors[Math.floor(Math.random()*colors.length)];
-      p.style.animationDuration=rand(durMin,durMax)+'s';
-      p.style.animationDelay=rand(0,delayMax)+'s';
-      p.style.width=rand(8,16)+'px';p.style.height=rand(12,22)+'px';
-      ov.appendChild(p);
-    }
-  }
-  function dropGlitter(count){
-    for(let i=0;i<count;i++){
-      const g=document.createElement('div');g.className='win-glitter'+(Math.random()>0.5?' tw':'');
-      const sz=rand(4,9);
-      g.style.left=rand(-2,102)+'vw';
-      g.style.width=sz+'px';g.style.height=sz+'px';
-      g.style.animationDuration=rand(2.0,2.9)+'s';
-      g.style.animationDelay=rand(0,0.7)+'s';
-      ov.appendChild(g);
-    }
-  }
-  function burst(cx,cy,col,n,distMin,distMax,dur){
-    for(let i=0;i<n;i++){
-      const ang=(Math.PI*2*i)/n + rand(-0.05,0.05),dist=rand(distMin,distMax);
-      const f=document.createElement('div');f.className='win-firework';
-      f.style.left=cx+'vw';f.style.top=cy+'vh';f.style.background=col;
-      f.style.boxShadow='0 0 10px '+col+',0 0 18px '+col;
-      f.style.width=rand(5,9)+'px';f.style.height=f.style.width;
-      f.animate([{transform:'translate(0,0) scale(1.2)',opacity:1},{transform:`translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist}px) scale(0)`,opacity:0}],{duration:dur,easing:'cubic-bezier(0.15,0.7,0.3,1)',fill:'forwards'});
-      ov.appendChild(f);
-    }
-  }
-
-  if(value==='confetti'){
-    // INTENSIFIED: many more pieces, layered waves
-    dropConfetti(200,palette,0.8,1.8,3.0);
-    dropConfetti(80,palette,1.4,2.2,3.0);
-  } else if(value==='goldConfetti'){
-    // Golden confetti + glowing glitter falling together
-    dropConfetti(170,goldPalette,0.9,1.8,2.9);
-    dropGlitter(130);
-    const rays=document.createElement('div');rays.className='win-rays';rays.style.opacity='0.7';ov.appendChild(rays);
-  } else if(value==='fireworks'){
-    // INTENSIFIED: more bursts, bigger, overlapping
-    for(let b=0;b<14;b++){
-      const cx=rand(10,90),cy=rand(12,55),col=palette[Math.floor(Math.random()*palette.length)];
-      setTimeout(()=>{ if(ov.classList.contains('active')) burst(cx,cy,col,rand(30,40)|0,80,200,1100); }, b*180);
-    }
-  } else if(value==='crown'){
-    // INTENSIFIED: rays + heavy gold confetti + glitter
-    const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
-    const rays2=document.createElement('div');rays2.className='win-rays';rays2.style.animationDelay='0.4s';rays2.style.animationDuration='2.4s';ov.appendChild(rays2);
-    dropConfetti(110,goldPalette,0.9,1.9,2.9);
-    dropGlitter(70);
-    if(isPreview){
-      // Preview: simple centered crown drop
-      const c=document.createElement('div');c.className='win-crown';c.textContent='👑';ov.appendChild(c);
-    } else {
-      // Real win: land the crown on the winner's avatar
-      landCrownOnWinnerAvatar();
-    }
-  } else if(value==='rays'){
-    const rays=document.createElement('div');rays.className='win-rays';ov.appendChild(rays);
-    const rays2=document.createElement('div');rays2.className='win-rays';rays2.style.animationDelay='0.3s';rays2.style.animationDuration='2.4s';ov.appendChild(rays2);
-  } else if(value==='inferno'){
-    // INTENSIFIED: more flames + embers + flash
-    for(let i=0;i<30;i++){
-      const f=document.createElement('div');f.className='win-flame';
-      f.style.left=rand(-2,102)+'vw';
-      f.style.width=rand(40,90)+'px';
-      f.style.height=rand(160,340)+'px';
-      f.style.animationDuration=rand(1.4,2.6)+'s';
-      f.style.animationDelay=rand(0,0.9)+'s';
-      ov.appendChild(f);
-    }
-    // embers (small orange glitter-like)
-    for(let i=0;i<60;i++){
-      const e=document.createElement('div');e.className='win-firework';
-      const col=['#fde047','#f97316','#ef4444'][Math.floor(Math.random()*3)];
-      e.style.left=rand(0,100)+'vw';e.style.top=rand(60,100)+'vh';
-      e.style.background=col;e.style.boxShadow='0 0 8px '+col;
-      e.style.width=rand(3,7)+'px';e.style.height=e.style.width;
-      e.animate([{transform:'translateY(0) scale(1)',opacity:1},{transform:`translateY(-${rand(200,500)}px) scale(0)`,opacity:0}],{duration:rand(1400,2400),delay:rand(0,800),easing:'ease-out',fill:'forwards'});
-      ov.appendChild(e);
-    }
-    const flash=document.createElement('div');flash.className='win-inferno-flash';ov.appendChild(flash);
-  }
-
-  // Victory text for non-preview plays
-  if(!isPreview){
-    const t=document.createElement('div');t.className='win-victory-text'+(value==='inferno'?' inferno-text':value==='crown'?' gold-text':'');t.textContent='VICTORY';
-    ov.appendChild(t);
-  }
-
-  clearTimeout(window.__winAnimTimer);
-  window.__winAnimTimer=setTimeout(clearWinAnim, isPreview?2900:3000);
-}
-
-// Called whenever a game result is shown — plays MY win anim if I solo-won.
-function landCrownOnWinnerAvatar(){
-  // Find the most prominent winner avatar on the active result screen.
-  const screen=document.querySelector('.screen.active');
-  if(!screen){return;}
-  // Prefer the banner avatar, then the reveal box avatar.
-  let target=screen.querySelector('.result-banner .result-avatar')
-    || screen.querySelector('.result-banner .av, .result-banner .av-placeholder, .result-banner .av-inferno-wrap')
-    || screen.querySelector('#resultRevealBox .av, #resultRevealBox .av-placeholder')
-    || screen.querySelector('[id$="ResultReveal"] .av, [id$="ResultReveal"] .av-placeholder, [id$="ResultImposter"] .av, [id$="ImpostorReveal"] .av');
-  // Retry shortly if the result DOM is not painted yet.
-  if(!target){setTimeout(landCrownOnWinnerAvatar,120);return;}
-  const place=()=>{
-    const r=target.getBoundingClientRect();
-    if(r.width===0){setTimeout(place,120);return;}
-    const crown=document.createElement('div');
-    crown.className='win-crown-landed landing';
-    crown.textContent='👑';
-    // size relative to avatar
-    const sz=Math.max(40,r.width*1.15);
-    crown.style.fontSize=sz+'px';
-    crown.style.left=(r.left+r.width/2)+'px';
-    // sit the crown so its base overlaps the top of the avatar
-    crown.style.top=(r.top - sz*0.62)+'px';
-    document.body.appendChild(crown);
-    crown.addEventListener('animationend',()=>{
-      crown.classList.remove('landing');
-      crown.classList.add('bobbing');
-    },{once:true});
-  };
-  place();
-}
-
-function maybePlayMyWinAnim(game){
-  if(!game)return;
-  const data=rewardDataForGame(game);
-  if(!data||!data.key)return;
-  const seenKey='winanim_'+(gameCode||'dev')+'_'+data.key;
-  if(WIN_ANIM_SEEN.has(seenKey))return;
-  if(!amSoloWinnerOfGame(game))return;
-  const anim=getMyWinAnim();
-  if(!anim)return;
-  WIN_ANIM_SEEN.add(seenKey);
-  setTimeout(()=>playWinAnim(anim,false),400);
-}
-
 
 async function awardCoinsForFinishedGame(game){
   if(!gameCode)return;
@@ -2644,7 +2345,7 @@ function handleMyRewardDisplays(game){
 
 
 
-const MODE_LABELS={spyfall:'🕵️ Spyfall',ooo:'🎭 Odd One Out',mafia:'🃏 Mafia',fa:'🎨 Fake Artist',bs:'🕵️ Blind Spot'};
+const MODE_LABELS={spyfall:'🕵️ Spyfall',ooo:'🎭 Odd One Out',mafia:'🃏 Mafia',fa:'🎨 Fake Artist',bs:'🕵️ Blind Spot',guess:'❓ Guessing Game'};
 function toggleModeDropdown(id){
   const wrap=document.getElementById(id);
   if(!wrap)return;
@@ -2689,16 +2390,18 @@ function updateModeUI(mode){
   document.getElementById('modeTabMafia').className='custom-mode-option mode-tab'+(mode==='mafia'?' active-mafia':'');
   document.getElementById('modeTabFa').className='custom-mode-option mode-tab'+(mode==='fa'?' active-fa':'');
   document.getElementById('modeTabBs').className='custom-mode-option mode-tab'+(mode==='bs'?' active-bs':'');
+  const guessTab=document.getElementById('modeTabGuess');if(guessTab)guessTab.className='custom-mode-option mode-tab'+(mode==='guess'?' active-guess':'');
   document.getElementById('spyfallSettings').style.display=mode==='spyfall'?'block':'none';
   document.getElementById('oooSettings').style.display=mode==='ooo'?'block':'none';
   document.getElementById('mafiaSettings').style.display=mode==='mafia'?'block':'none';
   document.getElementById('faSettings').style.display=mode==='fa'?'block':'none';
   document.getElementById('bsSettings').style.display=mode==='bs'?'block':'none';
+  const gs=document.getElementById('guessSettings');if(gs)gs.style.display=mode==='guess'?'block':'none';
   if(mode==='bs')renderBsCategorySelect();
   const minNotice=document.getElementById('minPlayersNotice');
   if(mode==='mafia'){minNotice.textContent='Need at least 4 players to start Mafia';}
   else{minNotice.textContent='Need at least 3 players to start';}
-  document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':mode==='mafia'?'Start Mafia':mode==='fa'?'Start Fake Artist':mode==='bs'?'Start Blind Spot':'Start Game';
+  document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':mode==='mafia'?'Start Mafia':mode==='fa'?'Start Fake Artist':mode==='bs'?'Start Blind Spot':mode==='guess'?'Start Guessing Game':'Start Game';
 }
 function changeOOORounds(delta){
   localOOORounds=Math.min(10,Math.max(1,localOOORounds+delta));
@@ -2833,7 +2536,7 @@ async function createGame(){
   const code=genCode();gameCode=code;amHost=true;
   await saveProfileBasics(name);
   const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,players:{[myId]:makePlayerData(name,true)},createdAt:Date.now(),updatedAt:Date.now()};
+  const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,guessRound:0,guessTotalRounds:3,guessDiscussMinutes:5,guessScores:{},guessPhase:null,guessAnswerGiverId:null,guessCategory:null,guessAnswer:null,guessGuesses:{},guessCorrectOrder:[],guessResult:null,players:{[myId]:makePlayerData(name,true)},createdAt:Date.now(),updatedAt:Date.now()};
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
@@ -2880,7 +2583,7 @@ function onGameUpdate(game){
   awardCoinsForFinishedGame(game);
   handleMyRewardDisplays(game);
 
-  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result'];
+  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result','screen-guess-setup','screen-guess-game','screen-guess-result','screen-guess-final'];
 
   // LOBBY
   if(game.status==='lobby'){
@@ -2891,6 +2594,7 @@ function onGameUpdate(game){
       const notice=document.getElementById('waitingNotice');
       if(game.mode==='mafia'){notice.className='notice mafia';notice.textContent='🃏 Mode: Mafia';}
       else if(game.mode==='ooo'){notice.className='notice ooo';notice.textContent=`🎭 Mode: Odd One Out — ${game.oooTotalRounds||3} rounds`;}
+      else if(game.mode==='guess'){notice.className='notice info';notice.textContent=`❓ Mode: Guessing Game — ${game.guessTotalRounds||3} rounds`;}
       else if(game.chaosMode){notice.className='notice chaos';notice.textContent='⚡ Host enabled CHAOS MODE!';}
       else{notice.className='notice info';notice.textContent='Waiting for the host to start...';}
     }
@@ -2898,6 +2602,39 @@ function onGameUpdate(game){
       clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);
       if(amHost||game.hostId===myId){renderLobby(game);showScreen('lobby');}
       else{renderWaiting(game);showScreen('waiting');}
+    }
+    return;
+  }
+
+  // GUESSING GAME
+  if(game.mode==='guess'){
+    if(game.status==='lobby'){
+      if(cur==='screen-lobby')renderLobby(game);
+      if(cur==='screen-waiting')renderWaiting(game);
+      if(allGameScreens.includes(cur)){if(amHost){renderLobby(game);showScreen('lobby');}else{renderWaiting(game);showScreen('waiting');}}
+      return;
+    }
+    if(game.status==='playing'){
+      if(game.guessPhase==='setup'){
+        if(cur!=='screen-guess-setup')enterGuessSetup(game);
+        else renderGuessSetup(game);
+        return;
+      }
+      if(game.guessPhase==='discussion'){
+        if(cur!=='screen-guess-game')enterGuessGame(game);
+        else renderGuessGame(game);
+        return;
+      }
+      if(game.guessPhase==='roundResult'){
+        if(cur!=='screen-guess-result')showGuessRoundResult(game);
+        else renderGuessRoundResult(game);
+        return;
+      }
+    }
+    if(game.status==='result'){
+      if(cur!=='screen-guess-final')showGuessFinal(game);
+      else renderGuessFinal(game);
+      return;
     }
     return;
   }
@@ -3182,7 +2919,9 @@ function renderLobby(game){
   if(game.faTotalRounds&&game.faTotalRounds!==localFaRounds){localFaRounds=game.faTotalRounds;document.getElementById('faRoundsDisplay').textContent=localFaRounds;document.getElementById('faRoundsLabel').textContent='rounds per word';}
   if(game.bsCategory&&game.bsCategory!==localBsCategory){localBsCategory=game.bsCategory;renderBsCategorySelect();}
   if(game.bsDiscussMinutes&&game.bsDiscussMinutes!==localBsDiscussMinutes){localBsDiscussMinutes=game.bsDiscussMinutes;const el=document.getElementById('bsDiscussDisplay');if(el)el.textContent=localBsDiscussMinutes+' min';}
-  document.getElementById('startBtn').textContent=localGameMode==='ooo'?'Start Odd One Out':localGameMode==='mafia'?'Start Mafia':localGameMode==='fa'?'Start Fake Artist':localGameMode==='bs'?'Start Blind Spot':'Start Game';
+  if(game.guessDiscussMinutes&&game.guessDiscussMinutes!==localGuessDiscussMinutes){localGuessDiscussMinutes=game.guessDiscussMinutes;const el=document.getElementById('guessDiscussDisplay');if(el)el.textContent=localGuessDiscussMinutes+' min';}
+  if(game.guessTotalRounds&&game.guessTotalRounds!==localGuessRounds){localGuessRounds=game.guessTotalRounds;const el=document.getElementById('guessRoundsDisplay');if(el)el.textContent=localGuessRounds;const lab=document.getElementById('guessRoundsLabel');if(lab)lab.textContent=`round${localGuessRounds!==1?'s':''}`;}
+  document.getElementById('startBtn').textContent=localGameMode==='ooo'?'Start Odd One Out':localGameMode==='mafia'?'Start Mafia':localGameMode==='fa'?'Start Fake Artist':localGameMode==='bs'?'Start Blind Spot':localGameMode==='guess'?'Start Guessing Game':'Start Game';
   updateDevLobbyButton();
 }
 function renderWaiting(game){
@@ -3200,6 +2939,7 @@ async function startGame(){
   if(localGameMode==='mafia'||game.mode==='mafia'){await startMafiaGame();return;}
   if(localGameMode==='fa'||game.mode==='fa'){await startFaGame();return;}
   if(localGameMode==='bs'||game.mode==='bs'){await startBsGame();return;}
+  if(localGameMode==='guess'||game.mode==='guess'){await startGuessGame();return;}
   // Spyfall
   const players=Object.values(game.players||{});if(players.length<3)return;
   const isChaos=localChaosMode;
@@ -3930,7 +3670,6 @@ function showMafiaResult(game){
   const r=game.mafiaResult||{};
   const winner=r.winner||'town';
   const mafiaIds=game.mafiaIds||[];
-  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const mafiaPlayers=mafiaIds.map(id=>game.players&&game.players[id]).filter(Boolean);
   const bannerEl=document.getElementById('mafiaResultBanner');
   const townPlayers=players.filter(p=>!mafiaIds.includes(p.id));
@@ -3941,6 +3680,7 @@ function showMafiaResult(game){
   }
   document.getElementById('mafiaResultReveal').innerHTML=`${resultAvatarGroupHtml(mafiaPlayers,'🔴')}<div style="font-size:20px;font-weight:800;color:#e74c3c">${mafiaPlayers.map(p=>esc(p.name)).join(', ')||'Unknown'}</div>`;
   // Show all roles
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const roleLabel={mafia:'🔴 MAFIA',doctor:'💚 DOCTOR',town:'⬜ CIVILIAN'};
   document.getElementById('mafiaFinalRoles').innerHTML=players.map(p=>{
     const role=(game.mafiaRoles&&game.mafiaRoles[p.id])||'town';
@@ -3949,7 +3689,6 @@ function showMafiaResult(game){
   document.getElementById('mafiaResultHostBtns').style.display=amHost?'flex':'none';
   document.getElementById('mafiaResultNonHostBtns').style.display=!amHost?'flex':'none';
   showScreen('mafia-result');
-  maybePlayMyWinAnim(game);
 }
 async function mafiaPlayAgain(){
   if(!amHost)return;
@@ -4237,7 +3976,6 @@ function showResultScreen(game){
   document.getElementById('resultHostBtns').style.display=amHost?'flex':'none';
   document.getElementById('resultNonHostBtns').style.display=!amHost?'flex':'none';
   showScreen('result');
-  maybePlayMyWinAnim(game);
 }
 
 // =====================================================
@@ -4443,7 +4181,6 @@ function showOOOResult(game){
   document.getElementById('oooWaitingForHost').style.display=!amHost?'block':'none';
   document.getElementById('oooLeaveBtn').style.display=!amHost?'block':'none';
   showScreen('ooo-result');
-  maybePlayMyWinAnim(game);
 }
 async function oooNextRound(){await startOOOGame();}
 async function oooEndGame(){await updateGame(gameCode,{status:'result',oooPhase:'gameover'});}
@@ -4510,7 +4247,6 @@ async function returnToLobby(){
   await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,chat:null});
 }
 async function leaveGame(){
-  clearWinAnim();
   clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();
   if(gameCode){
     try{
@@ -4706,7 +4442,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearWinAnim();clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
 
 
 
@@ -4721,6 +4457,7 @@ function selectHomeMode(mode){
   document.getElementById('homeTileMafia').classList.toggle('selected',mode==='mafia');
   document.getElementById('homeTileFa').classList.toggle('selected',mode==='fa');
   const bsTile=document.getElementById('homeTileBs');if(bsTile)bsTile.classList.toggle('selected',mode==='bs');
+  const guessTile=document.getElementById('homeTileGuess');if(guessTile)guessTile.classList.toggle('selected',mode==='guess');
   updateModeDropdownLabels(mode);
   closeModeDropdown('homeModeDropdown');
 }
@@ -4795,19 +4532,6 @@ function changeFaRounds(d){
   if(gameCode)updateGame(gameCode,{faTotalRounds:localFaRounds});
 }
 
-async function faImposterGuessWord(){
-  const game=localGame;if(!game||game.mode!=='fa'||game.faPhase!=='draw')return;
-  if(game.faImposterId!==myId)return;
-  const input=document.getElementById('faImposterGuessInput');if(!input)return;
-  const guess=input.value.trim();if(!guess)return;
-  input.disabled=true;
-  const word=(game.faWord||'').toLowerCase().trim();
-  const correct=guess.toLowerCase().trim()===word;
-  // Imposter guesses: correct => imposter wins; wrong => town wins.
-  // resolveFaRound(townWins, impostorGuess)
-  await resolveFaRound(game, !correct, correct?guess:guess);
-}
-
 async function startFaGame(){
   const game=localGame;if(!game)return;
   const players=Object.values(game.players||{});if(players.length<3)return;
@@ -4833,7 +4557,6 @@ function enterFaDraw(game){
   faCanvasCleanup();
   faVoteResolving=false;
   faWordHidden=false;
-  const gi=document.getElementById('faImposterGuessInput');if(gi){gi.disabled=false;gi.value='';}
   showScreen('fa-draw');
   setTimeout(()=>setupFaCanvas(localGame||game),50);
 }
@@ -4954,10 +4677,6 @@ function updateFaDrawScreen(game){
 
   const wordEl=document.getElementById('faWordDisplay');
   if(wordEl){wordEl.textContent=isImpostor?'???':(game.faWord||'???');wordEl.style.color=isImpostor?'var(--spy)':'var(--accent)';}
-
-  // Imposter in-game guess bar
-  const guessBar=document.getElementById('faImposterGuessBar');
-  if(guessBar)guessBar.style.display=isImpostor?'block':'none';
 
   const canDraw=faCanDraw(game);
   const canStartStroke=faCanStartStroke(game);
@@ -5194,7 +4913,7 @@ async function resolveFaVote(game,reason){
   const votes=game.faVotes||{};const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
   const maxV=Math.max(...Object.values(counts),0);const topIds=Object.entries(counts).filter(([,c])=>c===maxV).map(([id])=>id);
   const accusedId=(maxV>0&&topIds.length===1)?topIds[0]:null;
-  if(accusedId===game.faImposterId){await resolveFaRound(game,true,null);}
+  if(accusedId===game.faImposterId){await updateGame(gameCode,{faPhase:'guess',faAccusedId:accusedId,faVoteTie:false,faVoteEndReason:reason||'resolved'});}
   else{await resolveFaRound(game,false,null);}
 }
 
@@ -5227,7 +4946,7 @@ async function checkFaGuess(game,guess){
   await resolveFaRound(game,!correct,correct?guess:null);
 }
 async function resolveFaRound(game,townWins,impostorGuess){
-  // Allow ANY client to resolve a guess-driven result (imposter may not be host).
+  if(!amHost)return;
   const scores={...(game.faScores||{})};const players=Object.values(game.players||{});
   if(townWins){players.forEach(p=>{if(p.id!==game.faImposterId)scores[p.id]=(scores[p.id]||0)+2;});}
   else{scores[game.faImposterId]=(scores[game.faImposterId]||0)+3;}
@@ -5239,7 +4958,7 @@ function showFaResult(game){
   const bannerEl=document.getElementById('faResultBanner');
   const faPlayers=Object.values(game.players||{});
   const normalWordPlayers=faPlayers.filter(p=>p.id!==game.faImposterId);
-  if(bannerEl){bannerEl.innerHTML=r.townWins?`<div class="result-banner crew-wins">${resultAvatarGroupHtml(normalWordPlayers,'🎉')}<h2>Players Win!</h2><p>${r.impostorGuess?`The Fake Artist guessed wrong (&quot;${esc(r.impostorGuess)}&quot;)`:'The Fake Artist was voted out'}.</p></div>`:`<div class="result-banner" style="background:linear-gradient(135deg,#1a0a00,#0f0500);border:2px solid #f97316;animation:none">${resultAvatarHtml(impostorPlayer,'🎨')}<h2 style="color:#f97316">Fake Artist Wins!</h2><p>${r.impostorGuess?`Correctly guessed &quot;${esc(r.impostorGuess)}&quot;!`:'Escaped undetected.'}</p></div>`;}
+  if(bannerEl){bannerEl.innerHTML=r.townWins?`<div class="result-banner crew-wins">${resultAvatarGroupHtml(normalWordPlayers,'🎉')}<h2>Players Win!</h2><p>The Fake Artist was caught${r.impostorGuess?` — and guessed wrong (&quot;${esc(r.impostorGuess)}&quot;)`:''}.</p></div>`:`<div class="result-banner" style="background:linear-gradient(135deg,#1a0a00,#0f0500);border:2px solid #f97316;animation:none">${resultAvatarHtml(impostorPlayer,'🎨')}<h2 style="color:#f97316">Fake Artist Wins!</h2><p>${r.impostorGuess?'Correctly guessed the word!':'Escaped undetected.'}</p></div>`;}
   const reveal=document.getElementById('faResultImpostorReveal');if(reveal)reveal.innerHTML=`${resultAvatarHtml(impostorPlayer,'🎨')}<div style="font-size:20px;font-weight:800;color:#f97316">${esc(impostorName)}</div>`;
   const word=document.getElementById('faResultWord');if(word)word.textContent=game.faWord||'?';
   const players=Object.values(game.players||{}).sort((a,b)=>((game.faScores&&game.faScores[b.id])||0)-((game.faScores&&game.faScores[a.id])||0));
@@ -5249,7 +4968,6 @@ function showFaResult(game){
   const hostBtns=document.getElementById('faResultHostBtns');if(hostBtns)hostBtns.style.display=amHost?'flex':'none';
   const nonHostBtns=document.getElementById('faResultNonHostBtns');if(nonHostBtns)nonHostBtns.style.display=!amHost?'flex':'none';
   showScreen('fa-result');
-  maybePlayMyWinAnim(game);
 }
 async function faNextWord(){
   if(!amHost||!localGame)return;
@@ -5618,14 +5336,8 @@ function renderBsGame(game){
       rb.style.background='rgba(6,182,212,0.08)';
       rb.style.border='1px solid rgba(6,182,212,0.3)';
       rb.style.color='#06b6d4';
-      rb.textContent=`✓ INNOCENT — imposter has ${correctGuesses.length}/2 cards`;
+      rb.textContent='✓ INNOCENT — find the imposter';
     }
-  }
-  // Shared progress visible to EVERYONE (incl. imposter)
-  const sharedProg=document.getElementById('bsSharedProgress');
-  if(sharedProg){
-    sharedProg.style.display='block';
-    sharedProg.innerHTML=`🕵️ Imposter has guessed <span style="color:#06b6d4;font-weight:800">${correctGuesses.length} / 2</span> cards correct`;
   }
 
   // Vote list
@@ -5937,7 +5649,6 @@ function showBsResult(game){
   document.getElementById('bsResultHostBtns').style.display=amHost?'flex':'none';
   document.getElementById('bsResultNonHostBtns').style.display=!amHost?'flex':'none';
   showScreen('bs-result');
-  maybePlayMyWinAnim(game);
 }
 
 // =====================================================
@@ -6192,7 +5903,7 @@ function uploadMyAvatar(){
     gameRefFor(gameCode).child('players/'+myId).update({avatar:myAvatar,cosmetics:{equipped:myProfile.equipped||{}}});
   }
 }
-
+\n\n// =====================================================\n// GUESSING GAME\n// =====================================================\nconst GUESS_CATEGORIES=['Person','Place','Occupation','Object','Animal','Food','Movie/TV','Game','Brand','Character'];\nconst GUESS_DISCUSS_OPTIONS=[3,5,10,15];\nconst GUESS_POINTS=[10,8,5,3];\nfunction guessPointsForPosition(pos){return pos<=3?GUESS_POINTS[pos]:1;}\nfunction changeGuessDiscuss(delta){\n  let idx=GUESS_DISCUSS_OPTIONS.indexOf(localGuessDiscussMinutes);\n  if(idx<0)idx=1;\n  idx=Math.max(0,Math.min(GUESS_DISCUSS_OPTIONS.length-1,idx+delta));\n  localGuessDiscussMinutes=GUESS_DISCUSS_OPTIONS[idx];\n  const el=document.getElementById('guessDiscussDisplay');if(el)el.textContent=localGuessDiscussMinutes+' min';\n  if(gameCode)updateGame(gameCode,{guessDiscussMinutes:localGuessDiscussMinutes});\n}\nfunction changeGuessRounds(delta){\n  localGuessRounds=Math.max(1,Math.min(12,localGuessRounds+delta));\n  const el=document.getElementById('guessRoundsDisplay');if(el)el.textContent=localGuessRounds;\n  const lab=document.getElementById('guessRoundsLabel');if(lab)lab.textContent=`round${localGuessRounds!==1?'s':''}`;\n  if(gameCode)updateGame(gameCode,{guessTotalRounds:localGuessRounds});\n}\nasync function startGuessGame(){\n  const game=localGame;if(!game)return;\n  const players=Object.values(game.players||{});\n  if(players.length<3)return;\n  await startGuessRound(1,{},[]);\n}\nasync function startGuessRound(round,scores,usedGivers){\n  const game=localGame;if(!game)return;\n  const players=Object.values(game.players||{});\n  const used=usedGivers||[];\n  let pool=players.filter(p=>!used.includes(p.id));\n  if(!pool.length)pool=players;\n  const giver=pick(pool);\n  await updateGame(gameCode,{\n    status:'playing',mode:'guess',guessPhase:'setup',guessRound:round,guessTotalRounds:localGuessRounds,guessDiscussMinutes:localGuessDiscussMinutes,\n    guessAnswerGiverId:giver.id,guessCategory:null,guessAnswer:null,guessAnswerReady:false,guessGuesses:{},guessCorrectOrder:[],\n    guessScores:scores||{},guessUsedGivers:[...used,giver.id],guessResult:null,guessFinalResult:null,guessTimerStart:null,guessTimerDuration:localGuessDiscussMinutes*60,guessRoundId:Date.now()\n  });\n}\nfunction guessPlayerList(game){return Object.values(game.players||{}).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));}\nfunction renderGuessSetup(game){\n  const players=guessPlayerList(game);\n  const isGiver=myId===game.guessAnswerGiverId;\n  const giver=players.find(p=>p.id===game.guessAnswerGiverId);\n  const title=document.getElementById('guessSetupTitle');if(title)title.textContent=isGiver?'Pick a question/category':'Waiting for the answer giver';\n  const chooser=document.getElementById('guessSetupChooser');const waiting=document.getElementById('guessSetupWaiting');\n  if(chooser)chooser.style.display=isGiver?'block':'none';\n  if(waiting)waiting.style.display=isGiver?'none':'block';\n  const waitText=document.getElementById('guessSetupWaitingText');if(waitText)waitText.textContent=`${giver?giver.name:'The answer giver'} is choosing the category and answer...`;\n  const list=document.getElementById('guessSetupPlayers');if(list)list.innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.id===game.guessAnswerGiverId?'<div class="player-badge">answer giver</div>':''}</div>`).join('');\n  const grid=document.getElementById('guessCategoryGrid');\n  if(grid){grid.innerHTML=GUESS_CATEGORIES.map(c=>`<button class="guess-category-btn ${game.guessCategory===c?'selected':''}" onclick="selectGuessCategory('${c}')">${c}</button>`).join('');}\n}\nfunction enterGuessSetup(game){showScreen('guess-setup');renderGuessSetup(game);}\nasync function selectGuessCategory(cat){if(!localGame||myId!==localGame.guessAnswerGiverId)return;await updateGame(gameCode,{guessCategory:cat});}\nasync function guessAnswerReady(){\n  if(!localGame||myId!==localGame.guessAnswerGiverId)return;\n  const answer=(document.getElementById('guessAnswerInput')||{}).value.trim();\n  if(!localGame.guessCategory){showError('guessSetupError','Pick a category first');return;}\n  if(!answer){showError('guessSetupError','Type the secret answer');return;}\n  await updateGame(gameCode,{guessAnswer:answer,guessAnswerReady:true,guessPhase:'discussion',guessTimerStart:syncedNow(),guessTimerDuration:(localGame.guessDiscussMinutes||localGuessDiscussMinutes)*60,guessGuesses:{},guessCorrectOrder:[]});\n}\nfunction formatGuessTime(seconds){seconds=Math.max(0,Math.ceil(seconds));const m=Math.floor(seconds/60),s=seconds%60;return `${m}:${String(s).padStart(2,'0')}`;}\nfunction startGuessTimer(game){\n  clearInterval(guessTimerInterval);\n  guessTimerInterval=setInterval(()=>{\n    if(!localGame||localGame.mode!=='guess'||localGame.guessPhase!=='discussion'){clearInterval(guessTimerInterval);return;}\n    const duration=localGame.guessTimerDuration||300;\n    const start=localGame.guessTimerStart||syncedNow();\n    const remaining=duration-((syncedNow()-start)/1000);\n    const el=document.getElementById('guessTimerDisplay');if(el)el.textContent=formatGuessTime(remaining);\n    if(remaining<=0){\n      clearInterval(guessTimerInterval);\n      if(amHost||localGame.hostId===myId)resolveGuessRound('time');\n    }\n  },500);\n}\nfunction enterGuessGame(game){showScreen('guess-game');renderGuessGame(game);startGuessTimer(game);}\nfunction renderGuessGame(game){\n  const players=guessPlayerList(game);\n  const isGiver=myId===game.guessAnswerGiverId;\n  const guessed=game.guessCorrectOrder||[];\n  const myGuessed=guessed.includes(myId);\n  const category=game.guessCategory||'Category';\n  const main=document.getElementById('guessGameMain');\n  if(main){\n    if(isGiver){\n      main.innerHTML=`<div class="notice info"><strong>Category:</strong> ${esc(category)}<br><strong>Answer:</strong> ${esc(game.guessAnswer||'')}</div><div class="notice" style="background:rgba(232,212,77,.08);border:1px solid rgba(232,212,77,.2);color:var(--accent);margin-bottom:0">Tap a player below to see their guesses live.</div>`;\n    }else if(myGuessed){\n      const pos=guessed.indexOf(myId);const pts=guessPointsForPosition(pos);\n      main.innerHTML=`<div class="guess-correct-box"><div class="guess-correct-title">You guessed correctly!</div><div class="guess-points-earned">+${pts} points this round</div></div>`;\n    }else{\n      main.innerHTML=`<div class="notice info"><strong>Category:</strong> ${esc(category)}</div><label>Your guess</label><div class="flex-row"><input id="guessInput" type="text" placeholder="Type your answer..." maxlength="70" style="margin-bottom:0" onkeydown="if(event.key==='Enter')submitGuessAnswer()"/><button class="btn btn-primary btn-sm" onclick="submitGuessAnswer()">Guess</button></div><div id="guessSubmitMsg" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px"></div>`;\n    }\n  }\n  renderGuessPlayers(game);\n}\nfunction renderGuessPlayers(game){\n  const players=guessPlayerList(game);\n  const list=document.getElementById('guessPlayersList');if(!list)return;\n  const order=game.guessCorrectOrder||[];const guesses=game.guessGuesses||{};\n  list.innerHTML=players.filter(p=>p.id!==game.guessAnswerGiverId).map(p=>{\n    const ok=order.includes(p.id);\n    const all=(guesses[p.id]||[]).map(g=>g.text||g.guess||'').filter(Boolean);\n    const detail=all.length?all.map((g,i)=>`${i+1}. ${esc(g)}`).join('<br>'):'No guesses submitted';\n    return `<div class="guess-player-row" onclick="this.classList.toggle('open')"><div class="guess-player-top">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div><div class="guess-status ${ok?'ok':'wait'}">${ok?'Guessed':'Still guessing'}</div></div><div class="guess-detail">${detail}</div></div>`;\n  }).join('');\n}\nasync function submitGuessAnswer(){\n  if(!localGame||myId===localGame.guessAnswerGiverId)return;\n  const input=document.getElementById('guessInput');if(!input)return;\n  const guess=input.value.trim();if(!guess)return;\n  const guesses={...(localGame.guessGuesses||{})};\n  const mine=[...(guesses[myId]||[])];\n  mine.push({text:guess,ts:Date.now()});guesses[myId]=mine;\n  const correct=bsFuzzyMatch(guess,localGame.guessAnswer||'');\n  const order=[...(localGame.guessCorrectOrder||[])];\n  const scores={...(localGame.guessScores||{})};\n  const updates={guessGuesses:guesses};\n  if(correct&&!order.includes(myId)){\n    order.push(myId);\n    scores[myId]=(scores[myId]||0)+guessPointsForPosition(order.length-1);\n    updates.guessCorrectOrder=order;updates.guessScores=scores;\n  }\n  await updateGame(gameCode,updates);\n  if(correct){\n    const total=Object.keys(localGame.players||{}).length-1;\n    if(order.length>=total){setTimeout(()=>resolveGuessRound('all_guessed'),120);}\n  }else{\n    const msg=document.getElementById('guessSubmitMsg');if(msg)msg.textContent='Not quite — keep guessing.';\n    input.value='';input.focus();\n  }\n}\nasync function resolveGuessRound(reason){\n  const game=localGame;if(!game||game.mode!=='guess'||game.guessPhase!=='discussion')return;\n  const order=game.guessCorrectOrder||[];\n  const scores=game.guessScores||{};\n  await updateGame(gameCode,{guessPhase:'roundResult',guessResult:{reason,order,answer:game.guessAnswer,category:game.guessCategory,round:game.guessRound,endedAt:Date.now()},guessScores:scores});\n}\nfunction renderGuessRoundResult(game){\n  const players=guessPlayerList(game);const scores=game.guessScores||{};const r=game.guessResult||{};\n  const banner=document.getElementById('guessRoundBanner');\n  if(banner){banner.innerHTML=`<div class="result-banner crew-wins" style="border-color:var(--accent);background:linear-gradient(135deg,#1a1600,#121000)"><div class="result-emoji">❓</div><h2 style="color:var(--accent)">Round ${game.guessRound||1} Complete</h2><p>${esc(r.category||'Category')}: ${esc(r.answer||'')}</p></div>`;}\n  const scoreEl=document.getElementById('guessRoundScores');\n  if(scoreEl){scoreEl.innerHTML=players.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${i+1}</div>${playerAvatar(p,'av-sm')}<div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${scores[p.id]||0}</div></div>`).join('');}\n  const next=document.getElementById('guessNextRoundBtn'),final=document.getElementById('guessFinalResultsBtn');\n  const last=(game.guessRound||1)>=(game.guessTotalRounds||1);\n  if(next)next.style.display=(amHost&&!last)?'block':'none';\n  if(final)final.style.display=(amHost&&last)?'block':'none';\n}\nfunction showGuessRoundResult(game){clearInterval(guessTimerInterval);showScreen('guess-result');renderGuessRoundResult(game);}\nasync function guessNextRound(){\n  const game=localGame;if(!game||!amHost)return;\n  await startGuessRound((game.guessRound||1)+1,game.guessScores||{},game.guessUsedGivers||[]);\n}\nasync function guessShowFinalResults(){\n  const game=localGame;if(!game||!amHost)return;\n  const scores=game.guessScores||{};\n  const players=guessPlayerList(game);\n  const max=Math.max(0,...players.map(p=>scores[p.id]||0));\n  const winnerIds=players.filter(p=>(scores[p.id]||0)===max&&max>0).map(p=>p.id);\n  await updateGame(gameCode,{status:'result',guessPhase:'final',guessFinalResult:{winnerIds,tie:winnerIds.length>1,maxScore:max,endedAt:Date.now()},rewardRoundId:Date.now()});\n}\nfunction renderGuessFinal(game){\n  const players=guessPlayerList(game);const scores=game.guessScores||{};\n  const sorted=[...players].sort((a,b)=>(scores[b.id]||0)-(scores[a.id]||0));\n  const res=game.guessFinalResult||{};\n  const winners=players.filter(p=>(res.winnerIds||[]).includes(p.id));\n  const banner=document.getElementById('guessFinalBanner');\n  if(banner){\n    if(res.tie){banner.innerHTML=`<div class="result-banner tie-banner">${resultAvatarGroupHtml(winners,'🤝')}<h2>It\'s a Tie!</h2><p>${winners.map(p=>esc(p.name)).join(' and ')} tied with ${res.maxScore||0} points.</p></div>`;}\n    else{banner.innerHTML=`<div class="result-banner crew-wins">${resultAvatarHtml(winners[0],'🏆')}<h2>Winner!</h2><p>${winners[0]?esc(winners[0].name):'No winner'} won with ${res.maxScore||0} points.</p></div>`;}\n  }\n  const el=document.getElementById('guessFinalScores');\n  if(el){el.innerHTML=sorted.map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${i+1}</div>${playerAvatar(p,'av-sm')}<div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${scores[p.id]||0}</div></div>`).join('');}\n}\nfunction showGuessFinal(game){clearInterval(guessTimerInterval);showScreen('guess-final');renderGuessFinal(game);}\n
 // =====================================================
 document.addEventListener('click', closeLobbyPlayerMenus);
 cleanupOldGames();
@@ -6261,6 +5972,76 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
   }
 </script>
 
+<!-- GUESSING GAME: SETUP -->
+<div class="screen scrollable" id="screen-guess-setup">
+  <div style="width:100%;max-width:440px">
+    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <div style="height:14px"></div>
+    <div class="card fadeIn">
+      <div class="tagline" style="color:var(--accent);margin-bottom:8px">❓ Guessing Game</div>
+      <h2 id="guessSetupTitle">Pick a question/category</h2>
+      <div id="guessSetupChooser">
+        <label>Pick a category</label>
+        <div id="guessCategoryGrid" class="guess-category-grid"></div>
+        <label>Secret answer</label>
+        <input id="guessAnswerInput" type="text" placeholder="Type the answer..." maxlength="60" autocomplete="off"/>
+        <div id="guessSetupError" class="notice error" style="display:none"></div>
+        <button class="btn btn-primary" onclick="guessAnswerReady()">I AM READY</button>
+      </div>
+      <div id="guessSetupWaiting" style="display:none">
+        <div class="notice info" id="guessSetupWaitingText">Waiting for the answer giver...</div>
+        <div class="player-list" id="guessSetupPlayers"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GUESSING GAME: DISCUSSION -->
+<div class="screen scrollable" id="screen-guess-game">
+  <div style="width:100%;max-width:440px">
+    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <div style="height:14px"></div>
+    <div class="card fadeIn">
+      <div class="guess-mini-label">Discussion ends in</div>
+      <div class="guess-timer" id="guessTimerDisplay">--:--</div>
+      <div style="height:12px"></div>
+      <div id="guessGameMain"></div>
+      <div style="height:12px"></div>
+      <label>Players</label>
+      <div id="guessPlayersList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- GUESSING GAME: ROUND RESULT -->
+<div class="screen scrollable" id="screen-guess-result">
+  <div style="width:100%;max-width:440px">
+    <div class="card fadeIn">
+      <div id="guessRoundBanner"></div>
+      <div style="height:14px"></div>
+      <label>Scoreboard</label>
+      <div id="guessRoundScores"></div>
+      <div style="height:12px"></div>
+      <button class="btn btn-primary" id="guessNextRoundBtn" onclick="guessNextRound()" style="display:none">Next Round</button>
+      <button class="btn btn-primary" id="guessFinalResultsBtn" onclick="guessShowFinalResults()" style="display:none">See Final Results</button>
+    </div>
+  </div>
+</div>
+
+<!-- GUESSING GAME: FINAL RESULT -->
+<div class="screen scrollable" id="screen-guess-final">
+  <div style="width:100%;max-width:440px">
+    <div class="card fadeIn">
+      <div id="guessFinalBanner"></div>
+      <div style="height:14px"></div>
+      <label>Final scores</label>
+      <div id="guessFinalScores"></div>
+      <div style="height:12px"></div>
+      <button class="btn btn-secondary" onclick="returnToLobby()">Back to Lobby</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- BLIND SPOT: REVEAL -->
 <div class="screen scrollable" id="screen-bs-reveal">
@@ -6308,7 +6089,6 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
     </div>
     <!-- Role + imposter progress -->
     <div id="bsGameRoleBadge" style="padding:8px 12px;border-radius:var(--radius);font-size:13px;font-weight:700;flex-shrink:0"></div>
-    <div id="bsSharedProgress" style="padding:8px 12px;border-radius:var(--radius);font-size:13px;font-weight:600;flex-shrink:0;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);color:var(--text);text-align:center;font-family:'DM Mono',monospace"></div>
     <!-- Vote list -->
     <div style="flex-shrink:0">
       <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">LIVE VOTES</div>
