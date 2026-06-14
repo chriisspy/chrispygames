@@ -803,6 +803,62 @@ select option{background:var(--surface2)}
 .win-glitter.tw{animation:winGlitterFall linear forwards,winGlitterTwinkle 0.5s ease-in-out infinite}
 @keyframes winTextPop{0%{transform:translate(-50%,-50%) scale(0.3);opacity:0}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}70%{transform:translate(-50%,-50%) scale(0.96)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
 .win-anim-overlay .win-victory-text{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Syne',sans-serif;font-size:clamp(30px,10vw,60px);font-weight:800;letter-spacing:-1px;text-align:center;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,0.7);animation:winTextPop 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;white-space:nowrap}
+
+/* ===== INFERNO WIN THEME (applied to <body> while inferno win plays) ===== */
+@keyframes infThemePulse{0%,100%{filter:saturate(1.15) brightness(1.02)}50%{filter:saturate(1.4) brightness(1.1)}}
+@keyframes infGlowPulse{0%,100%{box-shadow:0 0 14px rgba(249,115,22,.55),0 0 32px rgba(239,68,68,.35),inset 0 0 18px rgba(249,115,22,.18)}50%{box-shadow:0 0 26px rgba(253,224,71,.7),0 0 54px rgba(249,115,22,.55),inset 0 0 26px rgba(239,68,68,.28)}}
+@keyframes infTextGlow{0%,100%{text-shadow:0 0 8px rgba(249,115,22,.7),0 0 18px rgba(239,68,68,.5)}50%{text-shadow:0 0 16px rgba(253,224,71,.9),0 0 36px rgba(249,115,22,.7)}}
+@keyframes infAvatarGlow{0%,100%{box-shadow:0 0 14px rgba(249,115,22,.8),0 0 30px rgba(239,68,68,.55),0 0 48px rgba(253,224,71,.3);border-color:#f97316}50%{box-shadow:0 0 24px rgba(253,224,71,.95),0 0 52px rgba(249,115,22,.7),0 0 78px rgba(239,68,68,.45);border-color:#fde047}}
+
+body.inferno-win-theme{background:radial-gradient(ellipse at 50% 30%,#2a0f04 0%,#1a0702 45%,#0a0402 100%)!important}
+/* Tint the active result screen warm */
+body.inferno-win-theme .screen.active{background:radial-gradient(ellipse at 50% 25%,rgba(249,115,22,.10),transparent 70%)}
+/* Cards on the win screen get a glowing ember border + warm bg */
+body.inferno-win-theme .screen.active .card,
+body.inferno-win-theme .screen.active .result-banner,
+body.inferno-win-theme .screen.active #resultRevealBox,
+body.inferno-win-theme .screen.active [id$="ResultReveal"],
+body.inferno-win-theme .screen.active [id$="ResultImposter"],
+body.inferno-win-theme .screen.active #mafiaResultReveal{
+  border-color:#f97316!important;
+  background:linear-gradient(145deg,#2a1004,#1a0a04)!important;
+  animation:infGlowPulse 1.6s ease-in-out infinite;
+}
+/* Headings + key text glow warm */
+body.inferno-win-theme .screen.active h2,
+body.inferno-win-theme .screen.active .result-banner h2{
+  color:#fde047!important;
+  animation:infTextGlow 1.6s ease-in-out infinite;
+}
+body.inferno-win-theme .screen.active .result-banner p,
+body.inferno-win-theme .screen.active .scoreboard-pts{color:#ffb86b!important}
+/* Buttons warm */
+body.inferno-win-theme .screen.active .btn-primary,
+body.inferno-win-theme .screen.active .btn-mafia{
+  background:linear-gradient(135deg,#f97316,#ef4444)!important;color:#fff!important;
+  box-shadow:0 0 18px rgba(249,115,22,.5);
+}
+/* THE WINNER'S AVATAR — red/orange glow */
+body.inferno-win-theme .result-avatar,
+body.inferno-win-theme .result-banner .result-avatar,
+body.inferno-win-theme .result-banner .av.result-avatar,
+body.inferno-win-theme .result-banner .av-placeholder.result-avatar,
+body.inferno-win-theme #resultRevealBox .av,
+body.inferno-win-theme #resultRevealBox .av-placeholder,
+body.inferno-win-theme [id$="ResultReveal"] .av,
+body.inferno-win-theme [id$="ResultReveal"] .av-placeholder,
+body.inferno-win-theme [id$="ResultImposter"] .av,
+body.inferno-win-theme [id$="ResultImposter"] .av-placeholder{
+  border:2px solid #f97316!important;
+  animation:infAvatarGlow 1.3s ease-in-out infinite!important;
+}
+/* Scoreboard 'me' row glow */
+body.inferno-win-theme .screen.active .scoreboard-item.me{
+  border-color:#f97316!important;
+  box-shadow:0 0 14px rgba(249,115,22,.4);
+}
+/* Victory text already warm for inferno */
+.win-victory-text.inferno-text{color:#fde047;text-shadow:0 0 14px #f97316,0 0 30px #ef4444,0 0 50px rgba(253,224,71,.6)}
 </style>
 </head>
 <body>
@@ -2262,6 +2318,7 @@ function amSoloWinnerOfGame(game){
 function clearWinAnim(){
   const ov=document.getElementById('winAnimOverlay');
   if(ov){ov.classList.remove('active');ov.innerHTML='';ov.style.display='none';}
+  document.body.classList.remove('inferno-win-theme');
 }
 
 function previewWinAnim(value){
@@ -2275,6 +2332,7 @@ function playWinAnim(value,isPreview){
   ov.innerHTML='';
   ov.style.display='block';
   ov.classList.add('active');
+  document.body.classList.toggle('inferno-win-theme', value==='inferno'&&!isPreview);
   const rand=(a,b)=>a+Math.random()*(b-a);
   const palette=['#e8d44d','#e85d4d','#4de8a0','#06b6d4','#a78bfa','#f97316','#ff4fd8','#ffffff'];
   const goldPalette=['#fff6cf','#ffe98a','#f7d24d','#e8b94d','#fffbe6','#ffd700'];
@@ -2364,7 +2422,7 @@ function playWinAnim(value,isPreview){
 
   // Victory text for non-preview plays
   if(!isPreview){
-    const t=document.createElement('div');t.className='win-victory-text';t.textContent='VICTORY';
+    const t=document.createElement('div');t.className='win-victory-text'+(value==='inferno'?' inferno-text':'');t.textContent='VICTORY';
     ov.appendChild(t);
   }
 
