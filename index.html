@@ -541,7 +541,7 @@ select option{background:var(--surface2)}
 .shop-item-price{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:3px}
 .shop-item-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .shop-item-btn{width:auto;padding:8px 12px;font-size:12px;white-space:nowrap}
-.shop-sell-btn{background:transparent;color:var(--muted);border:1px solid var(--border);padding:7px 10px}
+.shop-sell-btn{background:transparent;color:var(--muted);border:1px solid var(--accent);padding:7px 10px}
 .shop-sell-btn:hover{color:var(--text);border-color:var(--accent)}
 .player-cosmetic-name{display:inline-block;position:relative}
 @keyframes chrispyGlow{0%,100%{text-shadow:0 0 5px currentColor,0 0 10px rgba(232,212,77,0.15)}50%{text-shadow:0 0 12px currentColor,0 0 24px rgba(232,212,77,0.45)}}
@@ -780,6 +780,27 @@ select option{background:var(--surface2)}
 .update-available-btn.show{display:flex;animation:fadeIn .2s ease}
 .update-available-btn span{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;opacity:.78;text-transform:uppercase;letter-spacing:1px}
 
+
+/* ===== ENTRANCE SHOP PREVIEW ===== */
+.shop-preview-entrance{width:54px;min-width:54px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.entrance-preview-card{display:flex;align-items:center;gap:5px;padding:4px 5px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;white-space:nowrap;overflow:hidden;width:100%}
+/* ===== ENTRANCE ANIMATIONS ===== */
+@keyframes entranceSlideIn{0%{opacity:0;transform:translateX(-70px) scale(0.95)}60%{transform:translateX(6px) scale(1.01)}100%{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes entranceDropBounce{0%{opacity:0;transform:translateY(-90px) scale(0.9)}55%{transform:translateY(10px) scale(1.02)}72%{transform:translateY(-5px) scale(0.99)}88%{transform:translateY(3px) scale(1.005)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes entranceGlitch{0%{opacity:0;transform:translate(0);filter:none}4%{opacity:1;transform:translate(-4px,2px) skew(-5deg);filter:brightness(2) hue-rotate(90deg)}8%{transform:translate(4px,-2px) skew(4deg);filter:brightness(1.5) hue-rotate(-90deg)}12%{transform:translate(-2px,1px) skew(-2deg);filter:brightness(1.2)}16%{transform:translate(0);filter:none}20%{transform:translate(-1px,0) skew(-1deg);filter:brightness(1.8)}25%{transform:translate(0);filter:none;opacity:1}100%{opacity:1;transform:translate(0);filter:none}}
+@keyframes entranceSpotlight{0%{opacity:0;transform:scale(0.82)}50%{opacity:1;transform:scale(1.04)}80%{transform:scale(0.99)}100%{opacity:1;transform:scale(1)}}
+@keyframes entrancePortal{0%{opacity:0;clip-path:circle(0% at 50% 50%)}60%{clip-path:circle(58% at 50% 50%);opacity:1}85%{clip-path:circle(52% at 50% 50%)}100%{opacity:1;clip-path:circle(75% at 50% 50%)}}
+@keyframes entranceShatter{0%{opacity:0;transform:scale(0.4) rotate(-8deg);filter:blur(4px)}40%{opacity:1;transform:scale(1.06) rotate(1.5deg);filter:blur(0)}65%{transform:scale(0.97) rotate(-0.5deg)}82%{transform:scale(1.02) rotate(0.3deg)}100%{opacity:1;transform:scale(1) rotate(0);filter:none}}
+@keyframes entranceInferno{0%{opacity:0;transform:translateY(30px) scale(0.85);filter:brightness(3) saturate(2) hue-rotate(-10deg)}30%{opacity:1;transform:translateY(-6px) scale(1.05);filter:brightness(1.8) saturate(1.5)}55%{transform:translateY(3px) scale(0.98);filter:brightness(1.2)}75%{transform:translateY(-2px) scale(1.01)}100%{opacity:1;transform:translateY(0) scale(1);filter:none}}
+@keyframes entranceVortex{0%{opacity:0;transform:rotate(-180deg) scale(0)}50%{opacity:1;transform:rotate(10deg) scale(1.06)}70%{transform:rotate(-4deg) scale(0.97)}85%{transform:rotate(2deg) scale(1.01)}100%{opacity:1;transform:rotate(0) scale(1)}}
+.entrance-slideIn{animation:entranceSlideIn 0.55s cubic-bezier(0.22,1,0.36,1) both}
+.entrance-dropBounce{animation:entranceDropBounce 0.7s ease both}
+.entrance-glitch{animation:entranceGlitch 0.5s linear both}
+.entrance-spotlight{animation:entranceSpotlight 0.65s ease both}
+.entrance-portal{animation:entrancePortal 0.6s ease both}
+.entrance-shatter{animation:entranceShatter 0.65s cubic-bezier(0.22,1,0.36,1) both}
+.entrance-inferno{animation:entranceInferno 0.7s ease both}
+.entrance-vortex{animation:entranceVortex 0.6s cubic-bezier(0.34,1.56,0.64,1) both}
 </style>
 </head>
 <body>
@@ -841,9 +862,10 @@ select option{background:var(--surface2)}
         <button class="shop-close-btn" onclick="closeShopModal()">×</button>
       </div>
       <div class="coin-pill"><img src="coin-icon-2.png" class="coin-icon" alt="Coins"/> <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
-      <div class="shop-tabs">
+      <div class="shop-tabs" style="grid-template-columns:1fr 1fr 1fr 1fr">
         <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Names</button>
         <button class="shop-tab" id="shopTabFrames" onclick="switchShopTab('frames')">Frames</button>
+        <button class="shop-tab" id="shopTabEntrance" onclick="switchShopTab('entrance')">Entrance</button>
         <button class="shop-tab" id="shopTabOwned" onclick="switchShopTab('owned')">Owned</button>
       </div>
       <div class="shop-grid" id="shopItems"></div>
@@ -1849,7 +1871,15 @@ const SHOP_ITEMS=[
   {id:'frame_aurora',type:'avatarFrame',label:'Aurora Glow Avatar Frame',price:650,value:'aurora'},
   {id:'frame_blood_moon',type:'avatarFrame',label:'Blood Moon Avatar Frame',price:700,value:'bloodmoon'},
   {id:'frame_galaxy',type:'avatarFrame',label:'Galaxy Flow Avatar Frame',price:800,value:'galaxy'},
-  {id:'frame_inferno',type:'avatarFrame',label:'Inferno Avatar Frame',price:1100,value:'inferno'}
+  {id:'frame_inferno',type:'avatarFrame',label:'Inferno Avatar Frame',price:1100,value:'inferno'},
+  {id:'entrance_slideIn',type:'entrance',label:'Slide In',price:1000,value:'slideIn'},
+  {id:'entrance_dropBounce',type:'entrance',label:'Drop Bounce',price:1100,value:'dropBounce'},
+  {id:'entrance_glitch',type:'entrance',label:'Glitch',price:1200,value:'glitch'},
+  {id:'entrance_spotlight',type:'entrance',label:'Spotlight',price:1300,value:'spotlight'},
+  {id:'entrance_portal',type:'entrance',label:'Portal',price:1400,value:'portal'},
+  {id:'entrance_shatter',type:'entrance',label:'Shatter',price:1600,value:'shatter'},
+  {id:'entrance_vortex',type:'entrance',label:'Vortex',price:1800,value:'vortex'},
+  {id:'entrance_inferno',type:'entrance',label:'Inferno Entrance',price:2000,value:'inferno'}
 ];
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
@@ -1952,6 +1982,9 @@ function equipShopItem(item){
     // Only one avatar frame at a time.
     delete myProfile.equipped.avatarFrame;
   }
+  if(item.type==='entrance'){
+    delete myProfile.equipped.entrance;
+  }
   myProfile.equipped[item.type]=item.value;
 }
 function isShopItemEquipped(item){
@@ -1959,7 +1992,7 @@ function isShopItemEquipped(item){
   return myProfile.equipped[item.type]===item.value;
 }
 function shopItemCategory(item){
-  return isNameShopItem(item)?'Name':item.type==='avatarFrame'?'Frame':'Item';
+  return isNameShopItem(item)?'Name':item.type==='avatarFrame'?'Frame':item.type==='entrance'?'Entrance':'Item';
 }
 function shopItemPreview(item){
   const sampleName=esc((document.getElementById('playerName')&&document.getElementById('playerName').value.trim())||myProfile.name||'Chris');
@@ -1972,11 +2005,15 @@ function shopItemPreview(item){
   if(item.type==='avatarFrame'){
     return `<div class="shop-preview">${avatarImg(myAvatar, 'shop-preview-frame av-frame-'+item.value)}</div>`;
   }
+  if(item.type==='entrance'){
+    const sn=esc((document.getElementById('playerName')&&document.getElementById('playerName').value.trim())||myProfile.name||'Chris');
+    return `<div class="shop-preview-entrance"><div class="entrance-preview-card entrance-${item.value}" style="animation-iteration-count:infinite;animation-duration:2.2s"><div class="av-placeholder" style="width:28px;height:28px;font-size:12px;flex-shrink:0">👤</div><span style="font-size:12px;font-weight:700;color:var(--text)">${sn}</span></div></div>`;
+  }
   return `<div class="shop-preview"></div>`;
 }
 function switchShopTab(tab){
   currentShopTab=tab;
-  ['names','frames','owned'].forEach(t=>{
+  ['names','frames','entrance','owned'].forEach(t=>{
     const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.classList.toggle('active',t===currentShopTab);
   });
@@ -1985,7 +2022,7 @@ function switchShopTab(tab){
 function renderShop(){
   const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
   const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
-  ['names','frames','owned'].forEach(t=>{
+  ['names','frames','entrance','owned'].forEach(t=>{
     const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.classList.toggle('active',t===currentShopTab);
   });
@@ -1994,6 +2031,7 @@ function renderShop(){
     const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
     if(currentShopTab==='names')return isNameShopItem(item);
     if(currentShopTab==='frames')return item.type==='avatarFrame';
+    if(currentShopTab==='entrance')return item.type==='entrance';
     if(currentShopTab==='owned')return owned;
     return true;
   }).sort((a,b)=>(a.price||0)-(b.price||0)||String(a.label).localeCompare(String(b.label)));
@@ -2445,6 +2483,56 @@ async function cleanupOldGames(){
 // =====================================================
 // PRESENCE
 // =====================================================
+
+// =====================================================
+// ENTRANCE ANIMATIONS
+// =====================================================
+const ENTRANCE_ANIM_MAP={slideIn:'entrance-slideIn',dropBounce:'entrance-dropBounce',glitch:'entrance-glitch',spotlight:'entrance-spotlight',portal:'entrance-portal',shatter:'entrance-shatter',vortex:'entrance-vortex',inferno:'entrance-inferno'};
+let entranceQueueListener=null;
+const seenEntrances=new Set();
+
+function getMyEntranceClass(){const val=myProfile.equipped&&myProfile.equipped.entrance;return val?(ENTRANCE_ANIM_MAP[val]||null):null;}
+
+function broadcastMyEntrance(){
+  if(!gameCode||!myId)return;
+  const cls=getMyEntranceClass();if(!cls)return;
+  const key=myId+'_'+Date.now();
+  gameRefFor(gameCode).child('entranceQueue/'+key).set({playerId:myId,animClass:cls,ts:Date.now()}).catch(()=>{});
+  setTimeout(()=>gameRefFor(gameCode).child('entranceQueue/'+key).remove().catch(()=>{}),5000);
+}
+
+function setupEntranceListener(code){
+  if(entranceQueueListener&&gameCode)db.ref('games/'+gameCode+'/entranceQueue').off('child_added',entranceQueueListener);
+  seenEntrances.clear();
+  entranceQueueListener=db.ref('games/'+code+'/entranceQueue').on('child_added',snap=>{
+    const data=snap.val();if(!data)return;
+    const key=snap.key;
+    if(seenEntrances.has(key))return;
+    seenEntrances.add(key);
+    if(data.playerId===myId)return;
+    const cur=(document.querySelector('.screen.active')||{}).id;
+    if(cur!=='screen-lobby'&&cur!=='screen-waiting')return;
+    playEntranceOnPlayerItem(data.playerId,data.animClass);
+  });
+}
+
+function stopEntranceListener(){
+  if(entranceQueueListener&&gameCode)db.ref('games/'+gameCode+'/entranceQueue').off('child_added',entranceQueueListener);
+  entranceQueueListener=null;seenEntrances.clear();
+}
+
+function playEntranceOnPlayerItem(playerId,animClass){
+  ['playerList','waitingPlayerList'].forEach(listId=>{
+    const list=document.getElementById(listId);if(!list)return;
+    list.querySelectorAll('.player-item[data-playerid="'+playerId+'"]').forEach(item=>{
+      item.classList.remove(...Object.values(ENTRANCE_ANIM_MAP));
+      void item.offsetWidth;
+      item.classList.add(animClass);
+      setTimeout(()=>item.classList.remove(animClass),1800);
+    });
+  });
+}
+
 function setupPresence(){
   if(!gameCode)return;
   const ref=gameRefFor(gameCode).child('players/'+myId+'/online');
@@ -2484,7 +2572,7 @@ async function createGame(){
   try{
     await gameRefFor(code).set(game);
     document.getElementById('gameCodeDisplay').textContent=code;
-    setupPresence();showScreen('lobby');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
+    setupPresence();setupEntranceListener(code);showScreen('lobby');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();setTimeout(()=>broadcastMyEntrance(),600);
     updateModeUI(localGameMode);
     if(localGameMode!=='spyfall')updateGame(code,{mode:localGameMode});
   }catch(e){showError('homeError','Could not connect to Firebase.');console.error(e);}
@@ -2505,8 +2593,8 @@ async function joinGame(){
     const existing=game.players&&game.players[myId];
     if(!existing)await gameRefFor(code).child('players/'+myId).set(makePlayerData(name,false));
     else await gameRefFor(code).child('players/'+myId).update({online:true,name,avatar:myAvatar||null,cosmetics:{equipped:myProfile.equipped||{}}});
-    setupPresence();document.getElementById('waitingCodeDisplay').textContent=code;
-    showScreen('waiting');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
+    setupPresence();setupEntranceListener(code);document.getElementById('waitingCodeDisplay').textContent=code;
+    showScreen('waiting');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();setTimeout(()=>broadcastMyEntrance(),600);
   }catch(e){showError('homeError','Connection error');console.error(e);}
   setLoading('joinBtn',false,'Join');
 }
@@ -2803,7 +2891,9 @@ function renderLobby(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const n=players.length;
   document.getElementById('lobbyCount').textContent=n;
-  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}${lobbyPlayerMenuHtml(p)}</div>`).join('');
+  if(window._lastLobbyPlayerIds){players.forEach(p=>{if(p.id!==myId&&!window._lastLobbyPlayerIds.has(p.id)){const pEq=(p.cosmetics&&p.cosmetics.equipped)||{};const pAC=pEq.entrance?ENTRANCE_ANIM_MAP[pEq.entrance]:null;if(pAC)setTimeout(()=>playEntranceOnPlayerItem(p.id,pAC),80);}});}
+  window._lastLobbyPlayerIds=new Set(players.map(p=>p.id));
+  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item" data-playerid="${p.id}">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}${lobbyPlayerMenuHtml(p)}</div>`).join('');
   const minPlayers=localGameMode==='mafia'?4:3;
   const ok=n>=minPlayers;
   document.getElementById('startBtn').disabled=!ok;
@@ -2835,7 +2925,7 @@ function renderLobby(game){
 function renderWaiting(game){
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   document.getElementById('waitingCount').textContent=players.length;
-  document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
+  document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item" data-playerid="${p.id}">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
 }
 
 // =====================================================
@@ -4154,7 +4244,7 @@ async function returnToLobby(){
   await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,chat:null});
 }
 async function leaveGame(){
-  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();
+  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();stopEntranceListener();
   if(gameCode){
     try{
       const snap=await gameRefFor(gameCode).once('value');const game=snap.val();
@@ -4349,7 +4439,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();stopEntranceListener();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;localGame=null;localSpyCount=1;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
 
 
 
