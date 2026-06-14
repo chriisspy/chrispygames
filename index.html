@@ -519,8 +519,8 @@ select option{background:var(--surface2)}
 .shop-modal-header h2{flex:1;font-size:22px;font-weight:800;margin:0}
 .shop-close-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'DM Mono',monospace;font-size:16px;cursor:pointer}
 .shop-close-btn:hover{color:var(--text);border-color:var(--accent)}
-.shop-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:var(--surface2);padding:5px;border-radius:var(--radius);margin-bottom:12px}
-.shop-tab{padding:9px 6px;border:none;border-radius:9px;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s}
+.shop-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;background:var(--surface2);padding:5px;border-radius:var(--radius);margin-bottom:12px}
+.shop-tab{padding:9px 6px;border:none;border-radius:9px;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .shop-tab:hover{color:var(--text);background:var(--surface3)}
 .shop-tab.active{background:var(--accent);color:#0a0a0f}
 .shop-preview{width:54px;min-width:54px;display:flex;align-items:center;justify-content:center}
@@ -865,7 +865,8 @@ select option{background:var(--surface2)}
       </div>
       <div class="coin-pill"><img src="coin-icon-2.png" class="coin-icon" alt="Coins"/> <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
       <div class="shop-tabs">
-        <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Names</button>
+        <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Colours</button>
+        <button class="shop-tab" id="shopTabAnimations" onclick="switchShopTab('animations')">Animations</button>
         <button class="shop-tab" id="shopTabFrames" onclick="switchShopTab('frames')">Frames</button>
         <button class="shop-tab" id="shopTabOwned" onclick="switchShopTab('owned')">Owned</button>
       </div>
@@ -926,18 +927,18 @@ select option{background:var(--surface2)}
         </div>
         <div class="dev-section-label" style="margin-top:10px">Name Animation Previews</div>
         <div class="dev-preview-wrap">
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:chrispyGlow 2s infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: chrispyGlow</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:neonFlicker 2s infinite;color:#06b6d4">Chris</div><div class="dev-preview-value">value: neonFlicker</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:rainbowShift 5.5s linear infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: rainbowShift</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:bouncePop 1.4s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: bouncePop</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:glitchName 1.1s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: glitchName</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:fireFlicker 1.6s infinite">Chris</div><div class="dev-preview-value">value: fireFlicker</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:frostShimmer 1.8s infinite;color:#9eefff">Chris</div><div class="dev-preview-value">value: frostShimmer</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:oceanWave 5.5s linear infinite">Chris</div><div class="dev-preview-value">value: oceanWave</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:candyShift 5.5s linear infinite">Chris</div><div class="dev-preview-value">value: candyShift</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:auroraGlow 6s linear infinite">Chris</div><div class="dev-preview-value">value: auroraGlow</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:bloodMoon 5.8s linear infinite">Chris</div><div class="dev-preview-value">value: bloodMoon</div></div>
-          <div class="dev-preview-row"><div class="dev-preview-sample" style="animation:galaxyFlow 6.2s linear infinite">Chris</div><div class="dev-preview-value">value: galaxyFlow</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:chrispyGlow 2s infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: chrispyGlow</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:neonFlicker 2s infinite;color:#06b6d4">Chris</div><div class="dev-preview-value">value: neonFlicker</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:rainbowShift 5.5s linear infinite;color:#e8d44d">Chris</div><div class="dev-preview-value">value: rainbowShift</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:bouncePop 1.4s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: bouncePop</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:glitchName 1.1s infinite;color:#f0eff5">Chris</div><div class="dev-preview-value">value: glitchName</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:fireFlicker 1.6s infinite">Chris</div><div class="dev-preview-value">value: fireFlicker</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:frostShimmer 1.8s infinite;color:#9eefff">Chris</div><div class="dev-preview-value">value: frostShimmer</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:oceanWave 5.5s linear infinite">Chris</div><div class="dev-preview-value">value: oceanWave</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:candyShift 5.5s linear infinite">Chris</div><div class="dev-preview-value">value: candyShift</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:auroraGlow 6s linear infinite">Chris</div><div class="dev-preview-value">value: auroraGlow</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:bloodMoon 5.8s linear infinite">Chris</div><div class="dev-preview-value">value: bloodMoon</div></div>
+          <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:galaxyFlow 6.2s linear infinite">Chris</div><div class="dev-preview-value">value: galaxyFlow</div></div>
           <div class="dev-preview-row"><div class="dev-preview-sample player-cosmetic-name" style="animation:infernoName 5.5s linear infinite">Chris</div><div class="dev-preview-value">value: infernoName</div></div>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Avatar Frame Previews</div>
@@ -2022,7 +2023,7 @@ function shopItemPreview(item){
 }
 function switchShopTab(tab){
   currentShopTab=tab;
-  ['names','frames','owned'].forEach(t=>{
+  ['names','animations','frames','owned'].forEach(t=>{
     const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.classList.toggle('active',t===currentShopTab);
   });
@@ -2031,20 +2032,21 @@ function switchShopTab(tab){
 function renderShop(){
   const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
   const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
-  ['names','frames','owned'].forEach(t=>{
+  ['names','animations','frames','owned'].forEach(t=>{
     const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.classList.toggle('active',t===currentShopTab);
   });
   const list=document.getElementById('shopItems');if(!list)return;
   let items=SHOP_ITEMS.filter(item=>{
     const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
-    if(currentShopTab==='names')return isNameShopItem(item);
+    if(currentShopTab==='names')return item.type==='nameColor';
+    if(currentShopTab==='animations')return item.type==='animatedName';
     if(currentShopTab==='frames')return item.type==='avatarFrame';
     if(currentShopTab==='owned')return owned;
     return true;
   }).sort((a,b)=>(a.price||0)-(b.price||0)||String(a.label).localeCompare(String(b.label)));
   if(!items.length){
-    list.innerHTML=`<div class="shop-section-empty">No owned items yet.<br>Buy something from the Names or Frames tab.</div>`;
+    list.innerHTML=`<div class="shop-section-empty">No owned items yet.<br>Buy something from the Colours, Animations, or Frames tab.</div>`;
     return;
   }
   list.innerHTML=items.map(item=>{
