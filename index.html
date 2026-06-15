@@ -2815,119 +2815,233 @@ document.addEventListener('keydown',function(event){if(event.key==='Escape'){clo
 function betBagNameForGame(game){
   return game&&game.status==='result'?'nextBets':'bets';
 }
+
 function activeBetBag(game){
   const bag=betBagNameForGame(game);
   return (game&&game[bag])||{};
 }
+
 function playerWinsForOdds(p){
   const n=Number(p&&(p.profileWins!==undefined?p.profileWins:p.wins));
   return Number.isFinite(n)&&n>0?Math.floor(n):0;
 }
+
 function bettingOddsForPlayer(game,playerId){
   const players=Object.values((game&&game.players)||{});
   if(!players.length)return 2;
+
   const wins=players.map(playerWinsForOdds);
-  const max=Math.max(...wins),min=Math.min(...wins);
-  const me=players.find(p=>p.id===playerId);
-  const myWins=playerWinsForOdds(me);
+  const max=Math.max(...wins);
+  const min=Math.min(...wins);
+  const target=players.find(p=>p.id===playerId);
+  const targetWins=playerWinsForOdds(target);
+
   if(max===min)return 2;
-  const underdogScore=(max-myWins)/(max-min);
+
+  const underdogScore=(max-targetWins)/(max-min);
   return Math.round((1.25+(underdogScore*1.75))*100)/100;
 }
+
 function formatOdds(n){
   n=Number(n)||0;
   return n.toFixed(2)+'x';
 }
-function currentBetForMe(game){
+
+function currentBetForMe(game,targetId){
   const bag=activeBetBag(game);
-  return bag&&bag[myId]?bag[myId]:null;
+  const key=targetId?myId+'_'+targetId:myId;
+  return bag&&bag[key]?bag[key]:null;
 }
+
 function bettingRoundCopy(game){
   if(game&&game.status==='result')return 'This bet is locked in for the next game after the host returns to the lobby.';
   return 'This bet is locked in for this game. Coins are withdrawn when you place it.';
 }
+
 function publicBetsHtml(game){
   const bets=Object.values(activeBetBag(game)||{}).filter(b=>b&&b.public&&b.total>0);
   if(!bets.length)return '';
-  return `<div class="betting-panel" style="margin-top:12px"><div class="betting-panel-title">Public bets</div><div class="betting-public-list">${bets.sort((a,b)=>(b.total||0)-(a.total||0)).map(b=>`<div class="betting-public-item"><span>${esc(b.name||'Player')}</span><span><img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${Math.floor(b.total||0)} @ ${formatOdds(b.odds||1)}</span></div>`).join('')}</div></div>`;
+
+  return `
+    <div class="betting-panel" style="margin-top:12px">
+      <div class="betting-panel-title">Public bets</div>
+      <div class="betting-public-list">
+        ${bets.sort((a,b)=>(b.total||0)-(a.total||0)).map(b=>`
+          <div class="betting-public-item">
+            <span>${esc(b.name||'Player')} → ${esc(b.targetName||'Player')}</span>
+            <span><img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${Math.floor(b.total||0)} @ ${formatOdds(b.odds||1)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
 }
+
+function myBetsForGame(game){
+  const bag=activeBetBag(game);
+  return Object.values(bag||{}).filter(b=>b&&b.playerId===myId&&b.total>0);
+}
+
 function renderBettingSummary(containerId,game){
-  const el=document.getElementById(containerId);if(!el)return;
-  const bet=currentBetForMe(game);
-  if(!bet){el.innerHTML='';return;}
-  el.innerHTML=`<div class="betting-panel"><div class="betting-panel-title">Your bet is locked</div><div class="betting-panel-copy"><img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${Math.floor(bet.total||0)} on yourself at ${formatOdds(bet.odds||1)}. Potential payout: <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${Math.floor(bet.potentialPayout||0)}.</div></div>`;
+  const el=document.getElementById(containerId);
+  if(!el)return;
+
+  const myBets=myBetsForGame(game);
+  if(!myBets.length){
+    el.innerHTML='';
+    return;
+  }
+
+  const total=myBets.reduce((sum,b)=>sum+Math.floor(Number(b.total)||0),0);
+  const payout=myBets.reduce((sum,b)=>sum+Math.floor(Number(b.potentialPayout)||0),0);
+
+  el.innerHTML=`
+    <div class="betting-panel">
+      <div class="betting-panel-title">Your bet is locked</div>
+      <div class="betting-panel-copy">
+        <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${total} placed across ${myBets.length} bet${myBets.length!==1?'s':''}.
+        Potential payout: <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${payout}.
+      </div>
+    </div>
+  `;
 }
+
 function renderBettingSummaries(game){
   renderBettingSummary('lobbyBettingSummary',game);
   renderBettingSummary('waitingBettingSummary',game);
 }
+
 function setBettingStatus(msg,ok){
-  const el=document.getElementById('bettingStatus');if(!el)return;
+  const el=document.getElementById('bettingStatus');
+  if(!el)return;
   el.textContent=msg||'';
   el.className='betting-status '+(ok?'ok':'err');
 }
+
+function bettingPlayerRowsHtml(game){
+  const players=Object.values((game&&game.players)||{}).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));
+  if(!players.length)return '<div class="shop-section-empty">No players in this lobby yet.</div>';
+
+  return players.map(p=>{
+    const odds=bettingOddsForPlayer(game,p.id);
+    const bet=currentBetForMe(game,p.id);
+    const existingTotal=Math.floor((bet&&bet.total)||0);
+    const existingPayout=Math.floor((bet&&bet.potentialPayout)||0);
+    const publicChecked=bet&&bet.public?'checked':'';
+
+    return `
+      <div class="betting-panel">
+        <div class="betting-odds-card">
+          <div>
+            <div class="betting-odds-name">${playerNameHtml(p)}</div>
+            <div class="betting-odds-meta">
+              ${playerWinsForOdds(p)} wins · ${p.id===myId?'You':'Player'} · ${bettingRoundCopy(game)}
+            </div>
+          </div>
+          <div class="betting-odds-value">${formatOdds(odds)}</div>
+        </div>
+
+        ${existingTotal?`
+          <div class="betting-panel-copy" style="margin-bottom:10px">
+            Current bet: <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${existingTotal}
+            · average ${formatOdds(bet.odds||1)}
+            · payout <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${existingPayout}
+          </div>
+        `:''}
+
+        <div class="betting-input-row">
+          <input id="betAmountInput_${p.id}" type="number" min="1" step="1" inputmode="numeric" placeholder="Coins to bet on ${esc(p.name||'Player')}"/>
+          <button class="btn btn-primary btn-sm" onclick="placeBet('${p.id}')">Bet</button>
+        </div>
+
+        <label class="betting-public-row">
+          <input id="betPublicToggle_${p.id}" type="checkbox" ${publicChecked}/>
+          <span>Make this bet public<small>Private by default. Public bets show your name, target, amount, and odds.</small></span>
+        </label>
+      </div>
+    `;
+  }).join('');
+}
+
 function renderBettingModal(){
-  const body=document.getElementById('bettingModalBody');if(!body)return;
-  const coinsEl=document.getElementById('betCoinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
-  const winsEl=document.getElementById('betWinCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
+  const body=document.getElementById('bettingModalBody');
+  if(!body)return;
+
+  const coinsEl=document.getElementById('betCoinBalance');
+  if(coinsEl)coinsEl.textContent=myProfile.coins||0;
+
+  const winsEl=document.getElementById('betWinCount');
+  if(winsEl)winsEl.textContent=myProfile.wins||0;
+
   const game=localGame;
+
   if(!game||!game.players||!game.players[myId]){
     body.innerHTML='<div class="shop-section-empty">Join a lobby before placing a bet.</div>';
     return;
   }
-  const me=game.players[myId];
-  const odds=bettingOddsForPlayer(game,myId);
-  const bet=currentBetForMe(game);
-  const existingTotal=Math.floor((bet&&bet.total)||0);
-  const existingPayout=Math.floor((bet&&bet.potentialPayout)||0);
-  const publicChecked=bet&&bet.public?'checked':'';
+
   body.innerHTML=`
-    <div class="betting-odds-card">
-      <div>
-        <div class="betting-odds-name">${playerNameHtml(me)}</div>
-        <div class="betting-odds-meta">${playerWinsForOdds(me)} wins · ${bettingRoundCopy(game)}</div>
-      </div>
-      <div class="betting-odds-value">${formatOdds(odds)}</div>
+    <div class="betting-panel">
+      <div class="betting-panel-title">Place a bet</div>
+      <div class="betting-panel-copy">Choose any player in the lobby. Coins are withdrawn when the bet is placed.</div>
     </div>
-    ${existingTotal?`<div class="betting-panel"><div class="betting-panel-title">Current bet</div><div class="betting-panel-copy"><img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${existingTotal} placed · average ${formatOdds(bet.odds||1)} · payout <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${existingPayout}</div></div>`:''}
-    <div class="betting-input-row">
-      <input id="betAmountInput" type="number" min="1" step="1" inputmode="numeric" placeholder="Coins to bet"/>
-      <button class="btn btn-primary btn-sm" onclick="placeBet()">Place bet</button>
-    </div>
-    <label class="betting-public-row">
-      <input id="betPublicToggle" type="checkbox" ${publicChecked}/>
-      <span>Make this bet public<small>Private by default. Public bets show your name, amount, and odds.</small></span>
-    </label>
+
     <div id="bettingStatus" class="betting-status"></div>
+
+    ${bettingPlayerRowsHtml(game)}
+
     ${publicBetsHtml(game)}
   `;
-  const input=document.getElementById('betAmountInput');
-  if(input)setTimeout(()=>input.focus(),40);
 }
+
 function openBettingModal(){
   renderBettingModal();
   const modal=document.getElementById('bettingModalBackdrop');
   if(modal)modal.classList.add('open');
 }
+
 function closeBettingModal(event){
   if(event&&event.target&&event.currentTarget&&event.target!==event.currentTarget)return;
   const modal=document.getElementById('bettingModalBackdrop');
   if(modal)modal.classList.remove('open');
 }
-async function placeBet(){
+
+async function placeBet(targetId){
   const game=localGame;
-  const input=document.getElementById('betAmountInput');
+  targetId=targetId||myId;
+
+  const input=document.getElementById('betAmountInput_'+targetId);
   const amount=Math.floor(Number(input&&input.value)||0);
-  if(!gameCode||!game||!game.players||!game.players[myId])return setBettingStatus('You need to be in a lobby to place a bet.',false);
-  if(!Number.isFinite(amount)||amount<=0)return setBettingStatus('Enter a coin amount greater than 0.',false);
-  if((myProfile.coins||0)<amount)return setBettingStatus('You do not have enough coins for that bet.',false);
-  const isPublic=!!(document.getElementById('betPublicToggle')&&document.getElementById('betPublicToggle').checked);
-  const odds=bettingOddsForPlayer(game,myId);
+
+  if(!gameCode||!game||!game.players||!game.players[myId]){
+    return setBettingStatus('You need to be in a lobby to place a bet.',false);
+  }
+
+  if(!game.players[targetId]){
+    return setBettingStatus('That player is no longer in the lobby.',false);
+  }
+
+  if(!Number.isFinite(amount)||amount<=0){
+    return setBettingStatus('Enter a coin amount greater than 0.',false);
+  }
+
+  if((myProfile.coins||0)<amount){
+    return setBettingStatus('You do not have enough coins for that bet.',false);
+  }
+
+  const isPublic=!!(document.getElementById('betPublicToggle_'+targetId)&&document.getElementById('betPublicToggle_'+targetId).checked);
+  const odds=bettingOddsForPlayer(game,targetId);
   const bag=betBagNameForGame(game);
   const payout=Math.floor(amount*odds);
-  const name=(game.players[myId]&&game.players[myId].name)||myProfile.name||'Player';
+
+  const bettorName=(game.players[myId]&&game.players[myId].name)||myProfile.name||'Player';
+  const targetName=(game.players[targetId]&&game.players[targetId].name)||'Player';
+  const betKey=myId+'_'+targetId;
+
   setBettingStatus('Placing bet...',true);
+
   let coinsWithdrawn=false;
+
   try{
     const coinTx=await userRef().transaction(user=>{
       user=user||{};
@@ -2938,89 +3052,139 @@ async function placeBet(){
       user.lastBetAt=Date.now();
       return user;
     });
-    if(!coinTx||!coinTx.committed)return setBettingStatus('Your coin balance changed. Try a smaller bet.',false);
+
+    if(!coinTx||!coinTx.committed){
+      return setBettingStatus('Your coin balance changed. Try a smaller bet.',false);
+    }
+
     coinsWithdrawn=true;
+
     myProfile=normaliseProfile({...myProfile,...(coinTx.snapshot.val()||{})});
     saveLocalProfile();
     renderShop();
-    await gameRefFor(gameCode).child(bag+'/'+myId).transaction(bet=>{
+
+    await gameRefFor(gameCode).child(bag+'/'+betKey).transaction(bet=>{
       bet=bet||{};
       const total=(Number(bet.total)||0)+amount;
       const potentialPayout=(Number(bet.potentialPayout)||0)+payout;
+
       return {
         playerId:myId,
-        targetId:myId,
-        name,
+        targetId,
+        name:bettorName,
+        targetName,
         total,
         potentialPayout,
         odds:Math.round((potentialPayout/Math.max(1,total))*100)/100,
         latestOdds:odds,
         public:isPublic,
         winsAtBet:myProfile.wins||0,
+        targetWinsAtBet:playerWinsForOdds(game.players[targetId]),
         updatedAt:Date.now()
       };
     });
+
     if(input)input.value='';
+
     setBettingStatus('Bet placed. Coins are locked in.',true);
-    setTimeout(()=>{renderBettingModal();renderBettingSummaries(localGame);},350);
+
+    setTimeout(()=>{
+      renderBettingModal();
+      renderBettingSummaries(localGame);
+    },350);
+
   }catch(e){
     console.warn('Bet failed',e);
+
     if(coinsWithdrawn){
-      await userRef().transaction(user=>{user=user||{};user.coins=(Number(user.coins)||0)+amount;user.savedAt=Date.now();return user;}).catch(()=>{});
+      await userRef().transaction(user=>{
+        user=user||{};
+        user.coins=(Number(user.coins)||0)+amount;
+        user.savedAt=Date.now();
+        return user;
+      }).catch(()=>{});
+
       await loadMyProfile().catch(()=>{});
     }
+
     setBettingStatus('Bet could not be placed. Your coins were restored if they were withdrawn.',false);
   }
 }
+
 function finalWinnerIdsForBetting(game){
   if(!game||game.status!=='result')return [];
+
   const players=Object.values(game.players||{});
+
   if(game.mode==='ooo'&&game.oooPhase==='gameover'){
     const scores=game.oooScores||{};
     const max=Math.max(0,...players.map(p=>scores[p.id]||0));
     return max>0?players.filter(p=>(scores[p.id]||0)===max).map(p=>p.id):[];
   }
+
   if(game.mode==='fa'){
     const scores=game.faScores||{};
     const max=Math.max(0,...players.map(p=>scores[p.id]||0));
     return max>0?players.filter(p=>(scores[p.id]||0)===max).map(p=>p.id):[];
   }
+
   const data=rewardDataForGame(game);
   return data?Object.keys(data.rewards||{}):[];
 }
+
 function bettingResultKey(game){
   if(!game||game.status!=='result')return null;
+
   const mode=game.mode||'spyfall';
   const stamp=game.rewardRoundId||game.resultRoundId||game.finishedAt||game.updatedAt;
+
   if(!stamp)return null;
+
   return 'bet_'+mode+'_'+String(stamp).replace(/[^a-zA-Z0-9_-]/g,'');
 }
+
 async function awardBetPayoutsForFinishedGame(game){
   if(!gameCode||!game||game.status!=='result')return;
+
   const bets=game.bets||{};
   const betIds=Object.keys(bets);
+
   if(!betIds.length)return;
+
   const winnerIds=finalWinnerIdsForBetting(game);
   if(!winnerIds.length)return;
+
   const key=bettingResultKey(game);
   if(!key)return;
+
   try{
     const eventRef=gameRefFor(gameCode).child('betPayoutEvents/'+key);
+
     const claimed=await eventRef.transaction(current=>{
       if(current)return;
+
       const payouts={};
+
       betIds.forEach(id=>{
         const bet=bets[id]||{};
+        const bettorId=bet.playerId||id;
+
         if(winnerIds.includes(bet.targetId||id)){
           const amount=Math.floor(Number(bet.potentialPayout)||0);
-          if(amount>0)payouts[id]=amount;
+          if(amount>0){
+            payouts[bettorId]=(payouts[bettorId]||0)+amount;
+          }
         }
       });
+
       return {paidAt:Date.now(),paidBy:myId,winnerIds,payouts};
     });
+
     if(!claimed||!claimed.committed)return;
+
     const event=claimed.snapshot.val()||{};
     const payouts=event.payouts||{};
+
     await Promise.all(Object.entries(payouts).map(([id,amount])=>db.ref('users/'+id).transaction(user=>{
       user=user||{};
       user.coins=(Number(user.coins)||0)+Math.floor(Number(amount)||0);
@@ -3028,61 +3192,100 @@ async function awardBetPayoutsForFinishedGame(game){
       user.lastBetPayoutAt=Date.now();
       return user;
     })));
-    await gameRefFor(gameCode).update({lastBetPayoutKey:key,lastBetWinnerIds:winnerIds,lastBetPayouts:payouts});
+
+    await gameRefFor(gameCode).update({
+      lastBetPayoutKey:key,
+      lastBetWinnerIds:winnerIds,
+      lastBetPayouts:payouts
+    });
+
     if(payouts[myId])await loadMyProfile();
-  }catch(e){console.warn('Bet payout failed',e);}
+
+  }catch(e){
+    console.warn('Bet payout failed',e);
+  }
 }
+
 function ensureBetWonMessage(){
   const screen=document.querySelector('.screen.active');
   if(!screen)return null;
+
   screen.querySelectorAll('.bet-won-inline').forEach(el=>el.remove());
+
   const el=document.createElement('div');
   el.className='bet-won-inline';
   el.innerHTML='Your bet won <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> <span class="bet-won-number">0</span> coins!';
+
   const anchor=screen.querySelector('.result-banner')||screen.querySelector('.card')||screen.firstElementChild||screen;
+
   if(anchor&&anchor.parentNode)anchor.insertAdjacentElement('afterend',el);
+
   return el;
 }
+
 function animateBetWon(amount){
   amount=Math.max(0,Math.floor(Number(amount)||0));
   if(!amount)return;
+
   const msg=ensureBetWonMessage();
   if(!msg)return;
-  const num=msg.querySelector('.bet-won-number');if(!num)return;
-  const duration=900,start=performance.now();
+
+  const num=msg.querySelector('.bet-won-number');
+  if(!num)return;
+
+  const duration=900;
+  const start=performance.now();
+
   function tick(now){
     const t=Math.min(1,(now-start)/duration);
     num.textContent=Math.round(amount*(1-Math.pow(1-t,3)));
+
     if(t<1)requestAnimationFrame(tick);
     else num.textContent=amount;
   }
+
   requestAnimationFrame(tick);
 }
+
 function handleMyBetDisplays(game){
   if(!gameCode||!game||!game.betPayoutEvents)return;
+
   Object.entries(game.betPayoutEvents||{}).forEach(([key,event])=>{
     const amount=event&&event.payouts&&event.payouts[myId];
+
     if(!amount)return;
+
     const seenKey='sf_bet_seen_'+gameCode+'_'+key+'_'+myId;
+
     if(localStorage.getItem(seenKey))return;
+
     localStorage.setItem(seenKey,'1');
+
     myProfile.coins=(myProfile.coins||0)+Math.floor(Number(amount)||0);
     saveLocalProfile();
     renderShop();
+
     setTimeout(()=>animateBetWon(amount),260);
+
     loadMyProfile().catch(()=>{});
   });
 }
+
 function renderResultBetAction(game){
   if(!game||game.status!=='result')return;
+
   const screen=document.querySelector('.screen.active');
   if(!screen)return;
+
   screen.querySelectorAll('.bet-result-action').forEach(el=>el.remove());
+
   const btn=document.createElement('button');
   btn.className='btn btn-secondary bet-result-action';
   btn.textContent='Place bet';
   btn.onclick=openBettingModal;
+
   const hostAction=screen.querySelector('[id$="ReturnBtn"], [id$="HostBtns"], #gameoverReturnBtn, #faGameoverHostBtns');
+
   if(hostAction&&hostAction.parentNode)hostAction.parentNode.insertBefore(btn,hostAction);
   else{
     const card=screen.querySelector('.card')||screen.firstElementChild||screen;
