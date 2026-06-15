@@ -2836,9 +2836,52 @@ function betBagNameForGame(game){
   return game&&game.status==='result'?'nextBets':'bets';
 }
 
-function activeBetBag(game){
-  const bag=betBagNameForGame(game);
+function playerBetBagNameForGame(game){
+  return game&&game.status==='result'?'nextBets':'playerBets';
+}
+
+function safeFirebaseKey(value){
+  return String(value||'')
+    .replace(/[.#$\[\]\/]/g,'_')
+    .slice(0,80)||('key_'+Date.now());
+}
+
+function rootBetBag(game,bag){
+  bag=bag||betBagNameForGame(game);
   return (game&&game[bag])||{};
+}
+
+function playerNestedBetBag(player,bag){
+  if(!player)return {};
+  if(bag==='nextBets')return player.nextBets||{};
+  return player.playerBets||{};
+}
+
+function collectBetBag(game,bag){
+  const merged={};
+  if(!game)return merged;
+
+  bag=bag||betBagNameForGame(game);
+
+  Object.entries(rootBetBag(game,bag)||{}).forEach(([key,bet])=>{
+    if(bet)merged['root_'+key]=bet;
+  });
+
+  Object.values(game.players||{}).forEach(player=>{
+    Object.entries(playerNestedBetBag(player,bag)||{}).forEach(([key,bet])=>{
+      if(bet)merged['player_'+(player.id||'unknown')+'_'+key]=bet;
+    });
+  });
+
+  return merged;
+}
+
+function activeBetBag(game){
+  return collectBetBag(game,betBagNameForGame(game));
+}
+
+function resultBetBag(game){
+  return collectBetBag(game,'bets');
 }
 
 function playerWinsForOdds(p){
@@ -2868,9 +2911,22 @@ function formatOdds(n){
 }
 
 function currentBetForMe(game,targetId){
-  const bag=activeBetBag(game);
-  const key=targetId?myId+'_'+targetId:myId;
-  return bag&&bag[key]?bag[key]:null;
+  const bets=Object.values(activeBetBag(game)||{}).filter(b=>b&&b.playerId===myId&&b.targetId===targetId&&Number(b.total)>0);
+  if(!bets.length)return null;
+
+  const total=bets.reduce((sum,b)=>sum+Math.floor(Number(b.total)||0),0);
+  const potentialPayout=bets.reduce((sum,b)=>sum+Math.floor(Number(b.potentialPayout)||0),0);
+  const latest=bets.slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0]||{};
+
+  return {
+    ...latest,
+    playerId:myId,
+    targetId,
+    total,
+    potentialPayout,
+    odds:Math.round((potentialPayout/Math.max(1,total))*100)/100,
+    public:bets.some(b=>!!b.public)
+  };
 }
 
 function bettingRoundCopy(game){
@@ -3027,6 +3083,27 @@ function closeBettingModal(event){
   if(modal)modal.classList.remove('open');
 }
 
+async function saveBetRecord(game,betKey,betObj,bag){
+  const rootPath=bag+'/'+betKey;
+  const playerBag=bag==='nextBets'?'nextBets':'playerBets';
+  const fallbackPath='players/'+myId+'/'+playerBag+'/'+betKey;
+
+  try{
+    await gameRefFor(gameCode).child(rootPath).set(betObj);
+    return {ok:true,path:rootPath};
+  }catch(rootError){
+    console.warn('Root bet write failed, trying player fallback',rootError);
+
+    try{
+      await gameRefFor(gameCode).child(fallbackPath).set({...betObj,storage:'playerFallback'});
+      return {ok:true,path:fallbackPath,fallback:true};
+    }catch(fallbackError){
+      console.warn('Fallback bet write failed',fallbackError);
+      return {ok:false,error:fallbackError||rootError};
+    }
+  }
+}
+
 async function placeBet(targetId){
   const game=localGame;
   targetId=targetId||myId;
@@ -3046,8 +3123,6 @@ async function placeBet(targetId){
     return setBettingStatus('Enter a coin amount greater than 0.',false);
   }
 
-  // Use the highest known balance between this device and Firebase.
-  // This fixes dev/test coins not being trusted by the old transaction path.
   let latestCloudProfile={};
   try{
     const latestSnap=await userRef().once('value');
@@ -3076,7 +3151,25 @@ async function placeBet(targetId){
 
   const bettorName=(game.players[myId]&&game.players[myId].name)||myProfile.name||'Player';
   const targetName=(game.players[targetId]&&game.players[targetId].name)||'Player';
-  const betKey=myId+'_'+targetId;
+  const betKey=safeFirebaseKey(myId)+'_'+safeFirebaseKey(targetId)+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+
+  const betObj={
+    id:betKey,
+    playerId:myId,
+    targetId,
+    name:bettorName,
+    targetName,
+    total:amount,
+    amount,
+    potentialPayout:payout,
+    odds,
+    latestOdds:odds,
+    public:isPublic,
+    winsAtBet:myProfile.wins||0,
+    targetWinsAtBet:playerWinsForOdds(game.players[targetId]),
+    createdAt:Date.now(),
+    updatedAt:Date.now()
+  };
 
   setBettingStatus('Placing bet...',true);
 
@@ -3114,29 +3207,10 @@ async function placeBet(targetId){
     saveLocalProfile();
     renderShop();
 
-    const betTx=await gameRefFor(gameCode).child(bag+'/'+betKey).transaction(bet=>{
-      bet=bet||{};
-      const total=(Number(bet.total)||0)+amount;
-      const potentialPayout=(Number(bet.potentialPayout)||0)+payout;
+    const saved=await saveBetRecord(game,betKey,betObj,bag);
 
-      return {
-        playerId:myId,
-        targetId,
-        name:bettorName,
-        targetName,
-        total,
-        potentialPayout,
-        odds:Math.round((potentialPayout/Math.max(1,total))*100)/100,
-        latestOdds:odds,
-        public:isPublic,
-        winsAtBet:myProfile.wins||0,
-        targetWinsAtBet:playerWinsForOdds(game.players[targetId]),
-        updatedAt:Date.now()
-      };
-    });
-
-    if(!betTx||!betTx.committed){
-      throw new Error('Bet save transaction did not commit.');
+    if(!saved.ok){
+      throw new Error('Bet save failed: '+(saved.error&&saved.error.message?saved.error.message:'Firebase write failed'));
     }
 
     if(input)input.value='';
@@ -3163,7 +3237,7 @@ async function placeBet(targetId){
       await loadMyProfile().catch(()=>{});
     }
 
-    setBettingStatus('Bet could not be placed. Your coins were restored if they were withdrawn.',false);
+    setBettingStatus('Bet could not be placed. Your coins were restored if they were withdrawn. '+(e&&e.message?e.message:''),false);
   }
 }
 
@@ -3202,7 +3276,7 @@ function bettingResultKey(game){
 async function awardBetPayoutsForFinishedGame(game){
   if(!gameCode||!game||game.status!=='result')return;
 
-  const bets=game.bets||{};
+  const bets=resultBetBag(game)||{};
   const betIds=Object.keys(bets);
 
   if(!betIds.length)return;
@@ -3223,9 +3297,9 @@ async function awardBetPayoutsForFinishedGame(game){
 
       betIds.forEach(id=>{
         const bet=bets[id]||{};
-        const bettorId=bet.playerId||id;
+        const bettorId=bet.playerId;
 
-        if(winnerIds.includes(bet.targetId||id)){
+        if(bettorId&&winnerIds.includes(bet.targetId)){
           const amount=Math.floor(Number(bet.potentialPayout)||0);
           if(amount>0){
             payouts[bettorId]=(payouts[bettorId]||0)+amount;
@@ -3348,7 +3422,6 @@ function renderResultBetAction(game){
     card.appendChild(btn);
   }
 }
-
 // =====================================================
 // GAME MODE (lobby)
 // =====================================================
