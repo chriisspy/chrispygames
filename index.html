@@ -517,8 +517,25 @@ select option{background:var(--surface2)}
 #homeTileBs:hover,#modeTabBs:hover,#homeTileBs.selected,#modeTabBs.active-bs{border-color:#4de8a0;background:rgba(77,232,160,.14);box-shadow:0 0 0 1px rgba(77,232,160,.25)}
 #homeTileBs .custom-mode-name,#modeTabBs .custom-mode-name{color:#4de8a0}
 
-.home-shop-btn{width:100%;max-width:440px;background:#13131a;color:var(--accent);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:14px 16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px}
+.home-actions-row{width:100%;max-width:440px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.home-shop-btn{width:100%;background:#13131a;color:var(--accent);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:14px 16px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px}
 .home-shop-btn:hover{background:rgba(232,212,77,.08);transform:translateY(-1px);box-shadow:0 0 0 1px rgba(232,212,77,.18)}
+.home-betting-btn{color:#4de8a0;border-color:rgba(77,232,160,.75)}
+.home-betting-btn:hover{background:rgba(77,232,160,.08);box-shadow:0 0 0 1px rgba(77,232,160,.18)}
+.betting-home-grid{display:flex;flex-direction:column;gap:9px}
+.betting-home-card{padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)}
+.betting-home-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px}
+.betting-home-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);line-height:1.45}
+.betting-home-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.betting-home-amount{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);white-space:nowrap}
+.betting-home-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border-radius:999px;background:var(--surface3);border:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:6px}
+.betting-home-pill.win{color:var(--safe);border-color:rgba(77,232,160,.25);background:rgba(77,232,160,.07)}
+.betting-home-pill.loss{color:var(--spy);border-color:rgba(232,93,77,.25);background:rgba(232,93,77,.07)}
+.betting-home-pill.active{color:var(--accent);border-color:rgba(232,212,77,.25);background:rgba(232,212,77,.07)}
+.betting-home-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.betting-home-stat{padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);text-align:center}
+.betting-home-stat-num{font-family:'DM Mono',monospace;font-size:20px;font-weight:800;color:var(--accent);line-height:1.1}
+.betting-home-stat-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
 .shop-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9998;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
 .shop-modal-backdrop.open{display:flex}
 .shop-modal{width:100%;max-width:440px;max-height:88dvh;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:0 24px 80px rgba(0,0,0,0.65);animation:fadeIn 0.2s ease}
@@ -1066,7 +1083,26 @@ body.gold-win-theme .screen.active .scoreboard-item.me{
       <div class="shop-grid" id="shopItems"></div>
     </div>
   </div>
-  <button class="home-shop-btn" onclick="openShopModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Shop</button>
+  <div class="shop-modal-backdrop" id="homeBettingModalBackdrop" onclick="closeHomeBettingModal(event)">
+    <div class="shop-modal" onclick="event.stopPropagation()">
+      <div class="shop-modal-header">
+        <h2>Betting</h2>
+        <button class="shop-close-btn" onclick="closeHomeBettingModal()">×</button>
+      </div>
+      <div class="coin-pill"><img src="coin-icon-2.png" class="coin-icon" alt="Coins"/> <span id="homeBetCoinBalance">0</span> coins · <span id="homeBetWinCount">0</span> wins</div>
+      <div class="shop-tabs">
+        <button class="shop-tab active" id="homeBetTabOverview" onclick="switchHomeBettingTab('overview')">Overview</button>
+        <button class="shop-tab" id="homeBetTabHistory" onclick="switchHomeBettingTab('history')">History</button>
+        <button class="shop-tab" id="homeBetTabPlayers" onclick="switchHomeBettingTab('players')">Players</button>
+        <button class="shop-tab" id="homeBetTabPublic" onclick="switchHomeBettingTab('public')">Public</button>
+      </div>
+      <div id="homeBettingModalBody"></div>
+    </div>
+  </div>
+  <div class="home-actions-row">
+    <button class="home-shop-btn" onclick="openShopModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Shop</button>
+    <button class="home-shop-btn home-betting-btn" onclick="openHomeBettingModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Betting</button>
+  </div>
   <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
     <button onclick="toggleDevPanel()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;padding:4px 0;letter-spacing:1px;text-transform:uppercase">
@@ -2827,7 +2863,7 @@ function closeShopModal(event){
   const modal=document.getElementById('shopModalBackdrop');
   if(modal)modal.classList.remove('open');
 }
-document.addEventListener('keydown',function(event){if(event.key==='Escape'){closeShopModal();closeBettingModal();}});
+document.addEventListener('keydown',function(event){if(event.key==='Escape'){closeShopModal();closeBettingModal();closeHomeBettingModal();}});
 
 // =====================================================
 // BETTING
@@ -2985,6 +3021,8 @@ function renderBettingSummary(containerId,game){
 function renderBettingSummaries(game){
   renderBettingSummary('lobbyBettingSummary',game);
   renderBettingSummary('waitingBettingSummary',game);
+  const homeBetModal=document.getElementById('homeBettingModalBackdrop');
+  if(homeBetModal&&homeBetModal.classList.contains('open'))renderHomeBettingModal();
 }
 
 function setBettingStatus(msg,ok){
@@ -3083,6 +3121,240 @@ function closeBettingModal(event){
   if(modal)modal.classList.remove('open');
 }
 
+let currentHomeBettingTab='overview';
+let homeBettingUserBets=[];
+let homeBettingPlayerProfiles={};
+
+function formatBetDate(ts){
+  ts=Number(ts)||0;
+  if(!ts)return 'Unknown time';
+  try{return new Date(ts).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
+  catch(e){return new Date(ts).toLocaleString();}
+}
+
+function homeBetStatusClass(bet){
+  const status=String((bet&&bet.status)||'active').toLowerCase();
+  if(status.includes('win')||status==='paid')return 'win';
+  if(status.includes('loss')||status==='lost'||status==='cancelled')return 'loss';
+  return 'active';
+}
+
+function normaliseBetHistoryItem(bet,key,source){
+  bet=bet||{};
+  return {
+    id:bet.id||key,
+    key,
+    source:source||'saved',
+    gameCode:bet.gameCode||bet.code||'',
+    playerId:bet.playerId||myId,
+    targetId:bet.targetId||'',
+    name:bet.name||myProfile.name||'You',
+    targetName:bet.targetName||'Player',
+    total:Math.floor(Number(bet.total!==undefined?bet.total:bet.amount)||0),
+    amount:Math.floor(Number(bet.amount!==undefined?bet.amount:bet.total)||0),
+    potentialPayout:Math.floor(Number(bet.potentialPayout)||0),
+    odds:Number(bet.odds||bet.latestOdds)||1,
+    status:bet.status||'active',
+    public:!!bet.public,
+    createdAt:Number(bet.createdAt||bet.updatedAt||0),
+    updatedAt:Number(bet.updatedAt||bet.createdAt||0)
+  };
+}
+
+function flattenUserBetTree(tree){
+  const out=[];
+  function walk(node,path){
+    if(!node||typeof node!=='object')return;
+    const looksLikeBet=node.targetId||node.targetName||node.potentialPayout||node.amount||node.total;
+    if(looksLikeBet){
+      out.push(normaliseBetHistoryItem(node,path.join('_')||node.id||String(out.length),'user'));
+      return;
+    }
+    Object.entries(node).forEach(([k,v])=>walk(v,[...path,k]));
+  }
+  walk(tree,[]);
+  return out;
+}
+
+function getAllLocalSavedBets(){
+  const out=[];
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i)||'';
+      if(!key.startsWith('chrispy_local_bets_'))continue;
+      const data=JSON.parse(localStorage.getItem(key)||'{}')||{};
+      Object.entries(data).forEach(([betKey,bet])=>out.push(normaliseBetHistoryItem(bet,betKey,'local')));
+    }
+  }catch(e){console.warn('Could not read local bet history',e);}
+  return out;
+}
+
+function mergeBetHistory(userBets,localBets){
+  const map={};
+  [...(userBets||[]),...(localBets||[])].forEach(b=>{
+    const key=b.id||b.key||[b.gameCode,b.targetId,b.createdAt,b.total].join('_');
+    if(!map[key]||(b.updatedAt||0)>(map[key].updatedAt||0))map[key]=b;
+  });
+  return Object.values(map).sort((a,b)=>(b.createdAt||b.updatedAt||0)-(a.createdAt||a.updatedAt||0));
+}
+
+async function loadHomeBettingData(){
+  let userBets=[];
+  try{
+    const snap=await userRef().child('bets').once('value');
+    userBets=flattenUserBetTree(snap.val()||{});
+  }catch(e){console.warn('Could not load cloud bet history',e);}
+
+  const livePlayerBets=[];
+  const myLivePlayer=(localGame&&localGame.players&&localGame.players[myId])||null;
+  if(myLivePlayer){
+    Object.entries(myLivePlayer.playerBets||{}).forEach(([k,v])=>livePlayerBets.push(normaliseBetHistoryItem(v,k,'live')));
+    Object.entries(myLivePlayer.nextBets||{}).forEach(([k,v])=>livePlayerBets.push(normaliseBetHistoryItem(v,k,'live')));
+  }
+
+  homeBettingUserBets=mergeBetHistory(mergeBetHistory(userBets,livePlayerBets),getAllLocalSavedBets());
+
+  const players=Object.values((localGame&&localGame.players)||{});
+  const profiles={};
+  await Promise.all(players.map(async p=>{
+    try{
+      const snap=await db.ref('users/'+p.id).once('value');
+      profiles[p.id]=normaliseProfile(snap.val()||{});
+    }catch(e){
+      profiles[p.id]={coins:p.id===myId?(myProfile.coins||0):0,wins:playerWinsForOdds(p),ownedItems:{},equipped:{}};
+    }
+  }));
+  homeBettingPlayerProfiles=profiles;
+}
+
+function renderHomeBettingTabs(){
+  ['overview','history','players','public'].forEach(tab=>{
+    const id='homeBetTab'+tab.charAt(0).toUpperCase()+tab.slice(1);
+    const el=document.getElementById(id);
+    if(el)el.classList.toggle('active',tab===currentHomeBettingTab);
+  });
+}
+
+function homeBetHistoryHtml(limit){
+  const bets=(homeBettingUserBets||[]).slice(0,limit||999);
+  if(!bets.length)return '<div class="shop-section-empty">No previous bets yet. Place a bet from a lobby to start building your history.</div>';
+
+  return `<div class="betting-home-grid">${bets.map(b=>`
+    <div class="betting-home-card">
+      <div class="betting-home-row">
+        <div>
+          <div class="betting-home-title">${esc(b.targetName||'Player')}</div>
+          <div class="betting-home-meta">${formatBetDate(b.createdAt||b.updatedAt)}${b.gameCode?' · Game '+esc(b.gameCode):''}${b.public?' · Public':' · Private'}</div>
+        </div>
+        <div class="betting-home-amount"><img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${Math.floor(b.total||0)}</div>
+      </div>
+      <div class="betting-home-meta" style="margin-top:7px">Odds ${formatOdds(b.odds||1)} · potential payout <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${Math.floor(b.potentialPayout||0)}</div>
+      <span class="betting-home-pill ${homeBetStatusClass(b)}">${esc(String(b.status||'active').toUpperCase())}</span>
+    </div>
+  `).join('')}</div>`;
+}
+
+function homeBetPlayersHtml(){
+  const players=Object.values((localGame&&localGame.players)||{}).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));
+  if(!players.length)return '<div class="shop-section-empty">Create or join a lobby to see current player coin balances here.</div>';
+
+  return `<div class="betting-home-grid">${players.map(p=>{
+    const profile=homeBettingPlayerProfiles[p.id]||{};
+    const coins=Math.floor(Number(profile.coins)||0);
+    const wins=Math.floor(Number(profile.wins!==undefined?profile.wins:playerWinsForOdds(p))||0);
+    return `
+      <div class="betting-home-card">
+        <div class="betting-home-row">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0">
+            ${playerAvatar(p,'av-sm')}
+            <div style="min-width:0">
+              <div class="betting-home-title">${playerNameHtml(p)}</div>
+              <div class="betting-home-meta">${p.isHost?'Host':'Player'}${p.id===myId?' · You':''} · ${wins} wins</div>
+            </div>
+          </div>
+          <div class="betting-home-amount"><img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${coins}</div>
+        </div>
+      </div>
+    `;
+  }).join('')}</div>`;
+}
+
+function homePublicBetsHtml(){
+  if(!localGame)return '<div class="shop-section-empty">Join a lobby to see public bets for the current game.</div>';
+  const html=publicBetsHtml(localGame);
+  return html||'<div class="shop-section-empty">No public bets in this lobby yet.</div>';
+}
+
+function renderHomeBettingModal(){
+  const body=document.getElementById('homeBettingModalBody');
+  if(!body)return;
+
+  const coinsEl=document.getElementById('homeBetCoinBalance');
+  if(coinsEl)coinsEl.textContent=myProfile.coins||0;
+
+  const winsEl=document.getElementById('homeBetWinCount');
+  if(winsEl)winsEl.textContent=myProfile.wins||0;
+
+  renderHomeBettingTabs();
+
+  const bets=homeBettingUserBets||[];
+  const totalPlaced=bets.reduce((sum,b)=>sum+Math.floor(Number(b.total)||0),0);
+  const activeCount=bets.filter(b=>homeBetStatusClass(b)==='active').length;
+  const potential=bets.filter(b=>homeBetStatusClass(b)==='active').reduce((sum,b)=>sum+Math.floor(Number(b.potentialPayout)||0),0);
+
+  if(currentHomeBettingTab==='overview'){
+    body.innerHTML=`
+      <div class="betting-home-stats">
+        <div class="betting-home-stat"><div class="betting-home-stat-num">${bets.length}</div><div class="betting-home-stat-label">Bets placed</div></div>
+        <div class="betting-home-stat"><div class="betting-home-stat-num">${activeCount}</div><div class="betting-home-stat-label">Active bets</div></div>
+        <div class="betting-home-stat"><div class="betting-home-stat-num">${totalPlaced}</div><div class="betting-home-stat-label">Coins placed</div></div>
+        <div class="betting-home-stat"><div class="betting-home-stat-num">${potential}</div><div class="betting-home-stat-label">Active payout</div></div>
+      </div>
+      <div class="betting-panel">
+        <div class="betting-panel-title">Betting dashboard</div>
+        <div class="betting-panel-copy">Track your saved bets, current lobby coin balances, and public bets. Place new bets from inside a lobby with the Place Bet button.</div>
+      </div>
+      ${homeBetHistoryHtml(3)}
+    `;
+    return;
+  }
+
+  if(currentHomeBettingTab==='history'){
+    body.innerHTML=homeBetHistoryHtml();
+    return;
+  }
+
+  if(currentHomeBettingTab==='players'){
+    body.innerHTML=homeBetPlayersHtml();
+    return;
+  }
+
+  if(currentHomeBettingTab==='public'){
+    body.innerHTML=homePublicBetsHtml();
+  }
+}
+
+function switchHomeBettingTab(tab){
+  currentHomeBettingTab=tab||'overview';
+  renderHomeBettingModal();
+}
+
+async function openHomeBettingModal(){
+  const modal=document.getElementById('homeBettingModalBackdrop');
+  if(modal)modal.classList.add('open');
+  const body=document.getElementById('homeBettingModalBody');
+  if(body)body.innerHTML='<div class="shop-section-empty"><span class="spinner"></span> Loading betting dashboard...</div>';
+  try{await loadMyProfile();}catch(e){console.warn('Could not refresh profile before betting dashboard',e);}
+  await loadHomeBettingData();
+  renderHomeBettingModal();
+}
+
+function closeHomeBettingModal(event){
+  if(event&&event.target&&event.currentTarget&&event.target!==event.currentTarget)return;
+  const modal=document.getElementById('homeBettingModalBackdrop');
+  if(modal)modal.classList.remove('open');
+}
+
 
 function localBetStorageKey(code){
   return 'chrispy_local_bets_'+String(code||'nogame')+'_'+myId;
@@ -3103,30 +3375,33 @@ function localUserBetPath(code,bag,betKey){
 }
 
 async function saveBetToUserFirst(game,betKey,betObj,bag){
-  // User-owned bet storage is the source of truth. This avoids killing the bet if
-  // the shared game mirror is blocked by Firebase rules or a stale game object.
+  // Local backup only. Firebase rules were rejecting users/{id}/bets writes with
+  // PERMISSION_DENIED, so betting must not depend on that path.
   saveLocalBet(gameCode,betKey,betObj);
-  await userRef().child(localUserBetPath(gameCode,bag,betKey)).set(betObj);
   return true;
 }
 
 async function saveBetRecord(game,betKey,betObj,bag){
-  const rootPath=bag+'/'+betKey;
   const playerBag=bag==='nextBets'?'nextBets':'playerBets';
-  const fallbackPath='players/'+myId+'/'+playerBag+'/'+betKey;
+  const playerPath='players/'+myId+'/'+playerBag+'/'+betKey;
+  const rootPath=bag+'/'+betKey;
 
+  // First write under the existing player record. Your app already creates and
+  // updates games/{code}/players/{myId}, so this is the safest shared location.
   try{
-    await gameRefFor(gameCode).child(rootPath).set(betObj);
-    return {ok:true,path:rootPath};
-  }catch(rootError){
-    console.warn('Root bet write failed, trying player fallback',rootError);
+    await gameRefFor(gameCode).child(playerPath).set({...betObj,storage:'player'});
+    return {ok:true,path:playerPath};
+  }catch(playerError){
+    console.warn('Player bet write failed, trying root mirror',playerError);
 
+    // Root mirror is optional. Some Firebase rules block this, so never make it
+    // the only storage path.
     try{
-      await gameRefFor(gameCode).child(fallbackPath).set({...betObj,storage:'playerFallback'});
-      return {ok:true,path:fallbackPath,fallback:true};
-    }catch(fallbackError){
-      console.warn('Fallback bet write failed',fallbackError);
-      return {ok:false,error:fallbackError||rootError};
+      await gameRefFor(gameCode).child(rootPath).set({...betObj,storage:'root'});
+      return {ok:true,path:rootPath,fallback:true};
+    }catch(rootError){
+      console.warn('Root bet write failed too',rootError);
+      return {ok:false,error:rootError||playerError};
     }
   }
 }
@@ -3225,8 +3500,11 @@ async function placeBet(targetId){
     });
 
     if(!coinTx||!coinTx.committed){
-      await userRef().child(localUserBetPath(gameCode,bag,betKey)+'/status').set('cancelled').catch(()=>{});
-      const localBets=getLocalSavedBets(gameCode);if(localBets[betKey]){localBets[betKey].status='cancelled';localStorage.setItem(localBetStorageKey(gameCode),JSON.stringify(localBets));}
+      const localBets=getLocalSavedBets(gameCode);
+      if(localBets[betKey]){
+        localBets[betKey].status='cancelled';
+        localStorage.setItem(localBetStorageKey(gameCode),JSON.stringify(localBets));
+      }
       await loadMyProfile().catch(()=>{});
       return setBettingStatus('Coin balance could not be confirmed. Open Dev Tools and press Set Coins again, then try again.',false);
     }
@@ -3240,7 +3518,11 @@ async function placeBet(targetId){
     const saved=await saveBetRecord(game,betKey,{...betObj,status:'active'},bag);
     if(!saved.ok){
       console.warn('Bet placed, but shared game mirror failed:',saved.error);
-      await userRef().child(localUserBetPath(gameCode,bag,betKey)+'/mirrorFailed').set(true).catch(()=>{});
+      const localBets=getLocalSavedBets(gameCode);
+      if(localBets[betKey]){
+        localBets[betKey].mirrorFailed=true;
+        localStorage.setItem(localBetStorageKey(gameCode),JSON.stringify(localBets));
+      }
     }
 
     if(input)input.value='';
