@@ -660,6 +660,20 @@ select option{background:var(--surface2)}
 .av-frame-fire{animation:none!important;box-shadow:none!important}
 .av-frame-inferno{animation-duration:5.5s!important;animation-delay:0s!important;animation-iteration-count:infinite!important}
 
+/* Rainbow frame unified sync fix: the avatar photo, border, and glow all use the same filter animation. */
+.av-frame-rainbow{
+  border-color:#ff2d55!important;
+  box-shadow:0 0 8px rgba(255,45,85,.75),0 0 18px rgba(255,45,85,.55),0 0 26px rgba(255,45,85,.35)!important;
+  animation:frameRainbowUnified 5.5s linear infinite!important;
+  filter:hue-rotate(0deg) saturate(1.35);
+  will-change:filter;
+}
+@keyframes frameRainbowUnified{
+  0%{filter:hue-rotate(0deg) saturate(1.35)}
+  100%{filter:hue-rotate(360deg) saturate(1.35)}
+}
+
+
 
 /* ===== AVATAR CROP MODAL ===== */
 .avatar-crop-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10020;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
