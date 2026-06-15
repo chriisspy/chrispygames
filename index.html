@@ -582,10 +582,10 @@ select option{background:var(--surface2)}
 .av-frame-neon{border-color:#06b6d4!important;box-shadow:none!important}
 .av-frame-fire{border-color:#f97316!important;box-shadow:none!important;animation:none!important}
 .av-frame-ice{border-color:#9eefff!important;box-shadow:none!important}
-.av-frame-rainbow{border-color:#ff2d55!important;box-shadow:0 0 8px rgba(255,45,85,.75),0 0 18px rgba(0,199,255,.55),0 0 26px rgba(191,90,242,.35);animation:frameRainbow 5.5s linear infinite}
+.av-frame-rainbow{border-color:#ff2d55!important;box-shadow:0 0 8px rgba(255,45,85,.75),0 0 18px rgba(255,45,85,.55),0 0 26px rgba(255,45,85,.35);animation:frameRainbow 5.5s linear infinite}
 .av-frame-shadow{border-color:#a78bfa!important;box-shadow:0 0 10px rgba(167,139,250,.7),0 0 22px rgba(167,139,250,.28)}
 @keyframes frameFire{0%,100%{box-shadow:0 0 8px rgba(249,115,22,.65),0 0 16px rgba(232,93,77,.35)}50%{box-shadow:0 0 14px rgba(249,115,22,.95),0 0 28px rgba(232,93,77,.55)}}
-@keyframes frameRainbow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+@keyframes frameRainbow{0%{border-color:#ff2d55;box-shadow:0 0 8px rgba(255,45,85,.75),0 0 18px rgba(255,45,85,.55),0 0 26px rgba(255,45,85,.35)}16%{border-color:#ff9f0a;box-shadow:0 0 8px rgba(255,159,10,.75),0 0 18px rgba(255,159,10,.55),0 0 26px rgba(255,159,10,.35)}32%{border-color:#ffd60a;box-shadow:0 0 8px rgba(255,214,10,.75),0 0 18px rgba(255,214,10,.55),0 0 26px rgba(255,214,10,.35)}48%{border-color:#32d74b;box-shadow:0 0 8px rgba(50,215,75,.75),0 0 18px rgba(50,215,75,.55),0 0 26px rgba(50,215,75,.35)}64%{border-color:#00c7ff;box-shadow:0 0 8px rgba(0,199,255,.75),0 0 18px rgba(0,199,255,.55),0 0 26px rgba(0,199,255,.35)}80%{border-color:#bf5af2;box-shadow:0 0 8px rgba(191,90,242,.75),0 0 18px rgba(191,90,242,.55),0 0 26px rgba(191,90,242,.35)}100%{border-color:#ff2d55;box-shadow:0 0 8px rgba(255,45,85,.75),0 0 18px rgba(255,45,85,.55),0 0 26px rgba(255,45,85,.35)}}
 
 /* Legendary Inferno name + matching avatar frame */
 .player-cosmetic-name[style*="infernoName"]{
