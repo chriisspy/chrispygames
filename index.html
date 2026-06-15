@@ -3464,8 +3464,11 @@ async function createGame(){
   const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,guessRound:0,guessTotalRounds:3,guessDiscussMinutes:5,guessScores:{},guessPhase:null,guessAnswerGiverId:null,guessCategory:null,guessAnswer:null,guessGuesses:{},guessCorrectOrder:[],guessResult:null,bets:{},nextBets:{},players:{[myId]:makePlayerData(name,true)},createdAt:Date.now(),updatedAt:Date.now()};
   try{
     await gameRefFor(code).set(game);
+    localGame=game;
     document.getElementById('gameCodeDisplay').textContent=code;
-    setupPresence();showScreen('lobby');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
+    showScreen('lobby');
+    renderLobby(game);
+    setupPresence();listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
     updateModeUI(localGameMode);
     if(localGameMode!=='spyfall')updateGame(code,{mode:localGameMode});
   }catch(e){showError('homeError','Could not connect to Firebase.');console.error(e);}
@@ -3487,7 +3490,11 @@ async function joinGame(){
     if(!existing)await gameRefFor(code).child('players/'+myId).set(makePlayerData(name,false));
     else await gameRefFor(code).child('players/'+myId).update({online:true,name,avatar:myAvatar||null,profileWins:myProfile.wins||0,cosmetics:{equipped:myProfile.equipped||{}}});
     setupPresence();document.getElementById('waitingCodeDisplay').textContent=code;
-    showScreen('waiting');listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
+    const joinedGame={...game,players:{...(game.players||{}),[myId]:{...(existing||makePlayerData(name,false)),name,online:true,avatar:myAvatar||null,profileWins:myProfile.wins||0,cosmetics:{equipped:myProfile.equipped||{}}}}};
+    localGame=joinedGame;
+    showScreen('waiting');
+    renderWaiting(joinedGame);
+    listenToGame(code,onGameUpdate);setupChat(code);uploadMyAvatar();
   }catch(e){showError('homeError','Connection error');console.error(e);}
   setLoading('joinBtn',false,'Join');
 }
@@ -3521,7 +3528,12 @@ function onGameUpdate(game){
 
   // LOBBY
   if(game.status==='lobby'){
-    if(cur==='screen-lobby')renderLobby(game);
+    if(amHost||game.hostId===myId){
+      renderLobby(game);
+      if(cur!=='screen-lobby')showScreen('lobby');
+    }else if(cur==='screen-lobby'){
+      renderLobby(game);
+    }
     if(cur==='screen-waiting'){
       renderWaiting(game);
       if(game.hostId===myId){renderLobby(game);showScreen('lobby');}
@@ -3823,47 +3835,231 @@ function saveLobbyPlayerAvatar(playerId,dataUrl){
 // =====================================================
 // LOBBY / WAITING RENDER
 // =====================================================
+function safePlayerArray(game){
+  return Object.values((game&&game.players)||{})
+    .filter(p=>p&&p.id)
+    .sort((a,b)=>(Number(a.joinedAt)||0)-(Number(b.joinedAt)||0));
+}
+
+function safePlayerNameHtml(p){
+  try{return playerNameHtml(p);}
+  catch(e){console.warn('Player name render failed',e,p);return `<span>${esc((p&&p.name)||'Player')}</span>`;}
+}
+
+function safePlayerAvatarHtml(p,extraClass='av-sm'){
+  try{return playerAvatar(p,extraClass);}
+  catch(e){console.warn('Player avatar render failed',e,p);return `<div class="av-placeholder ${extraClass}">👤</div>`;}
+}
+
+function safeLobbyMenuHtml(p){
+  try{return lobbyPlayerMenuHtml(p);}
+  catch(e){console.warn('Lobby menu render failed',e,p);return '';}
+}
+
+function renderLobbyPlayerList(game){
+  const players=safePlayerArray(game);
+  const playerList=document.getElementById('playerList');
+  const lobbyCount=document.getElementById('lobbyCount');
+
+  if(lobbyCount)lobbyCount.textContent=players.length;
+  if(!playerList)return players;
+
+  if(!players.length){
+    playerList.innerHTML='<div class="notice info">No players found yet. Refresh or rejoin if this stays empty.</div>';
+    return players;
+  }
+
+  playerList.style.display='flex';
+  playerList.innerHTML=players.map(p=>`
+    <div class="player-item" data-player-id="${esc(p.id)}">
+      ${safePlayerAvatarHtml(p,'av-sm')}
+      <div class="player-name">${safePlayerNameHtml(p)}</div>
+      ${p.isHost?'<div class="player-badge">host</div>':''}
+      ${p.id===myId?'<div class="player-badge">you</div>':''}
+      ${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}
+      ${safeLobbyMenuHtml(p)}
+    </div>
+  `).join('');
+
+  return players;
+}
+
+function renderWaitingPlayerList(game){
+  const players=safePlayerArray(game);
+  const waitingCount=document.getElementById('waitingCount');
+  const waitingPlayerList=document.getElementById('waitingPlayerList');
+
+  if(waitingCount)waitingCount.textContent=players.length;
+  if(!waitingPlayerList)return players;
+
+  if(!players.length){
+    waitingPlayerList.innerHTML='<div class="notice info">No players found yet. Refresh or rejoin if this stays empty.</div>';
+    return players;
+  }
+
+  waitingPlayerList.style.display='flex';
+  waitingPlayerList.innerHTML=players.map(p=>`
+    <div class="player-item" data-player-id="${esc(p.id)}">
+      ${safePlayerAvatarHtml(p,'av-sm')}
+      <div class="player-name">${safePlayerNameHtml(p)}</div>
+      ${p.isHost?'<div class="player-badge">host</div>':''}
+      ${p.id===myId?'<div class="player-badge">you</div>':''}
+      ${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}
+    </div>
+  `).join('');
+
+  return players;
+}
+
 function renderLobby(game){
+  game=game||localGame||{};
+  const players=renderLobbyPlayerList(game);
   const n=players.length;
-  document.getElementById('lobbyCount').textContent=n;
-  document.getElementById('playerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}${lobbyPlayerMenuHtml(p)}</div>`).join('');
-  renderBettingSummaries(game);
-  const minPlayers=localGameMode==='mafia'?4:(localGameMode==='guess'?2:3);
+
+  try{renderBettingSummaries(game);}catch(e){console.warn('Betting summary render failed',e);}
+
+  const currentMode=game.mode||localGameMode||'spyfall';
+  const minPlayers=currentMode==='mafia'?4:(currentMode==='guess'?2:3);
   const ok=n>=minPlayers;
-  document.getElementById('startBtn').disabled=!ok;
-  document.getElementById('minPlayersNotice').style.display=ok?'none':'block';
+
+  const startBtn=document.getElementById('startBtn');
+  if(startBtn)startBtn.disabled=!ok;
+
+  const minPlayersNotice=document.getElementById('minPlayersNotice');
+  if(minPlayersNotice)minPlayersNotice.style.display=ok?'none':'block';
+
   if(game.spyCount&&game.spyCount!==localSpyCount)localSpyCount=game.spyCount;
-  updateSpyCountUI(n);
+  try{updateSpyCountUI(n);}catch(e){console.warn('Spy count UI failed',e);}
+
   if(game.mafiaCount&&game.mafiaCount!==localMafiaCount)localMafiaCount=game.mafiaCount;
-  updateMafiaCountUI(n);
+  try{updateMafiaCountUI(n);}catch(e){console.warn('Mafia count UI failed',e);}
+
   if(game.doctorEnabled!==undefined&&game.doctorEnabled!==localDoctorEnabled){
     localDoctorEnabled=game.doctorEnabled;
-    document.getElementById('doctorToggle').checked=localDoctorEnabled;
+
+    const doctorToggle=document.getElementById('doctorToggle');
+    if(doctorToggle)doctorToggle.checked=localDoctorEnabled;
+
     const wrap=document.getElementById('doctorToggleWrap');
-    wrap.style.background=localDoctorEnabled?'rgba(39,174,96,0.05)':'rgba(30,30,40,0.5)';
-    wrap.style.borderColor=localDoctorEnabled?'rgba(39,174,96,0.2)':'rgba(42,42,58,0.8)';
+    if(wrap){
+      wrap.style.background=localDoctorEnabled?'rgba(39,174,96,0.05)':'rgba(30,30,40,0.5)';
+      wrap.style.borderColor=localDoctorEnabled?'rgba(39,174,96,0.2)':'rgba(42,42,58,0.8)';
+    }
   }
-  if(game.chaosMode!==undefined){localChaosMode=game.chaosMode;document.getElementById('chaosModeToggle').checked=localChaosMode;document.getElementById('chaosModeWrap').classList.toggle('chaos-on',localChaosMode);}
-  if(game.mode&&game.mode!==localGameMode){localGameMode=game.mode;updateModeUI(game.mode);}
-  if(game.oooTotalRounds&&game.oooTotalRounds!==localOOORounds){localOOORounds=game.oooTotalRounds;document.getElementById('oooRoundsDisplay').textContent=localOOORounds;document.getElementById('oooRoundsLabel').textContent=`round${localOOORounds!==1?'s':''}`;}
+
+  if(game.chaosMode!==undefined){
+    localChaosMode=game.chaosMode;
+
+    const chaosToggle=document.getElementById('chaosModeToggle');
+    if(chaosToggle)chaosToggle.checked=localChaosMode;
+
+    const chaosWrap=document.getElementById('chaosModeWrap');
+    if(chaosWrap)chaosWrap.classList.toggle('chaos-on',localChaosMode);
+  }
+
+  if(game.mode&&game.mode!==localGameMode){
+    localGameMode=game.mode;
+    try{updateModeUI(game.mode);}catch(e){console.warn('Mode UI failed',e);}
+  }
+
+  if(game.oooTotalRounds&&game.oooTotalRounds!==localOOORounds){
+    localOOORounds=game.oooTotalRounds;
+
+    const roundsDisplay=document.getElementById('oooRoundsDisplay');
+    if(roundsDisplay)roundsDisplay.textContent=localOOORounds;
+
+    const roundsLabel=document.getElementById('oooRoundsLabel');
+    if(roundsLabel)roundsLabel.textContent=`round${localOOORounds!==1?'s':''}`;
+  }
+
   const spyCountWrap=document.querySelector('.count-wrap');
-  if(localChaosMode&&spyCountWrap){spyCountWrap.style.opacity='0.4';spyCountWrap.style.pointerEvents='none';}
-  else if(spyCountWrap){spyCountWrap.style.opacity='1';spyCountWrap.style.pointerEvents='auto';}
-  if(game.faTotalWords&&game.faTotalWords!==localFaWords){localFaWords=game.faTotalWords;document.getElementById('faWordsDisplay').textContent=localFaWords;document.getElementById('faWordsLabel').textContent=localFaWords===1?'word':'words';}
-  if(game.faTotalRounds&&game.faTotalRounds!==localFaRounds){localFaRounds=game.faTotalRounds;document.getElementById('faRoundsDisplay').textContent=localFaRounds;document.getElementById('faRoundsLabel').textContent='rounds per word';}
-  if(game.bsCategory&&game.bsCategory!==localBsCategory){localBsCategory=game.bsCategory;renderBsCategorySelect();}
-  if(game.bsDiscussMinutes&&game.bsDiscussMinutes!==localBsDiscussMinutes){localBsDiscussMinutes=game.bsDiscussMinutes;const el=document.getElementById('bsDiscussDisplay');if(el)el.textContent=localBsDiscussMinutes+' min';}
-  if(game.guessDiscussMinutes&&game.guessDiscussMinutes!==localGuessDiscussMinutes){localGuessDiscussMinutes=game.guessDiscussMinutes;const el=document.getElementById('guessDiscussDisplay');if(el)el.textContent=localGuessDiscussMinutes+' min';}
-  if(game.guessTotalRounds&&game.guessTotalRounds!==localGuessRounds){localGuessRounds=game.guessTotalRounds;const el=document.getElementById('guessRoundsDisplay');if(el)el.textContent=localGuessRounds;const lab=document.getElementById('guessRoundsLabel');if(lab)lab.textContent=`round${localGuessRounds!==1?'s':''}`;}
-  document.getElementById('startBtn').textContent=localGameMode==='ooo'?'Start Odd One Out':localGameMode==='mafia'?'Start Mafia':localGameMode==='fa'?'Start Fake Artist':localGameMode==='bs'?'Start Blind Spot':localGameMode==='guess'?'Start Guessing Game':'Start Game';
-  updateDevLobbyButton();
+  if(localChaosMode&&spyCountWrap){
+    spyCountWrap.style.opacity='0.4';
+    spyCountWrap.style.pointerEvents='none';
+  }else if(spyCountWrap){
+    spyCountWrap.style.opacity='1';
+    spyCountWrap.style.pointerEvents='auto';
+  }
+
+  if(game.faTotalWords&&game.faTotalWords!==localFaWords){
+    localFaWords=game.faTotalWords;
+
+    const faWordsDisplay=document.getElementById('faWordsDisplay');
+    if(faWordsDisplay)faWordsDisplay.textContent=localFaWords;
+
+    const faWordsLabel=document.getElementById('faWordsLabel');
+    if(faWordsLabel)faWordsLabel.textContent=localFaWords===1?'word':'words';
+  }
+
+  if(game.faTotalRounds&&game.faTotalRounds!==localFaRounds){
+    localFaRounds=game.faTotalRounds;
+
+    const faRoundsDisplay=document.getElementById('faRoundsDisplay');
+    if(faRoundsDisplay)faRoundsDisplay.textContent=localFaRounds;
+
+    const faRoundsLabel=document.getElementById('faRoundsLabel');
+    if(faRoundsLabel)faRoundsLabel.textContent='rounds per word';
+  }
+
+  if(game.bsCategory&&game.bsCategory!==localBsCategory){
+    localBsCategory=game.bsCategory;
+    try{renderBsCategorySelect();}catch(e){console.warn('Blind Spot category UI failed',e);}
+  }
+
+  if(game.bsDiscussMinutes&&game.bsDiscussMinutes!==localBsDiscussMinutes){
+    localBsDiscussMinutes=game.bsDiscussMinutes;
+
+    const el=document.getElementById('bsDiscussDisplay');
+    if(el)el.textContent=localBsDiscussMinutes+' min';
+  }
+
+  if(game.guessDiscussMinutes&&game.guessDiscussMinutes!==localGuessDiscussMinutes){
+    localGuessDiscussMinutes=game.guessDiscussMinutes;
+
+    const el=document.getElementById('guessDiscussDisplay');
+    if(el)el.textContent=localGuessDiscussMinutes+' min';
+  }
+
+  if(game.guessTotalRounds&&game.guessTotalRounds!==localGuessRounds){
+    localGuessRounds=game.guessTotalRounds;
+
+    const el=document.getElementById('guessRoundsDisplay');
+    if(el)el.textContent=localGuessRounds;
+
+    const lab=document.getElementById('guessRoundsLabel');
+    if(lab)lab.textContent=`round${localGuessRounds!==1?'s':''}`;
+  }
+
+  if(startBtn){
+    startBtn.textContent=
+      localGameMode==='ooo'?'Start Odd One Out':
+      localGameMode==='mafia'?'Start Mafia':
+      localGameMode==='fa'?'Start Fake Artist':
+      localGameMode==='bs'?'Start Blind Spot':
+      localGameMode==='guess'?'Start Guessing Game':
+      'Start Game';
+  }
+
+  try{updateDevLobbyButton();}catch(e){console.warn('Dev lobby button failed',e);}
+
+  const modal=document.getElementById('bettingModalBackdrop');
+  if(modal&&modal.classList.contains('open')){
+    try{renderBettingModal();}catch(e){console.warn('Betting modal render failed',e);}
+  }
 }
+
 function renderWaiting(game){
-  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
-  document.getElementById('waitingCount').textContent=players.length;
-  document.getElementById('waitingPlayerList').innerHTML=players.map(p=>`<div class="player-item">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div>${p.isHost?'<div class="player-badge">host</div>':''}${p.id===myId?'<div class="player-badge">you</div>':''}</div>`).join('');
-  renderBettingSummaries(game);
+  game=game||localGame||{};
+  renderWaitingPlayerList(game);
+
+  try{renderBettingSummaries(game);}catch(e){console.warn('Betting summary render failed',e);}
+
+  const modal=document.getElementById('bettingModalBackdrop');
+  if(modal&&modal.classList.contains('open')){
+    try{renderBettingModal();}catch(e){console.warn('Betting modal render failed',e);}
+  }
 }
+
 
 // =====================================================
 // START GAME (dispatcher)
