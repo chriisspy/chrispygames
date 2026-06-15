@@ -1,7 +1,7 @@
 /* Chrispy Games Service Worker
    Change VERSION every time you update the site. */
 
-const VERSION = "chrispy-games-v2026-06-11-1223";
+const VERSION = "chrispy-games-v2026-06-15-1223";
 const CACHE_NAME = VERSION;
 
 const CORE_ASSETS = [
@@ -15,22 +15,23 @@ const CORE_ASSETS = [
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(CORE_ASSETS).catch(() => null);
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(CORE_ASSETS))
+      .then(() => self.skipWaiting())
+      .catch(error => {
+        console.warn("Service worker install cache failed:", error);
+      })
   );
 });
 
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => {
-        return Promise.all(
-          keys
-            .filter(key => key !== CACHE_NAME)
-            .map(key => caches.delete(key))
-        );
-      })
+      .then(keys => Promise.all(
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
+      ))
       .then(() => self.clients.claim())
   );
 });
@@ -48,45 +49,54 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(request.url);
 
+  // Do not cache Firebase, Google Fonts, or external CDN/API requests.
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // Always try fresh HTML first so game updates appear quickly.
   if (request.mode === "navigate" || url.pathname.endsWith("/index.html")) {
     event.respondWith(
       fetch(request, { cache: "no-store" })
         .then(response => {
-          const copy = response.clone();
+          if (response && response.ok) {
+            const copy = response.clone();
 
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put("./index.html", copy);
-          });
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put("./index.html", copy);
+              cache.put("./", response.clone());
+            });
+          }
 
           return response;
         })
         .catch(() => {
-          return caches.match("./index.html").then(cached => {
-            return cached || caches.match("./");
-          });
+          return caches.match("./index.html")
+            .then(cached => cached || caches.match("./"));
         })
     );
 
     return;
   }
 
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      caches.match(request).then(cached => {
-        const networkFetch = fetch(request)
-          .then(response => {
+  // Static assets: cache first, then update in background.
+  event.respondWith(
+    caches.match(request).then(cached => {
+      const networkFetch = fetch(request)
+        .then(response => {
+          if (response && response.ok) {
             const copy = response.clone();
 
             caches.open(CACHE_NAME).then(cache => {
               cache.put(request, copy);
             });
+          }
 
-            return response;
-          })
-          .catch(() => cached);
+          return response;
+        })
+        .catch(() => cached);
 
-        return cached || networkFetch;
-      })
-    );
-  }
+      return cached || networkFetch;
+    })
+  );
 });
