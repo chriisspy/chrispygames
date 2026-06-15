@@ -101,8 +101,8 @@ const db = firebase.database();
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{overflow-x:hidden;max-width:100vw}
 body.no-scroll{overflow:hidden;height:100%;}
-input,textarea,select,button{touch-action:manipulation}
-input,textarea,select{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default;pointer-events:auto}
+button{touch-action:manipulation}
+input,textarea,select{touch-action:auto;-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default;pointer-events:auto;cursor:text}
 :root{
   --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--surface3:#252532;
   --accent:#e8d44d;--accent2:#e85d4d;--text:#f0eff5;--muted:#7a7a8c;
@@ -133,7 +133,7 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
 .btn-mafia{background:var(--mafia);color:#fff}
 .btn-mafia:hover{background:#e74c3c;transform:translateY(-1px)}
 .btn-sm{padding:8px 16px;font-size:13px;width:auto}
-input,select{width:100%;max-width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:15px;outline:none;transition:border 0.15s;margin-bottom:12px;box-sizing:border-box}
+input,select{width:100%;max-width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Syne',sans-serif;font-size:16px;outline:none;transition:border 0.15s;margin-bottom:12px;box-sizing:border-box;-webkit-appearance:none;appearance:none;cursor:text}
 input:focus,select:focus{border-color:var(--accent)}
 input::placeholder{color:var(--muted)}
 label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
@@ -570,19 +570,29 @@ select option{background:var(--surface2)}
 .betting-open-btn{margin:10px 0 4px}
 .btn-bet-green{background:var(--safe)!important;color:#06130d!important;border:1px solid rgba(77,232,160,.65)!important}
 .btn-bet-green:hover{background:#63f0ad!important;transform:translateY(-1px);box-shadow:0 0 0 1px rgba(77,232,160,.22)}
-.betting-panel{margin:10px 0 12px;padding:12px;background:linear-gradient(135deg,rgba(232,212,77,.08),rgba(19,19,26,.92));border:1px solid rgba(232,212,77,.22);border-radius:var(--radius)}
-.betting-panel-title{font-size:13px;font-weight:800;color:var(--accent);margin-bottom:4px}
-.betting-panel-copy{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);line-height:1.5}
-.betting-odds-card{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px}
-.betting-odds-name{font-size:14px;font-weight:800;color:var(--text)}
-.betting-odds-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:3px}
-.betting-odds-value{font-family:'DM Mono',monospace;font-size:22px;font-weight:800;color:var(--accent)}
-.betting-input-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin:10px 0}
-.betting-input-row input{margin-bottom:0}
-.betting-public-row{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;margin-bottom:10px}
-.betting-public-row input{width:18px;height:18px;margin:0;accent-color:#e8d44d}
-.betting-public-row span{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text)}
-.betting-public-row small{display:block;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:var(--muted);margin-top:2px}
+.betting-panel{margin:10px 0 12px;padding:14px;background:linear-gradient(135deg,rgba(232,212,77,.07),rgba(19,19,26,.96));border:1px solid rgba(232,212,77,.22);border-radius:var(--radius-lg)}
+.betting-panel-title{font-family:'DM Mono',monospace;font-size:12px;font-weight:800;color:var(--accent);margin-bottom:7px;text-transform:uppercase;letter-spacing:1.2px;line-height:1.35}
+.betting-panel-copy{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);line-height:1.6}
+.betting-odds-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px}
+.betting-odds-name{font-size:16px;font-weight:800;color:var(--text);line-height:1.25}
+.betting-odds-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:5px;line-height:1.45}
+.betting-odds-box{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:72px}
+.betting-odds-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.1px;text-transform:uppercase}
+.betting-odds-value{font-family:'DM Mono',monospace;font-size:24px;font-weight:800;color:var(--accent);line-height:1}
+.betting-action-label{display:block;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:2px 0 7px}
+.betting-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;margin:10px 0 12px}
+.betting-input-row input{margin-bottom:0;font-family:'DM Mono',monospace;font-size:16px}
+.betting-input-row .btn{min-width:82px}
+.betting-public-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;margin-bottom:4px;transition:border-color .15s,background .15s}
+.betting-public-row:hover{border-color:rgba(232,212,77,.45);background:rgba(232,212,77,.04)}
+.betting-public-row input{position:absolute;opacity:0;pointer-events:none}
+.betting-public-text{min-width:0;display:block}
+.betting-toggle-title{display:block;font-family:'DM Mono',monospace;font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:1.1px;line-height:1.35}
+.betting-toggle-copy{display:block;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:var(--muted);line-height:1.45;margin-top:3px;text-transform:none;letter-spacing:0}
+.betting-toggle-switch{position:relative;width:48px;height:28px;border-radius:999px;background:var(--surface3);border:1px solid var(--border);flex:0 0 48px;transition:background .18s,border-color .18s,box-shadow .18s}
+.betting-toggle-switch::after{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;border-radius:50%;background:var(--muted);transition:transform .18s,background .18s;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.betting-public-row input:checked + .betting-public-text + .betting-toggle-switch{background:rgba(77,232,160,.22);border-color:var(--safe);box-shadow:0 0 0 1px rgba(77,232,160,.15)}
+.betting-public-row input:checked + .betting-public-text + .betting-toggle-switch::after{transform:translateX(20px);background:var(--safe)}
 .betting-public-list{display:flex;flex-direction:column;gap:7px;margin-top:10px}
 .betting-public-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
 .betting-status{display:none;margin-top:9px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.45;text-align:center}
@@ -2269,6 +2279,32 @@ function showError(id,msg){const el=document.getElementById(id);el.textContent=m
 function setLoading(btnId,loading,text){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${text}`:text;}
 function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+function enableIosHomeScreenInputPatch(){
+  // Older iOS home-screen PWAs can sometimes fail to open the keyboard on the first tap,
+  // especially after display:none screen swaps. Focusing from the actual touch event is allowed.
+  document.addEventListener('touchend',function(event){
+    const el=event.target&&event.target.closest?event.target.closest('input, textarea, select'):null;
+    if(!el||el.disabled||el.readOnly)return;
+    setTimeout(()=>{
+      try{
+        if(document.activeElement!==el)el.focus({preventScroll:true});
+      }catch(e){try{el.focus();}catch(_){} }
+    },0);
+  },{passive:true});
+
+  document.addEventListener('click',function(event){
+    const el=event.target&&event.target.closest?event.target.closest('input, textarea, select'):null;
+    if(!el||el.disabled||el.readOnly)return;
+    setTimeout(()=>{
+      try{
+        if(document.activeElement!==el)el.focus({preventScroll:true});
+      }catch(e){try{el.focus();}catch(_){} }
+    },0);
+  },true);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',enableIosHomeScreenInputPatch);
+else enableIosHomeScreenInputPatch();
+
 // =====================================================
 // PERMANENT PROFILE / COINS / SHOP
 // =====================================================
@@ -2975,28 +3011,54 @@ function playerNestedBetBag(player,bag){
 
 function collectBetBag(game,bag){
   const merged={};
+  const bestById={};
   if(!game)return merged;
 
   bag=bag||betBagNameForGame(game);
 
+  function betIdentity(key,bet){
+    bet=bet||{};
+    return String(
+      bet.id ||
+      bet.betKey ||
+      [bet.playerId||'',bet.targetId||'',bet.createdAt||bet.updatedAt||'',bet.total||bet.amount||'',key||''].join('_')
+    );
+  }
+
+  function addBet(sourceKey,bet,priority){
+    if(!bet)return;
+    if(bet.bag&&bet.bag!==bag)return;
+
+    const id=betIdentity(sourceKey,bet);
+    const existing=bestById[id];
+
+    // The same bet can appear in Firebase and the local confirmed cache.
+    // Keep only one copy so 250 coins never displays as 2 x 250.
+    if(!existing||priority>existing.priority||(priority===existing.priority&&((bet.updatedAt||0)>((existing.bet||{}).updatedAt||0)))){
+      bestById[id]={key:sourceKey,bet,priority};
+    }
+  }
+
   Object.entries(rootBetBag(game,bag)||{}).forEach(([key,bet])=>{
-    if(bet)merged['root_'+key]=bet;
+    addBet('root_'+key,bet,3);
   });
 
   Object.values(game.players||{}).forEach(player=>{
     Object.entries(playerNestedBetBag(player,bag)||{}).forEach(([key,bet])=>{
-      if(bet)merged['player_'+(player.id||'unknown')+'_'+key]=bet;
+      addBet('player_'+(player.id||'unknown')+'_'+key,bet,4);
     });
   });
 
-  // Include local fallback bets so betting keeps working even when Firebase
-  // security rules block optional shared bet display writes.
   try{
     const localBets=getLocalSavedBets(gameCode);
     Object.entries(localBets||{}).forEach(([key,bet])=>{
-      if(bet&&(!bet.bag||bet.bag===bag))merged['local_'+key]=bet;
+      if(bet&&bet.cloudConfirmed===true)addBet('local_'+key,bet,1);
     });
   }catch(e){}
+
+  Object.values(bestById).forEach(item=>{
+    merged[item.key]=item.bet;
+  });
 
   return merged;
 }
@@ -3036,7 +3098,7 @@ function formatOdds(n){
 }
 
 function currentBetForMe(game,targetId){
-  const bets=Object.values(activeBetBag(game)||{}).filter(b=>b&&b.playerId===myId&&b.targetId===targetId&&Number(b.total)>0);
+  const bets=displayableBetValues(game,betBagNameForGame(game)).filter(b=>b&&b.playerId===myId&&b.targetId===targetId);
   if(!bets.length)return null;
 
   const total=bets.reduce((sum,b)=>sum+Math.floor(Number(b.total)||0),0);
@@ -3054,13 +3116,99 @@ function currentBetForMe(game,targetId){
   };
 }
 
+
+function isBetActiveStatus(bet){
+  const status=String((bet&&bet.status)||'active').toLowerCase();
+  return status==='active'||status==='open'||status==='pending';
+}
+
+function isBetTargetStillAvailable(game,bet){
+  if(!game||!bet||!bet.targetId)return false;
+  const target=game.players&&game.players[bet.targetId];
+  if(!target)return false;
+
+  // In the lobby, a removed player should immediately void bets on them.
+  if(game.status==='lobby')return true;
+
+  // During a game, your app keeps leavers in /players with online:false.
+  // Treat that as leaving the game for betting purposes.
+  return target.online!==false;
+}
+
+function displayableBetValues(game,bag){
+  return Object.values(collectBetBag(game,bag)||{}).filter(b=>b&&Number(b.total)>0&&isBetActiveStatus(b)&&isBetTargetStillAvailable(game,b));
+}
+
+function betBagForBet(bet,game){
+  return (bet&&bet.bag)||(game&&game.status==='result'?'nextBets':'bets');
+}
+
+async function voidAndRefundMyBetsForUnavailableTargets(game){
+  if(!gameCode||!game||!game.players||!game.players[myId])return;
+  if(game.status==='result')return;
+
+  const allBets=Object.values(collectBetBag(game,'bets')||{}).concat(Object.values(collectBetBag(game,'nextBets')||{}));
+  const myVoidable=allBets.filter(b=>b&&b.playerId===myId&&isBetActiveStatus(b)&&!isBetTargetStillAvailable(game,b));
+  if(!myVoidable.length)return;
+
+  for(const bet of myVoidable){
+    const betId=bet.id||bet.betKey;
+    if(!betId)continue;
+
+    const refundKey='chrispy_bet_void_refunded_'+safeFirebaseKey(gameCode)+'_'+safeFirebaseKey(betId)+'_'+myId;
+    const alreadyRefunded=localStorage.getItem(refundKey)==='1';
+    const refundAmount=Math.max(0,Math.floor(Number(bet.total||bet.amount)||0));
+    const bag=betBagForBet(bet,game);
+    const playerBag=bag==='nextBets'?'nextBets':'playerBets';
+    const targetName=bet.targetName||((game.players&&game.players[bet.targetId]&&game.players[bet.targetId].name)||'Player');
+    const voidedBet={...bet,status:'void_target_left',inactive:true,voidReason:'target_left',voidedAt:Date.now(),updatedAt:Date.now(),targetName};
+
+    saveLocalBet(gameCode,betId,voidedBet);
+
+    if(!alreadyRefunded&&refundAmount>0){
+      myProfile.coins=(Number(myProfile.coins)||0)+refundAmount;
+      myProfile.lastBetRefundAt=Date.now();
+      saveLocalProfile();
+      renderShop();
+      localStorage.setItem(refundKey,'1');
+
+      // Optional cloud refund. If user profile rules block this, the local refund still keeps the app usable.
+      userRef().transaction(user=>{
+        user=user||{};
+        user.coins=(Number(user.coins)||0)+refundAmount;
+        user.savedAt=Date.now();
+        user.lastBetRefundAt=Date.now();
+        return user;
+      }).catch(e=>console.warn('Optional cloud bet refund failed',e));
+    }
+
+    if(localGame&&localGame.players&&localGame.players[myId]&&localGame.players[myId][playerBag]&&localGame.players[myId][playerBag][betId]){
+      localGame.players[myId][playerBag][betId]=voidedBet;
+    }
+
+    gameRefFor(gameCode).child('players/'+myId+'/'+playerBag+'/'+safeFirebaseKey(betId)).update({
+      status:'void_target_left',
+      inactive:true,
+      voidReason:'target_left',
+      voidedAt:Date.now(),
+      updatedAt:Date.now()
+    }).catch(e=>console.warn('Could not mark voided player bet in Firebase',e));
+  }
+
+  renderBettingSummaries(localGame||game);
+  const bettingModal=document.getElementById('bettingModalBackdrop');
+  if(bettingModal&&bettingModal.classList.contains('open'))renderBettingModal();
+  const homeBetModal=document.getElementById('homeBettingModalBackdrop');
+  if(homeBetModal&&homeBetModal.classList.contains('open'))loadHomeBettingData().then(renderHomeBettingModal).catch(renderHomeBettingModal);
+}
+
 function bettingRoundCopy(game){
   if(game&&game.status==='result')return 'This bet is locked in for the next game after the host returns to the lobby.';
   return 'This bet is locked in for this game. Coins are withdrawn when you place it.';
 }
 
 function publicBetsHtml(game){
-  const bets=Object.values(activeBetBag(game)||{}).filter(b=>b&&b.public&&b.total>0);
+  const bets=displayableBetValues(game,betBagNameForGame(game)).filter(b=>b&&b.public);
   if(!bets.length)return '';
 
   return `
@@ -3079,8 +3227,7 @@ function publicBetsHtml(game){
 }
 
 function myBetsForGame(game){
-  const bag=activeBetBag(game);
-  return Object.values(bag||{}).filter(b=>b&&b.playerId===myId&&b.total>0);
+  return displayableBetValues(game,betBagNameForGame(game)).filter(b=>b&&b.playerId===myId);
 }
 
 function renderBettingSummary(containerId,game){
@@ -3141,7 +3288,10 @@ function bettingPlayerRowsHtml(game){
               ${playerWinsForOdds(p)} wins · ${p.id===myId?'You':'Player'} · ${bettingRoundCopy(game)}
             </div>
           </div>
-          <div class="betting-odds-value">${formatOdds(odds)}</div>
+          <div class="betting-odds-box">
+            <div class="betting-odds-label">Odds</div>
+            <div class="betting-odds-value">${formatOdds(odds)}</div>
+          </div>
         </div>
 
         ${existingTotal?`
@@ -3152,14 +3302,19 @@ function bettingPlayerRowsHtml(game){
           </div>
         `:''}
 
+        <label class="betting-action-label" for="betAmountInput_${p.id}">Coins to place</label>
         <div class="betting-input-row">
-          <input id="betAmountInput_${p.id}" type="number" min="1" step="1" inputmode="numeric" placeholder="Coins to bet on ${esc(p.name||'Player')}"/>
+          <input id="betAmountInput_${p.id}" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter coins"/>
           <button class="btn btn-primary btn-sm" onclick="placeBet('${p.id}')">Bet</button>
         </div>
 
-        <label class="betting-public-row">
+        <label class="betting-public-row" for="betPublicToggle_${p.id}">
           <input id="betPublicToggle_${p.id}" type="checkbox" ${publicChecked}/>
-          <span>Make this bet public<small>Private by default. Public bets show your name, target, amount, and odds.</small></span>
+          <span class="betting-public-text">
+            <span class="betting-toggle-title">Make this bet public</span>
+            <span class="betting-toggle-copy">Off by default. Public bets show your name, target, amount, and odds.</span>
+          </span>
+          <span class="betting-toggle-switch" aria-hidden="true"></span>
         </label>
       </div>
     `;
@@ -3186,7 +3341,7 @@ function renderBettingModal(){
   body.innerHTML=`
     <div class="betting-panel">
       <div class="betting-panel-title">Place a bet</div>
-      <div class="betting-panel-copy">Choose any player in the lobby. Public bets are shown at the bottom of this menu. Coins are withdrawn only after the bet is accepted.</div>
+      <div class="betting-panel-copy">Pick a player, enter your coins, then press Bet. Public is optional and can be switched on before placing the bet.</div>
     </div>
 
     <div id="bettingStatus" class="betting-status"></div>
@@ -3224,6 +3379,7 @@ function formatBetDate(ts){
 function homeBetStatusClass(bet){
   const status=String((bet&&bet.status)||'active').toLowerCase();
   if(status.includes('win')||status==='paid')return 'win';
+  if(status.includes('void')||status.includes('inactive')||status.includes('left')||status==='refunded')return 'void';
   if(status.includes('loss')||status==='lost'||status==='cancelled')return 'loss';
   return 'active';
 }
@@ -3521,12 +3677,20 @@ async function saveBetRecord(game,betKey,betObj,bag){
   }
 }
 
+const placingBetLocks={};
+
 async function placeBet(targetId){
   const game=localGame;
   targetId=targetId||myId;
+  const lockKey=String(targetId);
+
+  if(placingBetLocks[lockKey]){
+    return setBettingStatus('Bet is already being placed. Please wait.',false);
+  }
 
   const input=document.getElementById('betAmountInput_'+targetId);
   const amount=Math.floor(Number(input&&input.value)||0);
+  const betBtn=input&&input.parentElement?input.parentElement.querySelector('button'):null;
 
   if(!gameCode||!game||!game.players||!game.players[myId]){
     return setBettingStatus('You need to be in a lobby to place a bet.',false);
@@ -3538,6 +3702,13 @@ async function placeBet(targetId){
 
   if(!Number.isFinite(amount)||amount<=0){
     return setBettingStatus('Enter a coin amount greater than 0.',false);
+  }
+
+  placingBetLocks[lockKey]=true;
+  if(betBtn){
+    betBtn.disabled=true;
+    betBtn.dataset.originalText=betBtn.textContent||'Bet';
+    betBtn.textContent='Placing...';
   }
 
   let availableCoins=Math.floor(Number(myProfile.coins)||0);
@@ -3555,6 +3726,8 @@ async function placeBet(targetId){
   }
 
   if(availableCoins<amount){
+    placingBetLocks[lockKey]=false;
+    if(betBtn){betBtn.disabled=false;betBtn.textContent=betBtn.dataset.originalText||'Bet';}
     return setBettingStatus('You do not have enough coins for that bet.',false);
   }
 
@@ -3598,6 +3771,8 @@ async function placeBet(targetId){
     if(!saved||!saved.ok){
       const msg=(saved&&saved.error&&saved.error.message)?saved.error.message:String((saved&&saved.error)||'Permission denied');
       cleanupUnconfirmedLocalBets();
+      placingBetLocks[lockKey]=false;
+      if(betBtn){betBtn.disabled=false;betBtn.textContent=betBtn.dataset.originalText||'Bet';}
       return setBettingStatus('Bet could not be placed: '+msg+'. Firebase rules need to allow playerBets writes.',false);
     }
 
@@ -3645,6 +3820,8 @@ async function placeBet(targetId){
     if(input)input.value='';
 
     setBettingStatus('Bet placed. Coins are locked in.',true);
+    placingBetLocks[lockKey]=false;
+    if(betBtn){betBtn.disabled=false;betBtn.textContent=betBtn.dataset.originalText||'Bet';}
 
     setTimeout(()=>{
       renderBettingModal();
@@ -3660,6 +3837,8 @@ async function placeBet(targetId){
     removeLocalBet(gameCode,betKey);
     cleanupUnconfirmedLocalBets();
     const msg=e&&e.message?e.message:String(e||'Unknown error');
+    placingBetLocks[lockKey]=false;
+    if(betBtn){betBtn.disabled=false;betBtn.textContent=betBtn.dataset.originalText||'Bet';}
     setBettingStatus('Bet could not be placed: '+msg,false);
   }
 }
@@ -3699,6 +3878,7 @@ async function awardBetPayoutsForFinishedGame(game){
   if(!gameCode||!game||game.status!=='result')return;
 
   const bets=resultBetBag(game)||{};
+  Object.keys(bets).forEach(k=>{if(!isBetActiveStatus(bets[k]))delete bets[k];});
   const betIds=Object.keys(bets);
 
   if(!betIds.length)return;
@@ -4067,6 +4247,7 @@ function onGameUpdate(game){
   awardBetPayoutsForFinishedGame(game);
   handleMyRewardDisplays(game);
   handleMyBetDisplays(game);
+  voidAndRefundMyBetsForUnavailableTargets(game).catch(e=>console.warn('Bet void check failed',e));
   maybePlayMyWinAnim(game);
   if(game.status==='lobby')nonHostLobbyView=false;
   if(nonHostLobbyView&&!amHost&&game.status!=='lobby'){
