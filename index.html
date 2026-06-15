@@ -7177,6 +7177,12 @@ function renderGuessGame(game){
   const myGuessed=guessed.includes(myId);
   const category=game.guessCategory||'Category';
   const main=document.getElementById('guessGameMain');
+  const existingInput=document.getElementById('guessInput');
+  const typedValue=existingInput?existingInput.value:'';
+  const hadFocus=existingInput&&document.activeElement===existingInput;
+  const existingMsg=document.getElementById('guessSubmitMsg');
+  const msgValue=existingMsg?existingMsg.textContent:'';
+
   if(main){
     if(isGiver){
       main.innerHTML=`<div class="notice info"><strong>Category:</strong> ${esc(category)}<br><strong>Answer:</strong> ${esc(game.guessAnswer||'')}</div><div class="notice" style="background:rgba(232,212,77,.08);border:1px solid rgba(232,212,77,.2);color:var(--accent);margin-bottom:0">Tap a player below to see their guesses live.</div>`;
@@ -7184,7 +7190,15 @@ function renderGuessGame(game){
       const pos=guessed.indexOf(myId);const pts=guessPointsForPosition(pos);
       main.innerHTML=`<div class="guess-correct-box"><div class="guess-correct-title">You guessed correctly!</div><div class="guess-points-earned">+${pts} points this round</div></div>`;
     }else{
-      main.innerHTML=`<div class="notice info"><strong>Category:</strong> ${esc(category)}</div><label>Your guess</label><div class="flex-row"><input id="guessInput" type="text" placeholder="Type your answer..." maxlength="70" style="margin-bottom:0" onkeydown="if(event.key==='Enter')submitGuessAnswer()"/><button class="btn btn-primary btn-sm" onclick="submitGuessAnswer()">Guess</button></div><div id="guessSubmitMsg" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px"></div>`;
+      main.innerHTML=`<div class="notice info"><strong>Category:</strong> ${esc(category)}</div><label>Your guess</label><div class="flex-row"><input id="guessInput" type="text" placeholder="Type your answer..." maxlength="70" autocomplete="off" autocapitalize="none" style="margin-bottom:0" onkeydown="if(event.key==='Enter'){event.preventDefault();submitGuessAnswer()}"/><button class="btn btn-primary btn-sm" id="guessSubmitBtn" onclick="submitGuessAnswer()">Guess</button></div><div id="guessSubmitMsg" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px"></div>`;
+      const newInput=document.getElementById('guessInput');
+      const newMsg=document.getElementById('guessSubmitMsg');
+      if(newInput&&typedValue){
+        newInput.value=typedValue;
+        try{newInput.setSelectionRange(newInput.value.length,newInput.value.length);}catch(e){}
+      }
+      if(newMsg&&msgValue)newMsg.textContent=msgValue;
+      if(newInput&&hadFocus)setTimeout(()=>newInput.focus(),0);
     }
   }
   renderGuessPlayers(game);
@@ -7226,29 +7240,73 @@ async function endGuessRoundNow(){
   if(!localGame||localGame.mode!=='guess'||localGame.guessPhase!=='discussion'||!amHost)return;
   await resolveGuessRound('host');
 }
+let guessSubmitting=false;
 async function submitGuessAnswer(){
-  if(!localGame||myId===localGame.guessAnswerGiverId)return;
-  const input=document.getElementById('guessInput');if(!input)return;
-  const guess=input.value.trim();if(!guess)return;
-  const guesses={...(localGame.guessGuesses||{})};
-  const mine=[...(guesses[myId]||[])];
-  mine.push({text:guess,ts:Date.now()});guesses[myId]=mine;
+  if(guessSubmitting)return;
+  if(!localGame||localGame.mode!=='guess'||localGame.guessPhase!=='discussion'||myId===localGame.guessAnswerGiverId)return;
+
+  const input=document.getElementById('guessInput');
+  if(!input)return;
+
+  const guess=input.value.trim();
+  if(!guess)return;
+
+  const btn=document.getElementById('guessSubmitBtn');
+  const msg=document.getElementById('guessSubmitMsg');
   const correct=guessFuzzyMatch(guess,localGame.guessAnswer||'');
-  const order=[...(localGame.guessCorrectOrder||[])];
-  const scores={...(localGame.guessScores||{})};
-  const updates={guessGuesses:guesses};
-  if(correct&&!order.includes(myId)){
-    order.push(myId);
-    scores[myId]=(scores[myId]||0)+guessPointsForPosition(order.length-1);
-    updates.guessCorrectOrder=order;updates.guessScores=scores;
-  }
-  await updateGame(gameCode,updates);
-  if(correct){
-    const total=Object.keys(localGame.players||{}).length-1;
-    if(order.length>=total){setTimeout(()=>resolveGuessRound('all_guessed'),120);}
-  }else{
-    const msg=document.getElementById('guessSubmitMsg');if(msg)msg.textContent='Not quite — keep guessing.';
-    input.value='';input.focus();
+
+  guessSubmitting=true;
+  if(btn)btn.disabled=true;
+  if(msg)msg.textContent='Checking...';
+
+  try{
+    const guessEntry={text:guess,ts:Date.now()};
+
+    // IMPORTANT: only update this player's guess list. Do NOT rewrite the whole guessGuesses object,
+    // because simultaneous players were overwriting each other and causing everyone's typing to clear.
+    await gameRefFor(gameCode).child('guessGuesses/'+myId).transaction(current=>{
+      const mine=Array.isArray(current)?current:[];
+      return [...mine,guessEntry];
+    });
+
+    let newPosition=-1;
+
+    if(correct){
+      const orderTx=await gameRefFor(gameCode).child('guessCorrectOrder').transaction(current=>{
+        const order=Array.isArray(current)?current:[];
+        if(order.includes(myId))return order;
+        return [...order,myId];
+      });
+
+      const orderAfter=(orderTx&&orderTx.snapshot&&orderTx.snapshot.val())||[];
+      newPosition=Array.isArray(orderAfter)?orderAfter.indexOf(myId):-1;
+
+      if(newPosition>=0){
+        const pts=guessPointsForPosition(newPosition);
+        await gameRefFor(gameCode).child('guessScores/'+myId).transaction(current=>(Number(current)||0)+pts);
+      }
+
+      if(input)input.blur();
+
+      const latestSnap=await gameRefFor(gameCode).once('value');
+      const latest=latestSnap.val()||localGame;
+      const total=Math.max(0,Object.keys(latest.players||{}).length-1);
+      const latestOrder=latest.guessCorrectOrder||[];
+
+      if(latestOrder.length>=total){
+        setTimeout(()=>resolveGuessRound('all_guessed'),120);
+      }
+    }else{
+      if(msg)msg.textContent='Not quite — keep guessing.';
+      input.value='';
+      input.focus();
+    }
+  }catch(e){
+    console.warn('Guess submit failed',e);
+    if(msg)msg.textContent='Could not submit. Try again.';
+  }finally{
+    guessSubmitting=false;
+    if(btn)btn.disabled=false;
   }
 }
 async function resolveGuessRound(reason){
