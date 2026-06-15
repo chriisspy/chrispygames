@@ -2324,13 +2324,31 @@ async function devSetCoins(amount){
   let value=(amount!==undefined)?amount:parseInt(input&&input.value,10);
   if(!Number.isFinite(value)||value<0)value=0;
   value=Math.floor(value);
+
   myProfile.coins=value;
   saveLocalProfile();
-  await userRef().update({coins:value,savedAt:Date.now(),lastDevCoinSetAt:Date.now()});
+
+  const status=document.getElementById('devStatus');
+
+  try{
+    await userRef().update({
+      coins:value,
+      wins:myProfile.wins||0,
+      ownedItems:myProfile.ownedItems||{},
+      equipped:myProfile.equipped||{},
+      name:myProfile.name||'',
+      avatar:myProfile.avatar||myAvatar||null,
+      savedAt:Date.now(),
+      lastDevCoinSetAt:Date.now()
+    });
+    if(status){status.style.display='block';status.textContent='Coins set to '+value+' and synced.';}
+  }catch(e){
+    console.warn('Dev coin cloud sync failed; saved locally only',e);
+    if(status){status.style.display='block';status.textContent='Coins set locally, but cloud sync failed. Betting will use the local balance fallback.';}
+  }
+
   renderShop();
   if(input)input.value=value;
-  const status=document.getElementById('devStatus');
-  if(status){status.style.display='block';status.textContent='Coins set to '+value;}
 }
 
 async function buyOrEquipItem(itemId){
@@ -2994,10 +3012,11 @@ function renderBettingModal(){
   `;
 }
 
-function openBettingModal(){
-  renderBettingModal();
+async function openBettingModal(){
   const modal=document.getElementById('bettingModalBackdrop');
   if(modal)modal.classList.add('open');
+  try{await loadMyProfile();}catch(e){console.warn('Could not refresh profile before opening betting modal',e);}
+  renderBettingModal();
 }
 
 function closeBettingModal(event){
@@ -3025,7 +3044,26 @@ async function placeBet(targetId){
     return setBettingStatus('Enter a coin amount greater than 0.',false);
   }
 
-  if((myProfile.coins||0)<amount){
+  // Use the highest known balance between this device and Firebase.
+  // This fixes dev/test coins not being trusted by the old transaction path.
+  let latestCloudProfile={};
+  try{
+    const latestSnap=await userRef().once('value');
+    latestCloudProfile=latestSnap.val()||{};
+    const cloudCoins=Number(latestCloudProfile.coins)||0;
+    const localCoins=Number(myProfile.coins)||0;
+    if(cloudCoins>localCoins){
+      myProfile=normaliseProfile({...myProfile,...latestCloudProfile});
+      saveLocalProfile();
+      renderShop();
+    }
+  }catch(e){
+    console.warn('Could not refresh profile before bet; using local profile',e);
+  }
+
+  const visibleCoins=Math.max(Number(myProfile.coins)||0,Number(latestCloudProfile.coins)||0);
+
+  if(visibleCoins<amount){
     return setBettingStatus('You do not have enough coins for that bet.',false);
   }
 
@@ -3045,16 +3083,27 @@ async function placeBet(targetId){
   try{
     const coinTx=await userRef().transaction(user=>{
       user=user||{};
-      const coins=Number(user.coins)||0;
-      if(coins<amount)return;
-      user.coins=coins-amount;
+
+      const serverCoins=Number(user.coins)||0;
+      const localCoins=Number(myProfile.coins)||0;
+      const startingCoins=Math.max(serverCoins,localCoins);
+
+      if(startingCoins<amount)return;
+
+      user.coins=startingCoins-amount;
+      user.wins=Number(user.wins||myProfile.wins)||0;
+      user.ownedItems=user.ownedItems||myProfile.ownedItems||{};
+      user.equipped=user.equipped||myProfile.equipped||{};
+      user.name=user.name||myProfile.name||bettorName||'';
+      user.avatar=user.avatar||myProfile.avatar||myAvatar||null;
       user.savedAt=Date.now();
       user.lastBetAt=Date.now();
       return user;
     });
 
     if(!coinTx||!coinTx.committed){
-      return setBettingStatus('Your coin balance changed. Try a smaller bet.',false);
+      await loadMyProfile().catch(()=>{});
+      return setBettingStatus('Coin balance could not be confirmed. Press Set Coins again in Dev Tools or try a smaller bet.',false);
     }
 
     coinsWithdrawn=true;
@@ -3063,7 +3112,7 @@ async function placeBet(targetId){
     saveLocalProfile();
     renderShop();
 
-    await gameRefFor(gameCode).child(bag+'/'+betKey).transaction(bet=>{
+    const betTx=await gameRefFor(gameCode).child(bag+'/'+betKey).transaction(bet=>{
       bet=bet||{};
       const total=(Number(bet.total)||0)+amount;
       const potentialPayout=(Number(bet.potentialPayout)||0)+payout;
@@ -3084,6 +3133,10 @@ async function placeBet(targetId){
       };
     });
 
+    if(!betTx||!betTx.committed){
+      throw new Error('Bet save transaction did not commit.');
+    }
+
     if(input)input.value='';
 
     setBettingStatus('Bet placed. Coins are locked in.',true);
@@ -3101,6 +3154,7 @@ async function placeBet(targetId){
         user=user||{};
         user.coins=(Number(user.coins)||0)+amount;
         user.savedAt=Date.now();
+        user.lastBetRefundAt=Date.now();
         return user;
       }).catch(()=>{});
 
