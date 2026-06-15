@@ -7,7 +7,7 @@
 <meta http-equiv="Expires" content="0"/>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"/>
 <title>Chrispy Games</title>
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
@@ -63,7 +63,7 @@ const db = firebase.database();
     }
     if (input) {
       input.value = '';
-      input.focus();
+      input.blur();
     }
     return false;
   };
@@ -101,8 +101,13 @@ const db = firebase.database();
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{overflow-x:hidden;max-width:100vw}
 body.no-scroll{overflow:hidden;height:100%;}
+@supports (-webkit-touch-callout: none){
+  body.no-scroll{position:relative;height:auto;min-height:100dvh;}
+  input,textarea,select{font-size:16px!important;}
+}
+
 button{touch-action:manipulation}
-input,textarea,select{touch-action:auto;-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default;pointer-events:auto;cursor:text}
+input,textarea,select{touch-action:manipulation;-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default;pointer-events:auto;cursor:text;-webkit-appearance:none;appearance:none}
 :root{
   --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--surface3:#252532;
   --accent:#e8d44d;--accent2:#e85d4d;--text:#f0eff5;--muted:#7a7a8c;
@@ -1234,7 +1239,7 @@ body{
         <div class="dev-preview-wrap">
           <div class="dev-desc" style="margin-bottom:8px">Set your saved coin balance for testing shop items.</div>
           <div class="flex-row">
-            <input id="devCoinInput" type="number" min="0" placeholder="Coins..." style="margin-bottom:0;font-family:'DM Mono',monospace"/>
+            <input id="devCoinInput" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Coins..." style="margin-bottom:0;font-family:'DM Mono',monospace"/>
             <button class="btn btn-primary btn-sm" onclick="devSetCoins()">Set</button>
           </div>
           <div class="dev-grid" style="margin-top:8px">
@@ -2280,27 +2285,9 @@ function setLoading(btnId,loading,text){const btn=document.getElementById(btnId)
 function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function enableIosHomeScreenInputPatch(){
-  // Older iOS home-screen PWAs can sometimes fail to open the keyboard on the first tap,
-  // especially after display:none screen swaps. Focusing from the actual touch event is allowed.
-  document.addEventListener('touchend',function(event){
-    const el=event.target&&event.target.closest?event.target.closest('input, textarea, select'):null;
-    if(!el||el.disabled||el.readOnly)return;
-    setTimeout(()=>{
-      try{
-        if(document.activeElement!==el)el.focus({preventScroll:true});
-      }catch(e){try{el.focus();}catch(_){} }
-    },0);
-  },{passive:true});
-
-  document.addEventListener('click',function(event){
-    const el=event.target&&event.target.closest?event.target.closest('input, textarea, select'):null;
-    if(!el||el.disabled||el.readOnly)return;
-    setTimeout(()=>{
-      try{
-        if(document.activeElement!==el)el.focus({preventScroll:true});
-      }catch(e){try{el.focus();}catch(_){} }
-    },0);
-  },true);
+  // IMPORTANT: Do not force-focus inputs in iOS home-screen PWAs.
+  // Some iOS versions show only the keyboard accessory bar (arrows / Done)
+  // when focus is triggered by JS after a screen swap. Native tap-to-focus is safer.
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',enableIosHomeScreenInputPatch);
 else enableIosHomeScreenInputPatch();
@@ -3304,7 +3291,7 @@ function bettingPlayerRowsHtml(game){
 
         <label class="betting-action-label" for="betAmountInput_${p.id}">Coins to place</label>
         <div class="betting-input-row">
-          <input id="betAmountInput_${p.id}" type="number" min="1" step="1" inputmode="numeric" placeholder="Enter coins"/>
+          <input id="betAmountInput_${p.id}" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Enter coins"/>
           <button class="btn btn-primary btn-sm" onclick="placeBet('${p.id}')">Bet</button>
         </div>
 
@@ -5893,7 +5880,7 @@ function revealOOOQuestion(){
   document.getElementById('oooQuestionTap').style.display='none';
   document.getElementById('oooQuestionText').textContent=question;
   document.getElementById('oooQuestionContent').style.display='block';
-  setTimeout(()=>document.getElementById('oooAnswerInput').focus(),100);
+  
 }
 async function submitOOOAnswer(){
   const answer=document.getElementById('oooAnswerInput').value.trim();
@@ -6797,7 +6784,7 @@ function enterFaGuess(game){
   const inputSection=document.getElementById('faGuessInputSection');if(inputSection)inputSection.style.display=isImpostor?'flex':'none';
   const waiting=document.getElementById('faGuessWaiting');if(waiting)waiting.style.display=isImpostor?'none':'block';
   const waitingText=document.getElementById('faGuessWaitingText');if(waitingText)waitingText.textContent=`${accusedName} is guessing the word...`;
-  if(isImpostor)setTimeout(()=>{const input=document.getElementById('faGuessInput');if(input)input.focus();},100);
+  
   if(gameCode){
     db.ref('games/'+gameCode+'/faGuess').off('value');
     db.ref('games/'+gameCode+'/faGuess').on('value',snap=>{const guess=snap.val();if(guess&&amHost){db.ref('games/'+gameCode+'/faGuess').off('value');checkFaGuess(localGame,guess);}});
@@ -7973,7 +7960,7 @@ function renderGuessPlayers(game){
 
   if(typingNow){
     const input=document.getElementById('guessInput');
-    if(input&&document.activeElement!==input){try{input.focus({preventScroll:true});}catch(e){input.focus();}}
+    
   }
 }
 function renderGuessHostControls(game){
@@ -8049,7 +8036,7 @@ async function submitGuessAnswer(){
     }else{
       if(msg)msg.textContent='Not quite — keep guessing.';
       input.value='';
-      input.focus();
+      /* native tap keeps keyboard open */
     }
   }catch(e){
     console.warn('Guess submit failed',e);
