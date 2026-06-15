@@ -3083,6 +3083,33 @@ function closeBettingModal(event){
   if(modal)modal.classList.remove('open');
 }
 
+
+function localBetStorageKey(code){
+  return 'chrispy_local_bets_'+String(code||'nogame')+'_'+myId;
+}
+
+function getLocalSavedBets(code){
+  try{return JSON.parse(localStorage.getItem(localBetStorageKey(code))||'{}')||{};}catch(e){return {};}
+}
+
+function saveLocalBet(code,betKey,betObj){
+  const bets=getLocalSavedBets(code);
+  bets[betKey]=betObj;
+  localStorage.setItem(localBetStorageKey(code),JSON.stringify(bets));
+}
+
+function localUserBetPath(code,bag,betKey){
+  return 'bets/'+safeFirebaseKey(code)+'/'+safeFirebaseKey(bag)+'/'+safeFirebaseKey(betKey);
+}
+
+async function saveBetToUserFirst(game,betKey,betObj,bag){
+  // User-owned bet storage is the source of truth. This avoids killing the bet if
+  // the shared game mirror is blocked by Firebase rules or a stale game object.
+  saveLocalBet(gameCode,betKey,betObj);
+  await userRef().child(localUserBetPath(gameCode,bag,betKey)).set(betObj);
+  return true;
+}
+
 async function saveBetRecord(game,betKey,betObj,bag){
   const rootPath=bag+'/'+betKey;
   const playerBag=bag==='nextBets'?'nextBets':'playerBets';
@@ -3127,20 +3154,16 @@ async function placeBet(targetId){
   try{
     const latestSnap=await userRef().once('value');
     latestCloudProfile=latestSnap.val()||{};
-    const cloudCoins=Number(latestCloudProfile.coins)||0;
-    const localCoins=Number(myProfile.coins)||0;
-    if(cloudCoins>localCoins){
-      myProfile=normaliseProfile({...myProfile,...latestCloudProfile});
-      saveLocalProfile();
-      renderShop();
-    }
+    myProfile=normaliseProfile({...myProfile,...latestCloudProfile,coins:Math.max(Number(myProfile.coins)||0,Number(latestCloudProfile.coins)||0)});
+    saveLocalProfile();
+    renderShop();
   }catch(e){
     console.warn('Could not refresh profile before bet; using local profile',e);
   }
 
-  const visibleCoins=Math.max(Number(myProfile.coins)||0,Number(latestCloudProfile.coins)||0);
+  const availableCoins=Math.max(Number(myProfile.coins)||0,Number(latestCloudProfile.coins)||0);
 
-  if(visibleCoins<amount){
+  if(availableCoins<amount){
     return setBettingStatus('You do not have enough coins for that bet.',false);
   }
 
@@ -3155,6 +3178,7 @@ async function placeBet(targetId){
 
   const betObj={
     id:betKey,
+    gameCode:safeFirebaseKey(gameCode),
     playerId:myId,
     targetId,
     name:bettorName,
@@ -3167,21 +3191,25 @@ async function placeBet(targetId){
     public:isPublic,
     winsAtBet:myProfile.wins||0,
     targetWinsAtBet:playerWinsForOdds(game.players[targetId]),
+    status:'active',
     createdAt:Date.now(),
     updatedAt:Date.now()
   };
 
   setBettingStatus('Placing bet...',true);
 
-  let coinsWithdrawn=false;
-
   try{
+    // 1) Save the bet first to user-owned storage/local backup. If this fails,
+    // do not touch coins.
+    await saveBetToUserFirst(game,betKey,betObj,bag);
+
+    // 2) Withdraw coins from the same user record. This transaction is the only
+    // required cloud write after the bet backup exists.
     const coinTx=await userRef().transaction(user=>{
       user=user||{};
 
       const serverCoins=Number(user.coins)||0;
-      const localCoins=Number(myProfile.coins)||0;
-      const startingCoins=Math.max(serverCoins,localCoins);
+      const startingCoins=Math.max(serverCoins,availableCoins);
 
       if(startingCoins<amount)return;
 
@@ -3197,25 +3225,27 @@ async function placeBet(targetId){
     });
 
     if(!coinTx||!coinTx.committed){
+      await userRef().child(localUserBetPath(gameCode,bag,betKey)+'/status').set('cancelled').catch(()=>{});
+      const localBets=getLocalSavedBets(gameCode);if(localBets[betKey]){localBets[betKey].status='cancelled';localStorage.setItem(localBetStorageKey(gameCode),JSON.stringify(localBets));}
       await loadMyProfile().catch(()=>{});
-      return setBettingStatus('Coin balance could not be confirmed. Press Set Coins again in Dev Tools or try a smaller bet.',false);
+      return setBettingStatus('Coin balance could not be confirmed. Open Dev Tools and press Set Coins again, then try again.',false);
     }
-
-    coinsWithdrawn=true;
 
     myProfile=normaliseProfile({...myProfile,...(coinTx.snapshot.val()||{})});
     saveLocalProfile();
     renderShop();
 
-    const saved=await saveBetRecord(game,betKey,betObj,bag);
-
+    // 3) Mirror to the shared game for public display/payouts. This is no longer
+    // fatal, because the user bet has already been safely saved.
+    const saved=await saveBetRecord(game,betKey,{...betObj,status:'active'},bag);
     if(!saved.ok){
-      throw new Error('Bet save failed: '+(saved.error&&saved.error.message?saved.error.message:'Firebase write failed'));
+      console.warn('Bet placed, but shared game mirror failed:',saved.error);
+      await userRef().child(localUserBetPath(gameCode,bag,betKey)+'/mirrorFailed').set(true).catch(()=>{});
     }
 
     if(input)input.value='';
 
-    setBettingStatus('Bet placed. Coins are locked in.',true);
+    setBettingStatus(saved.ok?'Bet placed. Coins are locked in.':'Bet placed. Coins are locked in. Public display may update later.',true);
 
     setTimeout(()=>{
       renderBettingModal();
@@ -3224,20 +3254,7 @@ async function placeBet(targetId){
 
   }catch(e){
     console.warn('Bet failed',e);
-
-    if(coinsWithdrawn){
-      await userRef().transaction(user=>{
-        user=user||{};
-        user.coins=(Number(user.coins)||0)+amount;
-        user.savedAt=Date.now();
-        user.lastBetRefundAt=Date.now();
-        return user;
-      }).catch(()=>{});
-
-      await loadMyProfile().catch(()=>{});
-    }
-
-    setBettingStatus('Bet could not be placed. Your coins were restored if they were withdrawn. '+(e&&e.message?e.message:''),false);
+    setBettingStatus('Bet could not be placed: '+(e&&e.message?e.message:'Firebase rejected the bet before coins were withdrawn.'),false);
   }
 }
 
@@ -7342,6 +7359,7 @@ function renderGuessGame(game){
 
   renderGuessPlayers(game);
   renderGuessHostControls(game);
+  maybeHostResolveGuessAllGuessed(game);
 }
 
 function renderGuessPlayers(game){
@@ -7349,7 +7367,13 @@ function renderGuessPlayers(game){
   const list=document.getElementById('guessPlayersList');if(!list)return;
   const order=game.guessCorrectOrder||[];const guesses=game.guessGuesses||{};
   const isGiver=myId===game.guessAnswerGiverId;
-  list.innerHTML=players.filter(p=>p.id!==game.guessAnswerGiverId).map(p=>{
+  const signature=JSON.stringify({order,guesses,phase:game.guessPhase,giver:game.guessAnswerGiverId,players:players.map(p=>[p.id,p.name,p.online])});
+  if(list.getAttribute('data-guess-list-signature')===signature)return;
+
+  const active=document.activeElement;
+  const typingNow=active&&active.id==='guessInput';
+
+  const html=players.filter(p=>p.id!==game.guessAnswerGiverId).map(p=>{
     const ok=order.includes(p.id);
     const all=(guesses[p.id]||[]).map(g=>g.text||g.guess||'').filter(Boolean);
     const detail=all.length?all.map((g,i)=>`${i+1}. ${esc(g)}`).join('<br>'):'No guesses submitted';
@@ -7357,6 +7381,14 @@ function renderGuessPlayers(game){
     const detailHtml=isGiver?`<div class="guess-detail">${detail}</div>`:'';
     return `<div class="guess-player-row ${isGiver?'can-open':''}" ${openAttr}><div class="guess-player-top">${playerAvatar(p,'av-sm')}<div class="player-name">${playerNameHtml(p)}</div><div class="guess-status ${ok?'ok':'wait'}">${ok?'Guessed':'Still guessing'}</div></div>${detailHtml}</div>`;
   }).join('');
+
+  list.innerHTML=html;
+  list.setAttribute('data-guess-list-signature',signature);
+
+  if(typingNow){
+    const input=document.getElementById('guessInput');
+    if(input&&document.activeElement!==input){try{input.focus({preventScroll:true});}catch(e){input.focus();}}
+  }
 }
 function renderGuessHostControls(game){
   const wrap=document.getElementById('guessHostControls');if(!wrap)return;
@@ -7425,16 +7457,9 @@ async function submitGuessAnswer(){
         await gameRefFor(gameCode).child('guessScores/'+myId).transaction(current=>(Number(current)||0)+pts);
       }
 
-      if(input)input.blur();
-
-      const latestSnap=await gameRefFor(gameCode).once('value');
-      const latest=latestSnap.val()||localGame;
-      const total=Math.max(0,Object.keys(latest.players||{}).length-1);
-      const latestOrder=latest.guessCorrectOrder||[];
-
-      if(latestOrder.length>=total){
-        setTimeout(()=>resolveGuessRound('all_guessed'),120);
-      }
+      if(msg)msg.textContent='Correct! Waiting for the round to update...';
+      // Do not blur here. Blurring/rebuilding on mobile is what makes keyboards drop and screens feel frozen.
+      // The host will resolve the round once everyone has guessed.
     }else{
       if(msg)msg.textContent='Not quite — keep guessing.';
       input.value='';
@@ -7448,6 +7473,33 @@ async function submitGuessAnswer(){
     if(btn)btn.disabled=false;
   }
 }
+
+let guessHostResolveInProgress=false;
+async function maybeHostResolveGuessAllGuessed(game){
+  if(guessHostResolveInProgress)return;
+  if(!amHost||!game||game.mode!=='guess'||game.guessPhase!=='discussion')return;
+
+  const total=Math.max(0,Object.keys(game.players||{}).length-1);
+  const order=Array.isArray(game.guessCorrectOrder)?game.guessCorrectOrder:[];
+
+  if(total>0&&order.length>=total){
+    guessHostResolveInProgress=true;
+    try{
+      await gameRefFor(gameCode).child('guessResolveLock').transaction(current=>{
+        if(current&&current.roundId===game.guessRoundId&&current.reason)return current;
+        return {roundId:game.guessRoundId||game.guessRound||Date.now(),reason:'all_guessed',by:myId,at:Date.now()};
+      });
+      const latestSnap=await gameRefFor(gameCode).once('value');
+      const latest=latestSnap.val()||game;
+      if(latest.guessPhase==='discussion')await resolveGuessRound('all_guessed');
+    }catch(e){
+      console.warn('Host auto resolve failed',e);
+    }finally{
+      setTimeout(()=>{guessHostResolveInProgress=false;},800);
+    }
+  }
+}
+
 async function resolveGuessRound(reason){
   const game=localGame;if(!game||game.mode!=='guess'||game.guessPhase!=='discussion')return;
   const order=game.guessCorrectOrder||[];
