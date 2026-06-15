@@ -98,9 +98,15 @@ const db = firebase.database();
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{overflow-x:hidden;max-width:100vw}
-body.no-scroll{overflow:hidden;height:100%;}
+*{margin:0;padding:0;box-sizing:border-box;min-width:0}
+html{width:100%;max-width:100%;overflow-x:hidden!important;overscroll-behavior-x:none}
+body{width:100%;max-width:100%;overflow-x:hidden!important;overscroll-behavior-x:none;position:relative}
+html,body{min-height:100%;}
+body.no-scroll{overflow:hidden;overflow-x:hidden!important;height:100%;}
+img,svg,video,canvas{max-width:100%;}
+.screen,.card,.shop-modal,.shop-modal-backdrop,.reveal-outer,.game-tiles,.game-tiles-row2,.custom-mode-wrap{max-width:100vw;overflow-x:hidden}
+.flex-row,.chat-input-row,.count-row,.shop-item,.player-item,.vote-item,.scoreboard-item,.player-status-item,.betting-public-item,.betting-odds-card{min-width:0;max-width:100%;}
+.player-name,.scoreboard-name,.betting-odds-name,.shop-item-name,.custom-mode-name,.custom-mode-desc{min-width:0;overflow-wrap:anywhere;}
 input,textarea,select,button{touch-action:manipulation}
 input,textarea,select{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default;pointer-events:auto}
 :root{
@@ -8108,5 +8114,21 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
 </button>
 
 <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="onAvatarFileChosen(event)"/>
+
+<script>
+/* Horizontal scroll guard for mobile/PWA screens. Keeps every page locked to the viewport width without blocking vertical scrolling or inputs. */
+(function(){
+  function resetHorizontalScroll(){
+    if(window.scrollX!==0) window.scrollTo(0, window.scrollY||document.documentElement.scrollTop||document.body.scrollTop||0);
+    if(document.documentElement) document.documentElement.scrollLeft=0;
+    if(document.body) document.body.scrollLeft=0;
+  }
+  window.addEventListener('scroll', resetHorizontalScroll, {passive:true});
+  window.addEventListener('resize', resetHorizontalScroll, {passive:true});
+  window.addEventListener('orientationchange', function(){ setTimeout(resetHorizontalScroll, 80); }, {passive:true});
+  document.addEventListener('DOMContentLoaded', resetHorizontalScroll);
+})();
+</script>
+
 </body>
 </html>
