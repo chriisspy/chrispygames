@@ -1154,7 +1154,6 @@ body{
     <input id="playerName" type="text" placeholder="Enter your name..." maxlength="20" autocomplete="off"/>
     <div style="width:100%;text-align:center;margin:-4px 0 12px">
       <button id="avatarHomeBtn" onclick="triggerAvatarPicker()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;padding:4px 0">📷 Set Avatar</button>
-      <button onclick="alert(localStorage.getItem('sf_myId'))" style="background:#e8d44d;color:#000;border:none;padding:6px 10px;border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;margin-top:6px">SHOW MY ID</button>
     </div>
     <div id="homeError" class="notice error" style="display:none"></div>
     <button class="btn btn-primary" id="createBtn" onclick="createGame()">Create New Game</button>
@@ -4455,7 +4454,11 @@ function onGameUpdate(game){
 }
 
 
-function isDevUnlocked(){return sessionStorage.getItem('sf_dev_unlocked')==='1';}
+const DEV_ALLOWED_IDS = ['hrh24de0pf'];
+function isDevUnlocked(){
+  if(DEV_ALLOWED_IDS.includes(myId)) return true;
+  return localStorage.getItem('sf_dev_unlocked')==='1';
+}
 function canShowLobbyPlayerMenu(){return !!(localGame&&localGame.status==='lobby'&&(amHost||isDevUnlocked()));}
 function lobbyPlayerMenuHtml(p){
   if(!canShowLobbyPlayerMenu())return '';
@@ -6160,10 +6163,10 @@ async function sendChat(){
 function toggleDevPanel(){
   const panel=document.getElementById('devPanel');const arrow=document.getElementById('devArrow');const open=panel.style.display==='none';
   if(open){
-    if(sessionStorage.getItem('sf_dev_unlocked')!=='1'){
-      const pw=prompt('Enter dev password:');
-      if(pw!=='chrispyiscool@123!'){alert('Incorrect password.');return;}
-      sessionStorage.setItem('sf_dev_unlocked','1');
+    if(open && !isDevUnlocked()){
+    const pw=prompt('Enter dev password:');
+    if(pw!=='BOYS11'){alert('Incorrect password.');return;}
+    localStorage.setItem('sf_dev_unlocked','1');
     }
   }
   panel.style.display=open?'block':'none';arrow.textContent=open?'▼':'▶';
@@ -6171,12 +6174,12 @@ function toggleDevPanel(){
 }
 function updateDevLobbyButton(){
   const btn=document.getElementById('devStartTestBtn');if(!btn)return;
-  const devUnlocked=sessionStorage.getItem('sf_dev_unlocked')==='1';
+    const devUnlocked=isDevUnlocked();
   const inLobby=(document.querySelector('.screen.active')||{}).id==='screen-lobby';
   btn.style.display=(devUnlocked&&inLobby&&amHost)?'block':'none';
 }
 async function startDevGameTest(){
-  if(sessionStorage.getItem('sf_dev_unlocked')!=='1')return;
+  if(!isDevUnlocked())return;
   if(!gameCode||!localGame||!amHost)return;
   const now=Date.now();const bots={};
   for(let i=1;i<=5;i++){bots['dev_bot_'+i]={id:'dev_bot_'+i,name:'Bot '+i,isHost:false,joinedAt:now+i,online:true,devBot:true};}
