@@ -1163,22 +1163,7 @@ body{
       <button class="btn btn-primary btn-sm" id="joinBtn" onclick="joinGame()">Join</button>
     </div>
   </div>
-  <div class="shop-modal-backdrop" id="shopModalBackdrop" onclick="closeShopModal(event)">
-    <div class="shop-modal" onclick="event.stopPropagation()">
-      <div class="shop-modal-header">
-        <h2>Shop</h2>
-        <button class="shop-close-btn" onclick="closeShopModal()">×</button>
-      </div>
-      <div class="coin-pill"><img src="coin-icon-2.png" class="coin-icon" alt="Coins"/> <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
-      <div class="shop-tabs">
-        <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Names</button>
-        <button class="shop-tab" id="shopTabFrames" onclick="switchShopTab('frames')">Frames</button>
-        <button class="shop-tab" id="shopTabWins" onclick="switchShopTab('wins')">Wins</button>
-        <button class="shop-tab" id="shopTabOwned" onclick="switchShopTab('owned')">Owned</button>
-      </div>
-      <div class="shop-grid" id="shopItems"></div>
-    </div>
-  </div>
+
   <div class="shop-modal-backdrop" id="homeBettingModalBackdrop" onclick="closeHomeBettingModal(event)">
     <div class="shop-modal" onclick="event.stopPropagation()">
       <div class="shop-modal-header">
@@ -6043,7 +6028,7 @@ async function oooNextRound(){await startOOOGame();}
 async function oooEndGame(){await updateGame(gameCode,{status:'result',oooPhase:'gameover'});}
 function showOOOGameOver(game){
   clearInterval(oooVoteTimerInterval);
-  const players=oooPlayers.sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
+  const players=Object.values(game.players||{}).sort((a,b)=>(game.oooScores[b.id]||0)-(game.oooScores[a.id]||0));
   const winner=players[0];
   const score=(game.oooScores&&game.oooScores[winner.id])||0;
   document.getElementById('gameoverTitle').textContent=winner.name.toUpperCase()+' WINS!';
@@ -7288,7 +7273,7 @@ function renderBsVoteList(game){
     const vc=voteCounts[p.id]||0;
     const isMyVote=myVote===p.id;
     const clickable=p.id!==myId;
-    return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isMyVote?'rgba(6,182,212,0.1)':'var(--surface2)'};border:1px solid ${isMyVote?'rgba(6,182,212,0.5)':'var(--border)'};border-radius:var(--radius);cursor:${clickable?'pointer':'default'}" onclick="${clickable?`bsCastVote('${p.id}')`:''}"}>${playerAvatar(p)}
+    return`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${isMyVote?'rgba(6,182,212,0.1)':'var(--surface2)'};border:1px solid ${isMyVote?'rgba(6,182,212,0.5)':'var(--border)'};border-radius:var(--radius);cursor:${clickable?'pointer':'default'}" onclick="${clickable?`bsCastVote('${p.id}')`:''}">${playerAvatar(p)}
       <div style="flex:1;font-size:13px;font-weight:600">${playerNameWithYou(p)}</div>
       ${vc>0?`<div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#06b6d4;min-width:20px;text-align:center">${vc}</div>`:'<div style="min-width:20px"></div>'}
       ${isMyVote?'<div style="color:#06b6d4;font-size:12px">✓</div>':''}
@@ -8375,6 +8360,8 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
       <div class="notice" style="background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.3);color:#06b6d4">Waiting for host...</div>
       <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
     </div>
+  </div>
+</div>
 
 
 <div class="avatar-crop-backdrop" id="avatarCropBackdrop">
@@ -8404,5 +8391,22 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
 </button>
 
 <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="onAvatarFileChosen(event)"/>
+    
+  <div class="shop-modal-backdrop" id="shopModalBackdrop" onclick="closeShopModal(event)">
+    <div class="shop-modal" onclick="event.stopPropagation()">
+      <div class="shop-modal-header">
+        <h2>Shop</h2>
+        <button class="shop-close-btn" onclick="closeShopModal()">×</button>
+      </div>
+      <div class="coin-pill"><img src="coin-icon-2.png" class="coin-icon" alt="Coins"/> <span id="coinBalance">0</span> coins · <span id="winCount">0</span> wins</div>
+      <div class="shop-tabs">
+        <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Names</button>
+        <button class="shop-tab" id="shopTabFrames" onclick="switchShopTab('frames')">Frames</button>
+        <button class="shop-tab" id="shopTabWins" onclick="switchShopTab('wins')">Wins</button>
+        <button class="shop-tab" id="shopTabOwned" onclick="switchShopTab('owned')">Owned</button>
+      </div>
+      <div class="shop-grid" id="shopItems"></div>
+    </div>
+  </div>
 </body>
 </html>
