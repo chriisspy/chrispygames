@@ -1154,6 +1154,7 @@ body{
     <input id="playerName" type="text" placeholder="Enter your name..." maxlength="20" autocomplete="off"/>
     <div style="width:100%;text-align:center;margin:-4px 0 12px">
       <button id="avatarHomeBtn" onclick="triggerAvatarPicker()" style="background:transparent;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;padding:4px 0">📷 Set Avatar</button>
+      <button onclick="alert(localStorage.getItem('sf_myId'))" style="background:#e8d44d;color:#000;border:none;padding:6px 10px;border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;margin-top:6px">SHOW MY ID</button>
     </div>
     <div id="homeError" class="notice error" style="display:none"></div>
     <button class="btn btn-primary" id="createBtn" onclick="createGame()">Create New Game</button>
