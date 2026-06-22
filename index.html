@@ -159,8 +159,7 @@ select option{background:var(--surface2)}
 .lobby-player-menu-wrap{position:relative;margin-left:auto;flex-shrink:0}
 .lobby-player-menu-btn{width:28px;height:28px;border-radius:9px;border:1px solid var(--border);background:var(--surface3);color:var(--muted);font-family:'DM Mono',monospace;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .lobby-player-menu-btn:hover{color:var(--text);border-color:var(--accent)}
-.lobby-player-menu{position:absolute;right:0;top:34px;z-index:30;min-width:165px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 16px 44px rgba(0,0,0,.55);padding:6px;display:none}
-.lobby-player-menu.open{display:flex;flex-direction:column;gap:4px;animation:fadeIn .14s ease}
+.lobby-player-menu{position:absolute;right:0;top:34px;z-index:300;min-width:165px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 16px 44px rgba(0,0,0,.55);padding:6px;display:none}.lobby-player-menu.open{display:flex;flex-direction:column;gap:4px;animation:fadeIn .14s ease}
 .lobby-player-menu button{width:100%;padding:9px 10px;border-radius:9px;border:none;background:transparent;color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-align:left;cursor:pointer}
 .lobby-player-menu button:hover{background:var(--surface2);color:var(--accent)}
 .lobby-player-menu button.danger{color:var(--spy)}
@@ -1319,7 +1318,10 @@ body{
       <div style="height:16px"></div>
       <label>Players (<span id="lobbyCount">1</span>)</label>
       <div class="player-list" id="playerList"></div>
-      <button class="btn btn-bet-green betting-open-btn" onclick="openBettingModal()">Place bet</button>
+      <div class="home-actions-row" style="margin-top:4px">
+        <button class="home-shop-btn" onclick="openShopModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Shop</button>
+        <button class="home-shop-btn home-betting-btn" onclick="openBettingModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Bet</button>
+      </div>
       <div id="lobbyBettingSummary"></div>
       <div style="height:8px"></div>
       <label>Game Mode</label>
@@ -3064,26 +3066,14 @@ function playerWinsForOdds(p){
 }
 
 function bettingOddsForPlayer(game,playerId){
-  const players=Object.values((game&&game.players)||{});
-  if(!players.length)return 2;
-
-  const wins=players.map(playerWinsForOdds);
-  const max=Math.max(...wins);
-  const min=Math.min(...wins);
-  const target=players.find(p=>p.id===playerId);
-  const targetWins=playerWinsForOdds(target);
-
-  if(max===min)return 2;
-
-  const underdogScore=(max-targetWins)/(max-min);
-  return Math.round((1.25+(underdogScore*1.75))*100)/100;
+  // Flat odds: betting on the winner always doubles your coins.
+  return 2;
 }
 
 function formatOdds(n){
   n=Number(n)||0;
-  return n.toFixed(2)+'x';
+  return (n%1===0 ? String(n) : n.toFixed(2))+'x';
 }
-
 function currentBetForMe(game,targetId){
   const bets=displayableBetValues(game,betBagNameForGame(game)).filter(b=>b&&b.playerId===myId&&b.targetId===targetId);
   if(!bets.length)return null;
@@ -3889,7 +3879,9 @@ async function awardBetPayoutsForFinishedGame(game){
         const bettorId=bet.playerId;
 
         if(bettorId&&winnerIds.includes(bet.targetId)){
-          const amount=Math.floor(Number(bet.potentialPayout)||0);
+          // Force flat 2x: winner gets back double their stake, ignoring any old stored odds.
+          const stake=Math.floor(Number(bet.total!==undefined?bet.total:bet.amount)||0);
+          const amount=stake*2;
           if(amount>0){
             payouts[bettorId]=(payouts[bettorId]||0)+amount;
           }
@@ -4499,11 +4491,17 @@ async function devSetPlayerCoins(playerId){
   let coins=parseInt(value,10);
   if(!Number.isFinite(coins)||coins<0)coins=0;
   coins=Math.floor(coins);
+
+  // Update my own balance locally first so it never reverts on my device.
   if(playerId===myId){myProfile.coins=coins;saveLocalProfile();renderShop();}
+
   try{
     await db.ref('users/'+playerId).update({coins,savedAt:Date.now(),lastDevCoinSetAt:Date.now()});
-  }catch(e){console.warn('Dev set coins cloud sync failed; saved locally',e);}
-  alert(`Coins set to ${coins}.`);
+    alert(`Coins set to ${coins}.`);
+  }catch(e){
+    console.warn('Set coins cloud write failed',e);
+    alert('Could not save to the cloud: '+(e&&e.message?e.message:e)+'\nMake sure your Firebase rules allow users writes.');
+  }
 }
 async function devChangePlayerName(playerId){
   closeLobbyPlayerMenus();
