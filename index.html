@@ -1610,15 +1610,15 @@ body{
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
     <div class="result-banner crew-wins fadeIn">
       <div style="font-size:48px;margin-bottom:8px">🎯</div>
-      <h2>Crew caught a spy!</h2>
-      <p id="spyCaughtMessage">One spy was voted out, but one more remains.</p>
+      <h2>Crew guessed correctly!</h2>
+      <p id="spyCaughtMessage">But, there is one more spy on the loose..</p>
     </div>
     <div class="card fadeIn" style="text-align:center">
       <div id="spyCaughtPlayer"></div>
       <div id="spyCaughtGuessStatus" class="notice info" style="margin-top:14px"></div>
     </div>
     <div id="spyCaughtHostControls" style="display:none">
-      <button class="btn btn-primary" onclick="continueAfterSpyCaught()">Continue hunting →</button>
+      <button class="btn btn-primary" onclick="continueAfterSpyCaught()">Resume Game</button>
     </div>
     <div id="spyCaughtWaiting" class="notice info" style="display:none;text-align:center">Waiting for the host to continue...</div>
   </div>
@@ -5817,7 +5817,7 @@ async function resolveGame(reason,accusedId=null){
     else if(reason==='vote'){if(spyIds.includes(accusedId)){spyWins=false;description='Innocent correctly identified a spy!';}else{spyWins=true;description='Wrong person accused — spies win!';}}
     else if(reason==='early'){spyWins=false;description='Round ended early.';}
   } else {
-    const isMulti=!!game.multiSpyMode&&spyIds.length>1;
+    const isMulti=spyIds.filter(Boolean).length>1;
     if(isMulti&&reason==='vote'&&spyIds.includes(accusedId)){
       const eliminated={...(game.eliminatedSpyIds||{}),[accusedId]:true};
       const remaining=spyIds.filter(id=>!eliminated[id]);
@@ -5940,7 +5940,7 @@ function showSpyCaughtScreen(game){
   clearInterval(timerInterval);
   const spyIds=game.spyIds||[game.spyId];const eliminated=spyfallEliminatedIds(game);const remaining=Math.max(0,spyIds.length-eliminated.length);
   const caught=game.players&&game.players[game.lastCaughtSpyId];const progress=spyGuessProgress(game);
-  document.getElementById('spyCaughtMessage').textContent=`Crew voted one spy out, but ${remaining===1?'one more remains':`${remaining} spies remain`}.`;
+  document.getElementById('spyCaughtMessage').textContent=remaining===1?'But, there is one more spy on the loose..':`But, there are ${remaining} more spies on the loose..`;
   document.getElementById('spyCaughtPlayer').innerHTML=`${resultAvatarHtml(caught,'🕵️')}<div style="font-size:20px;font-weight:800;color:var(--spy)">${esc((caught&&caught.name)||'A spy')} was a spy</div>`;
   document.getElementById('spyCaughtGuessStatus').textContent=`${progress.correct} of ${progress.total} spies have guessed the location correctly.`;
   document.getElementById('spyCaughtHostControls').style.display=amHost?'block':'none';
