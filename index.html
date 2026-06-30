@@ -1108,7 +1108,6 @@ body{
 }
 
 /* ===== HOT SEAT ===== */
-@keyframes hsSlotStep{from{transform:var(--hs-from)}to{transform:var(--hs-to)}}
 @keyframes hsPulse{0%,100%{box-shadow:0 0 12px rgba(232,212,77,0.4),0 0 0 rgba(232,212,77,0)}50%{box-shadow:0 0 32px rgba(232,212,77,0.9),0 0 60px rgba(232,212,77,0.2)}}
 @keyframes hsWrongShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 @keyframes hsCorrectPop{0%{transform:scale(1)}40%{transform:scale(1.05)}100%{transform:scale(1)}}
@@ -1118,12 +1117,12 @@ body{
 .hs-spin-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 50% 30%,rgba(232,212,77,0.06) 0%,transparent 70%)}
 .hs-spin-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted)}
 .hs-slot-wrap{width:100%;max-width:380px;position:relative;border-radius:var(--radius-lg);border:2px solid var(--accent);background:var(--surface);box-shadow:0 0 40px rgba(232,212,77,0.12),inset 0 0 40px rgba(0,0,0,0.3)}
-.hs-slot-window{height:72px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.hs-slot-window{height:72px;overflow:hidden;position:relative}
 .hs-slot-edge{position:absolute;left:0;right:0;height:28px;z-index:2;pointer-events:none}
 .hs-slot-edge.top{top:0;background:linear-gradient(to bottom,var(--surface) 10%,transparent)}
 .hs-slot-edge.bottom{bottom:0;background:linear-gradient(to top,var(--surface) 10%,transparent)}
-.hs-slot-reel{display:flex;flex-direction:column;will-change:transform}
-.hs-slot-item{height:72px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--text);flex-shrink:0;padding:0 24px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px}
+.hs-slot-reel{position:absolute;inset:0 0 auto;display:flex;flex-direction:column;width:100%;will-change:transform;transform:translate3d(0,0,0)}
+.hs-slot-item{width:100%;height:72px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--text);flex-shrink:0;padding:0 24px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hs-slot-item.winner{color:var(--accent)}
 .hs-slot-highlight{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:72px;border-top:1.5px solid rgba(232,212,77,0.25);border-bottom:1.5px solid rgba(232,212,77,0.25);pointer-events:none;z-index:1}
 .hs-selected-name{font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--accent);text-align:center;animation:hsGlow 1.8s ease infinite}
@@ -1144,8 +1143,8 @@ body{
 .hs-coins-display{font-family:'DM Mono',monospace;font-size:28px;font-weight:800;color:var(--accent);letter-spacing:1px}
 .hs-coins-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
 .hs-lifeline-row{display:flex;gap:8px}
-.hs-lifeline-btn{flex:1;padding:10px 8px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.15s;text-align:center}
-.hs-lifeline-btn:hover:not(:disabled){border-color:var(--ooo);background:rgba(167,139,250,0.08);transform:translateY(-1px)}
+.hs-lifeline-btn{flex:1;padding:12px 10px;border-radius:var(--radius);border:1.5px solid var(--accent);background:var(--accent);color:#171400;font-family:'Syne',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.15s;text-align:center;box-shadow:0 8px 22px rgba(232,212,77,0.12)}
+.hs-lifeline-btn:hover:not(:disabled){background:#f3df59;border-color:#f3df59;transform:translateY(-1px);box-shadow:0 10px 26px rgba(232,212,77,0.22)}
 .hs-lifeline-btn:disabled{opacity:0.35;cursor:not-allowed}
 .hs-lifeline-btn.used{opacity:0.3;cursor:not-allowed;text-decoration:line-through}
 .hs-paf-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:16px}
@@ -1157,8 +1156,20 @@ body{
 .hs-paf-player-btn:hover{border-color:var(--ooo);background:rgba(167,139,250,0.1)}
 .hs-paf-player-btn.calling{border-color:var(--ooo);background:rgba(167,139,250,0.15);color:var(--ooo)}
 .hs-spectate-banner{padding:10px 14px;border-radius:var(--radius);background:rgba(232,212,77,0.06);border:1px solid rgba(232,212,77,0.2);text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
-.hs-walkaway-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:20px;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 50% 30%,rgba(77,232,160,0.05) 0%,transparent 70%)}
-.hs-walkaway-amount{font-family:'DM Mono',monospace;font-size:52px;font-weight:800;color:var(--accent);letter-spacing:2px;text-shadow:0 0 40px rgba(232,212,77,0.5)}
+.hs-walkaway-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;min-height:100vh;padding:24px;background:radial-gradient(circle at 50% 26%,rgba(232,212,77,0.14),transparent 36%),radial-gradient(ellipse at 50% 80%,rgba(77,232,160,0.06),transparent 60%)}
+.hs-correct-mark{width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;background:rgba(77,232,160,0.12);border:2px solid var(--safe);color:var(--safe);font-size:38px;font-weight:900;box-shadow:0 0 36px rgba(77,232,160,0.22);animation:hsCorrectPop .5s ease}
+.hs-correct-title{font-size:38px;font-weight:850;letter-spacing:-1.5px;color:var(--text);line-height:1}
+.hs-correct-subtitle{margin-top:8px;font-size:12px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:2.5px;text-transform:uppercase}
+.hs-correct-reward{width:100%;padding:24px 18px 20px;border-radius:24px;border:1px solid rgba(232,212,77,.3);background:linear-gradient(145deg,rgba(232,212,77,.11),rgba(232,212,77,.025));box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 22px 60px rgba(0,0,0,.28);position:relative;overflow:hidden}
+.hs-correct-reward::before{content:'';position:absolute;width:180px;height:180px;border-radius:50%;left:50%;top:-120px;transform:translateX(-50%);background:rgba(232,212,77,.12);filter:blur(28px);pointer-events:none}
+.hs-correct-coin-icon{display:block;width:76px;height:76px;object-fit:contain;margin:0 auto 10px;filter:drop-shadow(0 12px 18px rgba(232,212,77,.3))}
+.hs-walkaway-amount{display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:58px;line-height:1;font-weight:900;color:var(--accent);letter-spacing:-2.5px;text-shadow:0 0 34px rgba(232,212,77,.28)}
+.hs-correct-coins-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:3px;margin-top:8px}
+.hs-correct-actions{width:100%;display:none;flex-direction:column;gap:10px}
+.hs-risk-btn{background:var(--accent);border:2px solid var(--accent);color:#171400;font-size:15px;font-weight:850;padding:16px;box-shadow:0 10px 30px rgba(232,212,77,.16)}
+.hs-risk-btn:hover{background:#f3df59;border-color:#f3df59;transform:translateY(-1px)}
+.hs-walk-btn{background:transparent;border:2px solid var(--safe);color:var(--safe);font-size:15px;font-weight:800;padding:15px}
+.hs-walk-btn:hover{background:rgba(77,232,160,.09);transform:translateY(-1px)}
 .hs-bust-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 50% 30%,rgba(232,93,77,0.07),transparent 60%)}
 .hs-bust-emoji{font-size:72px;animation:hsBustIn 0.5s ease forwards}
 .hs-leaderboard-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:6px;animation:fadeIn 0.25s ease}
@@ -8471,8 +8482,8 @@ function renderHSSpin(game){
     selectedDiv.style.display='none';
     if(startBtn)startBtn.style.display='none';
     hsDoSlotAnimation(players,winner,()=>{
-      selectedDiv.style.display='block';
       document.getElementById('hsSpinSelectedName').textContent=winner.name;
+      selectedDiv.style.display='block';
       if(amHost&&startBtn){startBtn.style.display='block';}
     });
   }
@@ -8484,13 +8495,13 @@ function hsDoSlotAnimation(players,winner,onDone){
   if(!reel)return;
   if(spinBtn)spinBtn.disabled=true;
   const names=players.map(p=>p.name);
-  const totalItems=36;
+  const totalItems=Math.max(30,names.length*8);
   const items=[];
   for(let i=0;i<totalItems-1;i++)items.push(names[i%names.length]);
   items.push(winner.name);
   reel.innerHTML='';
   reel.style.transition='none';
-  reel.style.transform='translateY(0)';
+  reel.style.transform='translate3d(0,0,0)';
   items.forEach((name,i)=>{
     const div=document.createElement('div');
     div.className='hs-slot-item'+(i===items.length-1?' winner':'');
@@ -8498,21 +8509,24 @@ function hsDoSlotAnimation(players,winner,onDone){
     reel.appendChild(div);
   });
   const itemH=72;
-  let idx=0;
-  function step(){
-    if(idx>=items.length-1){
-      if(spinBtn)spinBtn.disabled=false;
-      setTimeout(()=>{if(onDone)onDone();},300);
-      return;
-    }
-    idx++;
-    const progress=idx/(items.length-1);
-    const speed=progress<0.65?28:28+Math.pow((progress-0.65)/0.35,2)*340;
-    reel.style.transition=`transform ${speed}ms ease-out`;
-    reel.style.transform=`translateY(-${idx*itemH}px)`;
-    setTimeout(step,speed+8);
-  }
-  step();
+  const finalY=-(items.length-1)*itemH;
+  let finished=false;
+  let fallbackTimer=null;
+  const finish=()=>{
+    if(finished)return;
+    finished=true;
+    if(fallbackTimer)clearTimeout(fallbackTimer);
+    reel.style.transition='none';
+    reel.style.transform=`translate3d(0,${finalY}px,0)`;
+    if(spinBtn)spinBtn.disabled=false;
+    setTimeout(()=>{if(onDone)onDone();},180);
+  };
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    reel.addEventListener('transitionend',finish,{once:true});
+    reel.style.transition='transform 3200ms cubic-bezier(.12,.72,.12,1)';
+    reel.style.transform=`translate3d(0,${finalY}px,0)`;
+    fallbackTimer=setTimeout(finish,3500);
+  }));
 }
 
 async function hsDoSpin(){
@@ -9094,8 +9108,8 @@ function hsCleanup(){
       <div class="hs-selected-name" id="hsSpinSelectedName"></div>
     </div>
     <div id="hsSpinHostBtns" style="width:100%;display:none;flex-direction:column;gap:10px">
-      <button class="btn btn-primary" id="hsSpinBtn" onclick="hsDoSpin()" style="font-size:16px;padding:16px">🎰 Spin</button>
-      <button class="btn" id="hsStartBtn" onclick="hsStartAfterSpin()" style="display:none;background:var(--surface2);border:2px solid var(--accent);color:var(--accent);font-size:15px;padding:14px">▶ Start Hot Seat</button>
+      <button class="btn btn-primary" id="hsSpinBtn" onclick="hsDoSpin()" style="font-size:16px;padding:16px">Spin</button>
+      <button class="btn" id="hsStartBtn" onclick="hsStartAfterSpin()" style="display:none;background:var(--surface2);border:2px solid var(--accent);color:var(--accent);font-size:15px;padding:14px">Start Hot Seat</button>
     </div>
     <div id="hsSpinNonHost" style="display:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center;letter-spacing:1px">Waiting for host...</div>
   </div>
@@ -9122,8 +9136,8 @@ function hsCleanup(){
     <div class="hs-question-box" id="hsQuestionText">Loading...</div>
     <div class="hs-answer-grid" id="hsAnswerGrid"></div>
     <div id="hsLifelineArea" class="hs-lifeline-row" style="margin-top:4px">
-      <button class="hs-lifeline-btn" id="hsPhoneBtn" onclick="hsPhoneAFriend()">📞 Phone a Friend</button>
-      <button class="hs-lifeline-btn" id="hsPassBtn" onclick="hsUsePass()">🔀 Pass</button>
+      <button class="hs-lifeline-btn" id="hsPhoneBtn" onclick="hsPhoneAFriend()">Phone a Friend</button>
+      <button class="hs-lifeline-btn" id="hsPassBtn" onclick="hsUsePass()">Pass</button>
     </div>
     <!-- PAF overlay -->
     <div id="hsPAFOverlay" class="hs-paf-overlay" style="display:none">
@@ -9148,16 +9162,18 @@ function hsCleanup(){
 <div class="screen" id="screen-hs-walkaway" style="padding:0;overflow:hidden">
   <div class="hs-walkaway-screen" style="width:100%;max-width:440px;margin:0 auto">
     <div>
-      <div style="font-size:44px">🎉</div>
-      <div style="font-size:13px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:8px">Correct! You've banked</div>
+      <div class="hs-correct-mark">✓</div>
+      <div class="hs-correct-title">Correct!</div>
+      <div class="hs-correct-subtitle">You just won</div>
     </div>
-    <div>
-      <div class="hs-walkaway-amount"><img src="coin-icon-2.png" class="coin-icon-lg" alt=""/> <span id="hsWalkAmount">0</span></div>
-      <div class="hs-coins-label">coins</div>
+    <div class="hs-correct-reward">
+      <img src="coin-icon-2.png" class="hs-correct-coin-icon" alt="Coin"/>
+      <div class="hs-walkaway-amount"><span id="hsWalkAmount">0</span></div>
+      <div class="hs-correct-coins-label">coins on the table</div>
     </div>
-    <div id="hsWalkActiveBtns" style="width:100%;display:none;flex-direction:column;gap:10px">
-      <button class="btn" id="hsWalkAwayBtn" onclick="hsWalkAway()" style="background:var(--safe);color:#06130d;font-size:15px;padding:16px">✅ Walk away with <span id="hsWalkCoinLabel">0</span> coins</button>
-      <button class="btn" id="hsNextQBtn" onclick="hsNextQuestion()" style="background:var(--surface2);border:2px solid var(--accent);color:var(--accent);font-size:15px;padding:14px">🔥 Risk it for <span id="hsNextCoinLabel">0</span> coins</button>
+    <div id="hsWalkActiveBtns" class="hs-correct-actions">
+      <button class="btn hs-risk-btn" id="hsNextQBtn" onclick="hsNextQuestion()">Risk it for <span id="hsNextCoinLabel">0</span> coins</button>
+      <button class="btn hs-walk-btn" id="hsWalkAwayBtn" onclick="hsWalkAway()">Walk away with <span id="hsWalkCoinLabel">0</span> coins</button>
     </div>
     <div id="hsWalkSpectateBanner" style="display:none;font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);text-align:center;letter-spacing:1px;padding:16px;border:1px dashed var(--border);border-radius:var(--radius);width:100%">
       👀 <span id="hsWalkSpectateName"></span> is deciding...
@@ -9193,7 +9209,7 @@ function hsCleanup(){
     </div>
     <div id="hsLeaderboardList" style="margin-bottom:16px"></div>
     <div id="hsLeaderHostBtns" style="display:none;flex-direction:column;gap:10px">
-      <button class="btn btn-primary" onclick="hsReturnToSpin()" style="font-size:16px">🎰 Spin Again</button>
+      <button class="btn btn-primary" onclick="hsReturnToSpin()" style="font-size:16px">Spin Again</button>
       <button class="btn btn-secondary" onclick="returnToLobby()">Return to Lobby</button>
     </div>
     <div id="hsLeaderNonHostBtns" style="display:none;flex-direction:column;gap:10px">
