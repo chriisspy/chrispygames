@@ -8530,18 +8530,19 @@ function hsDecodeHTML(html){const t=document.createElement('textarea');t.innerHT
 async function fetchHSQuestions(){
   try{
     const [er,mr,hr]=await Promise.all([
-      fetch('https://opentdb.com/api.php?amount=4&difficulty=easy&type=multiple&encode=url3986').then(r=>r.json()),
-      fetch('https://opentdb.com/api.php?amount=4&difficulty=medium&type=multiple&encode=url3986').then(r=>r.json()),
-      fetch('https://opentdb.com/api.php?amount=5&difficulty=hard&type=multiple&encode=url3986').then(r=>r.json()),
+      fetch('https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple&encode=url3986').then(r=>r.json()),
+      fetch('https://opentdb.com/api.php?amount=5&difficulty=medium&type=multiple&encode=url3986').then(r=>r.json()),
+      fetch('https://opentdb.com/api.php?amount=3&difficulty=hard&type=multiple&encode=url3986').then(r=>r.json()),
     ]);
-    const parse=arr=>arr.results.map(q=>({
+    const parse=arr=>(arr&&Array.isArray(arr.results)?arr.results:[]).map(q=>({
       q:decodeURIComponent(q.question),
       correct:decodeURIComponent(q.correct_answer),
       wrong:q.incorrect_answers.map(a=>decodeURIComponent(a)),
       difficulty:q.difficulty
     }));
     const e=parse(er),m=parse(mr),h=parse(hr);
-    return{questions:[...e.slice(0,3),...m.slice(0,3),...h.slice(0,4)],passBank:{easy:e[3],medium:m[3],hard:h[4]}};
+    if(e.length<5||m.length<5||h.length<3)throw new Error('Trivia service returned an incomplete question set');
+    return{questions:[...e.slice(0,4),...m.slice(0,4),...h.slice(0,2)],passBank:{easy:e[4],medium:m[4],hard:h[2]}};
   }catch(err){console.error('OTD fetch failed',err);return null;}
 }
 
@@ -8550,10 +8551,10 @@ async function startHSGame(){
   const game=localGame;
   const players=Object.values(game.players||{});
   if(players.length<2)return;
-  setLoading('startGameBtn',true,'Loading questions...');
+  setLoading('startBtn',true,'Loading questions...');
   const qData=await fetchHSQuestions();
-  setLoading('startGameBtn',false,'Start Hot Seat');
-  if(!qData){alert('Could not load questions. Check your internet connection and try again.');return;}
+  setLoading('startBtn',false,qData?'Start Hot Seat':'Questions unavailable — retry');
+  if(!qData)return;
   const selected=pick(players);
   await updateGame(gameCode,{
     status:'playing',mode:'hotseat',
@@ -8676,9 +8677,18 @@ async function hsStartAfterSpin(){
   if(!amHost||!gameCode)return;
   const startBtn=document.getElementById('hsStartBtn');
   if(startBtn)startBtn.disabled=true;
-  const qData=await fetchHSQuestions();
+  const existingQuestions=Array.isArray(localGame.hotseatQuestions)?localGame.hotseatQuestions:[];
+  let qData=existingQuestions.length>=10?{questions:existingQuestions,passBank:localGame.hotseatPassBank||{}}:null;
+  // Normally the questions were already loaded before the spin. Only retry the
+  // network if an older/incomplete game state reaches this screen.
+  if(!qData)qData=await fetchHSQuestions();
   if(startBtn)startBtn.disabled=false;
-  if(!qData){alert('Could not load questions. Check your internet connection.');return;}
+  const loadStatus=document.getElementById('hsQuestionLoadStatus');
+  if(!qData){
+    if(loadStatus){loadStatus.style.display='block';loadStatus.textContent='Questions are temporarily unavailable. Tap Start Hot Seat to retry.';}
+    return;
+  }
+  if(loadStatus)loadStatus.style.display='none';
   await updateGame(gameCode,{
     hotseatPhase:'question',
     hotseatQuestions:qData.questions,hotseatPassBank:qData.passBank,
@@ -9238,6 +9248,7 @@ function hsCleanup(){
       <button class="btn btn-primary" id="hsStartBtn" onclick="hsStartAfterSpin()" style="display:none;font-size:16px;padding:16px">Start Hot Seat</button>
       <button class="btn" id="hsSpinBtn" onclick="hsDoSpin()" style="background:var(--surface2);border:2px solid var(--accent);color:var(--accent);font-size:15px;padding:14px">Spin Again</button>
     </div>
+    <div id="hsQuestionLoadStatus" class="notice error" style="display:none;width:100%;text-align:center"></div>
     <div id="hsSpinNonHost" style="display:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center;letter-spacing:1px">Waiting for host...</div>
   </div>
 </div>
