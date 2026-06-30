@@ -1391,6 +1391,7 @@ body{
           <button class="custom-mode-option mode-tab" id="modeTabFa" onclick="setGameMode('fa')"><span class="custom-mode-icon">🎨</span><span><span class="custom-mode-name">Fake Artist</span><span class="custom-mode-desc">Draw the imposter</span></span></button>
           <button class="custom-mode-option mode-tab" id="modeTabBs" onclick="setGameMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
           <button class="custom-mode-option mode-tab" id="modeTabGuess" onclick="setGameMode('guess')"><span class="custom-mode-icon">❓</span><span><span class="custom-mode-name">Guessing Game</span><span class="custom-mode-desc">Guess the answer</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabHs" onclick="setGameMode('hotseat')"><span class="custom-mode-icon">🔥</span><span><span class="custom-mode-name">Hot Seat</span><span class="custom-mode-desc">Million dollar trivia</span></span></button>
         </div>
       </div>
       <!-- SPYFALL SETTINGS -->
@@ -4105,6 +4106,7 @@ function updateModeUI(mode){
   document.getElementById('modeTabFa').className='custom-mode-option mode-tab'+(mode==='fa'?' active-fa':'');
   document.getElementById('modeTabBs').className='custom-mode-option mode-tab'+(mode==='bs'?' active-bs':'');
   const guessTab=document.getElementById('modeTabGuess');if(guessTab)guessTab.className='custom-mode-option mode-tab'+(mode==='guess'?' active-guess':'');
+  const hsTab=document.getElementById('modeTabHs');if(hsTab)hsTab.className='custom-mode-option mode-tab'+(mode==='hotseat'?' active-spyfall':'');
   document.getElementById('spyfallSettings').style.display=mode==='spyfall'?'block':'none';
   document.getElementById('oooSettings').style.display=mode==='ooo'?'block':'none';
   document.getElementById('mafiaSettings').style.display=mode==='mafia'?'block':'none';
@@ -4115,8 +4117,9 @@ function updateModeUI(mode){
   const minNotice=document.getElementById('minPlayersNotice');
   if(mode==='mafia'){minNotice.textContent='Need at least 4 players to start Mafia';}
   else if(mode==='guess'){minNotice.textContent='Need at least 2 players to start Guessing Game';}
+  else if(mode==='hotseat'){minNotice.textContent='Need at least 2 players to start Hot Seat';}
   else{minNotice.textContent='Need at least 3 players to start';}
-  document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':mode==='mafia'?'Start Mafia':mode==='fa'?'Start Fake Artist':mode==='bs'?'Start Blind Spot':mode==='guess'?'Start Guessing Game':'Start Game';
+  document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':mode==='mafia'?'Start Mafia':mode==='fa'?'Start Fake Artist':mode==='bs'?'Start Blind Spot':mode==='guess'?'Start Guessing Game':mode==='hotseat'?'Start Hot Seat':'Start Game';
 }
 function changeOOORounds(delta){
   localOOORounds=Math.min(10,Math.max(1,localOOORounds+delta));
