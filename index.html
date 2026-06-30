@@ -1107,6 +1107,71 @@ body{
   .screen{overflow-x:hidden;}
 }
 
+/* ===== HOT SEAT ===== */
+@keyframes hsSlotStep{from{transform:var(--hs-from)}to{transform:var(--hs-to)}}
+@keyframes hsPulse{0%,100%{box-shadow:0 0 12px rgba(232,212,77,0.4),0 0 0 rgba(232,212,77,0)}50%{box-shadow:0 0 32px rgba(232,212,77,0.9),0 0 60px rgba(232,212,77,0.2)}}
+@keyframes hsWrongShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes hsCorrectPop{0%{transform:scale(1)}40%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes hsBustIn{0%{opacity:0;transform:scale(0.7) rotate(-5deg)}60%{transform:scale(1.08) rotate(1deg)}100%{opacity:1;transform:scale(1) rotate(0deg)}}
+@keyframes hsGlow{0%,100%{text-shadow:0 0 20px rgba(232,212,77,0.4)}50%{text-shadow:0 0 50px rgba(232,212,77,0.9),0 0 80px rgba(232,212,77,0.4)}}
+
+.hs-spin-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 50% 30%,rgba(232,212,77,0.06) 0%,transparent 70%)}
+.hs-spin-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted)}
+.hs-slot-wrap{width:100%;max-width:380px;position:relative;border-radius:var(--radius-lg);border:2px solid var(--accent);background:var(--surface);box-shadow:0 0 40px rgba(232,212,77,0.12),inset 0 0 40px rgba(0,0,0,0.3)}
+.hs-slot-window{height:72px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.hs-slot-edge{position:absolute;left:0;right:0;height:28px;z-index:2;pointer-events:none}
+.hs-slot-edge.top{top:0;background:linear-gradient(to bottom,var(--surface) 10%,transparent)}
+.hs-slot-edge.bottom{bottom:0;background:linear-gradient(to top,var(--surface) 10%,transparent)}
+.hs-slot-reel{display:flex;flex-direction:column;will-change:transform}
+.hs-slot-item{height:72px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--text);flex-shrink:0;padding:0 24px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px}
+.hs-slot-item.winner{color:var(--accent)}
+.hs-slot-highlight{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:72px;border-top:1.5px solid rgba(232,212,77,0.25);border-bottom:1.5px solid rgba(232,212,77,0.25);pointer-events:none;z-index:1}
+.hs-selected-name{font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--accent);text-align:center;animation:hsGlow 1.8s ease infinite}
+.hs-question-box{padding:20px;background:var(--surface);border:2px solid rgba(232,212,77,0.2);border-radius:var(--radius-lg);font-size:17px;font-weight:700;color:var(--text);line-height:1.55;text-align:center;position:relative;overflow:hidden}
+.hs-question-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(232,212,77,0.04),transparent 60%);pointer-events:none}
+.hs-answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hs-answer-btn{padding:14px 12px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;text-align:center;line-height:1.4}
+.hs-answer-btn:hover:not(:disabled){border-color:var(--accent);background:rgba(232,212,77,0.08);transform:translateY(-1px)}
+.hs-answer-btn:disabled{cursor:not-allowed}
+.hs-answer-btn.correct{border-color:var(--safe)!important;background:rgba(77,232,160,0.15)!important;color:var(--safe)!important;animation:hsCorrectPop 0.4s ease}
+.hs-answer-btn.wrong{border-color:var(--spy)!important;background:rgba(232,93,77,0.15)!important;color:var(--spy)!important;animation:hsWrongShake 0.4s ease}
+.hs-answer-btn.reveal-correct{border-color:var(--safe);background:rgba(77,232,160,0.1);color:var(--safe)}
+.hs-answer-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:1px}
+.hs-timer-ring{position:relative;width:64px;height:64px;flex-shrink:0}
+.hs-timer-ring svg{transform:rotate(-90deg)}
+.hs-timer-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--text)}
+.hs-timer-ring-num.danger{color:var(--spy);animation:timer-pulse 1s infinite}
+.hs-coins-display{font-family:'DM Mono',monospace;font-size:28px;font-weight:800;color:var(--accent);letter-spacing:1px}
+.hs-coins-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.hs-lifeline-row{display:flex;gap:8px}
+.hs-lifeline-btn{flex:1;padding:10px 8px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.15s;text-align:center}
+.hs-lifeline-btn:hover:not(:disabled){border-color:var(--ooo);background:rgba(167,139,250,0.08);transform:translateY(-1px)}
+.hs-lifeline-btn:disabled{opacity:0.35;cursor:not-allowed}
+.hs-lifeline-btn.used{opacity:0.3;cursor:not-allowed;text-decoration:line-through}
+.hs-paf-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:16px}
+.hs-paf-card{width:100%;max-width:380px;background:var(--surface);border:2px solid var(--ooo);border-radius:var(--radius-lg);padding:24px;text-align:center;box-shadow:0 0 40px rgba(167,139,250,0.2)}
+.hs-paf-timer{font-family:'DM Mono',monospace;font-size:52px;font-weight:700;color:var(--ooo);margin:8px 0;letter-spacing:4px}
+.hs-paf-timer.ending{color:var(--spy);animation:timer-pulse 1s infinite}
+.hs-paf-player-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.hs-paf-player-btn{padding:12px 16px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;text-align:left}
+.hs-paf-player-btn:hover{border-color:var(--ooo);background:rgba(167,139,250,0.1)}
+.hs-paf-player-btn.calling{border-color:var(--ooo);background:rgba(167,139,250,0.15);color:var(--ooo)}
+.hs-spectate-banner{padding:10px 14px;border-radius:var(--radius);background:rgba(232,212,77,0.06);border:1px solid rgba(232,212,77,0.2);text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.hs-walkaway-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:20px;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 50% 30%,rgba(77,232,160,0.05) 0%,transparent 70%)}
+.hs-walkaway-amount{font-family:'DM Mono',monospace;font-size:52px;font-weight:800;color:var(--accent);letter-spacing:2px;text-shadow:0 0 40px rgba(232,212,77,0.5)}
+.hs-bust-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;min-height:100vh;padding:24px;background:radial-gradient(ellipse at 50% 30%,rgba(232,93,77,0.07),transparent 60%)}
+.hs-bust-emoji{font-size:72px;animation:hsBustIn 0.5s ease forwards}
+.hs-leaderboard-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:6px;animation:fadeIn 0.25s ease}
+.hs-leaderboard-row.me{border-color:var(--accent)}
+.hs-leaderboard-rank{font-size:18px;min-width:28px;text-align:center}
+.hs-leaderboard-name{flex:1;font-size:15px;font-weight:700}
+.hs-leaderboard-coins{font-family:'DM Mono',monospace;font-size:15px;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:4px}
+.hs-q-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.hs-diff-badge{display:inline-block;padding:2px 7px;border-radius:999px;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.hs-diff-easy{background:rgba(77,232,160,0.12);color:var(--safe);border:1px solid rgba(77,232,160,0.25)}
+.hs-diff-medium{background:rgba(232,212,77,0.12);color:var(--accent);border:1px solid rgba(232,212,77,0.25)}
+.hs-diff-hard{background:rgba(232,93,77,0.12);color:var(--spy);border:1px solid rgba(232,93,77,0.25)}
+
 </style>
 </head>
 <body>
@@ -1145,6 +1210,7 @@ body{
       <button class="custom-mode-option" id="homeTileFa" onclick="selectHomeMode('fa')"><span class="custom-mode-icon">🎨</span><span><span class="custom-mode-name">Fake Artist</span><span class="custom-mode-desc">Draw the imposter</span></span></button>
       <button class="custom-mode-option" id="homeTileBs" onclick="selectHomeMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
       <button class="custom-mode-option" id="homeTileGuess" onclick="selectHomeMode('guess')"><span class="custom-mode-icon">❓</span><span><span class="custom-mode-name">Guessing Game</span><span class="custom-mode-desc">Guess the answer</span></span></button>
+      <button class="custom-mode-option" id="homeTileHs" onclick="selectHomeMode('hotseat')"><span class="custom-mode-icon">🔥</span><span><span class="custom-mode-name">Hot Seat</span><span class="custom-mode-desc">Million dollar trivia</span></span></button>
     </div>
   </div>
   <div class="card fadeIn">
@@ -2960,7 +3026,7 @@ function handleMyRewardDisplays(game){
 
 
 
-const MODE_LABELS={spyfall:'🕵️ Spyfall',ooo:'🎭 Odd One Out',mafia:'🃏 Mafia',fa:'🎨 Fake Artist',bs:'🕵️ Blind Spot',guess:'❓ Guessing Game'};
+const MODE_LABELS={spyfall:'🕵️ Spyfall',ooo:'🎭 Odd One Out',mafia:'🃏 Mafia',fa:'🎨 Fake Artist',bs:'🕵️ Blind Spot',guess:'❓ Guessing Game',hotseat:'🔥 Hot Seat'};
 function toggleModeDropdown(id){
   const wrap=document.getElementById(id);
   if(!wrap)return;
@@ -4280,7 +4346,7 @@ function onGameUpdate(game){
     return;
   }
 
-  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-spy-caught','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result','screen-guess-setup','screen-guess-game','screen-guess-result','screen-guess-final'];
+  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-spy-caught','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result','screen-guess-setup','screen-guess-game','screen-guess-result','screen-guess-final','screen-hs-spin','screen-hs-question','screen-hs-walkaway','screen-hs-bust','screen-hs-leaderboard'];
 
   // LOBBY
   if(game.status==='lobby'){
@@ -4367,6 +4433,21 @@ function onGameUpdate(game){
       }
     }
     if(game.status==='result'){if(cur!=='screen-bs-result')showBsResult(game);return;}
+    return;
+  }
+
+  // HOT SEAT
+  if(game.mode==='hotseat'){
+    if(game.status==='lobby'){
+      if(cur==='screen-lobby')renderLobby(game);
+      if(cur==='screen-waiting')renderWaiting(game);
+      if(allGameScreens.includes(cur)){if(amHost){renderLobby(game);showScreen('lobby');}else{renderWaiting(game);showScreen('waiting');}}
+      return;
+    }
+    if(game.status==='playing'){
+      onHSGameUpdate(game);
+      return;
+    }
     return;
   }
 
@@ -4815,6 +4896,7 @@ function renderLobby(game){
       localGameMode==='fa'?'Start Fake Artist':
       localGameMode==='bs'?'Start Blind Spot':
       localGameMode==='guess'?'Start Guessing Game':
+      localGameMode==='hotseat'?'Start Hot Seat':
       'Start Game';
   }
 
@@ -4849,6 +4931,7 @@ async function startGame(){
   if(localGameMode==='fa'||game.mode==='fa'){await startFaGame();return;}
   if(localGameMode==='bs'||game.mode==='bs'){await startBsGame();return;}
   if(localGameMode==='guess'||game.mode==='guess'){await startGuessGame();return;}
+  if(localGameMode==='hotseat'||game.mode==='hotseat'){await startHSGame();return;}
   // Spyfall
   const players=Object.values(game.players||{});if(players.length<3)return;
   const isChaos=localChaosMode;
@@ -6271,7 +6354,7 @@ async function leaveGame(){
       }
     }catch(e){console.error(e);}
   }
-  gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;faCanvasCleanup();bsCleanup();
+  gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;faCanvasCleanup();bsCleanup();hsCleanup();
   showScreen('home');
 }
 
@@ -6454,7 +6537,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();hsCleanup();gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
 
 
 
@@ -6470,6 +6553,7 @@ function selectHomeMode(mode){
   document.getElementById('homeTileFa').classList.toggle('selected',mode==='fa');
   const bsTile=document.getElementById('homeTileBs');if(bsTile)bsTile.classList.toggle('selected',mode==='bs');
   const guessTile=document.getElementById('homeTileGuess');if(guessTile)guessTile.classList.toggle('selected',mode==='guess');
+  const hsTile=document.getElementById('homeTileHs');if(hsTile)hsTile.classList.toggle('selected',mode==='hotseat');
   updateModeDropdownLabels(mode);
   closeModeDropdown('homeModeDropdown');
 }
@@ -8289,6 +8373,466 @@ if(joinCodeEl){joinCodeEl.addEventListener('input',function(e){e.target.value=e.
 var playerNameEl=document.getElementById('playerName');
 if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key==='Enter'){document.getElementById('joinCode').value.trim()?joinGame():createGame();}});}
 // Password listeners are handled by the early PASSWORD FIX V4 script in the <head>.
+
+// =====================================================
+// HOT SEAT GAME
+// =====================================================
+const HS_COINS=[10,50,100,250,500,750,1000,1500,2000,3000];
+const HS_Q_SECS=30;
+const HS_PAF_SECS=60;
+let hsTimerInterval=null;
+let hsPAFTimerInterval=null;
+let hsLastSpinId=null;
+
+function hsDecodeHTML(html){const t=document.createElement('textarea');t.innerHTML=html;return t.value;}
+
+async function fetchHSQuestions(){
+  try{
+    const [er,mr,hr]=await Promise.all([
+      fetch('https://opentdb.com/api.php?amount=4&difficulty=easy&type=multiple&encode=url3986').then(r=>r.json()),
+      fetch('https://opentdb.com/api.php?amount=4&difficulty=medium&type=multiple&encode=url3986').then(r=>r.json()),
+      fetch('https://opentdb.com/api.php?amount=5&difficulty=hard&type=multiple&encode=url3986').then(r=>r.json()),
+    ]);
+    const parse=arr=>arr.results.map(q=>({
+      q:decodeURIComponent(q.question),
+      correct:decodeURIComponent(q.correct_answer),
+      wrong:q.incorrect_answers.map(a=>decodeURIComponent(a)),
+      difficulty:q.difficulty
+    }));
+    const e=parse(er),m=parse(mr),h=parse(hr);
+    return{questions:[...e.slice(0,3),...m.slice(0,3),...h.slice(0,4)],passBank:{easy:e[3],medium:m[3],hard:h[4]}};
+  }catch(err){console.error('OTD fetch failed',err);return null;}
+}
+
+async function startHSGame(){
+  if(!amHost)return;
+  const game=localGame;
+  const players=Object.values(game.players||{});
+  if(players.length<2)return;
+  setLoading('startGameBtn',true,'Loading questions...');
+  const qData=await fetchHSQuestions();
+  setLoading('startGameBtn',false,'Start Hot Seat');
+  if(!qData){alert('Could not load questions. Check your internet connection and try again.');return;}
+  const selected=pick(players);
+  await updateGame(gameCode,{
+    status:'playing',mode:'hotseat',
+    hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,
+    hotseatQuestions:qData.questions,hotseatPassBank:qData.passBank,
+    hotseatQuestionIndex:0,hotseatCoins:0,
+    hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
+    hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,
+    hotseatTimerStart:null,hotseatTimerSecondsLeft:HS_Q_SECS,
+    hotseatTimerPaused:false,hotseatPhoneTimerStart:null,
+    hotseatBankedCoins:game.hotseatBankedCoins||{},
+  });
+}
+
+function onHSGameUpdate(game){
+  const cur=(document.querySelector('.screen.active')||{}).id;
+  const phase=game.hotseatPhase;
+  if(phase==='spinning'){
+    if(cur!=='screen-hs-spin')showScreen('hs-spin');
+    renderHSSpin(game);
+  }else if(phase==='question'){
+    if(cur!=='screen-hs-question')showScreen('hs-question');
+    renderHSQuestion(game);
+  }else if(phase==='walkaway'){
+    clearInterval(hsTimerInterval);
+    if(cur!=='screen-hs-walkaway')showScreen('hs-walkaway');
+    renderHSWalkaway(game);
+  }else if(phase==='bust'){
+    clearInterval(hsTimerInterval);
+    if(cur!=='screen-hs-bust')showScreen('hs-bust');
+    renderHSBust(game);
+  }else if(phase==='leaderboard'){
+    clearInterval(hsTimerInterval);
+    if(cur!=='screen-hs-leaderboard')showScreen('hs-leaderboard');
+    renderHSLeaderboard(game);
+  }
+}
+
+function renderHSSpin(game){
+  const players=Object.values(game.players||{});
+  const selectedId=game.hotseatCurrentPlayerId;
+  const winner=players.find(p=>p.id===selectedId)||players[0];
+  const hostBtns=document.getElementById('hsSpinHostBtns');
+  const nonHost=document.getElementById('hsSpinNonHost');
+  const selectedDiv=document.getElementById('hsSpinSelected');
+  const spinBtn=document.getElementById('hsSpinBtn');
+  const startBtn=document.getElementById('hsStartBtn');
+  if(amHost){hostBtns.style.display='flex';nonHost.style.display='none';}
+  else{hostBtns.style.display='none';nonHost.style.display='block';}
+  // Only animate once per unique selected player
+  if(hsLastSpinId!==selectedId&&winner){
+    hsLastSpinId=selectedId;
+    selectedDiv.style.display='none';
+    if(startBtn)startBtn.style.display='none';
+    hsDoSlotAnimation(players,winner,()=>{
+      selectedDiv.style.display='block';
+      document.getElementById('hsSpinSelectedName').textContent=winner.name;
+      if(amHost&&startBtn){startBtn.style.display='block';}
+    });
+  }
+}
+
+function hsDoSlotAnimation(players,winner,onDone){
+  const reel=document.getElementById('hsSlotReel');
+  const spinBtn=document.getElementById('hsSpinBtn');
+  if(!reel)return;
+  if(spinBtn)spinBtn.disabled=true;
+  const names=players.map(p=>p.name);
+  const totalItems=36;
+  const items=[];
+  for(let i=0;i<totalItems-1;i++)items.push(names[i%names.length]);
+  items.push(winner.name);
+  reel.innerHTML='';
+  reel.style.transition='none';
+  reel.style.transform='translateY(0)';
+  items.forEach((name,i)=>{
+    const div=document.createElement('div');
+    div.className='hs-slot-item'+(i===items.length-1?' winner':'');
+    div.textContent=name;
+    reel.appendChild(div);
+  });
+  const itemH=72;
+  let idx=0;
+  function step(){
+    if(idx>=items.length-1){
+      if(spinBtn)spinBtn.disabled=false;
+      setTimeout(()=>{if(onDone)onDone();},300);
+      return;
+    }
+    idx++;
+    const progress=idx/(items.length-1);
+    const speed=progress<0.65?28:28+Math.pow((progress-0.65)/0.35,2)*340;
+    reel.style.transition=`transform ${speed}ms ease-out`;
+    reel.style.transform=`translateY(-${idx*itemH}px)`;
+    setTimeout(step,speed+8);
+  }
+  step();
+}
+
+async function hsDoSpin(){
+  if(!amHost||!gameCode)return;
+  const game=localGame;
+  const players=Object.values(game.players||{}).filter(p=>p.online!==false);
+  const selected=pick(players);
+  hsLastSpinId=null;
+  await updateGame(gameCode,{
+    hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,
+    hotseatQuestionIndex:0,hotseatCoins:0,
+    hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
+    hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,
+    hotseatTimerStart:null,hotseatTimerSecondsLeft:HS_Q_SECS,
+    hotseatTimerPaused:false,hotseatPhoneTimerStart:null,
+  });
+}
+
+async function hsStartAfterSpin(){
+  if(!amHost||!gameCode)return;
+  const startBtn=document.getElementById('hsStartBtn');
+  if(startBtn)startBtn.disabled=true;
+  const qData=await fetchHSQuestions();
+  if(startBtn)startBtn.disabled=false;
+  if(!qData){alert('Could not load questions. Check your internet connection.');return;}
+  await updateGame(gameCode,{
+    hotseatPhase:'question',
+    hotseatQuestions:qData.questions,hotseatPassBank:qData.passBank,
+    hotseatQuestionIndex:0,hotseatCoins:0,
+    hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
+    hotseatAnswered:false,hotseatWrongAnswer:null,
+    hotseatTimerStart:serverTimestamp(),hotseatTimerSecondsLeft:HS_Q_SECS,
+    hotseatTimerPaused:false,hotseatPhoneTimerStart:null,
+  });
+}
+
+function renderHSQuestion(game){
+  const myIsActive=game.hotseatCurrentPlayerId===myId;
+  const qi=game.hotseatQuestionIndex||0;
+  const questions=game.hotseatQuestions||[];
+  const q=questions[qi];
+  if(!q)return;
+  const players=Object.values(game.players||{});
+  const activePlayer=players.find(p=>p.id===game.hotseatCurrentPlayerId);
+  // Spectate banner
+  const spectateEl=document.getElementById('hsSpectateNotice');
+  const spectateNameEl=document.getElementById('hsSpectateName');
+  spectateEl.style.display=myIsActive?'none':'block';
+  if(!myIsActive&&activePlayer)spectateNameEl.textContent=activePlayer.name+' is in the Hot Seat';
+  // Badge + coins
+  const diffClass='hs-diff-'+q.difficulty;
+  document.getElementById('hsQBadge').innerHTML=`Question ${qi+1} of 10 &nbsp;<span class="hs-diff-badge ${diffClass}">${q.difficulty}</span>`;
+  const coinsAtStake=HS_COINS[qi];
+  document.getElementById('hsCoinDisplay').textContent=coinsAtStake.toLocaleString();
+  // Question
+  document.getElementById('hsQuestionText').textContent=q.q;
+  // Answers
+  const grid=document.getElementById('hsAnswerGrid');
+  grid.innerHTML='';
+  const answers=shuffle([q.correct,...q.wrong]);
+  const labels=['A','B','C','D'];
+  const answered=game.hotseatAnswered;
+  answers.forEach((ans,i)=>{
+    const btn=document.createElement('button');
+    btn.className='hs-answer-btn';
+    btn.innerHTML=`<div class="hs-answer-label">${labels[i]}</div>${ans}`;
+    if(answered){
+      btn.disabled=true;
+      if(ans===q.correct)btn.classList.add(game.hotseatWrongAnswer?'reveal-correct':'correct');
+      if(ans===game.hotseatWrongAnswer)btn.classList.add('wrong');
+    }else if(!myIsActive){
+      btn.disabled=true;
+    }else{
+      btn.onclick=()=>hsAnswer(ans,q.correct,qi);
+    }
+    grid.appendChild(btn);
+  });
+  // Lifelines
+  const lifelineArea=document.getElementById('hsLifelineArea');
+  const phoneBtn=document.getElementById('hsPhoneBtn');
+  const passBtn=document.getElementById('hsPassBtn');
+  lifelineArea.style.display=myIsActive&&!answered?'flex':'none';
+  if(game.hotseatPhoneUsed){phoneBtn.classList.add('used');phoneBtn.disabled=true;}
+  else{phoneBtn.classList.remove('used');phoneBtn.disabled=false;}
+  if(game.hotseatPassUsed){passBtn.classList.add('used');passBtn.disabled=true;}
+  else{passBtn.classList.remove('used');passBtn.disabled=false;}
+  // PAF overlay
+  renderHSPAFOverlay(game);
+  // Timer
+  hsStartClientTimer(game);
+}
+
+function hsStartClientTimer(game){
+  clearInterval(hsTimerInterval);
+  const numEl=document.getElementById('hsTimerNum');
+  const circleEl=document.getElementById('hsTimerCircle');
+  if(!numEl||!circleEl)return;
+  if(game.hotseatAnswered){
+    if(numEl)numEl.textContent='✓';
+    if(circleEl)circleEl.style.stroke='var(--safe)';
+    return;
+  }
+  if(game.hotseatTimerPaused){
+    const s=game.hotseatTimerSecondsLeft||HS_Q_SECS;
+    numEl.textContent=s;
+    numEl.className='hs-timer-ring-num'+(s<=5?' danger':'');
+    circleEl.style.strokeDashoffset=163.36*(1-s/HS_Q_SECS);
+    circleEl.style.stroke=s<=5?'var(--spy)':'var(--accent)';
+    return;
+  }
+  if(!game.hotseatTimerStart)return;
+  function tick(){
+    const elapsed=(syncedNow()-game.hotseatTimerStart)/1000;
+    const secsLeft=Math.max(0,(game.hotseatTimerSecondsLeft||HS_Q_SECS)-elapsed);
+    const s=Math.ceil(secsLeft);
+    if(numEl){numEl.textContent=s;numEl.className='hs-timer-ring-num'+(s<=5?' danger':'');}
+    if(circleEl){circleEl.style.strokeDashoffset=163.36*(1-secsLeft/HS_Q_SECS);circleEl.style.stroke=s<=5?'var(--spy)':'var(--accent)';}
+    if(secsLeft<=0){
+      clearInterval(hsTimerInterval);
+      if(amHost&&localGame&&localGame.hotseatPhase==='question'&&!localGame.hotseatAnswered)hsHandleTimeout();
+    }
+  }
+  tick();
+  hsTimerInterval=setInterval(tick,250);
+}
+
+async function hsHandleTimeout(){
+  if(!amHost||!gameCode)return;
+  const snap=await gameRefFor(gameCode).once('value');
+  const g=snap.val();
+  if(!g||g.hotseatPhase!=='question'||g.hotseatAnswered)return;
+  const qi=g.hotseatQuestionIndex||0;
+  const q=(g.hotseatQuestions||[])[qi];
+  await updateGame(gameCode,{hotseatPhase:'bust',hotseatAnswered:true,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:q?q.correct:'?'});
+}
+
+async function hsAnswer(answer,correct,qi){
+  if(!gameCode||!localGame)return;
+  clearInterval(hsTimerInterval);
+  document.querySelectorAll('.hs-answer-btn').forEach(b=>b.disabled=true);
+  const isCorrect=answer===correct;
+  if(isCorrect){
+    const coins=HS_COINS[qi];
+    const isLast=qi===9;
+    const banked={...(localGame.hotseatBankedCoins||{})};
+    if(isLast){banked[myId]=(banked[myId]||0)+coins;}
+    await updateGame(gameCode,{
+      hotseatAnswered:true,hotseatCoins:coins,
+      hotseatPhase:isLast?'leaderboard':'walkaway',
+      ...(isLast?{hotseatBankedCoins:banked}:{}),
+    });
+    if(isLast){
+      db.ref('users/'+myId).transaction(u=>{u=u||{};u.coins=(u.coins||0)+coins;return u;});
+    }
+  }else{
+    await updateGame(gameCode,{hotseatAnswered:true,hotseatPhase:'bust',hotseatWrongAnswer:answer,hotseatBustCorrectAnswer:correct});
+  }
+}
+
+function renderHSPAFOverlay(game){
+  const overlay=document.getElementById('hsPAFOverlay');
+  const closeBtn=document.getElementById('hsPAFCloseBtn');
+  const myIsActive=game.hotseatCurrentPlayerId===myId;
+  if(!overlay)return;
+  if(game.hotseatPhoneTimerStart&&!game.hotseatAnswered){
+    overlay.style.display='flex';
+    if(closeBtn)closeBtn.style.display=myIsActive?'':'none';
+    clearInterval(hsPAFTimerInterval);
+    function tickPAF(){
+      const elapsed=(syncedNow()-game.hotseatPhoneTimerStart)/1000;
+      const s=Math.max(0,Math.ceil(HS_PAF_SECS-elapsed));
+      const el=document.getElementById('hsPAFTimer');
+      if(el){el.textContent=s;el.className='hs-paf-timer'+(s<=10?' ending':'');}
+      if(s<=0){clearInterval(hsPAFTimerInterval);if(myIsActive)hsClosePAF();}
+    }
+    tickPAF();hsPAFTimerInterval=setInterval(tickPAF,500);
+    const selectArea=document.getElementById('hsPAFSelectArea');
+    const callingArea=document.getElementById('hsPAFCallingArea');
+    if(game.hotseatPhoneFriendId){
+      const friend=Object.values(game.players||{}).find(p=>p.id===game.hotseatPhoneFriendId);
+      selectArea.style.display='none';callingArea.style.display='block';
+      document.getElementById('hsPAFCalledName').textContent=friend?friend.name:'your friend';
+    }else{
+      selectArea.style.display='block';callingArea.style.display='none';
+      const list=document.getElementById('hsPAFPlayerList');
+      if(list&&myIsActive){
+        list.innerHTML='';
+        Object.values(game.players||{}).filter(p=>p.id!==myId).forEach(p=>{
+          const btn=document.createElement('button');
+          btn.className='hs-paf-player-btn'+(game.hotseatPhoneFriendId===p.id?' calling':'');
+          btn.textContent=p.name;
+          btn.onclick=()=>hsSelectPAFFriend(p.id);
+          list.appendChild(btn);
+        });
+      }else if(list&&!myIsActive){list.innerHTML='<div style="font-family:\'DM Mono\',monospace;font-size:13px;color:var(--muted)">Waiting for player to choose...</div>';}
+    }
+  }else{
+    overlay.style.display='none';
+    clearInterval(hsPAFTimerInterval);
+  }
+}
+
+async function hsPhoneAFriend(){
+  if(!gameCode||!localGame)return;
+  if(localGame.hotseatPhoneUsed||localGame.hotseatCurrentPlayerId!==myId)return;
+  const elapsed=localGame.hotseatTimerStart?(syncedNow()-localGame.hotseatTimerStart)/1000:0;
+  const secsLeft=Math.max(1,Math.round((localGame.hotseatTimerSecondsLeft||HS_Q_SECS)-elapsed));
+  clearInterval(hsTimerInterval);
+  await updateGame(gameCode,{hotseatPhoneUsed:true,hotseatTimerPaused:true,hotseatTimerSecondsLeft:secsLeft,hotseatTimerStart:null,hotseatPhoneTimerStart:serverTimestamp(),hotseatPhoneFriendId:null});
+}
+
+async function hsSelectPAFFriend(friendId){
+  if(!gameCode||localGame.hotseatCurrentPlayerId!==myId)return;
+  await gameRefFor(gameCode).child('hotseatPhoneFriendId').set(friendId);
+}
+
+async function hsClosePAF(){
+  if(!gameCode||!localGame||localGame.hotseatCurrentPlayerId!==myId)return;
+  const secsLeft=localGame.hotseatTimerSecondsLeft||HS_Q_SECS;
+  await updateGame(gameCode,{hotseatPhoneTimerStart:null,hotseatTimerPaused:false,hotseatTimerStart:serverTimestamp(),hotseatTimerSecondsLeft:secsLeft});
+}
+
+async function hsUsePass(){
+  if(!gameCode||!localGame)return;
+  if(localGame.hotseatPassUsed||localGame.hotseatCurrentPlayerId!==myId)return;
+  const qi=localGame.hotseatQuestionIndex||0;
+  const currentQ=(localGame.hotseatQuestions||[])[qi];
+  if(!currentQ)return;
+  const passQ=(localGame.hotseatPassBank||{})[currentQ.difficulty];
+  if(!passQ){alert('No pass question available for this difficulty.');return;}
+  const newQs=[...(localGame.hotseatQuestions||[])];
+  newQs[qi]=passQ;
+  await updateGame(gameCode,{hotseatPassUsed:true,hotseatQuestions:newQs,hotseatAnswered:false,hotseatTimerStart:serverTimestamp(),hotseatTimerSecondsLeft:HS_Q_SECS});
+}
+
+function renderHSWalkaway(game){
+  const qi=game.hotseatQuestionIndex||0;
+  const coins=HS_COINS[qi];
+  const nextCoins=HS_COINS[qi+1];
+  const myIsActive=game.hotseatCurrentPlayerId===myId;
+  document.getElementById('hsWalkAmount').textContent=coins.toLocaleString();
+  document.getElementById('hsWalkCoinLabel').textContent=coins.toLocaleString();
+  if(document.getElementById('hsNextCoinLabel'))document.getElementById('hsNextCoinLabel').textContent=nextCoins?nextCoins.toLocaleString():'';
+  const activeBtns=document.getElementById('hsWalkActiveBtns');
+  const spectateBanner=document.getElementById('hsWalkSpectateBanner');
+  if(myIsActive){
+    activeBtns.style.display='flex';spectateBanner.style.display='none';
+    const nextBtn=document.getElementById('hsNextQBtn');
+    if(nextBtn)nextBtn.style.display=qi<9?'':'none';
+  }else{
+    activeBtns.style.display='none';spectateBanner.style.display='block';
+    const active=Object.values(game.players||{}).find(p=>p.id===game.hotseatCurrentPlayerId);
+    document.getElementById('hsWalkSpectateName').textContent=active?active.name:'The player';
+  }
+}
+
+async function hsWalkAway(){
+  if(!gameCode||!localGame)return;
+  const qi=localGame.hotseatQuestionIndex||0;
+  const coins=HS_COINS[qi];
+  const banked={...(localGame.hotseatBankedCoins||{}),[myId]:((localGame.hotseatBankedCoins||{})[myId]||0)+coins};
+  db.ref('users/'+myId).transaction(u=>{u=u||{};u.coins=(u.coins||0)+coins;return u;});
+  await updateGame(gameCode,{hotseatPhase:'leaderboard',hotseatBankedCoins:banked});
+}
+
+async function hsNextQuestion(){
+  if(!gameCode||!localGame)return;
+  const qi=localGame.hotseatQuestionIndex||0;
+  if(qi>=9)return;
+  await updateGame(gameCode,{hotseatPhase:'question',hotseatQuestionIndex:qi+1,hotseatAnswered:false,hotseatWrongAnswer:null,hotseatTimerStart:serverTimestamp(),hotseatTimerSecondsLeft:HS_Q_SECS,hotseatTimerPaused:false,hotseatPhoneTimerStart:null});
+}
+
+function renderHSBust(game){
+  const active=Object.values(game.players||{}).find(p=>p.id===game.hotseatCurrentPlayerId);
+  document.getElementById('hsBustPlayerName').textContent=active?active.name:'The player';
+  document.getElementById('hsBustCorrectAnswer').textContent=game.hotseatBustCorrectAnswer||'';
+  document.getElementById('hsBustHostBtn').style.display=amHost?'flex':'none';
+  document.getElementById('hsBustNonHostBtn').style.display=amHost?'none':'block';
+}
+
+function hsShowLeaderboard(){
+  if(!amHost||!gameCode)return;
+  updateGame(gameCode,{hotseatPhase:'leaderboard'});
+}
+
+function renderHSLeaderboard(game){
+  const players=Object.values(game.players||{});
+  const banked=game.hotseatBankedCoins||{};
+  const sorted=players.map(p=>({...p,total:banked[p.id]||0})).sort((a,b)=>b.total-a.total);
+  const list=document.getElementById('hsLeaderboardList');
+  list.innerHTML='';
+  const medals=['🥇','🥈','🥉'];
+  sorted.forEach((p,i)=>{
+    const row=document.createElement('div');
+    row.className='hs-leaderboard-row'+(p.id===myId?' me':'');
+    row.innerHTML=`<div class="hs-leaderboard-rank">${medals[i]||(i+1)}</div><div class="hs-leaderboard-name">${p.name}</div><div class="hs-leaderboard-coins"><img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${p.total.toLocaleString()}</div>`;
+    list.appendChild(row);
+  });
+  document.getElementById('hsLeaderHostBtns').style.display=amHost?'flex':'none';
+  document.getElementById('hsLeaderNonHostBtns').style.display=amHost?'none':'flex';
+}
+
+async function hsReturnToSpin(){
+  if(!amHost||!gameCode)return;
+  const game=localGame;
+  const players=Object.values(game.players||{}).filter(p=>p.online!==false);
+  const selected=pick(players);
+  hsLastSpinId=null;
+  await updateGame(gameCode,{
+    hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,
+    hotseatQuestionIndex:0,hotseatCoins:0,
+    hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
+    hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,
+    hotseatTimerStart:null,hotseatTimerSecondsLeft:HS_Q_SECS,
+    hotseatTimerPaused:false,hotseatPhoneTimerStart:null,
+  });
+}
+
+function hsCleanup(){
+  clearInterval(hsTimerInterval);
+  clearInterval(hsPAFTimerInterval);
+  hsLastSpinId=null;
+}
 </script>
 
 <script>
@@ -8526,6 +9070,135 @@ if(playerNameEl){playerNameEl.addEventListener('keydown',function(e){if(e.key===
   </div>
 </div>
 
+
+<!-- HOT SEAT: SPIN -->
+<div class="screen" id="screen-hs-spin" style="padding:0;overflow:hidden">
+  <div class="hs-spin-screen" style="width:100%;max-width:440px;margin:0 auto">
+    <div style="text-align:center">
+      <div class="hs-spin-title">Hot Seat</div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-1px">Who's next?</div>
+    </div>
+    <div class="hs-slot-wrap" id="hsSlotWrap">
+      <div class="hs-slot-edge top"></div>
+      <div class="hs-slot-window">
+        <div class="hs-slot-reel" id="hsSlotReel"><div class="hs-slot-item" style="color:var(--muted)">—</div></div>
+        <div class="hs-slot-highlight"></div>
+      </div>
+      <div class="hs-slot-edge bottom"></div>
+    </div>
+    <div id="hsSpinSelected" style="display:none;text-align:center">
+      <div class="hs-spin-title" style="margin-bottom:8px">stepping into the hot seat</div>
+      <div class="hs-selected-name" id="hsSpinSelectedName"></div>
+    </div>
+    <div id="hsSpinHostBtns" style="width:100%;display:none;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" id="hsSpinBtn" onclick="hsDoSpin()" style="font-size:16px;padding:16px">🎰 Spin</button>
+      <button class="btn" id="hsStartBtn" onclick="hsStartAfterSpin()" style="display:none;background:var(--surface2);border:2px solid var(--accent);color:var(--accent);font-size:15px;padding:14px">▶ Start Hot Seat</button>
+    </div>
+    <div id="hsSpinNonHost" style="display:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center;letter-spacing:1px">Waiting for host...</div>
+  </div>
+</div>
+
+<!-- HOT SEAT: QUESTION -->
+<div class="screen" id="screen-hs-question" style="padding:0;overflow:hidden">
+  <div style="width:100%;max-width:440px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:100dvh;box-sizing:border-box">
+    <div id="hsSpectateNotice" class="hs-spectate-banner" style="display:none">👀 Watching — <span id="hsSpectateName"></span></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div class="hs-q-badge" id="hsQBadge">Question 1 of 10</div>
+        <div class="hs-coins-display" id="hsCoinDisplay">0</div>
+        <div class="hs-coins-label">coins at stake</div>
+      </div>
+      <div class="hs-timer-ring" id="hsTimerRing">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="var(--border)" stroke-width="4"/>
+          <circle id="hsTimerCircle" cx="32" cy="32" r="26" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="163.36" stroke-dashoffset="0" stroke-linecap="round"/>
+        </svg>
+        <div class="hs-timer-ring-num" id="hsTimerNum">30</div>
+      </div>
+    </div>
+    <div class="hs-question-box" id="hsQuestionText">Loading...</div>
+    <div class="hs-answer-grid" id="hsAnswerGrid"></div>
+    <div id="hsLifelineArea" class="hs-lifeline-row" style="margin-top:4px">
+      <button class="hs-lifeline-btn" id="hsPhoneBtn" onclick="hsPhoneAFriend()">📞 Phone a Friend</button>
+      <button class="hs-lifeline-btn" id="hsPassBtn" onclick="hsUsePass()">🔀 Pass</button>
+    </div>
+    <!-- PAF overlay -->
+    <div id="hsPAFOverlay" class="hs-paf-overlay" style="display:none">
+      <div class="hs-paf-card">
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">Phone a Friend</div>
+        <div class="hs-paf-timer" id="hsPAFTimer">60</div>
+        <div id="hsPAFSelectArea">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Who do you want to call?</div>
+          <div class="hs-paf-player-list" id="hsPAFPlayerList"></div>
+        </div>
+        <div id="hsPAFCallingArea" style="display:none;padding:8px 0">
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">Calling <span id="hsPAFCalledName" style="color:var(--ooo)"></span>...</div>
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">Question timer is paused</div>
+        </div>
+      </div>
+      <button class="btn btn-secondary" style="width:100%;max-width:380px" id="hsPAFCloseBtn" onclick="hsClosePAF()">Done — Resume Timer</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOT SEAT: WALK AWAY -->
+<div class="screen" id="screen-hs-walkaway" style="padding:0;overflow:hidden">
+  <div class="hs-walkaway-screen" style="width:100%;max-width:440px;margin:0 auto">
+    <div>
+      <div style="font-size:44px">🎉</div>
+      <div style="font-size:13px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:8px">Correct! You've banked</div>
+    </div>
+    <div>
+      <div class="hs-walkaway-amount"><img src="coin-icon-2.png" class="coin-icon-lg" alt=""/> <span id="hsWalkAmount">0</span></div>
+      <div class="hs-coins-label">coins</div>
+    </div>
+    <div id="hsWalkActiveBtns" style="width:100%;display:none;flex-direction:column;gap:10px">
+      <button class="btn" id="hsWalkAwayBtn" onclick="hsWalkAway()" style="background:var(--safe);color:#06130d;font-size:15px;padding:16px">✅ Walk away with <span id="hsWalkCoinLabel">0</span> coins</button>
+      <button class="btn" id="hsNextQBtn" onclick="hsNextQuestion()" style="background:var(--surface2);border:2px solid var(--accent);color:var(--accent);font-size:15px;padding:14px">🔥 Risk it for <span id="hsNextCoinLabel">0</span> coins</button>
+    </div>
+    <div id="hsWalkSpectateBanner" style="display:none;font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);text-align:center;letter-spacing:1px;padding:16px;border:1px dashed var(--border);border-radius:var(--radius);width:100%">
+      👀 <span id="hsWalkSpectateName"></span> is deciding...
+    </div>
+  </div>
+</div>
+
+<!-- HOT SEAT: BUST -->
+<div class="screen" id="screen-hs-bust" style="padding:0;overflow:hidden">
+  <div class="hs-bust-screen" style="width:100%;max-width:440px;margin:0 auto">
+    <div class="hs-bust-emoji">💸</div>
+    <div style="font-size:36px;font-weight:800;color:var(--spy);letter-spacing:-1px">BUST!</div>
+    <div style="font-family:'DM Mono',monospace;font-size:14px;color:var(--muted);text-align:center;line-height:1.7;max-width:300px">
+      <span id="hsBustPlayerName">The player</span> got it wrong and lost everything.
+    </div>
+    <div style="background:rgba(232,93,77,0.08);border:1px solid rgba(232,93,77,0.3);border-radius:var(--radius-lg);padding:20px;width:100%;text-align:center">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--spy);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">correct answer was</div>
+      <div style="font-size:17px;font-weight:700;color:var(--text)" id="hsBustCorrectAnswer"></div>
+    </div>
+    <div id="hsBustHostBtn" style="display:none;width:100%;display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" onclick="hsShowLeaderboard()">See Leaderboard</button>
+    </div>
+    <div id="hsBustNonHostBtn" style="display:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center">Waiting for host...</div>
+  </div>
+</div>
+
+<!-- HOT SEAT: LEADERBOARD -->
+<div class="screen scrollable" id="screen-hs-leaderboard">
+  <div style="width:100%;max-width:440px;padding:24px 0 40px">
+    <div style="text-align:center;margin-bottom:20px">
+      <div class="hs-spin-title">Hot Seat</div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-1px">Leaderboard</div>
+    </div>
+    <div id="hsLeaderboardList" style="margin-bottom:16px"></div>
+    <div id="hsLeaderHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <button class="btn btn-primary" onclick="hsReturnToSpin()" style="font-size:16px">🎰 Spin Again</button>
+      <button class="btn btn-secondary" onclick="returnToLobby()">Return to Lobby</button>
+    </div>
+    <div id="hsLeaderNonHostBtns" style="display:none;flex-direction:column;gap:10px">
+      <div class="notice info">Waiting for host to spin again...</div>
+      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    </div>
+  </div>
+</div>
 
 <div class="avatar-crop-backdrop" id="avatarCropBackdrop">
   <div class="avatar-crop-modal" onclick="event.stopPropagation()">
