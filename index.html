@@ -3915,10 +3915,20 @@ async function placeBet(targetId){
     setBettingStatus('Bet could not be placed: '+msg,false);
   }
 }
+function isBettingSettlementState(game){
+  return !!(game&&(game.status==='result'||(game.mode==='hotseat'&&game.hotseatPhase==='leaderboard')));
+}
+
 function finalWinnerIdsForBetting(game){
-  if(!game||game.status!=='result')return [];
+  if(!isBettingSettlementState(game))return [];
 
   const players=Object.values(game.players||{});
+
+  if(game.mode==='hotseat'&&game.hotseatPhase==='leaderboard'){
+    const banked=game.hotseatBankedCoins||{};
+    const max=Math.max(0,...players.map(p=>Number(banked[p.id])||0));
+    return max>0?players.filter(p=>(Number(banked[p.id])||0)===max).map(p=>p.id):[];
+  }
 
   if(game.mode==='ooo'&&game.oooPhase==='gameover'){
     const scores=game.oooScores||{};
@@ -3937,18 +3947,95 @@ function finalWinnerIdsForBetting(game){
 }
 
 function bettingResultKey(game){
-  if(!game||game.status!=='result')return null;
+  if(!isBettingSettlementState(game))return null;
 
   const mode=game.mode||'spyfall';
-  const stamp=game.rewardRoundId||game.resultRoundId||game.finishedAt||game.updatedAt;
+  const stamp=game.hotseatRoundId||game.rewardRoundId||game.resultRoundId||game.finishedAt||game.updatedAt;
 
   if(!stamp)return null;
 
   return 'bet_'+mode+'_'+String(stamp).replace(/[^a-zA-Z0-9_-]/g,'');
 }
 
+function betStake(bet){
+  return Math.max(0,Math.floor(Number(bet&&(bet.total!==undefined?bet.total:bet.amount))||0));
+}
+
+function priorBetSettlementEvent(game,bet,currentKey){
+  const createdAt=Number((bet&&bet.createdAt)||0);
+  if(!createdAt)return null;
+  return Object.entries((game&&game.betPayoutEvents)||{})
+    .filter(([key,event])=>key!==currentKey&&event&&Number(event.paidAt)>=createdAt)
+    .sort((a,b)=>Number(a[1].paidAt)-Number(b[1].paidAt))[0]||null;
+}
+
+function buildBetSettlement(game,bets,winnerIds,key){
+  const outcomes={};const payouts={};const settledAt=Date.now();
+  Object.values(bets||{}).forEach(bet=>{
+    if(!bet||!isBetActiveStatus(bet))return;
+    const betId=bet.id||bet.betKey;if(!betId||!bet.playerId)return;
+    const prior=priorBetSettlementEvent(game,bet,key);
+    const effectiveWinnerIds=prior?((prior[1]&&prior[1].winnerIds)||[]):winnerIds;
+    const won=effectiveWinnerIds.includes(bet.targetId);
+    const stake=betStake(bet);const payout=won?stake*2:0;
+    const outcomeKey=safeFirebaseKey(betId);
+    outcomes[outcomeKey]={
+      betId,playerId:bet.playerId,targetId:bet.targetId||null,
+      status:won?'won':'lost',stake,payout,
+      settledAt:prior?Number(prior[1].paidAt)||settledAt:settledAt,
+      settlementKey:prior?prior[0]:key,
+      payoutAlreadyProcessed:!!prior
+    };
+    // Historical active bets may already have been paid by an older event. Close
+    // them accurately, but never pay them again in the current round.
+    if(won&&!prior&&payout>0)payouts[bet.playerId]=(payouts[bet.playerId]||0)+payout;
+  });
+  return {settlementVersion:2,paidAt:settledAt,paidBy:myId,winnerIds:winnerIds||[],payouts,outcomes};
+}
+
+function applyLocalBetSettlement(event){
+  Object.values((event&&event.outcomes)||{}).forEach(outcome=>{
+    if(!outcome||outcome.playerId!==myId||!outcome.betId)return;
+    const saved=getLocalSavedBets(gameCode);const existing=saved[outcome.betId];
+    const settled={...(existing||{}),status:outcome.status,inactive:true,payout:outcome.payout||0,settledAt:outcome.settledAt||event.paidAt||Date.now(),settlementKey:outcome.settlementKey||null,updatedAt:Date.now()};
+    if(existing)saveLocalBet(gameCode,outcome.betId,settled);
+    if(localGame&&localGame.players&&localGame.players[myId]){
+      ['playerBets','nextBets'].forEach(bag=>{
+        if(localGame.players[myId][bag]&&localGame.players[myId][bag][outcome.betId])localGame.players[myId][bag][outcome.betId]={...localGame.players[myId][bag][outcome.betId],...settled};
+      });
+    }
+  });
+}
+
+async function applyBetSettlementRecords(game,key,event){
+  const updates={lastBetPayoutKey:key,lastBetWinnerIds:event.winnerIds||[],lastBetPayouts:event.payouts||{}};
+  Object.values(event.outcomes||{}).forEach(outcome=>{
+    if(!outcome||!outcome.betId||!outcome.playerId)return;
+    const fields={status:outcome.status,inactive:true,payout:outcome.payout||0,settledAt:outcome.settledAt||event.paidAt||Date.now(),settlementKey:outcome.settlementKey||key,updatedAt:Date.now()};
+    const playerBet=game.players&&game.players[outcome.playerId]&&game.players[outcome.playerId].playerBets&&game.players[outcome.playerId].playerBets[outcome.betId];
+    const rootBet=game.bets&&game.bets[outcome.betId];
+    if(playerBet||!rootBet)Object.entries(fields).forEach(([field,value])=>{updates[`players/${outcome.playerId}/playerBets/${safeFirebaseKey(outcome.betId)}/${field}`]=value;});
+    if(rootBet)Object.entries(fields).forEach(([field,value])=>{updates[`bets/${safeFirebaseKey(outcome.betId)}/${field}`]=value;});
+  });
+  applyLocalBetSettlement(event);
+  await gameRefFor(gameCode).update(updates);
+}
+
+async function applyIdempotentBetPayouts(key,payouts){
+  await Promise.all(Object.entries(payouts||{}).map(([id,amount])=>db.ref('users/'+id).transaction(user=>{
+    user=user||{};user.betPayoutClaims=user.betPayoutClaims||{};
+    const claimKey=safeFirebaseKey(key);
+    if(user.betPayoutClaims[claimKey])return;
+    const value=Math.max(0,Math.floor(Number(amount)||0));
+    user.coins=(Number(user.coins)||0)+value;
+    user.betPayoutClaims[claimKey]={amount:value,paidAt:Date.now()};
+    user.savedAt=Date.now();user.lastBetPayoutAt=Date.now();
+    return user;
+  })));
+}
+
 async function awardBetPayoutsForFinishedGame(game){
-  if(!gameCode||!game||game.status!=='result')return;
+  if(!gameCode||!isBettingSettlementState(game))return;
 
   const bets=resultBetBag(game)||{};
   Object.keys(bets).forEach(k=>{if(!isBetActiveStatus(bets[k]))delete bets[k];});
@@ -3957,56 +4044,30 @@ async function awardBetPayoutsForFinishedGame(game){
   if(!betIds.length)return;
 
   const winnerIds=finalWinnerIdsForBetting(game);
-  if(!winnerIds.length)return;
-
   const key=bettingResultKey(game);
   if(!key)return;
 
   try{
     const eventRef=gameRefFor(gameCode).child('betPayoutEvents/'+key);
 
-    const claimed=await eventRef.transaction(current=>{
-      if(current)return;
+    const settlement=buildBetSettlement(game,bets,winnerIds,key);
+    const claimed=await eventRef.transaction(current=>current||settlement);
+    if(!claimed||!claimed.snapshot)return;
+    let event=claimed.snapshot.val()||settlement;
 
-      const payouts={};
+    // Upgrade payout events created by older builds so their bets can finally be
+    // closed without issuing the same payout twice.
+    if(!event.outcomes){
+      event={...event,outcomes:settlement.outcomes,winnerIds:event.winnerIds||winnerIds,payouts:event.payouts||settlement.payouts};
+      await eventRef.update({outcomes:event.outcomes,winnerIds:event.winnerIds,payouts:event.payouts});
+    }
 
-      betIds.forEach(id=>{
-        const bet=bets[id]||{};
-        const bettorId=bet.playerId;
+    // Version 1 events were already paid by the legacy payout path. Only the new
+    // idempotent events use claim markers and are safe to retry.
+    if(event.settlementVersion===2)await applyIdempotentBetPayouts(key,event.payouts||{});
+    await applyBetSettlementRecords(game,key,event);
 
-        if(bettorId&&winnerIds.includes(bet.targetId)){
-          // Force flat 2x: winner gets back double their stake, ignoring any old stored odds.
-          const stake=Math.floor(Number(bet.total!==undefined?bet.total:bet.amount)||0);
-          const amount=stake*2;
-          if(amount>0){
-            payouts[bettorId]=(payouts[bettorId]||0)+amount;
-          }
-        }
-      });
-
-      return {paidAt:Date.now(),paidBy:myId,winnerIds,payouts};
-    });
-
-    if(!claimed||!claimed.committed)return;
-
-    const event=claimed.snapshot.val()||{};
-    const payouts=event.payouts||{};
-
-    await Promise.all(Object.entries(payouts).map(([id,amount])=>db.ref('users/'+id).transaction(user=>{
-      user=user||{};
-      user.coins=(Number(user.coins)||0)+Math.floor(Number(amount)||0);
-      user.savedAt=Date.now();
-      user.lastBetPayoutAt=Date.now();
-      return user;
-    })));
-
-    await gameRefFor(gameCode).update({
-      lastBetPayoutKey:key,
-      lastBetWinnerIds:winnerIds,
-      lastBetPayouts:payouts
-    });
-
-    if(payouts[myId])await loadMyProfile();
+    if(event.payouts&&event.payouts[myId])await loadMyProfile();
 
   }catch(e){
     console.warn('Bet payout failed',e);
@@ -4067,14 +4128,10 @@ function handleMyBetDisplays(game){
     if(localStorage.getItem(seenKey))return;
 
     localStorage.setItem(seenKey,'1');
-
-    myProfile.coins=(myProfile.coins||0)+Math.floor(Number(amount)||0);
-    saveLocalProfile();
-    renderShop();
-
     setTimeout(()=>animateBetWon(amount),260);
-
-    loadMyProfile().catch(()=>{});
+    // The cloud transaction is the single source of truth for balances. Updating
+    // local coins here as well could double-pay on a new device or cleared cache.
+    setTimeout(()=>loadMyProfile().catch(()=>{}),700);
   });
 }
 
@@ -5277,16 +5334,44 @@ function renderMafiaNightMafia(game){
   if(isTwoMafia)setupMafiaPrivateChat(game);
 
   const pvs=document.getElementById('mafiaPartnerVoteStatus');
-  if(isTwoMafia&&pvs){pvs.style.display='block';pvs.textContent=!partnerDecision?"Your partner hasn't decided yet...":`Your partner voted: ${partnerDecision.toUpperCase()}`;}
+  if(isTwoMafia&&pvs){
+    pvs.style.display='block';
+    const allDecided=aliveMafia.every(id=>!!killDecisions[id]);
+    const allWantKill=aliveMafia.every(id=>killDecisions[id]==='yes');
+    pvs.textContent=!partnerDecision?"Your partner hasn't decided yet...":!allDecided?'Waiting for every Mafia decision...':allWantKill?'Both Mafia chose to kill — agree on one target.':'The Mafia did not unanimously choose to kill.';
+  }
   else if(pvs){pvs.style.display='none';}
 
   startMafiaNightDecisionTimer(game);
+
+  if(isTwoMafia){
+    const allDecided=aliveMafia.every(id=>!!killDecisions[id]);
+    const allWantKill=aliveMafia.every(id=>killDecisions[id]==='yes');
+    if(!myDecision){
+      document.getElementById('mafiaKillYesNoSection').style.display='flex';
+      document.getElementById('mafiaKillTargetSection').style.display='none';
+      document.getElementById('mafiaKillWaiting').style.display='none';
+      return;
+    }
+    if(!allDecided||!allWantKill){
+      document.getElementById('mafiaKillYesNoSection').style.display='none';
+      document.getElementById('mafiaKillTargetSection').style.display='none';
+      document.getElementById('mafiaKillWaiting').style.display='block';
+      document.getElementById('mafiaKillWaitingText').textContent=!allDecided?'Your decision is locked. Waiting for the other Mafia...':'The Mafia did not agree to attempt a kill. No target will be selected.';
+      return;
+    }
+    document.getElementById('mafiaKillYesNoSection').style.display='none';
+    document.getElementById('mafiaKillTargetSection').style.display='block';
+    document.getElementById('mafiaKillWaiting').style.display='none';
+    renderMafiaKillTargetChoices(game);
+    return;
+  }
 
   if(myDecision){
     document.getElementById('mafiaKillYesNoSection').style.display='none';
     document.getElementById('mafiaKillTargetSection').style.display='none';
     document.getElementById('mafiaKillWaiting').style.display='block';
-    document.getElementById('mafiaKillWaitingText').textContent=myDecision==='yes'?'Waiting for everyone to act...':'You chose to spare them tonight. Waiting for dawn...';
+    document.getElementById('mafiaKillWaitingText').textContent=myDecision==='yes'?'Target locked in. Waiting for dawn...':'You chose to spare them tonight. Waiting for dawn...';
     return;
   }
 
@@ -5297,12 +5382,25 @@ function renderMafiaNightMafia(game){
     document.getElementById('mafiaKillWaiting').style.display='none';
   }
   if(showingTarget){
-    const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
-    const targets=players.filter(p=>!mafiaIds.includes(p.id)&&!eliminated[p.id]);
-    const myKillVote=(game.mafiaKillVotes||{})[myId];
-    document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>`<div class="vote-item ${myKillVote===p.id?'mafia-voted':''}" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameHtml(p)}</div>${myKillVote===p.id?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`).join('');
-    document.getElementById('mafiaKillTargetStatus').textContent=(game.mafiaKillVotes||{})[myId]?'Target selected — waiting for others...':'Choose your target';
+    renderMafiaKillTargetChoices(game);
   }
+}
+
+function renderMafiaKillTargetChoices(game){
+  const mafiaIds=game.mafiaIds||[];const eliminated=game.mafiaEliminated||{};
+  const aliveMafia=mafiaIds.filter(id=>!eliminated[id]);const votes=game.mafiaKillVotes||{};
+  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const targets=players.filter(p=>!mafiaIds.includes(p.id)&&!eliminated[p.id]);
+  const myKillVote=votes[myId];const voteCounts={};
+  aliveMafia.forEach(id=>{const target=votes[id];if(target)voteCounts[target]=(voteCounts[target]||0)+1;});
+  document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>{
+    const count=voteCounts[p.id]||0;const selected=myKillVote===p.id;
+    return`<div class="vote-item ${selected?'mafia-voted':''}" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameHtml(p)}</div><div style="font-family:'DM Mono',monospace;font-size:12px;color:${count===aliveMafia.length?'var(--safe)':'#e74c3c'}">${count}/${aliveMafia.length}</div>${selected?'<div style="color:#e74c3c;font-size:13px">✓</div>':''}</div>`;
+  }).join('');
+  if(myKillVote){
+    const target=game.players&&game.players[myKillVote];const count=voteCounts[myKillVote]||0;
+    document.getElementById('mafiaKillTargetStatus').textContent=`Your vote: ${(target&&target.name)||'selected target'} — ${count}/${aliveMafia.length} agreed. You can change it until time runs out.`;
+  }else document.getElementById('mafiaKillTargetStatus').textContent='Choose your target. Every living Mafia must select the same person.';
 }
 
 let mafiaDecisionTimerInterval=null;
@@ -5339,16 +5437,16 @@ async function mafiaVoteKillDecision(decision){
     const decisions={...(game.mafiaKillDecisions||{}),[myId]:decision};
     const allDecided=aliveMafia.every(id=>decisions[id]);
     if(allDecided){
-      const anyYes=aliveMafia.some(id=>decisions[id]==='yes');
-      if(anyYes){showKillTargetList(game);}
+      const allYes=aliveMafia.every(id=>decisions[id]==='yes');
+      if(allYes){showKillTargetList({...game,mafiaKillDecisions:decisions});}
       else{
-        // Both said no — show waiting, timer still runs to completion
+        // A kill attempt requires every living Mafia to agree.
         document.getElementById('mafiaKillYesNoSection').style.display='none';
         document.getElementById('mafiaKillTargetSection').style.display='none';
         document.getElementById('mafiaKillWaiting').style.display='block';
-        document.getElementById('mafiaKillWaitingText').textContent='Both chose to spare tonight. Waiting for timer...';
+        document.getElementById('mafiaKillWaitingText').textContent='The Mafia did not unanimously choose to kill. No one will be targeted.';
       }
-    } else {renderMafiaNightMafia(game);}
+    } else {renderMafiaNightMafia({...game,mafiaKillDecisions:decisions});}
   } else {
     if(decision==='yes'){showKillTargetList(game);}
     else{
@@ -5367,21 +5465,22 @@ function showKillTargetList(game){
   document.getElementById('mafiaKillYesNoSection').style.display='none';
   document.getElementById('mafiaKillTargetSection').style.display='block';
   document.getElementById('mafiaKillWaiting').style.display='none';
-  const mafiaIds=game.mafiaIds||[];
-  const eliminated=game.mafiaEliminated||{};
-  const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
-  const targets=players.filter(p=>!mafiaIds.includes(p.id)&&!eliminated[p.id]);
-  document.getElementById('mafiaKillTargetList').innerHTML=targets.map(p=>`<div class="vote-item" onclick="selectKillTarget('${p.id}')"><div style="font-size:20px">🔪</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameHtml(p)}</div></div>`).join('');
-  document.getElementById('mafiaKillTargetStatus').textContent='Choose your target';
+  renderMafiaKillTargetChoices(game);
 }
 
 async function selectKillTarget(targetId){
   if(!gameCode||!localGame)return;
   await gameRefFor(gameCode).child('mafiaKillVotes/'+myId).set(targetId);
   await gameRefFor(gameCode).child('mafiaKillDecisions/'+myId).set('yes');
-  document.getElementById('mafiaKillTargetSection').style.display='none';
-  document.getElementById('mafiaKillWaiting').style.display='block';
-  document.getElementById('mafiaKillWaitingText').textContent='Target locked in. Waiting for the timer...';
+  const eliminated=localGame.mafiaEliminated||{};
+  const aliveMafia=(localGame.mafiaIds||[]).filter(id=>!eliminated[id]);
+  if(aliveMafia.length<2){
+    document.getElementById('mafiaKillTargetSection').style.display='none';
+    document.getElementById('mafiaKillWaiting').style.display='block';
+    document.getElementById('mafiaKillWaitingText').textContent='Target locked in. Waiting for the timer...';
+  }else{
+    renderMafiaKillTargetChoices({...localGame,mafiaKillVotes:{...(localGame.mafiaKillVotes||{}),[myId]:targetId},mafiaKillDecisions:{...(localGame.mafiaKillDecisions||{}),[myId]:'yes'}});
+  }
   // Timer runs to completion — do NOT advance to dawn here
 }
 
@@ -5546,19 +5645,23 @@ async function mafiaAdvancePhase(){
     await resolveMafiaDayVote(game);
   }
 }
+function mafiaUnanimousKillTarget(game){
+  const eliminated=(game&&game.mafiaEliminated)||{};
+  const aliveMafia=((game&&game.mafiaIds)||[]).filter(id=>!eliminated[id]);
+  if(!aliveMafia.length)return null;
+  const votes=(game&&game.mafiaKillVotes)||{};
+  const choices=aliveMafia.map(id=>votes[id]);
+  if(choices.some(targetId=>!targetId))return null;
+  return choices.every(targetId=>targetId===choices[0])?choices[0]:null;
+}
 async function mafiaAdvanceToDawn(){
   const game=localGame;if(!game)return;
   if(game.mafiaPhase!=='night')return;
-  const killVotes=game.mafiaKillVotes||{};
   const saveVote=game.mafiaSaveVote;
   const eliminated={...(game.mafiaEliminated||{})};
   const log=[...(game.mafiaLog||[])];
 
-  const killCounts={};Object.values(killVotes).forEach(v=>{killCounts[v]=(killCounts[v]||0)+1;});
-  let killTarget=null;
-  if(Object.keys(killCounts).length>0){
-    killTarget=Object.entries(killCounts).sort((a,b)=>b[1]-a[1])[0][0];
-  }
+  const killTarget=mafiaUnanimousKillTarget(game);
 
   let dawnEliminated=null,dawnSaved=null;
 
@@ -5701,6 +5804,7 @@ function showMafiaResult(game){
 }
 async function mafiaPlayAgain(){
   if(!amHost)return;
+  await prepareBetsForImmediateReplay(localGame);
   await startMafiaGame();
 }
 
@@ -6321,9 +6425,25 @@ async function resolveOOOTieVotes(game,votes){
 // =====================================================
 // PLAY AGAIN / LEAVE / RETURN TO LOBBY
 // =====================================================
+async function prepareBetsForImmediateReplay(game){
+  if(!game||!gameCode)return;
+  if(isBettingSettlementState(game))await awardBetPayoutsForFinishedGame(game);
+  const rootNext=Object.fromEntries(Object.entries(game.nextBets||{}).filter(([,bet])=>bet&&isBetActiveStatus(bet)));
+  const updates={bets:Object.keys(rootNext).length?rootNext:null,nextBets:null};
+  Object.values(game.players||{}).forEach(player=>{
+    const next=Object.fromEntries(Object.entries(player.nextBets||{}).filter(([,bet])=>bet&&isBetActiveStatus(bet)));
+    updates[`players/${player.id}/playerBets`]=Object.keys(next).length?next:null;
+    updates[`players/${player.id}/nextBets`]=null;
+    player.playerBets=next;player.nextBets={};
+  });
+  game.bets=rootNext;game.nextBets={};
+  await gameRefFor(gameCode).update(updates);
+}
+
 async function playAgain(){
   if(!amHost)return;
   const game=localGame;if(!game)return;
+  await prepareBetsForImmediateReplay(game);
   const isChaos=game.chaosMode;const isMultiSpy=!!game.multiSpyMode&&!isChaos;
   const players=Object.values(game.players||{});if(players.length<3)return;
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
@@ -6352,8 +6472,15 @@ async function returnToLobby(){
     return;
   }
   nonHostLobbyView=false;
+  if(isBettingSettlementState(game))await awardBetPayoutsForFinishedGame(game);
+  const promotedPlayerBets={};
+  Object.values(game.players||{}).forEach(player=>{
+    const next=Object.fromEntries(Object.entries(player.nextBets||{}).filter(([,bet])=>bet&&isBetActiveStatus(bet)));
+    promotedPlayerBets[`players/${player.id}/playerBets`]=Object.keys(next).length?next:null;
+    promotedPlayerBets[`players/${player.id}/nextBets`]=null;
+  });
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,lastCaughtSpyId:null,spyfallResumeTimerRunning:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,bets:game.nextBets||{},nextBets:{},betPayoutEvents:null,lastBetPayoutKey:null,lastBetWinnerIds:null,lastBetPayouts:null,chat:null});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,lastCaughtSpyId:null,spyfallResumeTimerRunning:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,hotseatPhase:null,hotseatCurrentPlayerId:null,hotseatRoundId:null,hotseatQuestions:null,hotseatPassBank:null,hotseatQuestionIndex:0,hotseatCoins:0,hotseatBankedCoins:{},hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,hotseatTimerStart:null,hotseatPhoneTimerStart:null,bets:game.nextBets||{},nextBets:{},betPayoutEvents:null,lastBetPayoutKey:null,lastBetWinnerIds:null,lastBetPayouts:null,chat:null,...promotedPlayerBets});
 }
 async function leaveGame(){
   clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();
@@ -8430,7 +8557,7 @@ async function startHSGame(){
   const selected=pick(players);
   await updateGame(gameCode,{
     status:'playing',mode:'hotseat',
-    hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,
+    hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,hotseatRoundId:Date.now(),
     hotseatQuestions:qData.questions,hotseatPassBank:qData.passBank,
     hotseatQuestionIndex:0,hotseatCoins:0,
     hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
@@ -8536,7 +8663,7 @@ async function hsDoSpin(){
   const selected=pick(players);
   hsLastSpinId=null;
   await updateGame(gameCode,{
-    hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,
+    hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,hotseatRoundId:Date.now(),
     hotseatQuestionIndex:0,hotseatCoins:0,
     hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
     hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,
@@ -8836,7 +8963,7 @@ async function hsReturnToSpin(){
   const selected=pick(players);
   hsLastSpinId=null;
   await updateGame(gameCode,{
-    hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,
+    hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,hotseatRoundId:Date.now(),
     hotseatQuestionIndex:0,hotseatCoins:0,
     hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
     hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,
@@ -9108,8 +9235,8 @@ function hsCleanup(){
       <div class="hs-selected-name" id="hsSpinSelectedName"></div>
     </div>
     <div id="hsSpinHostBtns" style="width:100%;display:none;flex-direction:column;gap:10px">
-      <button class="btn btn-primary" id="hsSpinBtn" onclick="hsDoSpin()" style="font-size:16px;padding:16px">Spin</button>
-      <button class="btn" id="hsStartBtn" onclick="hsStartAfterSpin()" style="display:none;background:var(--surface2);border:2px solid var(--accent);color:var(--accent);font-size:15px;padding:14px">Start Hot Seat</button>
+      <button class="btn btn-primary" id="hsStartBtn" onclick="hsStartAfterSpin()" style="display:none;font-size:16px;padding:16px">Start Hot Seat</button>
+      <button class="btn" id="hsSpinBtn" onclick="hsDoSpin()" style="background:var(--surface2);border:2px solid var(--accent);color:var(--accent);font-size:15px;padding:14px">Spin Again</button>
     </div>
     <div id="hsSpinNonHost" style="display:none;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);text-align:center;letter-spacing:1px">Waiting for host...</div>
   </div>
