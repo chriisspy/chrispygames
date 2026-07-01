@@ -8527,12 +8527,41 @@ let hsLastSpinId=null;
 
 function hsDecodeHTML(html){const t=document.createElement('textarea');t.innerHTML=html;return t.value;}
 
-async function fetchHSQuestions(){
+function hsQuestionKey(question){
+  return String((question&&question.q)||question||'').trim().toLowerCase().replace(/\s+/g,' ');
+}
+
+function hsPreferUnusedQuestions(pool,usedKeys){
+  const used=new Set((usedKeys||[]).map(v=>String(v)));
+  const fresh=shuffle((pool||[]).filter(q=>!used.has(hsQuestionKey(q))));
+  const repeats=shuffle((pool||[]).filter(q=>used.has(hsQuestionKey(q))));
+  return [...fresh,...repeats];
+}
+
+function hsPickWeightedPlayer(players,playedCounts){
+  players=(players||[]).filter(Boolean);if(!players.length)return null;
+  playedCounts=playedCounts||{};
+  const counts=players.map(p=>Math.max(0,Number(playedCounts[p.id])||0));
+  const min=Math.min(...counts);
+  const weights=counts.map(count=>Math.pow(0.35,count-min));
+  let roll=Math.random()*weights.reduce((sum,w)=>sum+w,0);
+  for(let i=0;i<players.length;i++){roll-=weights[i];if(roll<=0)return players[i];}
+  return players[players.length-1];
+}
+
+function hsPlayedCountsAfterRound(game){
+  const counts={...((game&&game.hotseatPlayedCounts)||{})};
+  if(!game||game.hotseatRoundCounted||!game.hotseatCurrentPlayerId)return counts;
+  const id=game.hotseatCurrentPlayerId;counts[id]=(Number(counts[id])||0)+1;
+  return counts;
+}
+
+async function fetchHSQuestions(usedQuestions){
   try{
     const [er,mr,hr]=await Promise.all([
-      fetch('https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple&encode=url3986').then(r=>r.json()),
-      fetch('https://opentdb.com/api.php?amount=5&difficulty=medium&type=multiple&encode=url3986').then(r=>r.json()),
-      fetch('https://opentdb.com/api.php?amount=3&difficulty=hard&type=multiple&encode=url3986').then(r=>r.json()),
+      fetch('https://opentdb.com/api.php?amount=8&category=9&difficulty=easy&type=multiple&encode=url3986').then(r=>r.json()),
+      fetch('https://opentdb.com/api.php?amount=8&category=9&difficulty=medium&type=multiple&encode=url3986').then(r=>r.json()),
+      fetch('https://opentdb.com/api.php?amount=5&category=9&difficulty=hard&type=multiple&encode=url3986').then(r=>r.json()),
     ]);
     const parse=arr=>(arr&&Array.isArray(arr.results)?arr.results:[]).map(q=>({
       q:decodeURIComponent(q.question),
@@ -8540,26 +8569,31 @@ async function fetchHSQuestions(){
       wrong:q.incorrect_answers.map(a=>decodeURIComponent(a)),
       difficulty:q.difficulty
     }));
-    const e=parse(er),m=parse(mr),h=parse(hr);
+    const used=(usedQuestions||[]).map(v=>String(v));
+    const e=hsPreferUnusedQuestions(parse(er),used),m=hsPreferUnusedQuestions(parse(mr),used),h=hsPreferUnusedQuestions(parse(hr),used);
     if(e.length<5||m.length<5||h.length<3)throw new Error('Trivia service returned an incomplete question set');
-    return{questions:[...e.slice(0,4),...m.slice(0,4),...h.slice(0,2)],passBank:{easy:e[4],medium:m[4],hard:h[2]}};
+    const questions=[...e.slice(0,4),...m.slice(0,4),...h.slice(0,2)];
+    const passBank={easy:e[4],medium:m[4],hard:h[2]};
+    const selectedKeys=[...questions,...Object.values(passBank)].map(hsQuestionKey);
+    return{questions,passBank,usedQuestions:[...used,...selectedKeys].slice(-120)};
   }catch(err){console.error('OTD fetch failed',err);return null;}
 }
 
 async function startHSGame(){
   if(!amHost)return;
   const game=localGame;
-  const players=Object.values(game.players||{});
+  const players=Object.values(game.players||{}).filter(p=>p.online!==false);
   if(players.length<2)return;
   setLoading('startBtn',true,'Loading questions...');
-  const qData=await fetchHSQuestions();
+  const qData=await fetchHSQuestions(game.hotseatUsedQuestions||[]);
   setLoading('startBtn',false,qData?'Start Hot Seat':'Questions unavailable — retry');
   if(!qData)return;
-  const selected=pick(players);
+  const selected=hsPickWeightedPlayer(players,game.hotseatPlayedCounts||{});
   await updateGame(gameCode,{
     status:'playing',mode:'hotseat',
     hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,hotseatRoundId:Date.now(),
     hotseatQuestions:qData.questions,hotseatPassBank:qData.passBank,
+    hotseatUsedQuestions:qData.usedQuestions,hotseatPlayedCounts:game.hotseatPlayedCounts||{},hotseatRoundCounted:false,
     hotseatQuestionIndex:0,hotseatCoins:0,
     hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
     hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,
@@ -8661,13 +8695,14 @@ async function hsDoSpin(){
   if(!amHost||!gameCode)return;
   const game=localGame;
   const players=Object.values(game.players||{}).filter(p=>p.online!==false);
-  const selected=pick(players);
+  const selected=hsPickWeightedPlayer(players,game.hotseatPlayedCounts||{});
   hsLastSpinId=null;
   await updateGame(gameCode,{
     hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,hotseatRoundId:Date.now(),
     hotseatQuestionIndex:0,hotseatCoins:0,
     hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
     hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,
+    hotseatRoundCounted:false,
     hotseatTimerStart:null,hotseatTimerSecondsLeft:HS_Q_SECS,
     hotseatTimerPaused:false,hotseatPhoneTimerStart:null,
   });
@@ -8681,7 +8716,7 @@ async function hsStartAfterSpin(){
   let qData=existingQuestions.length>=10?{questions:existingQuestions,passBank:localGame.hotseatPassBank||{}}:null;
   // Normally the questions were already loaded before the spin. Only retry the
   // network if an older/incomplete game state reaches this screen.
-  if(!qData)qData=await fetchHSQuestions();
+  if(!qData)qData=await fetchHSQuestions(localGame.hotseatUsedQuestions||[]);
   if(startBtn)startBtn.disabled=false;
   const loadStatus=document.getElementById('hsQuestionLoadStatus');
   if(!qData){
@@ -8692,6 +8727,7 @@ async function hsStartAfterSpin(){
   await updateGame(gameCode,{
     hotseatPhase:'question',
     hotseatQuestions:qData.questions,hotseatPassBank:qData.passBank,
+    hotseatUsedQuestions:qData.usedQuestions||localGame.hotseatUsedQuestions||[],
     hotseatQuestionIndex:0,hotseatCoins:0,
     hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
     hotseatAnswered:false,hotseatWrongAnswer:null,
@@ -8797,7 +8833,7 @@ async function hsHandleTimeout(){
   if(!g||g.hotseatPhase!=='question'||g.hotseatAnswered)return;
   const qi=g.hotseatQuestionIndex||0;
   const q=(g.hotseatQuestions||[])[qi];
-  await updateGame(gameCode,{hotseatPhase:'bust',hotseatAnswered:true,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:q?q.correct:'?'});
+  await updateGame(gameCode,{hotseatPhase:'bust',hotseatAnswered:true,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:q?q.correct:'?',hotseatPlayedCounts:hsPlayedCountsAfterRound(g),hotseatRoundCounted:true});
 }
 
 async function hsAnswer(answer,correct,qi){
@@ -8813,13 +8849,13 @@ async function hsAnswer(answer,correct,qi){
     await updateGame(gameCode,{
       hotseatAnswered:true,hotseatCoins:coins,
       hotseatPhase:isLast?'leaderboard':'walkaway',
-      ...(isLast?{hotseatBankedCoins:banked}:{}),
+      ...(isLast?{hotseatBankedCoins:banked,hotseatPlayedCounts:hsPlayedCountsAfterRound(localGame),hotseatRoundCounted:true}:{}),
     });
     if(isLast){
       db.ref('users/'+myId).transaction(u=>{u=u||{};u.coins=(u.coins||0)+coins;return u;});
     }
   }else{
-    await updateGame(gameCode,{hotseatAnswered:true,hotseatPhase:'bust',hotseatWrongAnswer:answer,hotseatBustCorrectAnswer:correct});
+    await updateGame(gameCode,{hotseatAnswered:true,hotseatPhase:'bust',hotseatWrongAnswer:answer,hotseatBustCorrectAnswer:correct,hotseatPlayedCounts:hsPlayedCountsAfterRound(localGame),hotseatRoundCounted:true});
   }
 }
 
@@ -8926,7 +8962,7 @@ async function hsWalkAway(){
   const coins=HS_COINS[qi];
   const banked={...(localGame.hotseatBankedCoins||{}),[myId]:((localGame.hotseatBankedCoins||{})[myId]||0)+coins};
   db.ref('users/'+myId).transaction(u=>{u=u||{};u.coins=(u.coins||0)+coins;return u;});
-  await updateGame(gameCode,{hotseatPhase:'leaderboard',hotseatBankedCoins:banked});
+  await updateGame(gameCode,{hotseatPhase:'leaderboard',hotseatBankedCoins:banked,hotseatPlayedCounts:hsPlayedCountsAfterRound(localGame),hotseatRoundCounted:true});
 }
 
 async function hsNextQuestion(){
@@ -8970,10 +9006,11 @@ async function hsReturnToSpin(){
   if(!amHost||!gameCode)return;
   const game=localGame;
   const players=Object.values(game.players||{}).filter(p=>p.online!==false);
-  const selected=pick(players);
+  const selected=hsPickWeightedPlayer(players,game.hotseatPlayedCounts||{});
   hsLastSpinId=null;
   await updateGame(gameCode,{
     hotseatPhase:'spinning',hotseatCurrentPlayerId:selected.id,hotseatRoundId:Date.now(),
+    hotseatQuestions:null,hotseatPassBank:null,hotseatRoundCounted:false,
     hotseatQuestionIndex:0,hotseatCoins:0,
     hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,
     hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,
