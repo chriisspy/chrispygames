@@ -1584,7 +1584,7 @@ body{
 <div class="screen scrollable" id="screen-reveal">
   <div class="reveal-outer">
     <div style="text-align:center;width:100%">
-      <button class="back-btn" onclick="devBackHome()" style="margin-bottom:8px">← Back to home</button>
+      <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
       <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
       <div class="tagline" id="revealTagline">Game has started</div>
     </div>
@@ -1606,7 +1606,7 @@ body{
 <div class="screen scrollable" id="screen-mafia-reveal">
   <div class="reveal-outer">
     <div style="text-align:center;width:100%">
-      <button class="back-btn" onclick="devBackHome()" style="margin-bottom:8px">← Back to home</button>
+      <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
       <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
       <div class="tagline">🃏 Mafia — your card</div>
     </div>
@@ -1677,6 +1677,7 @@ body{
 <!-- SPYFALL: ONE SPY CAUGHT -->
 <div class="screen scrollable" id="screen-spy-caught">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div class="result-banner crew-wins fadeIn">
       <div style="font-size:48px;margin-bottom:8px">🎯</div>
       <h2>Crew guessed correctly!</h2>
@@ -1717,7 +1718,7 @@ body{
 <div class="screen scrollable" id="screen-ooo-question">
   <div style="width:100%;max-width:440px">
     <div style="text-align:center;margin-bottom:14px">
-      <button class="back-btn" onclick="devBackHome()" style="margin-bottom:8px">← Back to home</button>
+      <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
       <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
       <div style="font-size:11px;color:var(--ooo);font-family:'JetBrains Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-top:4px">ODD ONE OUT</div>
       <div class="round-badge" id="oooRoundBadge">Round 1 of 3</div>
@@ -1751,6 +1752,7 @@ body{
 <!-- OOO: ANSWERS + VOTE -->
 <div class="screen scrollable" id="screen-ooo-answers">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div style="text-align:center">
       <div class="logo" style="font-size:26px">CHRISPY<span>GAMES</span></div>
       <div style="font-size:11px;color:var(--ooo);font-family:'JetBrains Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-top:4px">ALL ANSWERS IN</div>
@@ -1873,6 +1875,7 @@ body{
 <!-- MAFIA: ELIMINATION REVEAL -->
 <div class="screen" id="screen-mafia-eliminated">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:0">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div id="mafiaElimStoryWrap" style="width:100%;text-align:center"></div>
   </div>
 </div>
@@ -1880,6 +1883,7 @@ body{
 <!-- MAFIA: NIGHT — MAFIA DECISION ("Will you kill?") -->
 <div class="screen" id="screen-mafia-night-mafia">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div style="text-align:center">
       <div style="font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:3px;color:#e74c3c;text-transform:uppercase;margin-bottom:8px">🌙 Night Phase</div>
       <div style="font-size:28px;font-weight:800;color:var(--text);margin-bottom:4px">Will you kill someone<br>this round?</div>
@@ -1921,6 +1925,7 @@ body{
 <!-- MAFIA: NIGHT — DOCTOR SAVE -->
 <div class="screen" id="screen-mafia-night-doctor">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:16px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div style="text-align:center">
       <div style="font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:3px;color:var(--doctor);text-transform:uppercase;margin-bottom:8px">🌙 Night Phase</div>
       <div style="font-size:28px;font-weight:800;color:var(--text);margin-bottom:4px">Choose someone<br>to protect</div>
@@ -1940,6 +1945,7 @@ body{
 <!-- MAFIA: NIGHT — TOWN WAITING -->
 <div class="screen" id="screen-mafia-night-town">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:80vh">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div style="font-size:64px" id="mafiaWaitIcon">🌙</div>
     <div style="text-align:center">
       <div style="font-size:24px;font-weight:800;color:var(--text);margin-bottom:8px">You must wait<br>until dawn.</div>
@@ -1954,6 +1960,7 @@ body{
 <!-- MAFIA: DAWN STORY -->
 <div class="screen" id="screen-mafia-dawn">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:0">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div id="dawnStoryWrap" style="width:100%;text-align:center"></div>
   </div>
 </div>
@@ -2079,6 +2086,7 @@ body{
 <!-- FAKE ARTIST: VOTE -->
 <div class="screen scrollable" id="screen-fa-vote">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div style="text-align:center">
       <div style="font-size:11px;color:#f97316;font-family:'JetBrains Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">🎨 FAKE ARTIST</div>
       <div style="font-size:22px;font-weight:800;color:var(--text)">Who is the Fake Artist?</div>
@@ -2100,6 +2108,7 @@ body{
 <!-- FAKE ARTIST: IMPOSTER GUESS -->
 <div class="screen" id="screen-fa-guess">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:20px;padding:32px 24px;box-sizing:border-box">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div style="text-align:center">
       <div style="font-size:48px;margin-bottom:12px">🎨</div>
       <div style="font-size:11px;color:#f97316;font-family:'JetBrains Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">Fake Artist Caught!</div>
@@ -9252,6 +9261,7 @@ function hsCleanup(){
 <!-- GUESSING GAME: ROUND RESULT -->
 <div class="screen scrollable" id="screen-guess-result">
   <div style="width:100%;max-width:440px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div class="card fadeIn">
       <div id="guessRoundBanner"></div>
       <div style="height:14px"></div>
@@ -9267,6 +9277,7 @@ function hsCleanup(){
 <!-- GUESSING GAME: FINAL RESULT -->
 <div class="screen scrollable" id="screen-guess-final">
   <div style="width:100%;max-width:440px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div class="card fadeIn">
       <div id="guessFinalBanner"></div>
       <div style="height:14px"></div>
@@ -9282,6 +9293,7 @@ function hsCleanup(){
 <!-- BLIND SPOT: REVEAL -->
 <div class="screen scrollable" id="screen-bs-reveal">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px;padding-bottom:20px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div style="text-align:center">
       <div style="font-size:11px;color:#06b6d4;font-family:'JetBrains Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">🕵️ BLIND SPOT</div>
       <div style="font-size:22px;font-weight:800;color:var(--text)" id="bsRevealTitle">Study your cards</div>
@@ -9391,6 +9403,7 @@ function hsCleanup(){
 <!-- HOT SEAT: SPIN -->
 <div class="screen" id="screen-hs-spin" style="padding:0;overflow:hidden">
   <div class="hs-spin-screen" style="width:100%;max-width:440px;margin:0 auto">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div style="text-align:center">
       <div class="hs-spin-title">Hot Seat</div>
       <div style="font-size:28px;font-weight:800;letter-spacing:-1px">Who's next?</div>
@@ -9419,6 +9432,7 @@ function hsCleanup(){
 <!-- HOT SEAT: QUESTION -->
 <div class="screen" id="screen-hs-question" style="padding:0;overflow:hidden">
   <div style="width:100%;max-width:440px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:100dvh;box-sizing:border-box">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div id="hsSpectateNotice" class="hs-spectate-banner" style="display:none">👀 Watching — <span id="hsSpectateName"></span></div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <div>
@@ -9462,6 +9476,7 @@ function hsCleanup(){
 <!-- HOT SEAT: WALK AWAY -->
 <div class="screen" id="screen-hs-walkaway" style="padding:0;overflow:hidden">
   <div class="hs-walkaway-screen" style="width:100%;max-width:440px;margin:0 auto">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div>
       <div class="hs-correct-mark">✓</div>
       <div class="hs-correct-title">Correct!</div>
@@ -9485,6 +9500,7 @@ function hsCleanup(){
 <!-- HOT SEAT: BUST -->
 <div class="screen" id="screen-hs-bust" style="padding:0;overflow:hidden">
   <div class="hs-bust-screen" style="width:100%;max-width:440px;margin:0 auto">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
     <div class="hs-bust-emoji">💸</div>
     <div style="font-size:36px;font-weight:800;color:var(--spy);letter-spacing:-1px">BUST!</div>
     <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--muted);text-align:center;line-height:1.7;max-width:300px">
