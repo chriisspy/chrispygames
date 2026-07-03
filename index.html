@@ -110,7 +110,7 @@ button{touch-action:manipulation}
 input,textarea,select{touch-action:manipulation;-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default;pointer-events:auto;cursor:text;-webkit-appearance:none;appearance:none}
 :root{
   --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--surface3:#252532;
-  --accent:#d3f34b;--accent2:#e85d4d;--text:#f0eff5;--muted:#7a7a8c;
+  --accent:#d3f34b;--accent2:#e85d4d;--text:#f0eff5;--muted:#9494a8;
   --border:#2a2a3a;--spy:#e85d4d;--safe:#4de8a0;--chaos:#ff2d2d;--ooo:#a78bfa;
   --mafia:#c0392b;--doctor:#27ae60;--town:#95a5a6;--fa:#f97316;--bs:#06b6d4;
   --radius:12px;--radius-lg:20px;
@@ -180,8 +180,10 @@ select option{background:var(--surface2)}
 .notice.mafia{background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.3);color:#e74c3c}
 .flex-row{display:flex;gap:8px}
 .flex-row .btn{flex:1}
-.back-btn{background:transparent;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:6px}
+.back-btn{background:transparent;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;padding:10px 8px;margin:-6px -8px;display:flex;align-items:center;gap:6px}
 .back-btn:hover{color:var(--text)}
+.leave-armed{color:var(--accent2)!important;border-color:var(--accent2)!important}
+.code-share-btn{display:block;margin:10px auto 0}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -1367,7 +1369,7 @@ body{
 <!-- LOBBY -->
 <div class="screen scrollable" id="screen-lobby">
   <div style="width:100%;max-width:440px">
-    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <button class="back-btn" data-leave onclick="confirmLeave(this)">← Leave game</button>
     <div style="height:14px"></div>
     <div class="card fadeIn">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
@@ -1376,7 +1378,8 @@ body{
       </div>
       <label>Share code</label>
       <div class="code-display" onclick="copyCode()" id="gameCodeDisplay">----</div>
-      <div class="code-hint">tap to copy · share with friends</div>
+      <div class="code-hint">tap to copy</div>
+      <button class="btn btn-secondary btn-sm code-share-btn" onclick="shareGame()">Share join link</button>
       <div style="height:16px"></div>
       <label>Players (<span id="lobbyCount">1</span>)</label>
       <div class="player-list" id="playerList"></div>
@@ -1557,7 +1560,7 @@ body{
 <!-- WAITING -->
 <div class="screen scrollable" id="screen-waiting">
   <div style="width:100%;max-width:440px">
-    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <button class="back-btn" data-leave onclick="confirmLeave(this)">← Leave game</button>
     <div style="height:14px"></div>
     <div class="card fadeIn">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
@@ -1567,6 +1570,7 @@ body{
       <label>Game code</label>
       <div class="code-display" id="waitingCodeDisplay" onclick="copyCode()">----</div>
       <div class="code-hint">tap to copy</div>
+      <button class="btn btn-secondary btn-sm code-share-btn" onclick="shareGame()">Share join link</button>
       <div style="height:16px"></div>
       <label>Players (<span id="waitingCount">...</span>)</label>
       <div class="player-list" id="waitingPlayerList"></div>
@@ -1636,7 +1640,7 @@ body{
 <!-- SPYFALL: GAME -->
 <div class="screen game-screen" id="screen-game">
   <div style="width:100%;max-width:440px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;max-height:100dvh;overflow:hidden">
-    <button class="back-btn" onclick="leaveGame()" style="margin-bottom:10px">← Leave game</button>
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="margin-bottom:10px">← Leave game</button>
     <div class="card fadeIn">
       <div id="chaosModeGameBanner" class="chaos-mode-banner" style="display:none">⚡ CHAOS MODE ACTIVE ⚡</div>
       <div id="multiSpyGameStatus" class="notice info" style="display:none;margin-bottom:10px;text-align:center"></div>
@@ -1717,7 +1721,7 @@ body{
     </div>
     <div id="resultNonHostBtns" style="display:none;flex-direction:column;gap:10px">
       <div class="notice info" style="margin-bottom:0">Waiting for host to start next game...</div>
-      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+      <button class="btn btn-secondary" data-leave onclick="confirmLeave(this)">Leave Game</button>
     </div>
   </div>
 </div>
@@ -1813,14 +1817,14 @@ body{
     <div id="oooEndGameBtn" style="display:none"><button class="btn btn-primary" onclick="oooEndGame()">🎉 End Game</button></div>
     <div id="oooReturnLobbyBtn" style="display:none"><button class="btn btn-secondary" onclick="returnToLobby()">Return to Lobby</button></div>
     <div id="oooWaitingForHost" style="display:none"><div class="notice ooo">Waiting for host to continue...</div></div>
-    <div id="oooLeaveBtn" style="display:none"><button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button></div>
+    <div id="oooLeaveBtn" style="display:none"><button class="btn btn-secondary" data-leave onclick="confirmLeave(this)">Leave Game</button></div>
   </div>
 </div>
 
 <!-- MAFIA: GAME (day phase) -->
 <div class="screen scrollable" id="screen-mafia-game">
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px">
-    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <button class="back-btn" data-leave onclick="confirmLeave(this)">← Leave game</button>
 
     <div id="mafiaDeadBanner" class="dead-spectator-banner" style="display:none">
       <div style="font-size:32px;margin-bottom:8px">💀</div>
@@ -1956,7 +1960,7 @@ body{
       <div class="timer-display" id="mafiaTownTimerDisplay" style="font-size:44px;color:#e74c3c">00:30</div>
       <div class="timer-label">until dawn</div>
     </div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--border);text-align:center;margin-top:8px">No peeking 👀</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:8px">No peeking 👀</div>
   </div>
 </div>
 
@@ -1983,7 +1987,7 @@ body{
     </div>
     <div id="mafiaResultNonHostBtns" style="display:none;flex-direction:column;gap:10px">
       <div class="notice mafia" style="margin-bottom:0">Waiting for host...</div>
-      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+      <button class="btn btn-secondary" data-leave onclick="confirmLeave(this)">Leave Game</button>
     </div>
   </div>
 </div>
@@ -2005,7 +2009,7 @@ body{
       <div class="vote-list" id="tieVoteList"></div>
       <div id="tieVoteStatus" style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);text-align:center"></div>
     </div>
-    <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    <button class="btn btn-secondary" data-leave onclick="confirmLeave(this)">Leave Game</button>
   </div>
 </div>
 
@@ -2030,7 +2034,7 @@ body{
     <div id="gameoverWaitingForHost" style="display:none">
       <div class="notice ooo">Waiting for host to return to lobby...</div>
     </div>
-    <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+    <button class="btn btn-secondary" data-leave onclick="confirmLeave(this)">Leave Game</button>
   </div>
 </div>
 
@@ -2038,7 +2042,7 @@ body{
 <div class="screen" id="screen-fa-draw" style="padding:0;overflow:hidden;align-items:center;justify-content:center">
   <div style="width:100%;max-width:430px;display:flex;flex-direction:column;gap:0;height:100dvh;padding:8px;box-sizing:border-box;overflow:hidden">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-shrink:0">
-      <button class="back-btn" onclick="leaveGame()" style="margin:0">← Leave</button>
+      <button class="back-btn" data-leave onclick="confirmLeave(this)" style="margin:0">← Leave</button>
       <div style="flex:1;text-align:center">
         <div id="faRoundBadge" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Round 1 of 5</div>
       </div>
@@ -2149,7 +2153,7 @@ body{
     </div>
     <div id="faResultNonHostBtns" style="display:none;flex-direction:column;gap:10px">
       <div class="notice" style="background:rgba(249,115,22,0.08);border-color:rgba(249,115,22,0.3);color:#f97316;margin-bottom:0">Waiting for host...</div>
-      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+      <button class="btn btn-secondary" data-leave onclick="confirmLeave(this)">Leave Game</button>
     </div>
   </div>
 </div>
@@ -2174,7 +2178,7 @@ body{
     </div>
     <div id="faGameoverNonHostBtns" style="display:none;flex-direction:column;gap:10px">
       <div class="notice" style="background:rgba(249,115,22,0.08);border-color:rgba(249,115,22,0.3);color:#f97316;margin-bottom:0">Waiting for host...</div>
-      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+      <button class="btn btn-secondary" data-leave onclick="confirmLeave(this)">Leave Game</button>
     </div>
   </div>
 </div>
@@ -2377,6 +2381,7 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
   document.body.classList.toggle('no-scroll',id==='game');
+  if(typeof refreshLeaveButtons==='function')refreshLeaveButtons();
 }
 function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
 function setLoading(btnId,loading,text){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${text}`:text;}
@@ -2423,12 +2428,16 @@ function normaliseProfile(saved){
     avatar:saved.avatar||myAvatar||null
   };
 }
+function prefillNameInput(){
+  const el=document.getElementById('playerName');
+  if(el&&!el.value.trim()&&myProfile.name)el.value=myProfile.name;
+}
 async function loadMyProfile(){
   const localSaved=loadLocalProfile();
   if(Object.keys(localSaved).length){
     myProfile=normaliseProfile(localSaved);
     if(myProfile.avatar&&!myAvatar){myAvatar=myProfile.avatar;localStorage.setItem('sf_avatar',myAvatar);}
-    renderShop();updateAvatarBtns();
+    renderShop();updateAvatarBtns();prefillNameInput();
   }
   try{
     const snap=await userRef().once('value');
@@ -2439,8 +2448,8 @@ async function loadMyProfile(){
     myProfile=normaliseProfile(saved);
     if(myProfile.avatar&&!myAvatar){myAvatar=myProfile.avatar;localStorage.setItem('sf_avatar',myAvatar);}
     saveLocalProfile();
-    renderShop();updateAvatarBtns();
-  }catch(e){console.warn('Profile cloud load failed; using local profile',e);renderShop();updateAvatarBtns();}
+    renderShop();updateAvatarBtns();prefillNameInput();
+  }catch(e){console.warn('Profile cloud load failed; using local profile',e);renderShop();updateAvatarBtns();prefillNameInput();}
 }
 async function saveProfileBasics(name){
   const updates={lastSeen:serverTimestamp(),savedAt:Date.now()};
@@ -4342,6 +4351,63 @@ async function handlePlayerLeft(leftId,game){
   }
 }
 
+// Host rescue: watchPresence only runs on the host's own client, so if the
+// host's phone dies mid-game nobody transfers hostId and every "Waiting for
+// host..." screen waits forever. Every client watches the host's presence;
+// after 10s offline, the earliest-joined online player (deterministic, so
+// only one client writes) promotes itself.
+let hostRescueTimer=null;
+function cancelHostRescue(){if(hostRescueTimer){clearTimeout(hostRescueTimer);hostRescueTimer=null;}}
+function checkHostPresence(game){
+  if(!gameCode||!game||!game.players)return;
+  const host=game.hostId?game.players[game.hostId]:null;
+  if(host&&host.online!==false){cancelHostRescue();return;}
+  if(game.hostId===myId)return;
+  if(hostRescueTimer)return;
+  hostRescueTimer=setTimeout(async()=>{
+    hostRescueTimer=null;
+    if(!gameCode)return;
+    try{
+      const snap=await gameRefFor(gameCode).once('value');const fg=snap.val();
+      if(!fg||!fg.players)return;
+      const curHost=fg.hostId?fg.players[fg.hostId]:null;
+      if(curHost&&curHost.online!==false)return;
+      const online=Object.values(fg.players).filter(p=>p.online!==false&&!p.devBot).sort((a,b)=>a.joinedAt-b.joinedAt);
+      if(!online.length||online[0].id!==myId)return;
+      const updates={hostId:myId};
+      updates['players/'+myId+'/isHost']=true;
+      if(fg.hostId&&fg.players[fg.hostId])updates['players/'+fg.hostId+'/isHost']=false;
+      await gameRefFor(gameCode).update(updates);
+    }catch(e){console.warn('Host rescue failed',e);}
+  },10000);
+}
+
+// Session recovery: Safari evicts backgrounded tabs constantly. Remember the
+// active room so a refresh mid-round silently resumes instead of dumping the
+// player to the home screen needing name + code retyped.
+const LAST_GAME_KEY='sf_lastGame';
+function saveLastGame(code){try{localStorage.setItem(LAST_GAME_KEY,JSON.stringify({code,ts:Date.now()}));}catch(e){}}
+function clearLastGame(){try{localStorage.removeItem(LAST_GAME_KEY);}catch(e){}}
+async function tryResumeSession(){
+  let saved=null;
+  try{saved=JSON.parse(localStorage.getItem(LAST_GAME_KEY)||'null');}catch(e){}
+  if(!saved||!saved.code)return false;
+  if(Date.now()-(saved.ts||0)>2*60*60*1000){clearLastGame();return false;}
+  if(gameCode)return false;
+  try{
+    const snap=await gameRefFor(saved.code).once('value');const game=snap.val();
+    if(!game||!game.players||!game.players[myId]){clearLastGame();return false;}
+    gameCode=saved.code;amHost=game.hostId===myId;nonHostLobbyView=false;localGame=game;
+    const codeEl=document.getElementById('gameCodeDisplay');if(codeEl)codeEl.textContent=saved.code;
+    const waitEl=document.getElementById('waitingCodeDisplay');if(waitEl)waitEl.textContent=saved.code;
+    await gameRefFor(saved.code).child('players/'+myId+'/online').set(true);
+    setupPresence();listenToGame(saved.code,onGameUpdate);setupChat(saved.code);
+    if(game.status==='lobby'&&game.hostId!==myId){renderWaiting(game);showScreen('waiting');}
+    else onGameUpdate(game);
+    return true;
+  }catch(e){console.warn('Session resume failed',e);return false;}
+}
+
 // =====================================================
 // CREATE / JOIN
 // =====================================================
@@ -4356,6 +4422,7 @@ async function createGame(){
   try{
     await gameRefFor(code).set(game);
     localGame=game;
+    saveLastGame(code);
     document.getElementById('gameCodeDisplay').textContent=code;
     showScreen('lobby');
     renderLobby(game);
@@ -4381,6 +4448,7 @@ async function joinGame(){
     const existing=game.players&&game.players[myId];
     if(!existing)await gameRefFor(code).child('players/'+myId).set(makePlayerData(name,false));
     else await gameRefFor(code).child('players/'+myId).update({online:true,name,avatar:myAvatar||null,profileWins:myProfile.wins||0,cosmetics:{equipped:myProfile.equipped||{}}});
+    saveLastGame(code);
     setupPresence();document.getElementById('waitingCodeDisplay').textContent=code;
     const joinedGame={...game,players:{...(game.players||{}),[myId]:{...(existing||makePlayerData(name,false)),name,online:true,avatar:myAvatar||null,profileWins:myProfile.wins||0,cosmetics:{equipped:myProfile.equipped||{}}}}};
     localGame=joinedGame;
@@ -4404,6 +4472,7 @@ function onGameUpdate(game){
   if(game.hostId===myId&&!amHost)amHost=true;
   if(game.hostId!==myId&&amHost)amHost=false;
   if(amHost)watchPresence(game);
+  checkHostPresence(game);
   awardCoinsForFinishedGame(game);
   awardBetPayoutsForFinishedGame(game);
   handleMyRewardDisplays(game);
@@ -6483,7 +6552,7 @@ async function returnToLobby(){
   await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,lastCaughtSpyId:null,spyfallResumeTimerRunning:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,hotseatPhase:null,hotseatCurrentPlayerId:null,hotseatRoundId:null,hotseatQuestions:null,hotseatPassBank:null,hotseatQuestionIndex:0,hotseatCoins:0,hotseatBankedCoins:{},hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,hotseatTimerStart:null,hotseatPhoneTimerStart:null,bets:game.nextBets||{},nextBets:{},betPayoutEvents:null,lastBetPayoutKey:null,lastBetWinnerIds:null,lastBetPayouts:null,chat:null,...promotedPlayerBets});
 }
 async function leaveGame(){
-  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();
+  clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();cancelHostRescue();clearLastGame();
   if(gameCode){
     try{
       const snap=await gameRefFor(gameCode).once('value');const game=snap.val();
@@ -6678,7 +6747,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();faCanvasCleanup();bsCleanup();hsCleanup();gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();cancelHostRescue();clearLastGame();faCanvasCleanup();bsCleanup();hsCleanup();gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
 
 
 
@@ -6704,9 +6773,68 @@ function selectHomeMode(mode){
 // =====================================================
 function switchTab(tab){['timer','locations','vote'].forEach((t,i)=>{document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);document.getElementById('tab-'+t).classList.toggle('active',t===tab);});}
 function switchMafiaTab(tab){['game','players','log'].forEach(t=>{document.querySelector(`.mafia-tab-btn[onclick="switchMafiaTab('${t}')"]`).classList.toggle('active',t===tab);document.getElementById('mafia-tab-'+t).classList.toggle('active',t===tab);});}
+function joinLink(code){return location.origin+location.pathname+'#'+code;}
+function flashCodeDisplays(text){
+  ['gameCodeDisplay','waitingCodeDisplay'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.closest('.screen.active')){
+      const orig=gameCode||el.textContent;
+      el.textContent=text;
+      setTimeout(()=>el.textContent=orig,1200);
+    }
+  });
+}
+function copyTextFallback(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  let ok=false;
+  try{ok=document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+  return ok;
+}
 function copyCode(){
   const code=gameCode||'----';
-  navigator.clipboard&&navigator.clipboard.writeText(code).then(()=>{['gameCodeDisplay','waitingCodeDisplay'].forEach(id=>{const el=document.getElementById(id);if(el&&el.closest('.screen.active')){const orig=el.textContent;el.textContent='COPIED!';setTimeout(()=>el.textContent=orig,1200);}});});
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(()=>flashCodeDisplays('COPIED!')).catch(()=>{if(copyTextFallback(code))flashCodeDisplays('COPIED!');});
+  }else if(copyTextFallback(code)){flashCodeDisplays('COPIED!');}
+}
+async function shareGame(){
+  if(!gameCode)return;
+  const url=joinLink(gameCode);
+  if(navigator.share){
+    try{await navigator.share({title:'Chrispy Games',text:'Join my game — code '+gameCode,url});return;}
+    catch(e){if(e&&e.name==='AbortError')return;}
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    try{await navigator.clipboard.writeText(url);flashCodeDisplays('LINK COPIED!');return;}catch(e){}
+  }
+  if(copyTextFallback(url))flashCodeDisplays('LINK COPIED!');
+}
+
+// Two-step leave: mid-round, the first tap arms the button so a one-handed
+// mis-tap on the top-left corner can't dump a live game.
+let leaveArmTimer=null;
+function confirmLeave(btn){
+  const inRound=localGame&&localGame.status==='playing';
+  if(!inRound){leaveGame();return;}
+  if(btn.dataset.armed==='1'){
+    btn.dataset.armed='';clearTimeout(leaveArmTimer);
+    leaveGame();return;
+  }
+  btn.dataset.armed='1';
+  btn.classList.add('leave-armed');
+  const orig=btn.textContent;
+  btn.textContent='Tap again to leave';
+  leaveArmTimer=setTimeout(()=>{btn.dataset.armed='';btn.classList.remove('leave-armed');btn.textContent=orig;},2500);
+}
+function refreshLeaveButtons(){
+  document.querySelectorAll('[data-leave]').forEach(btn=>{
+    if(btn.dataset.armed==='1')return;
+    if(!btn.dataset.baseLabel)btn.dataset.baseLabel=btn.textContent;
+    const showCode=gameCode&&localGame&&localGame.status==='playing'&&btn.classList.contains('back-btn');
+    btn.textContent=showCode?btn.dataset.baseLabel+' · '+gameCode:btn.dataset.baseLabel;
+  });
 }
 
 // =====================================================
@@ -8509,6 +8637,15 @@ cleanupOldGames();
 loadMyProfile();
 updateAvatarBtns();
 ensureAvatarCropperUI();
+// Deep link: a shared URL like .../#ABCD prefills the join code.
+(function(){
+  const hashCode=(location.hash||'').replace('#','').trim().toUpperCase();
+  if(/^[A-Z0-9]{4}$/.test(hashCode)){
+    const jc=document.getElementById('joinCode');
+    if(jc&&!jc.value)jc.value=hashCode;
+  }
+})();
+if(localStorage.getItem('sf_unlocked')==='1'){tryResumeSession();}
 var joinCodeEl=document.getElementById('joinCode');
 if(joinCodeEl){joinCodeEl.addEventListener('input',function(e){e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');});}
 var playerNameEl=document.getElementById('playerName');
@@ -9084,7 +9221,7 @@ function hsCleanup(){
 <!-- GUESSING GAME: SETUP -->
 <div class="screen scrollable" id="screen-guess-setup">
   <div style="width:100%;max-width:440px">
-    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <button class="back-btn" data-leave onclick="confirmLeave(this)">← Leave game</button>
     <div style="height:14px"></div>
     <div class="card fadeIn">
       <div class="tagline" style="color:var(--accent);margin-bottom:8px">❓ Guessing Game</div>
@@ -9108,7 +9245,7 @@ function hsCleanup(){
 <!-- GUESSING GAME: DISCUSSION -->
 <div class="screen scrollable" id="screen-guess-game">
   <div style="width:100%;max-width:440px">
-    <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+    <button class="back-btn" data-leave onclick="confirmLeave(this)">← Leave game</button>
     <div style="height:14px"></div>
     <div class="card fadeIn">
       <div class="guess-mini-label">Discussion ends in</div>
@@ -9187,7 +9324,7 @@ function hsCleanup(){
   <div style="width:100%;max-width:440px;height:100dvh;display:flex;flex-direction:column;padding:12px;box-sizing:border-box;gap:8px">
     <!-- Header -->
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-      <button class="back-btn" onclick="leaveGame()">← Leave game</button>
+      <button class="back-btn" data-leave onclick="confirmLeave(this)">← Leave game</button>
       <div style="flex:1">
         <div style="font-size:10px;color:#06b6d4;font-family:'JetBrains Mono',monospace;letter-spacing:2px;text-transform:uppercase">🕵️ BLIND SPOT</div>
         <div id="bsCategoryBadge" style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace"></div>
@@ -9256,7 +9393,7 @@ function hsCleanup(){
     </div>
     <div id="bsResultNonHostBtns" style="display:none;flex-direction:column;gap:10px">
       <div class="notice" style="background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.3);color:#06b6d4">Waiting for host...</div>
-      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+      <button class="btn btn-secondary" data-leave onclick="confirmLeave(this)">Leave Game</button>
     </div>
   </div>
 </div>
@@ -9389,7 +9526,7 @@ function hsCleanup(){
     </div>
     <div id="hsLeaderNonHostBtns" style="display:none;flex-direction:column;gap:10px">
       <div class="notice info">Waiting for host to spin again...</div>
-      <button class="btn btn-secondary" onclick="leaveGame()">Leave Game</button>
+      <button class="btn btn-secondary" data-leave onclick="confirmLeave(this)">Leave Game</button>
     </div>
   </div>
 </div>
