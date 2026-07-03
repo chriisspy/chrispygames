@@ -9417,9 +9417,9 @@ function hsCleanup(){
 </div>
 
 <!-- HOT SEAT: QUESTION -->
-<div class="screen" id="screen-hs-question" style="padding:0;overflow:hidden">
-  <div style="width:100%;max-width:440px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:100dvh;box-sizing:border-box">
-    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="align-self:flex-start">← Leave game</button>
+<div class="screen" id="screen-hs-question" style="padding:0;overflow:hidden;position:relative">
+  <div style="width:100%;max-width:440px;margin:0 auto;padding:16px;display:flex;flex-direction:column;justify-content:center;gap:10px;min-height:100dvh;box-sizing:border-box">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)" style="position:absolute;top:max(16px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));z-index:20">← Leave game</button>
     <div id="hsSpectateNotice" class="hs-spectate-banner" style="display:none">👀 Watching — <span id="hsSpectateName"></span></div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
       <div>
