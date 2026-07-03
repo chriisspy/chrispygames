@@ -123,6 +123,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-ser
 .logo{font-size:44px;font-weight:700;letter-spacing:-2.5px;line-height:0.92;display:flex;flex-direction:column;align-items:center;gap:0;text-transform:uppercase}
 .logo span{color:var(--accent);display:block;font-style:italic;letter-spacing:-1.5px;transform:translateX(-4px)}
 .tagline{font-family:'JetBrains Mono',monospace;font-style:italic;font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.home-brand .tagline{margin-top:14px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;width:100%;max-width:440px;box-sizing:border-box}
 .card h2{font-size:19px;font-weight:700;margin-bottom:16px;text-transform:uppercase;font-style:italic;letter-spacing:-0.5px}
 .btn{width:100%;padding:13px 20px;border-radius:var(--radius);border:none;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;letter-spacing:1px;text-transform:uppercase}
@@ -1204,7 +1205,7 @@ body{
 
 <!-- HOME -->
 <div class="screen" id="screen-home">
-  <div style="text-align:center">
+  <div class="home-brand" style="text-align:center">
     <div class="logo">CHRISPY<span>GAMES</span></div>
     <div class="tagline">Party games for the boys</div>
   </div>
@@ -1274,8 +1275,6 @@ body{
         <div class="dev-grid">
           <button class="dev-btn" onclick="devStartAs('crew')">👤 Crew</button>
           <button class="dev-btn" onclick="devStartAs('spy')">🕵️ Spy</button>
-          <button class="dev-btn dev-btn-chaos" onclick="devStartAs('chaos-innocent')">😇 Chaos Innocent</button>
-          <button class="dev-btn dev-btn-chaos" onclick="devStartAs('chaos-spy')">⚡ Chaos Spy</button>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Odd One Out</div>
         <div class="dev-grid">
@@ -1429,18 +1428,6 @@ body{
             <div class="count-display" id="spyCountDisplay">1</div>
             <button class="count-btn" onclick="changeSpyCount(1)">+</button>
             <div class="count-label" id="spyCountLabel">max for group size</div>
-          </div>
-        </div>
-        <div class="chaos-toggle-wrap" id="chaosModeWrap">
-          <div class="chaos-toggle-header">
-            <div>
-              <div class="chaos-title">⚡ CHAOS MODE</div>
-              <div class="chaos-desc">Everyone is a SPY lying about location.<br>One INNOCENT must catch them all.</div>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="chaosModeToggle" onchange="toggleChaosMode()"/>
-              <span class="toggle-slider"></span>
-            </label>
           </div>
         </div>
       </div>
@@ -4261,7 +4248,7 @@ function updateMafiaCountUI(n){
 }
 
 // =====================================================
-// SPY COUNT / CHAOS
+// SPY COUNT
 // =====================================================
 function maxSpies(n){if(n<=4)return 1;if(n<=7)return 2;return 3;}
 function changeSpyCount(delta){
@@ -4285,26 +4272,11 @@ function updateSpyCountUI(n){
 function toggleMultiSpyMode(){
   localMultiSpyMode=document.getElementById('multiSpyModeToggle').checked;
   localSpyCount=localMultiSpyMode?Math.max(2,localSpyCount):1;
-  if(localMultiSpyMode&&localChaosMode){
-    localChaosMode=false;
-    const chaosToggle=document.getElementById('chaosModeToggle');if(chaosToggle)chaosToggle.checked=false;
-    document.getElementById('chaosModeWrap').classList.remove('chaos-on');
-  }
+  localChaosMode=false;
   document.getElementById('multiSpyModeWrap').classList.toggle('chaos-on',localMultiSpyMode);
   const n=localGame?Object.keys(localGame.players||{}).length:3;
   updateSpyCountUI(n);
-  if(gameCode)updateGame(gameCode,{multiSpyMode:localMultiSpyMode,spyCount:localSpyCount,chaosMode:localChaosMode});
-}
-function toggleChaosMode(){
-  localChaosMode=document.getElementById('chaosModeToggle').checked;
-  if(localChaosMode&&localMultiSpyMode){
-    localMultiSpyMode=false;localSpyCount=1;
-    const multiToggle=document.getElementById('multiSpyModeToggle');if(multiToggle)multiToggle.checked=false;
-    document.getElementById('multiSpyModeWrap').classList.remove('chaos-on');
-    updateSpyCountUI(localGame?Object.keys(localGame.players||{}).length:3);
-  }
-  document.getElementById('chaosModeWrap').classList.toggle('chaos-on',localChaosMode);
-  if(gameCode)updateGame(gameCode,{chaosMode:localChaosMode,multiSpyMode:localMultiSpyMode,spyCount:localSpyCount});
+  if(gameCode)updateGame(gameCode,{multiSpyMode:localMultiSpyMode,spyCount:localSpyCount,chaosMode:false});
 }
 
 // =====================================================
@@ -4984,14 +4956,10 @@ function renderLobby(game){
     }
   }
 
-  if(game.chaosMode!==undefined){
-    localChaosMode=game.chaosMode;
-
-    const chaosToggle=document.getElementById('chaosModeToggle');
-    if(chaosToggle)chaosToggle.checked=localChaosMode;
-
-    const chaosWrap=document.getElementById('chaosModeWrap');
-    if(chaosWrap)chaosWrap.classList.toggle('chaos-on',localChaosMode);
+  localChaosMode=false;
+  if(game.status==='lobby'&&game.chaosMode&&amHost){
+    game.chaosMode=false;
+    updateGame(gameCode,{chaosMode:false}).catch(e=>console.warn('Could not disable legacy Chaos Mode lobby',e));
   }
 
   if(game.mode&&game.mode!==localGameMode){
@@ -5011,7 +4979,7 @@ function renderLobby(game){
 
   const spyCountWrap=document.getElementById('spyCountWrap');
   if(spyCountWrap){
-    const enabled=localMultiSpyMode&&!localChaosMode;
+    const enabled=localMultiSpyMode;
     spyCountWrap.style.opacity=enabled?'1':'0.4';
     spyCountWrap.style.pointerEvents=enabled?'auto':'none';
   }
@@ -5110,24 +5078,16 @@ async function startGame(){
   if(localGameMode==='hotseat'||game.mode==='hotseat'){await startHSGame();return;}
   // Spyfall
   const players=Object.values(game.players||{});if(players.length<3)return;
-  const isChaos=localChaosMode;
-  const isMultiSpy=localMultiSpyMode&&!isChaos;
+  const isMultiSpy=localMultiSpyMode;
   if(isMultiSpy&&(players.length<5||localSpyCount>maxSpies(players.length)))return;
   const locName=pick(game.locations);
   const locObj=ALL_LOCATIONS.find(l=>l.name===locName)||ALL_LOCATIONS[0];
   const shuffledRoles=shuffle(locObj.roles);
-  const roles={};let spyIds=[],innocentId=null;
-  if(isChaos){
-    const idx=randInt(players.length);innocentId=players[idx].id;
-    players.forEach(p=>{roles[p.id]=p.id===innocentId?'__INNOCENT__':'__CHAOS_SPY__';});
-    spyIds=players.filter(p=>p.id!==innocentId).map(p=>p.id);
-  } else {
-    const count=isMultiSpy?Math.min(localSpyCount,maxSpies(players.length)):1;
-    const sp=shuffle([...players]);spyIds=sp.slice(0,count).map(p=>p.id);
-    players.forEach((p,i)=>{roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});
-  }
-  const duration=isChaos?CHAOS_TIMER_DURATION:TIMER_DURATION;
-  await updateGame(gameCode,{status:'playing',mode:'spyfall',spyIds,innocentId,spyId:spyIds[0]||null,currentLocation:locObj.name,roles,timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:duration,votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:'playing',lastCaughtSpyId:null,spyfallResumeTimerRunning:null,chaosMode:isChaos,multiSpyMode:isMultiSpy,spyCount:spyIds.length});
+  const roles={};const innocentId=null;
+  const count=isMultiSpy?Math.min(localSpyCount,maxSpies(players.length)):1;
+  const sp=shuffle([...players]);const spyIds=sp.slice(0,count).map(p=>p.id);
+  players.forEach((p,i)=>{roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});
+  await updateGame(gameCode,{status:'playing',mode:'spyfall',spyIds,innocentId,spyId:spyIds[0]||null,currentLocation:locObj.name,roles,timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:TIMER_DURATION,votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:'playing',lastCaughtSpyId:null,spyfallResumeTimerRunning:null,chaosMode:false,multiSpyMode:isMultiSpy,spyCount:spyIds.length});
 }
 
 // =====================================================
@@ -6549,24 +6509,17 @@ async function playAgain(){
   if(!amHost)return;
   const game=localGame;if(!game)return;
   await prepareBetsForImmediateReplay(game);
-  const isChaos=game.chaosMode;const isMultiSpy=!!game.multiSpyMode&&!isChaos;
+  const isMultiSpy=!!game.multiSpyMode;
   const players=Object.values(game.players||{});if(players.length<3)return;
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
   const locName=pick(newLocations);
   const locObj=ALL_LOCATIONS.find(l=>l.name===locName)||ALL_LOCATIONS[0];
   const shuffledRoles=shuffle(locObj.roles);
-  const roles={};let spyIds=[],innocentId=null;
-  if(isChaos){
-    const idx=randInt(players.length);innocentId=players[idx].id;
-    players.forEach(p=>{roles[p.id]=p.id===innocentId?'__INNOCENT__':'__CHAOS_SPY__';});
-    spyIds=players.filter(p=>p.id!==innocentId).map(p=>p.id);
-  } else {
-    const count=isMultiSpy?Math.min(Math.max(2,game.spyCount||2),maxSpies(players.length)):1;
-    const sp=shuffle([...players]);spyIds=sp.slice(0,count).map(p=>p.id);
-    players.forEach((p,i)=>{roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});
-  }
-  const duration=isChaos?CHAOS_TIMER_DURATION:TIMER_DURATION;
-  await updateGame(gameCode,{status:'playing',mode:'spyfall',spyIds,innocentId,spyId:spyIds[0]||null,currentLocation:locObj.name,roles,locations:newLocations,timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:duration,votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:'playing',lastCaughtSpyId:null,spyfallResumeTimerRunning:null,chaosMode:isChaos,multiSpyMode:isMultiSpy,spyCount:spyIds.length,tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0});
+  const roles={};const innocentId=null;
+  const count=isMultiSpy?Math.min(Math.max(2,game.spyCount||2),maxSpies(players.length)):1;
+  const sp=shuffle([...players]);const spyIds=sp.slice(0,count).map(p=>p.id);
+  players.forEach((p,i)=>{roles[p.id]=spyIds.includes(p.id)?'__SPY__':shuffledRoles[i%shuffledRoles.length];});
+  await updateGame(gameCode,{status:'playing',mode:'spyfall',spyIds,innocentId,spyId:spyIds[0]||null,currentLocation:locObj.name,roles,locations:newLocations,timerStart:Date.now(),timerRunning:true,timerOffset:0,timerDuration:TIMER_DURATION,votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:'playing',lastCaughtSpyId:null,spyfallResumeTimerRunning:null,chaosMode:false,multiSpyMode:isMultiSpy,spyCount:spyIds.length,tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0});
 }
 async function returnToLobby(){
   const game=localGame;if(!game)return;
