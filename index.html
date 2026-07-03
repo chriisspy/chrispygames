@@ -815,6 +815,19 @@ select option{background:var(--surface2)}
 #waitingPlayerList .player-item{
   min-height:52px;
 }
+.lobby-avatar-edit{
+  appearance:none;-webkit-appearance:none;background:transparent;border:0;padding:0;margin:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;flex:0 0 auto;
+}
+.lobby-avatar-edit:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.lobby-name-edit{
+  appearance:none;-webkit-appearance:none;background:transparent;border:0;padding:4px 0;margin:0;
+  color:var(--text);font:inherit;text-align:left;cursor:pointer;min-width:0;
+}
+.lobby-name-edit-hint{
+  display:block;margin-top:2px;font-family:'JetBrains Mono',monospace;font-size:9px;
+  line-height:1;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;
+}
 
 
 /* Team result avatar alignment hard-fix */
@@ -4858,6 +4871,40 @@ function safeLobbyMenuHtml(p){
   catch(e){console.warn('Lobby menu render failed',e,p);return '';}
 }
 
+function editableLobbyAvatarHtml(p){
+  const avatar=safePlayerAvatarHtml(p,'av-sm');
+  if(!p||p.id!==myId)return avatar;
+  return `<button type="button" class="lobby-avatar-edit" onclick="event.stopPropagation();triggerAvatarPicker()" aria-label="Change your avatar" title="Change avatar">${avatar}</button>`;
+}
+
+function editableLobbyNameHtml(p){
+  const name=safePlayerNameHtml(p);
+  if(!p||p.id!==myId)return `<div class="player-name">${name}</div>`;
+  return `<button type="button" class="player-name lobby-name-edit" onclick="event.stopPropagation();editMyLobbyName()" aria-label="Change your name" title="Change name">${name}<span class="lobby-name-edit-hint">tap to edit</span></button>`;
+}
+
+async function editMyLobbyName(){
+  if(!gameCode||!localGame||!localGame.players||!localGame.players[myId])return;
+  const current=String(localGame.players[myId].name||myProfile.name||'').trim();
+  const entered=prompt('Change your name',current);
+  if(entered===null)return;
+  const name=entered.trim().replace(/\s+/g,' ').slice(0,20);
+  if(!name){alert('Please enter a name.');return;}
+  if(name===current)return;
+  localGame.players[myId].name=name;
+  myProfile.name=name;
+  const homeInput=document.getElementById('playerName');if(homeInput)homeInput.value=name;
+  if((document.querySelector('.screen.active')||{}).id==='screen-lobby')renderLobbyPlayerList(localGame);
+  else renderWaitingPlayerList(localGame);
+  await saveProfileBasics(name);
+  try{
+    await gameRefFor(gameCode).child('players/'+myId).update({name,nameUpdatedAt:serverTimestamp()});
+  }catch(e){
+    console.warn('Lobby name update failed',e);
+    alert('Could not update your name. Please try again.');
+  }
+}
+
 function renderLobbyPlayerList(game){
   const players=safePlayerArray(game);
   const playerList=document.getElementById('playerList');
@@ -4874,8 +4921,8 @@ function renderLobbyPlayerList(game){
   playerList.style.display='flex';
   playerList.innerHTML=players.map(p=>`
     <div class="player-item" data-player-id="${esc(p.id)}">
-      ${safePlayerAvatarHtml(p,'av-sm')}
-      <div class="player-name">${safePlayerNameHtml(p)}</div>
+      ${editableLobbyAvatarHtml(p)}
+      ${editableLobbyNameHtml(p)}
       ${p.isHost?'<div class="player-badge">host</div>':''}
       ${p.id===myId?'<div class="player-badge">you</div>':''}
       ${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}
@@ -4902,8 +4949,8 @@ function renderWaitingPlayerList(game){
   waitingPlayerList.style.display='flex';
   waitingPlayerList.innerHTML=players.map(p=>`
     <div class="player-item" data-player-id="${esc(p.id)}">
-      ${safePlayerAvatarHtml(p,'av-sm')}
-      <div class="player-name">${safePlayerNameHtml(p)}</div>
+      ${editableLobbyAvatarHtml(p)}
+      ${editableLobbyNameHtml(p)}
       ${p.isHost?'<div class="player-badge">host</div>':''}
       ${p.id===myId?'<div class="player-badge">you</div>':''}
       ${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}
