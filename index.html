@@ -4010,9 +4010,16 @@ function applyLocalBetSettlement(event){
     if(existing)saveLocalBet(gameCode,outcome.betId,settled);
     if(localGame&&localGame.players&&localGame.players[myId]){
       ['playerBets','nextBets'].forEach(bag=>{
-        if(localGame.players[myId][bag]&&localGame.players[myId][bag][outcome.betId])localGame.players[myId][bag][outcome.betId]={...localGame.players[myId][bag][outcome.betId],...settled};
+        Object.entries(localGame.players[myId][bag]||{}).forEach(([recordKey,bet])=>{
+          if(recordKey===outcome.betId||(bet&&(bet.id===outcome.betId||bet.betKey===outcome.betId)))delete localGame.players[myId][bag][recordKey];
+        });
       });
     }
+    ['bets','nextBets'].forEach(bag=>{
+      Object.entries((localGame&&localGame[bag])||{}).forEach(([recordKey,bet])=>{
+        if(recordKey===outcome.betId||(bet&&(bet.id===outcome.betId||bet.betKey===outcome.betId)))delete localGame[bag][recordKey];
+      });
+    });
   });
 }
 
@@ -4020,27 +4027,50 @@ async function applyBetSettlementRecords(game,key,event){
   const updates={lastBetPayoutKey:key,lastBetWinnerIds:event.winnerIds||[],lastBetPayouts:event.payouts||{}};
   Object.values(event.outcomes||{}).forEach(outcome=>{
     if(!outcome||!outcome.betId||!outcome.playerId)return;
-    const fields={status:outcome.status,inactive:true,payout:outcome.payout||0,settledAt:outcome.settledAt||event.paidAt||Date.now(),settlementKey:outcome.settlementKey||key,updatedAt:Date.now()};
-    const playerBet=game.players&&game.players[outcome.playerId]&&game.players[outcome.playerId].playerBets&&game.players[outcome.playerId].playerBets[outcome.betId];
-    const rootBet=game.bets&&game.bets[outcome.betId];
-    if(playerBet||!rootBet)Object.entries(fields).forEach(([field,value])=>{updates[`players/${outcome.playerId}/playerBets/${safeFirebaseKey(outcome.betId)}/${field}`]=value;});
-    if(rootBet)Object.entries(fields).forEach(([field,value])=>{updates[`bets/${safeFirebaseKey(outcome.betId)}/${field}`]=value;});
+    const matchesBet=(recordKey,bet)=>recordKey===outcome.betId||(bet&&(bet.id===outcome.betId||bet.betKey===outcome.betId));
+    let foundPlayerBet=false;let foundRootBet=false;
+
+    // The payout event is the permanent history. Once its won/lost outcome is
+    // recorded, delete every mirror of the bet from the active game bags.
+    Object.entries((((game.players||{})[outcome.playerId]||{}).playerBets)||{}).forEach(([recordKey,bet])=>{
+      if(!matchesBet(recordKey,bet))return;
+      updates[`players/${outcome.playerId}/playerBets/${safeFirebaseKey(recordKey)}`]=null;
+      foundPlayerBet=true;
+    });
+    Object.entries(game.bets||{}).forEach(([recordKey,bet])=>{
+      if(!matchesBet(recordKey,bet))return;
+      updates[`bets/${safeFirebaseKey(recordKey)}`]=null;
+      foundRootBet=true;
+    });
+
+    // Normal records use the bet id as their Firebase key. Keep the fallback for
+    // older snapshots where only one mirror made it into the local game object.
+    if(!foundPlayerBet&&!foundRootBet)updates[`players/${outcome.playerId}/playerBets/${safeFirebaseKey(outcome.betId)}`]=null;
   });
   applyLocalBetSettlement(event);
   await gameRefFor(gameCode).update(updates);
 }
 
 async function applyIdempotentBetPayouts(key,payouts){
-  await Promise.all(Object.entries(payouts||{}).map(([id,amount])=>db.ref('users/'+id).transaction(user=>{
-    user=user||{};user.betPayoutClaims=user.betPayoutClaims||{};
-    const claimKey=safeFirebaseKey(key);
-    if(user.betPayoutClaims[claimKey])return;
-    const value=Math.max(0,Math.floor(Number(amount)||0));
-    user.coins=(Number(user.coins)||0)+value;
-    user.betPayoutClaims[claimKey]={amount:value,paidAt:Date.now()};
-    user.savedAt=Date.now();user.lastBetPayoutAt=Date.now();
-    return user;
-  })));
+  await Promise.all(Object.entries(payouts||{}).map(async([id,amount])=>{
+    try{
+      await db.ref('users/'+id).transaction(user=>{
+        user=user||{};user.betPayoutClaims=user.betPayoutClaims||{};
+        const claimKey=safeFirebaseKey(key);
+        if(user.betPayoutClaims[claimKey])return;
+        const value=Math.max(0,Math.floor(Number(amount)||0));
+        user.coins=(Number(user.coins)||0)+value;
+        user.betPayoutClaims[claimKey]={amount:value,paidAt:Date.now()};
+        user.savedAt=Date.now();user.lastBetPayoutAt=Date.now();
+        return user;
+      });
+    }catch(e){
+      // A client may be allowed to update only its own profile. Do not let one
+      // denied payout prevent every won/lost bet from being closed; the claim
+      // remains safe for that player's client to retry from the payout event.
+      console.warn('Bet payout claim failed for '+id,e);
+    }
+  }));
 }
 
 async function awardBetPayoutsForFinishedGame(game){
@@ -4049,24 +4079,30 @@ async function awardBetPayoutsForFinishedGame(game){
   const bets=resultBetBag(game)||{};
   Object.keys(bets).forEach(k=>{if(!isBetActiveStatus(bets[k]))delete bets[k];});
   const betIds=Object.keys(bets);
-
-  if(!betIds.length)return;
-
   const winnerIds=finalWinnerIdsForBetting(game);
   const key=bettingResultKey(game);
   if(!key)return;
 
   try{
     const eventRef=gameRefFor(gameCode).child('betPayoutEvents/'+key);
+    const settlement=betIds.length?buildBetSettlement(game,bets,winnerIds,key):null;
+    let event;
 
-    const settlement=buildBetSettlement(game,bets,winnerIds,key);
-    const claimed=await eventRef.transaction(current=>current||settlement);
-    if(!claimed||!claimed.snapshot)return;
-    let event=claimed.snapshot.val()||settlement;
+    if(settlement){
+      const claimed=await eventRef.transaction(current=>current||settlement);
+      if(!claimed||!claimed.snapshot)return;
+      event=claimed.snapshot.val()||settlement;
+    }else{
+      // Active bags may already have been cleaned by another client. Continue
+      // processing the durable event so this player can still claim a won bet.
+      const existing=await eventRef.once('value');
+      event=existing.val();
+      if(!event)return;
+    }
 
     // Upgrade payout events created by older builds so their bets can finally be
     // closed without issuing the same payout twice.
-    if(!event.outcomes){
+    if(!event.outcomes&&settlement){
       event={...event,outcomes:settlement.outcomes,winnerIds:event.winnerIds||winnerIds,payouts:event.payouts||settlement.payouts};
       await eventRef.update({outcomes:event.outcomes,winnerIds:event.winnerIds,payouts:event.payouts});
     }
