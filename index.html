@@ -605,6 +605,29 @@ select option{background:var(--surface2)}
 .clicker-num{color:var(--accent);font-weight:700;font-size:14px;margin-left:4px}
 .clicker-launch-btn{margin-top:4px}
 .shop-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:12px}
+/* Case opening */
+.home-cases-btn{position:relative}
+.home-case-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:var(--accent);color:#0a0a0f;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box}
+.case-pity{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin:10px 0 8px}
+.case-footnote{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);line-height:1.6;margin-top:4px}
+.case-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px}
+.case-card-top{display:flex;gap:10px;align-items:center}
+.case-icon{font-size:26px;line-height:1}
+.case-name{font-size:15px;font-weight:800}
+.case-count{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)}
+.case-odds{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;line-height:1.5}
+.case-reel-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:10px}
+.case-reel{position:relative;height:104px;overflow:hidden;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);margin:10px 0}
+.case-strip{display:flex;flex-wrap:nowrap;gap:8px;padding:8px 0;position:absolute;left:0;top:0;will-change:transform}
+.case-tile{width:84px;min-width:84px;height:88px;border:1px solid;border-radius:10px;background:var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px;box-sizing:border-box;overflow:hidden}
+.case-tile .shop-preview{width:auto;min-width:0}
+.case-tile-name{font-size:8px;line-height:1.25;text-align:center;color:var(--muted);max-height:20px;overflow:hidden}
+.case-marker{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--accent);box-shadow:0 0 12px var(--accent);transform:translateX(-1px);pointer-events:none}
+.case-result-card{border:1px solid;border-radius:var(--radius);padding:16px;text-align:center;background:var(--surface2);animation:fadeIn .25s ease}
+.case-result-rarity{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;margin-bottom:8px}
+.case-result-card .shop-preview{margin:0 auto}
+.case-result-name{font-size:17px;font-weight:800;margin-top:6px}
+.case-result-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px}
 .player-title{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;margin-top:3px;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .shop-title-preview{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-align:center;line-height:1.3}
 .clicker-skin-dot{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0a0a0f;flex:0 0 30px}
@@ -1337,6 +1360,9 @@ body{
   <div class="home-actions-row">
     <button class="home-shop-btn" onclick="openShopModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Shop</button>
     <button class="home-shop-btn home-betting-btn" onclick="openHomeBettingModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Betting</button>
+  </div>
+  <div class="home-actions-row">
+    <button class="home-shop-btn home-cases-btn" onclick="openCasesModal()">📦 Cases<span id="homeCaseBadge" class="home-case-badge" style="display:none">0</span></button>
   </div>
   <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
@@ -2700,6 +2726,8 @@ function saveLocalProfile(){
       wins:myProfile.wins||0,
       ownedItems:myProfile.ownedItems||{},
       equipped:myProfile.equipped||{},
+      cases:myProfile.cases||{},
+      pity:myProfile.pity||0,
       name:myProfile.name||'',
       avatar:myProfile.avatar||myAvatar||null,
       savedAt:Date.now()
@@ -2713,6 +2741,8 @@ function normaliseProfile(saved){
     wins:saved.wins||0,
     ownedItems:saved.ownedItems||{},
     equipped:saved.equipped||{},
+    cases:saved.cases||{},
+    pity:saved.pity||0,
     name:saved.name||'',
     avatar:saved.avatar||myAvatar||null
   };
@@ -2732,7 +2762,8 @@ async function loadMyProfile(){
     const snap=await userRef().once('value');
     const cloudSaved=snap.val()||{};
     const localTime=localSaved.savedAt||0;
-    const cloudTime=cloudSaved.savedAt||cloudSaved.lastUpdatedAt||cloudSaved.lastDevCoinSetAt||0;
+    // lastRewardedAt matters: case drops are written server-side without touching savedAt.
+    const cloudTime=Math.max(cloudSaved.savedAt||0,cloudSaved.lastUpdatedAt||0,cloudSaved.lastDevCoinSetAt||0,cloudSaved.lastRewardedAt||0);
     const saved=(cloudTime>=localTime)?cloudSaved:localSaved;
     myProfile=normaliseProfile(saved);
     if(myProfile.avatar&&!myAvatar){myAvatar=myProfile.avatar;localStorage.setItem('sf_avatar',myAvatar);}
@@ -2854,7 +2885,14 @@ function switchShopTab(tab){
   });
   renderShop();
 }
+function updateCaseBadge(){
+  const badge=document.getElementById('homeCaseBadge');if(!badge)return;
+  const n=CASES.reduce((t,c)=>t+myCaseCount(c.id),0);
+  badge.style.display=n?'flex':'none';
+  badge.textContent=n>99?'99+':n;
+}
 function renderShop(){
+  updateCaseBadge();
   const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
   const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
   ['names','frames','wins','clicker','titles','packs','owned'].forEach(t=>{
@@ -2995,6 +3033,205 @@ async function sellItem(itemId){
     await syncMyCosmeticsToGame();
   }catch(e){console.warn('Sell failed',e);}
   renderShop();
+}
+
+// =====================================================
+// CASE OPENING
+// =====================================================
+const CASE_RARITIES={
+  common:{label:'Common',color:'#9494a8'},
+  uncommon:{label:'Uncommon',color:'#4de8a0'},
+  rare:{label:'Rare',color:'#06b6d4'},
+  epic:{label:'Epic',color:'#a78bfa'},
+  legendary:{label:'Legendary',color:'#ffd86b'},
+};
+const RARITY_ORDER=['common','uncommon','rare','epic','legendary'];
+// Rarity comes straight off the shop price, so the ladder stays in sync automatically.
+function itemRarity(item){
+  const p=(item&&item.price)||0;
+  if(p<=250)return'common';
+  if(p<=500)return'uncommon';
+  if(p<=900)return'rare';
+  if(p<=1600)return'epic';
+  return'legendary';
+}
+const CASES=[
+  {id:'case_standard',label:'Standard Case',price:400,icon:'📦',odds:{common:0.46,uncommon:0.30,rare:0.16,epic:0.07,legendary:0.01}},
+  {id:'case_elite',label:'Elite Case',price:900,icon:'🎁',odds:{uncommon:0.42,rare:0.36,epic:0.19,legendary:0.03}},
+  {id:'case_boysnight',label:'Boys Night Case',price:2000,icon:'🏆',odds:{epic:0.70,legendary:0.30}},
+];
+const CASE_DUPE_RATE=0.4;   // duplicates convert to this share of the shop price
+const CASE_PITY=10;         // a Rare or better is guaranteed on this open
+const CASE_TILE=92;         // reel tile width + gap, must match the CSS
+const CASE_WIN_INDEX=52;
+let caseSpinning=false;
+
+function caseLootPool(){return SHOP_ITEMS.filter(i=>i.price>0&&!i.free&&!i.unlockedBy);}
+function caseById(id){return CASES.find(c=>c.id===id);}
+function myCaseCount(id){return (myProfile.cases||{})[id]||0;}
+function caseOddsText(cs){
+  return RARITY_ORDER.filter(r=>cs.odds[r]).reverse()
+    .map(r=>`${CASE_RARITIES[r].label} ${(cs.odds[r]*100).toFixed(cs.odds[r]<0.05?1:0)}%`).join(' · ');
+}
+function rollCaseRarity(cs,forceRarePlus){
+  let entries=Object.entries(cs.odds);
+  if(forceRarePlus){
+    const strong=entries.filter(([r])=>RARITY_ORDER.indexOf(r)>=2);
+    if(strong.length)entries=strong;
+  }
+  const total=entries.reduce((s,[,v])=>s+v,0);
+  let roll=Math.random()*total;
+  for(const[r,v]of entries){roll-=v;if(roll<=0)return r;}
+  return entries[entries.length-1][0];
+}
+function rollCaseItem(cs){
+  const pityHit=(myProfile.pity||0)+1>=CASE_PITY;
+  let rarity=rollCaseRarity(cs,pityHit);
+  let pool=caseLootPool().filter(i=>itemRarity(i)===rarity);
+  if(!pool.length){pool=caseLootPool();}
+  const item=pick(pool);
+  return {item,rarity:itemRarity(item),pityHit};
+}
+// A high-rarity neighbour either side of the prize is what sells the near-miss.
+function buildCaseStrip(cs,winner){
+  const pool=caseLootPool();
+  const strong=pool.filter(i=>RARITY_ORDER.indexOf(itemRarity(i))>=3);
+  const tiles=[];
+  for(let i=0;i<CASE_WIN_INDEX+8;i++)tiles.push(pick(pool));
+  tiles[CASE_WIN_INDEX]=winner;
+  if(strong.length){
+    if(itemRarity(winner)!=='legendary'){
+      tiles[CASE_WIN_INDEX-1]=pick(strong);
+      tiles[CASE_WIN_INDEX+1]=pick(strong);
+    }
+  }
+  return tiles;
+}
+function caseTileHtml(item){
+  const r=itemRarity(item);const col=CASE_RARITIES[r].color;
+  return`<div class="case-tile" style="border-color:${col};box-shadow:inset 0 -22px 26px -22px ${col}">
+    ${shopItemPreview(item)}
+    <div class="case-tile-name">${esc(item.label)}</div>
+  </div>`;
+}
+
+function openCasesModal(){
+  renderCasesModal();
+  const m=document.getElementById('casesBackdrop');if(m)m.classList.add('open');
+}
+function closeCasesModal(event){
+  if(caseSpinning)return;
+  if(event&&event.target&&event.currentTarget&&event.target!==event.currentTarget)return;
+  const m=document.getElementById('casesBackdrop');if(m)m.classList.remove('open');
+}
+function renderCasesModal(){
+  const coins=document.getElementById('caseCoinBalance');if(coins)coins.textContent=myProfile.coins||0;
+  const pity=document.getElementById('casePity');
+  if(pity){
+    const left=Math.max(0,CASE_PITY-(myProfile.pity||0));
+    pity.textContent=`Guaranteed Rare or better in ${left} open${left===1?'':'s'}`;
+  }
+  const list=document.getElementById('caseList');if(!list)return;
+  list.innerHTML=CASES.map(cs=>{
+    const owned=myCaseCount(cs.id);
+    const canBuy=(myProfile.coins||0)>=cs.price;
+    return`<div class="case-card">
+      <div class="case-card-top">
+        <span class="case-icon">${cs.icon}</span>
+        <div style="flex:1;min-width:0">
+          <div class="case-name">${cs.label}${owned?` <span class="case-count">×${owned}</span>`:''}</div>
+          <div class="case-odds">${caseOddsText(cs)}</div>
+        </div>
+      </div>
+      <div class="flex-row" style="margin-top:10px">
+        <button class="btn btn-secondary shop-item-btn" onclick="buyCase('${cs.id}')" ${canBuy?'':'disabled'}>Buy · ${cs.price}</button>
+        <button class="btn btn-primary shop-item-btn" onclick="startCaseOpen('${cs.id}')" ${owned?'':'disabled'}>Open</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+async function buyCase(caseId){
+  const cs=caseById(caseId);if(!cs||caseSpinning)return;
+  if((myProfile.coins||0)<cs.price)return;
+  myProfile.coins-=cs.price;
+  myProfile.cases={...(myProfile.cases||{}),[caseId]:myCaseCount(caseId)+1};
+  saveLocalProfile();renderCasesModal();renderShop();
+  try{await userRef().update({coins:myProfile.coins,cases:myProfile.cases,savedAt:Date.now()});}catch(e){console.warn('Case buy sync failed',e);}
+}
+function startCaseOpen(caseId){
+  const cs=caseById(caseId);
+  if(!cs||caseSpinning||myCaseCount(caseId)<1)return;
+  caseSpinning=true;
+  myProfile.cases={...(myProfile.cases||{}),[caseId]:myCaseCount(caseId)-1};
+  const result=rollCaseItem(cs);
+  const tiles=buildCaseStrip(cs,result.item);
+  document.getElementById('caseChooser').style.display='none';
+  document.getElementById('caseReelWrap').style.display='block';
+  document.getElementById('caseResult').style.display='none';
+  document.getElementById('caseReelTitle').textContent=cs.label;
+  const strip=document.getElementById('caseStrip');
+  strip.style.transition='none';
+  strip.style.transform='translateX(0px)';
+  strip.innerHTML=tiles.map(caseTileHtml).join('');
+  runCaseReel(()=>finishCaseOpen(result));
+}
+function runCaseReel(onDone){
+  const strip=document.getElementById('caseStrip');
+  const view=document.getElementById('caseReel');
+  const vw=view.clientWidth||320;
+  const jitter=(Math.random()*2-1)*(CASE_TILE*0.3);
+  const target=CASE_WIN_INDEX*CASE_TILE+CASE_TILE/2-vw/2+jitter;
+  const dur=6000;
+  let t0=null,lastTick=-1;
+  function frame(ts){
+    if(t0===null)t0=ts;
+    const p=Math.min(1,(ts-t0)/dur);
+    // easeOutQuad: ~16 tiles in the first second, still crawling past the last
+    // tile or two in the final second. Steeper curves stall out early and the
+    // reel looks frozen before it lands.
+    const eased=1-Math.pow(1-p,2);
+    const x=target*eased;
+    strip.style.transform='translateX('+(-x)+'px)';
+    const tick=Math.floor(x/CASE_TILE);
+    if(tick!==lastTick){
+      lastTick=tick;
+      try{if(navigator.vibrate)navigator.vibrate(7);}catch(e){}
+    }
+    if(p<1)requestAnimationFrame(frame);
+    else onDone();
+  }
+  requestAnimationFrame(frame);
+}
+async function finishCaseOpen(result){
+  const {item,rarity,pityHit}=result;
+  const dupe=itemIsOwned(item);
+  const refund=dupe?Math.round(item.price*CASE_DUPE_RATE):0;
+  if(dupe)myProfile.coins=(myProfile.coins||0)+refund;
+  else myProfile.ownedItems={...(myProfile.ownedItems||{}),[item.id]:true};
+  myProfile.pity=(RARITY_ORDER.indexOf(rarity)>=2||pityHit)?0:(myProfile.pity||0)+1;
+  saveLocalProfile();
+  const col=CASE_RARITIES[rarity].color;
+  const box=document.getElementById('caseResult');
+  box.style.display='block';
+  box.innerHTML=`<div class="case-result-card" style="border-color:${col};box-shadow:0 0 34px -6px ${col}">
+      <div class="case-result-rarity" style="color:${col}">${CASE_RARITIES[rarity].label}</div>
+      ${shopItemPreview(item)}
+      <div class="case-result-name">${esc(item.label)}</div>
+      <div class="case-result-sub">${dupe?`Duplicate · +${refund} coins`:'Added to your collection'}</div>
+      ${pityHit?'<div class="case-result-sub" style="color:var(--accent)">Bad luck protection kicked in</div>':''}
+    </div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="backToCaseChooser()">Nice</button>`;
+  caseSpinning=false;
+  renderShop();refreshMyCosmeticsDisplay();
+  try{
+    await userRef().update({coins:myProfile.coins,ownedItems:myProfile.ownedItems,cases:myProfile.cases,pity:myProfile.pity,savedAt:Date.now()});
+    await syncMyCosmeticsToGame();
+  }catch(e){console.warn('Case result sync failed',e);}
+}
+function backToCaseChooser(){
+  document.getElementById('caseReelWrap').style.display='none';
+  document.getElementById('caseChooser').style.display='block';
+  renderCasesModal();
 }
 
 function playerNameHtml(p){
@@ -3327,6 +3564,9 @@ async function awardCoinsForFinishedGame(game){
       user=user||{};
       user.coins=(user.coins||0)+amount;
       user.wins=(user.wins||0)+1;
+      // Every win also drops a Standard Case.
+      user.cases=user.cases||{};
+      user.cases.case_standard=(user.cases.case_standard||0)+1;
       user.lastRewardedAt=Date.now();
       return user;
     })));
@@ -10856,6 +11096,30 @@ function witbCleanup(){witbMyBoxVisible=false;localWitbBoxes=null;}
       <div class="shop-grid" id="shopItems"></div>
     </div>
   </div>
+
+<!-- CASE OPENING -->
+<div class="shop-modal-backdrop" id="casesBackdrop" onclick="closeCasesModal(event)">
+  <div class="shop-modal" onclick="event.stopPropagation()">
+    <div class="shop-modal-header">
+      <h2>Cases</h2>
+      <button class="shop-close-btn" onclick="closeCasesModal()">x</button>
+    </div>
+    <div class="coin-pill"><img src="coin-icon-2.png" class="coin-icon" alt="Coins"/> <span id="caseCoinBalance">0</span> coins</div>
+    <div id="caseChooser">
+      <div class="case-pity" id="casePity"></div>
+      <div id="caseList"></div>
+      <div class="case-footnote">Duplicates convert to coins at 40% of shop value. Odds are shown on every case.</div>
+    </div>
+    <div id="caseReelWrap" style="display:none">
+      <div class="case-reel-title" id="caseReelTitle"></div>
+      <div class="case-reel" id="caseReel">
+        <div class="case-strip" id="caseStrip"></div>
+        <div class="case-marker"></div>
+      </div>
+      <div id="caseResult" style="display:none"></div>
+    </div>
+  </div>
+</div>
 
 <!-- WHAT'S IN THE BOX: HOST BOX EDITOR -->
 <div class="shop-modal-backdrop" id="witbEditorBackdrop" onclick="closeWitbBoxEditor(event)">
