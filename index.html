@@ -604,7 +604,15 @@ select option{background:var(--surface2)}
 .clicker-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted)}
 .clicker-num{color:var(--accent);font-weight:700;font-size:14px;margin-left:4px}
 .clicker-launch-btn{margin-top:4px}
-.shop-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:12px}
+.shop-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:12px}
+.player-title{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;margin-top:3px;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop-title-preview{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-align:center;line-height:1.3}
+.clicker-skin-dot{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0a0a0f;flex:0 0 30px}
+.clicker-trail-preview{display:inline-flex;align-items:center;gap:3px}
+.clicker-trail-preview i{width:5px;height:5px;border-radius:50%;display:block}
+.clicker-world-swatch{width:40px;height:30px;border-radius:6px;position:relative;overflow:hidden;display:inline-block;border:1px solid}
+.clicker-world-swatch i{position:absolute;top:0;left:13px;width:14px;border:1px solid;box-sizing:border-box;display:block}
+.clicker-world-swatch b{position:absolute;left:0;bottom:0;width:100%;height:2px;display:block}
 .shop-tab{padding:9px 4px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .shop-tab:hover{color:var(--text);background:var(--surface3)}
 .shop-tab.active{background:var(--accent);color:#0a0a0f}
@@ -1611,6 +1619,7 @@ body{
         <button class="btn btn-secondary" onclick="openWitbBoxEditor()">✏️ Edit box contents</button>
         <div class="notice info" style="margin-top:10px">🎁 One box each, picked blind. Win a challenge and you can swap boxes with anyone — or keep yours and let them wonder.</div>
       </div>
+      <div id="lobbyPacksNotice" class="notice success" style="display:none;margin-top:8px"></div>
       <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 4 players to start Mafia</div>
       <div style="height:8px"></div>
       <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>Start Game</button>
@@ -2453,8 +2462,183 @@ const SHOP_ITEMS=[
   {id:'win_fireworks',type:'winAnim',label:'Fireworks',price:1000,value:'fireworks',icon:'🎆'},
   {id:'win_golden_confetti',type:'winAnim',label:'Golden Confetti',price:1100,value:'goldConfetti',icon:'✨'},
   {id:'win_crown',type:'winAnim',label:'Golden Crown',price:1500,value:'crown',icon:'👑'},
-  {id:'win_inferno',type:'winAnim',label:'Inferno Triumph',price:2200,value:'inferno',icon:'🔥'}
+  {id:'win_inferno',type:'winAnim',label:'Inferno Triumph',price:2200,value:'inferno',icon:'🔥'},
+  // --- Chrispy Clicker characters ---
+  {id:'clicker_classic',type:'clickerSkin',label:'Chrispy',price:0,value:'classic',free:true},
+  {id:'clicker_coin',type:'clickerSkin',label:'Coin Chrispy',price:300,value:'coin'},
+  {id:'clicker_flame',type:'clickerSkin',label:'Little Flame',price:450,value:'flame'},
+  {id:'clicker_ghost',type:'clickerSkin',label:'Ghost Chrispy',price:500,value:'ghost'},
+  {id:'clicker_skull',type:'clickerSkin',label:'Pixel Skull',price:550,value:'skull'},
+  {id:'clicker_spy',type:'clickerSkin',label:'Tiny Spy',price:700,value:'spy'},
+  {id:'clicker_eightball',type:'clickerSkin',label:'8-Ball',price:750,value:'eightball'},
+  {id:'clicker_disco',type:'clickerSkin',label:'Disco Chrispy',price:1200,value:'disco'},
+  {id:'clicker_gold',type:'clickerSkin',label:'Gold Chrispy',price:2000,value:'gold'},
+  // --- Chrispy Clicker trails ---
+  {id:'trail_none',type:'clickerTrail',label:'No Trail',price:0,value:'none',free:true},
+  {id:'trail_embers',type:'clickerTrail',label:'Ember Trail',price:350,value:'embers'},
+  {id:'trail_bubbles',type:'clickerTrail',label:'Bubble Trail',price:350,value:'bubbles'},
+  {id:'trail_sparkles',type:'clickerTrail',label:'Sparkle Trail',price:450,value:'sparkles'},
+  {id:'trail_glitch',type:'clickerTrail',label:'Glitch Trail',price:600,value:'glitch'},
+  // --- Chrispy Clicker wipeouts ---
+  {id:'death_none',type:'clickerDeath',label:'Standard Wipeout',price:0,value:'none',free:true},
+  {id:'death_explode',type:'clickerDeath',label:'Explode',price:300,value:'explode'},
+  {id:'death_shatter',type:'clickerDeath',label:'Shatter',price:400,value:'shatter'},
+  {id:'death_confetti',type:'clickerDeath',label:'Confetti Pop',price:500,value:'confettiPop'},
+  // --- Chrispy Clicker worlds: free with the matching name effect or frame ---
+  {id:'world_classic',type:'clickerWorld',label:'Chrispy Green World',price:0,value:'classic',free:true},
+  {id:'world_ocean',type:'clickerWorld',label:'Ocean World',price:0,value:'ocean',unlockedBy:['animated_ocean_wave','frame_ocean']},
+  {id:'world_aurora',type:'clickerWorld',label:'Aurora World',price:0,value:'aurora',unlockedBy:['animated_aurora_glow','frame_aurora']},
+  {id:'world_candy',type:'clickerWorld',label:'Candy World',price:0,value:'candy',unlockedBy:['animated_candy_shift','frame_candy']},
+  {id:'world_bloodmoon',type:'clickerWorld',label:'Blood Moon World',price:0,value:'bloodmoon',unlockedBy:['animated_blood_moon','frame_blood_moon']},
+  {id:'world_galaxy',type:'clickerWorld',label:'Galaxy World',price:0,value:'galaxy',unlockedBy:['animated_galaxy_flow','frame_galaxy']},
+  {id:'world_inferno',type:'clickerWorld',label:'Inferno World',price:0,value:'inferno',unlockedBy:['animated_inferno_name','frame_inferno']},
+  {id:'world_fire',type:'clickerWorld',label:'Fire World',price:0,value:'fire',unlockedBy:['animated_fire_flicker','frame_fire']},
+  {id:'world_ice',type:'clickerWorld',label:'Ice World',price:0,value:'ice',unlockedBy:['animated_frost_shimmer','frame_ice']},
+  {id:'world_neon',type:'clickerWorld',label:'Neon World',price:0,value:'neon',unlockedBy:['animated_neon_flicker','frame_neon']},
+  {id:'world_shadow',type:'clickerWorld',label:'Shadow World',price:0,value:'shadow',unlockedBy:['frame_shadow']},
+  {id:'world_rainbow',type:'clickerWorld',label:'Rainbow World',price:0,value:'rainbow',unlockedBy:['animated_rainbow_shift','frame_rainbow']},
+  // --- Titles (shown under your name) ---
+  {id:'title_none',type:'title',label:'No Title',price:0,value:'none',free:true},
+  {id:'title_rookie',type:'title',label:'Rookie',price:150,value:'rookie'},
+  {id:'title_regular',type:'title',label:'The Regular',price:200,value:'regular'},
+  {id:'title_warmbody',type:'title',label:'Warm Body',price:200,value:'warmbody'},
+  {id:'title_vibes',type:'title',label:'Vibes Only',price:250,value:'vibes'},
+  {id:'title_overthinker',type:'title',label:'Chronic Overthinker',price:350,value:'overthinker'},
+  {id:'title_loudwrong',type:'title',label:'Loud and Wrong',price:400,value:'loudwrong'},
+  {id:'title_liar',type:'title',label:'Certified Liar',price:450,value:'liar'},
+  {id:'title_suspect',type:'title',label:'Professional Suspect',price:500,value:'suspect'},
+  {id:'title_coingoblin',type:'title',label:'Coin Goblin',price:500,value:'coingoblin'},
+  {id:'title_swapper',type:'title',label:'Serial Swapper',price:550,value:'swapper'},
+  {id:'title_menace',type:'title',label:'Table Menace',price:600,value:'menace'},
+  {id:'title_deadly',type:'title',label:'Quietly Deadly',price:650,value:'deadly'},
+  {id:'title_notsus',type:'title',label:'Never Suspicious',price:700,value:'notsus'},
+  {id:'title_unreadable',type:'title',label:'Unreadable',price:850,value:'unreadable'},
+  {id:'title_snake',type:'title',label:'Certified Snake',price:900,value:'snake'},
+  {id:'title_different',type:'title',label:'Built Different',price:1000,value:'different'},
+  {id:'title_mastermind',type:'title',label:'The Mastermind',price:1100,value:'mastermind'},
+  {id:'title_publicenemy',type:'title',label:'Public Enemy',price:1200,value:'publicenemy'},
+  {id:'title_finalboss',type:'title',label:'Final Boss',price:1400,value:'finalboss'},
+  {id:'title_undefeated',type:'title',label:'Undefeated',price:1600,value:'undefeated'},
+  {id:'title_nightmare',type:'title',label:'Nightmare Fuel',price:1800,value:'nightmare'},
+  {id:'title_groupchat',type:'title',label:'Legend of the Group Chat',price:2200,value:'groupchat'},
+  {id:'title_chrispy',type:'title',label:'Chrispy Himself',price:2500,value:'chrispy'},
+  // --- Content packs: the host's packs apply to the whole room ---
+  {id:'pack_spy_aussie',type:'pack',label:'Spyfall · Aussie Pack',price:600,value:'spy_aussie'},
+  {id:'pack_spy_scifi',type:'pack',label:'Spyfall · Sci-Fi Pack',price:600,value:'spy_scifi'},
+  {id:'pack_spy_night',type:'pack',label:'Spyfall · Night Out Pack',price:600,value:'spy_night'},
+  {id:'pack_witb_savage',type:'pack',label:"What's In The Box · Savage Pack",price:700,value:'witb_savage'},
+  {id:'pack_witb_stakes',type:'pack',label:"What's In The Box · Big Stakes Pack",price:700,value:'witb_stakes'},
+  {id:'pack_witb_tame',type:'pack',label:"What's In The Box · Tame Pack",price:400,value:'witb_tame'},
 ];
+const CONTENT_PACKS={
+  spy_aussie:{game:'Spyfall',label:'Aussie Pack',locations:[
+    {name:'Bunnings Warehouse',roles:['Sausage Sizzler','Team Member','Tradie','Lost Customer','Forklift Driver']},
+    {name:'Footy Grand Final',roles:['Umpire','Captain','Mascot','Pie Vendor','Streaker']},
+    {name:'Servo at 3am',roles:['Night Attendant','Truckie','Drunk Customer','Cleaner','Delivery Driver']},
+    {name:'Melbourne Tram',roles:['Driver','Ticket Inspector','Tourist','Busker','Commuter']},
+    {name:'Outback Roadhouse',roles:['Owner','Road Train Driver','Backpacker','Cook','Mechanic']},
+    {name:'Schoolies',roles:['Schoolie','Hotel Manager','Lifeguard','Police Officer','Parent Chaperone']},
+  ]},
+  spy_scifi:{game:'Spyfall',label:'Sci-Fi Pack',locations:[
+    {name:'Mars Colony',roles:['Commander','Botanist','Terraformer','Medic','Rover Pilot']},
+    {name:'Generation Ship',roles:['Captain','Archivist','Engineer','Farmer','Sleeper']},
+    {name:'Cyberpunk Nightclub',roles:['Bouncer','Netrunner','Bartender','Fixer','Synth Dancer']},
+    {name:'Alien Embassy',roles:['Ambassador','Translator','Guard','Xenobiologist','Protocol Droid']},
+    {name:'Orbital Prison',roles:['Warden','Inmate','Guard','Cook','Smuggler']},
+    {name:'Robot Factory',roles:['Foreman','Assembler','QA Inspector','Programmer','Prototype']},
+  ]},
+  spy_night:{game:'Spyfall',label:'Night Out Pack',locations:[
+    {name:'Nightclub Queue',roles:['Bouncer','Promoter','Regular','Underage Kid','Taxi Tout']},
+    {name:'Kebab Shop at 3am',roles:['Owner','Grill Cook','Drunk Customer','Delivery Rider','Cleaner']},
+    {name:'Uber Ride Home',roles:['Driver','Front Seat Talker','Sleeping Mate','Backseat DJ','Sick Passenger']},
+    {name:'House Party',roles:['Host','Aux Cord Hog','Neighbour','Gatecrasher','Kitchen Philosopher']},
+    {name:'Karaoke Bar',roles:['MC','Song Hog','Tambourine Guy','Bartender','Silent Judge']},
+    {name:'Festival Campsite',roles:['Camp Leader','Lost Mate','Security','Esky Guardian','Noise Complaint']},
+  ]},
+  witb_savage:{game:"What's In The Box?",label:'Savage Pack',forfeits:[
+    'Let the group read your last five texts out loud',
+    'Call a family member and tell them you have news',
+    'Everyone gets to roast you for one minute — no replies',
+    'Your phone goes face up on the table for the rest of the game',
+    'Wear whatever the group picks for the rest of the night',
+    'Let the person on your right send one message from your phone',
+    'Reveal your most recent search history entry',
+  ],prizes:[
+    'Immunity from the next three forfeits',
+    'Force any two players to swap boxes right now',
+  ]},
+  witb_stakes:{game:"What's In The Box?",label:'Big Stakes Pack',forfeits:[
+    'Put $10 in the pot',
+    'Buy the next round for the table',
+    'You are covering the next food order',
+    'Pay whoever is on your left $5',
+    'You lose your seat — take the worst one in the room',
+    'You owe the group one favour, cashable any time',
+  ],prizes:[
+    'Take $10 out of the pot',
+    'The next round is on someone else — you pick',
+    'Claim any one thing another player is holding',
+  ]},
+  witb_tame:{game:"What's In The Box?",label:'Tame Pack',forfeits:[
+    'Speak only in questions until the next challenge',
+    'Do your worst celebrity impression',
+    'Swap seats with the person opposite you',
+    'Tell the group an embarrassing story from school',
+    'You are the designated snack fetcher for one round',
+    'Hum a song until someone guesses it',
+  ],prizes:[
+    'Skip the next challenge entirely',
+    'Pick the next song',
+    'Nominate someone to answer a question honestly',
+  ]},
+};
+// Packs the host owns extend the pool for everyone in the room.
+function ownedPackIds(){
+  return SHOP_ITEMS.filter(i=>i.type==='pack'&&itemIsOwned(i)).map(i=>i.value);
+}
+function availableLocations(){
+  const extra=[];
+  ownedPackIds().forEach(id=>{const p=CONTENT_PACKS[id];if(p&&p.locations)extra.push(...p.locations);});
+  return [...ALL_LOCATIONS,...extra];
+}
+function witbPrizePool(){
+  const extra=[];
+  ownedPackIds().forEach(id=>{const p=CONTENT_PACKS[id];if(p&&p.prizes)extra.push(...p.prizes);});
+  return [...WITB_PRIZES,...extra];
+}
+function witbForfeitPool(){
+  const extra=[];
+  ownedPackIds().forEach(id=>{const p=CONTENT_PACKS[id];if(p&&p.forfeits)extra.push(...p.forfeits);});
+  return [...WITB_FORFEITS,...extra];
+}
+function activePackLabels(){
+  return ownedPackIds().map(id=>CONTENT_PACKS[id]&&CONTENT_PACKS[id].label).filter(Boolean);
+}
+const TITLES={
+  rookie:{label:'ROOKIE',color:'#9494a8'},
+  regular:{label:'THE REGULAR',color:'#9494a8'},
+  warmbody:{label:'WARM BODY',color:'#9494a8'},
+  vibes:{label:'VIBES ONLY',color:'#4de8a0'},
+  overthinker:{label:'CHRONIC OVERTHINKER',color:'#06b6d4'},
+  loudwrong:{label:'LOUD AND WRONG',color:'#f97316'},
+  liar:{label:'CERTIFIED LIAR',color:'#e85d4d'},
+  suspect:{label:'PROFESSIONAL SUSPECT',color:'#e85d4d'},
+  coingoblin:{label:'COIN GOBLIN',color:'#f5c542'},
+  swapper:{label:'SERIAL SWAPPER',color:'#a78bfa'},
+  menace:{label:'TABLE MENACE',color:'#f97316'},
+  deadly:{label:'QUIETLY DEADLY',color:'#06b6d4'},
+  notsus:{label:'NEVER SUSPICIOUS',color:'#4de8a0'},
+  unreadable:{label:'UNREADABLE',color:'#a78bfa'},
+  snake:{label:'CERTIFIED SNAKE',color:'#4de8a0'},
+  different:{label:'BUILT DIFFERENT',color:'#d3f34b'},
+  mastermind:{label:'THE MASTERMIND',color:'#a78bfa'},
+  publicenemy:{label:'PUBLIC ENEMY',color:'#ff2d2d'},
+  finalboss:{label:'FINAL BOSS',color:'#ff2d2d'},
+  undefeated:{label:'UNDEFEATED',color:'#d3f34b'},
+  nightmare:{label:'NIGHTMARE FUEL',color:'#ff2d2d'},
+  groupchat:{label:'LEGEND OF THE GROUP CHAT',color:'#ffd86b'},
+  chrispy:{label:'CHRISPY HIMSELF',color:'#ffd86b'},
+};
 let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let nonHostLobbyView=false;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
@@ -2573,7 +2757,17 @@ function makePlayerData(name,isHost){
   return {id:myId,name,isHost,joinedAt:Date.now(),online:true,avatar:myAvatar||null,profileWins:myProfile.wins||0,cosmetics:{equipped:myProfile.equipped||{}}};
 }
 function isNameShopItem(item){return item&&(item.type==='nameColor'||item.type==='animatedName');}
+function isClickerShopItem(item){return item&&(item.type==='clickerSkin'||item.type==='clickerTrail'||item.type==='clickerDeath'||item.type==='clickerWorld');}
+// Free defaults and theme-granted items are owned without ever being bought.
+function itemIsOwned(item){
+  if(!item)return false;
+  if(item.free)return true;
+  if(item.unlockedBy)return item.unlockedBy.some(id=>!!(myProfile.ownedItems&&myProfile.ownedItems[id]));
+  return !!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
+}
+function itemIsSellable(item){return !!item&&!item.free&&!item.unlockedBy&&item.price>0;}
 function equipShopItem(item){
+  if(item&&item.type==='pack')return; // nothing to equip — owning it is enough
   myProfile.equipped={...(myProfile.equipped||{})};
   if(isNameShopItem(item)){
     // Only one name customisation at a time. This removes the previous name colour/animation.
@@ -2591,10 +2785,20 @@ function equipShopItem(item){
 }
 function isShopItemEquipped(item){
   if(!item||!myProfile.equipped)return false;
+  if(item.type==='pack')return false; // packs are passive — owned, never equipped
   return myProfile.equipped[item.type]===item.value;
 }
 function shopItemCategory(item){
-  return isNameShopItem(item)?'Name':item.type==='avatarFrame'?'Frame':item.type==='winAnim'?'Win':'Item';
+  if(isNameShopItem(item))return'Name';
+  if(item.type==='avatarFrame')return'Frame';
+  if(item.type==='winAnim')return'Win';
+  if(item.type==='clickerSkin')return'Clicker · Character';
+  if(item.type==='clickerTrail')return'Clicker · Trail';
+  if(item.type==='clickerDeath')return'Clicker · Wipeout';
+  if(item.type==='clickerWorld')return'Clicker · World';
+  if(item.type==='title')return'Title';
+  if(item.type==='pack')return'Pack';
+  return'Item';
 }
 function shopItemPreview(item){
   const sampleName=esc((document.getElementById('playerName')&&document.getElementById('playerName').value.trim())||myProfile.name||'Chris');
@@ -2610,6 +2814,36 @@ function shopItemPreview(item){
   if(item.type==='winAnim'){
     return `<div class="shop-preview"><button type="button" class="win-anim-shop-preview win-preview-${item.value}" onclick="event.preventDefault();event.stopPropagation();previewWinAnim('${item.value}')" style="cursor:pointer" title="Tap to preview"><span class="win-preview-icon">${item.icon||'🏆'}</span></button></div>`;
   }
+  if(item.type==='clickerSkin'){
+    const sk=CLICKER_SKINS[item.value]||CLICKER_SKINS.classic;
+    const glyph={coin:'C',eightball:'8',spy:'🕵',ghost:'👻',skull:'💀',flame:'🔥',disco:'🪩'}[item.value]||'';
+    return `<div class="shop-preview"><span class="clicker-skin-dot" style="background:${sk.body};box-shadow:0 0 12px ${sk.glow}">${glyph}</span></div>`;
+  }
+  if(item.type==='clickerTrail'){
+    const tr=CLICKER_TRAILS[item.value]||CLICKER_TRAILS.none;
+    if(!tr.color)return `<div class="shop-preview"><span class="clicker-skin-dot" style="background:var(--surface3)"></span></div>`;
+    return `<div class="shop-preview"><span class="clicker-trail-preview">${[0.25,0.5,0.8].map(o=>`<i style="background:${tr.color};opacity:${o}"></i>`).join('')}<span class="clicker-skin-dot" style="background:${tr.color};box-shadow:0 0 10px ${tr.color}"></span></span></div>`;
+  }
+  if(item.type==='clickerWorld'){
+    const w=CLICKER_WORLDS[item.value]||CLICKER_WORLDS.classic;
+    const edge=w.edge==='rainbow'?'#ec4899':w.edge;
+    const cap=w.cap==='rainbow'?'#22d3ee':w.cap;
+    return `<div class="shop-preview"><span class="clicker-world-swatch" style="background:${w.bg};border-color:${edge}"><i style="background:${w.pipe};border-color:${edge};height:38%"></i><i style="background:${w.pipe};border-color:${edge};height:30%;top:auto;bottom:0"></i><b style="background:${cap}"></b></span></div>`;
+  }
+  if(item.type==='clickerDeath'){
+    const glyph={explode:'💥',shatter:'❄️',confettiPop:'🎉'}[item.value]||'💀';
+    return `<div class="shop-preview"><span class="clicker-skin-dot" style="background:var(--surface3);font-size:15px">${glyph}</span></div>`;
+  }
+  if(item.type==='pack'){
+    const p=CONTENT_PACKS[item.value];
+    const n=p?((p.locations||[]).length+(p.prizes||[]).length+(p.forfeits||[]).length):0;
+    return `<div class="shop-preview"><span class="clicker-skin-dot" style="background:var(--surface3);color:var(--accent);font-size:11px">+${n}</span></div>`;
+  }
+  if(item.type==='title'){
+    const t=TITLES[item.value];
+    if(!t)return `<div class="shop-preview"><span class="shop-title-preview" style="color:var(--muted)">NONE</span></div>`;
+    return `<div class="shop-preview"><span class="shop-title-preview" style="color:${t.color}">${esc(t.label)}</span></div>`;
+  }
   return `<div class="shop-preview"></div>`;
 }
 function switchShopTab(tab){
@@ -2623,33 +2857,39 @@ function switchShopTab(tab){
 function renderShop(){
   const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
   const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
-  ['names','frames','wins','owned'].forEach(t=>{
+  ['names','frames','wins','clicker','titles','packs','owned'].forEach(t=>{
     const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.classList.toggle('active',t===currentShopTab);
   });
   const list=document.getElementById('shopItems');if(!list)return;
   let items=SHOP_ITEMS.filter(item=>{
-    const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
     if(currentShopTab==='names')return isNameShopItem(item);
     if(currentShopTab==='frames')return item.type==='avatarFrame';
     if(currentShopTab==='wins')return item.type==='winAnim';
-    if(currentShopTab==='owned')return owned;
+    if(currentShopTab==='clicker')return isClickerShopItem(item);
+    if(currentShopTab==='titles')return item.type==='title';
+    if(currentShopTab==='packs')return item.type==='pack';
+    if(currentShopTab==='owned')return itemIsOwned(item)&&item.price>0;
     return true;
   }).sort((a,b)=>(a.price||0)-(b.price||0)||String(a.label).localeCompare(String(b.label)));
   if(!items.length){
-    list.innerHTML=`<div class="shop-section-empty">No owned items yet.<br>Buy something from the Names, Frames, or Wins tab.</div>`;
+    list.innerHTML=`<div class="shop-section-empty">No owned items yet.<br>Buy something from the Names, Frames, Wins, or Clicker tab.</div>`;
     return;
   }
   list.innerHTML=items.map(item=>{
-    const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
+    const owned=itemIsOwned(item);
     const equipped=isShopItemEquipped(item);
     const canBuy=(myProfile.coins||0)>=item.price;
-    const label=equipped?'Equipped':owned?'Equip':'Buy';
+    const label=item.type==='pack'?(owned?'Owned':'Buy'):equipped?'Equipped':owned?'Equip':'Buy';
     const mainBtnClass=owned?'btn-secondary':'btn-primary';
-    const priceText=owned?`Owned · sell for <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`:`<img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`;
-    const sellBtn=owned?`<button class="btn shop-item-btn shop-sell-btn" onclick="sellItem('${item.id}')">Sell</button>`:'';
+    const priceText=item.unlockedBy&&!owned
+      ?`Unlocked by owning the matching name or frame`
+      :owned
+        ?(itemIsSellable(item)?`Owned · sell for <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`:'Unlocked')
+        :`<img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`;
+    const sellBtn=(owned&&itemIsSellable(item))?`<button class="btn shop-item-btn shop-sell-btn" onclick="sellItem('${item.id}')">Sell</button>`:'';
     const category=`<span class="shop-type-pill">${shopItemCategory(item)}</span>`;
-    return `<div class="shop-item">${shopItemPreview(item)}<div class="shop-item-info"><div class="shop-item-name">${item.label}</div><div class="shop-item-price">${priceText}</div>${category}</div><div class="shop-item-actions"><button class="btn ${mainBtnClass} shop-item-btn" onclick="buyOrEquipItem('${item.id}')" ${equipped||(!owned&&!canBuy)?'disabled':''}>${label}</button>${sellBtn}</div></div>`;
+    return `<div class="shop-item">${shopItemPreview(item)}<div class="shop-item-info"><div class="shop-item-name">${item.label}</div><div class="shop-item-price">${priceText}</div>${category}</div><div class="shop-item-actions"><button class="btn ${mainBtnClass} shop-item-btn" onclick="buyOrEquipItem('${item.id}')" ${equipped||(owned&&item.type==='pack')||(!owned&&(!canBuy||item.unlockedBy))?'disabled':''}>${owned?label:(item.unlockedBy?'Locked':label)}</button>${sellBtn}</div></div>`;
   }).join('');
 }
 function refreshMyCosmeticsDisplay(){
@@ -2706,8 +2946,9 @@ async function devSetCoins(amount){
 
 async function buyOrEquipItem(itemId){
   const item=SHOP_ITEMS.find(i=>i.id===itemId);if(!item)return;
-  const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
+  const owned=itemIsOwned(item);
   if(!owned){
+    if(item.unlockedBy)return; // theme-granted only — never purchasable
     if((myProfile.coins||0)<item.price)return;
     myProfile.coins=(myProfile.coins||0)-item.price;
     myProfile.ownedItems={...(myProfile.ownedItems||{}),[item.id]:true};
@@ -2725,6 +2966,7 @@ async function buyOrEquipItem(itemId){
 }
 async function sellItem(itemId){
   const item=SHOP_ITEMS.find(i=>i.id===itemId);if(!item)return;
+  if(!itemIsSellable(item))return;
   const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
   if(!owned)return;
   myProfile.coins=(myProfile.coins||0)+item.price;
@@ -2738,6 +2980,12 @@ async function sellItem(itemId){
     }else{
       delete myProfile.equipped[item.type];
     }
+  }
+  // Selling a theme can revoke the Clicker world it unlocked.
+  const worldItem=SHOP_ITEMS.find(i=>i.type==='clickerWorld'&&i.value===(myProfile.equipped||{}).clickerWorld);
+  if(worldItem&&!itemIsOwned(worldItem)){
+    myProfile.equipped={...(myProfile.equipped||{})};
+    delete myProfile.equipped.clickerWorld;
   }
   saveLocalProfile();
   renderShop();
@@ -4546,7 +4794,7 @@ async function createGame(){
   setLoading('createBtn',true,'Creating...');
   const code=genCode();gameCode=code;amHost=true;nonHostLobbyView=false;
   await saveProfileBasics(name);
-  const locations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
+  const locations=shuffle(availableLocations()).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
   const game={code,status:'lobby',hostId:myId,mode:'spyfall',locations,currentLocation:null,roles:{},spyId:null,spyIds:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,votes:{},result:null,timerStart:null,timerDuration:TIMER_DURATION,timerRunning:false,timerOffset:0,spyCount:1,multiSpyMode:false,chaosMode:false,innocentId:null,oooRound:0,oooTotalRounds:3,oooPhase:null,oooScores:{},mafiaCount:1,doctorEnabled:true,mafiaPhase:null,mafiaDay:0,mafiaRoles:{},mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaLog:[],mafiaResult:null,faPhase:null,faWord:null,faImposterId:null,faStrokes:[],faTurnOrder:[],faTurnIndex:0,faRound:1,faTotalRounds:5,faWordIndex:0,faTotalWords:3,faScores:{},faVotes:{},faGuess:null,faResult:null,guessRound:0,guessTotalRounds:3,guessDiscussMinutes:5,guessScores:{},guessPhase:null,guessAnswerGiverId:null,guessCategory:null,guessAnswer:null,guessGuesses:{},guessCorrectOrder:[],guessResult:null,bets:{},nextBets:{},players:{[myId]:makePlayerData(name,true)},createdAt:Date.now(),updatedAt:Date.now()};
   try{
     await gameRefFor(code).set(game);
@@ -5020,10 +5268,17 @@ function editableLobbyAvatarHtml(p){
   return `<button type="button" class="lobby-avatar-edit" onclick="event.stopPropagation();triggerAvatarPicker()" aria-label="Change your avatar" title="Change avatar">${avatar}</button>`;
 }
 
+function playerTitleHtml(p){
+  const eq=(p&&p.cosmetics&&p.cosmetics.equipped)||{};
+  const t=TITLES[eq.title];
+  if(!t)return'';
+  return `<span class="player-title" style="color:${t.color}">${esc(t.label)}</span>`;
+}
 function editableLobbyNameHtml(p){
   const name=safePlayerNameHtml(p);
-  if(!p||p.id!==myId)return `<div class="player-name">${name}</div>`;
-  return `<button type="button" class="player-name lobby-name-edit" onclick="event.stopPropagation();editMyLobbyName()" aria-label="Change your name" title="Change name">${name}<span class="lobby-name-edit-hint">tap to edit</span></button>`;
+  const title=playerTitleHtml(p);
+  if(!p||p.id!==myId)return `<div class="player-name">${name}${title}</div>`;
+  return `<button type="button" class="player-name lobby-name-edit" onclick="event.stopPropagation();editMyLobbyName()" aria-label="Change your name" title="Change name">${name}${title}<span class="lobby-name-edit-hint">tap to edit</span></button>`;
 }
 
 async function editMyLobbyName(){
@@ -5120,6 +5375,14 @@ function renderLobby(game){
 
   const startBtn=document.getElementById('startBtn');
   if(startBtn)startBtn.disabled=!ok;
+
+  // The host's content packs apply to everyone in the room.
+  const packsNotice=document.getElementById('lobbyPacksNotice');
+  if(packsNotice){
+    const labels=activePackLabels();
+    packsNotice.style.display=labels.length?'block':'none';
+    packsNotice.textContent='📦 Your packs are live for the room: '+labels.join(' · ');
+  }
 
   const minPlayersNotice=document.getElementById('minPlayersNotice');
   if(minPlayersNotice){
@@ -5272,7 +5535,7 @@ async function startGame(){
   const isMultiSpy=localMultiSpyMode;
   if(isMultiSpy&&(players.length<5||localSpyCount>maxSpies(players.length)))return;
   const locName=pick(game.locations);
-  const locObj=ALL_LOCATIONS.find(l=>l.name===locName)||ALL_LOCATIONS[0];
+  const locObj=availableLocations().find(l=>l.name===locName)||ALL_LOCATIONS[0];
   const shuffledRoles=shuffle(locObj.roles);
   const roles={};const innocentId=null;
   const count=isMultiSpy?Math.min(localSpyCount,maxSpies(players.length)):1;
@@ -5744,7 +6007,7 @@ function clickerMsg(title,sub){
 
 function resetClickerRound(){
   if(!clicker)return;
-  clicker.state='ready';clicker.pipes=[];clicker.spawn=0.9;clicker.score=0;
+  clicker.state='ready';clicker.pipes=[];clicker.spawn=0.9;clicker.score=0;clicker.particles=[];
   clicker.bird.y=clicker.h*0.42;clicker.bird.v=0;
   document.getElementById('clickerScore').textContent='0';
   clickerMsg('Tap to start','Keep Chrispy in the air');
@@ -5783,6 +6046,7 @@ function clickerScale(){return clicker?Math.max(0.6,clicker.h/380):1;}
 function clickerDie(){
   if(!clicker||clicker.state==='dead')return;
   clicker.state='dead';clicker.deadAt=Date.now();
+  clickerSpawnParticles('death',clicker.w*0.28,clicker.bird.y,clickerScale());
   if(clicker.challenge){
     clicker.challenge.runBest=Math.max(clicker.challenge.runBest,clicker.score);
     clickerMsg('Busted','Best this run: '+clicker.challenge.runBest+'\nTap to go again before time runs out');
@@ -5811,6 +6075,8 @@ function updateClicker(dt){
   }
   clicker.pipes.forEach(p=>{p.x-=speed*dt;});
   clicker.pipes=clicker.pipes.filter(p=>p.x+pw>-10);
+  clicker.trailT=(clicker.trailT||0)+dt;
+  if(clicker.trailT>0.045){clicker.trailT=0;clickerSpawnParticles('trail',birdX-r*0.8,clicker.bird.y,s);}
   const by=clicker.bird.y;
   if(by+r>=h-4*s){clicker.bird.y=h-4*s-r;clickerDie();return;}
   for(const p of clicker.pipes){
@@ -5822,13 +6088,161 @@ function updateClicker(dt){
   }
 }
 
+// =====================================================
+// CHRISPY CLICKER — cosmetics
+// =====================================================
+const CLICKER_SKINS={
+  classic:{label:'Chrispy',body:'#d3f34b',glow:'rgba(211,243,75,.75)',style:'classic'},
+  gold:{label:'Gold Chrispy',body:'#ffd86b',glow:'rgba(255,216,107,.85)',style:'classic'},
+  coin:{label:'Coin',body:'#f5c542',glow:'rgba(245,197,66,.7)',style:'coin'},
+  flame:{label:'Little Flame',body:'#f97316',glow:'rgba(249,115,22,.8)',style:'flame'},
+  ghost:{label:'Ghost',body:'#dff9ff',glow:'rgba(223,249,255,.6)',style:'ghost'},
+  skull:{label:'Pixel Skull',body:'#f0eff5',glow:'rgba(240,239,245,.5)',style:'skull'},
+  eightball:{label:'8-Ball',body:'#14141c',glow:'rgba(255,255,255,.35)',style:'eightball'},
+  spy:{label:'Tiny Spy',body:'#e85d4d',glow:'rgba(232,93,77,.7)',style:'spy'},
+  disco:{label:'Disco Ball',body:'#b8c6d9',glow:'rgba(184,198,217,.75)',style:'disco'},
+};
+const CLICKER_WORLDS={
+  classic:{label:'Chrispy Green',bg:'#0a0a0f',grid:'rgba(211,243,75,0.05)',pipe:'#1c1c26',edge:'rgba(211,243,75,0.4)',cap:'rgba(211,243,75,0.55)',ground:'rgba(211,243,75,0.3)'},
+  ocean:{label:'Ocean',bg:'#04121a',grid:'rgba(6,182,212,0.07)',pipe:'#07293a',edge:'rgba(34,211,238,0.5)',cap:'rgba(34,211,238,0.7)',ground:'rgba(34,211,238,0.35)'},
+  aurora:{label:'Aurora',bg:'#050f0c',grid:'rgba(34,197,94,0.07)',pipe:'#0c2a20',edge:'rgba(139,92,246,0.5)',cap:'rgba(34,197,94,0.7)',ground:'rgba(56,189,248,0.35)'},
+  candy:{label:'Candy',bg:'#150416',grid:'rgba(255,79,216,0.07)',pipe:'#33103a',edge:'rgba(255,79,216,0.5)',cap:'rgba(56,189,248,0.7)',ground:'rgba(255,79,216,0.35)'},
+  bloodmoon:{label:'Blood Moon',bg:'#140505',grid:'rgba(239,68,68,0.07)',pipe:'#31100f',edge:'rgba(153,27,27,0.65)',cap:'rgba(249,115,22,0.7)',ground:'rgba(239,68,68,0.35)'},
+  galaxy:{label:'Galaxy',bg:'#07040f',grid:'rgba(139,92,246,0.08)',pipe:'#1b1130',edge:'rgba(76,29,149,0.7)',cap:'rgba(236,72,153,0.75)',ground:'rgba(139,92,246,0.35)'},
+  inferno:{label:'Inferno',bg:'#120503',grid:'rgba(249,115,22,0.07)',pipe:'#2e1006',edge:'rgba(239,68,68,0.6)',cap:'rgba(253,224,71,0.75)',ground:'rgba(249,115,22,0.4)'},
+  fire:{label:'Fire',bg:'#100603',grid:'rgba(249,115,22,0.06)',pipe:'#2a1108',edge:'rgba(249,115,22,0.55)',cap:'rgba(255,209,102,0.7)',ground:'rgba(249,115,22,0.35)'},
+  ice:{label:'Ice',bg:'#040e14',grid:'rgba(6,182,212,0.06)',pipe:'#0b2530',edge:'rgba(223,249,255,0.5)',cap:'rgba(6,182,212,0.7)',ground:'rgba(223,249,255,0.3)'},
+  neon:{label:'Neon',bg:'#08030f',grid:'rgba(167,139,250,0.07)',pipe:'#1d0f2e',edge:'rgba(236,72,153,0.55)',cap:'rgba(6,182,212,0.75)',ground:'rgba(167,139,250,0.35)'},
+  shadow:{label:'Shadow',bg:'#050506',grid:'rgba(148,148,168,0.05)',pipe:'#141419',edge:'rgba(148,148,168,0.4)',cap:'rgba(240,239,245,0.4)',ground:'rgba(148,148,168,0.25)'},
+  rainbow:{label:'Rainbow',bg:'#0a0a0f',grid:'rgba(255,255,255,0.05)',pipe:'#1c1c26',edge:'rainbow',cap:'rainbow',ground:'rgba(255,255,255,0.3)'},
+};
+// Owning the matching name effect or avatar frame unlocks the world for free.
+const CLICKER_WORLD_SOURCES={
+  ocean:['animated_ocean_wave','frame_ocean'],
+  aurora:['animated_aurora_glow','frame_aurora'],
+  candy:['animated_candy_shift','frame_candy'],
+  bloodmoon:['animated_blood_moon','frame_blood_moon'],
+  galaxy:['animated_galaxy_flow','frame_galaxy'],
+  inferno:['animated_inferno_name','frame_inferno'],
+  fire:['animated_fire_flicker','frame_fire'],
+  ice:['animated_frost_shimmer','frame_ice'],
+  neon:['animated_neon_flicker','frame_neon'],
+  rainbow:['animated_rainbow_shift','frame_rainbow'],
+  shadow:['frame_shadow'],
+};
+const CLICKER_TRAILS={
+  none:{label:'No Trail'},
+  embers:{label:'Ember Trail',color:'#f97316',shape:'spark'},
+  bubbles:{label:'Bubble Trail',color:'#22d3ee',shape:'ring'},
+  sparkles:{label:'Sparkle Trail',color:'#d3f34b',shape:'star'},
+  glitch:{label:'Glitch Trail',color:'#ec4899',shape:'shard'},
+};
+const CLICKER_DEATHS={
+  none:{label:'Standard Wipeout'},
+  explode:{label:'Explode',color:'#f97316'},
+  shatter:{label:'Shatter',color:'#dff9ff'},
+  confettiPop:{label:'Confetti Pop',color:'#d3f34b'},
+};
+function clickerCosmetic(kind,fallback){
+  const eq=(myProfile&&myProfile.equipped)||{};
+  return eq[kind]||fallback;
+}
+function clickerSkin(){return CLICKER_SKINS[clickerCosmetic('clickerSkin','classic')]||CLICKER_SKINS.classic;}
+function clickerWorld(){return CLICKER_WORLDS[clickerCosmetic('clickerWorld','classic')]||CLICKER_WORLDS.classic;}
+function clickerTrail(){return CLICKER_TRAILS[clickerCosmetic('clickerTrail','none')]||CLICKER_TRAILS.none;}
+function clickerDeathStyle(){return CLICKER_DEATHS[clickerCosmetic('clickerDeath','none')]||CLICKER_DEATHS.none;}
+function clickerRainbow(t,alpha){return`hsla(${Math.floor((t/14)%360)},85%,62%,${alpha})`;}
+
+function clickerSpawnParticles(kind,x,y,s){
+  if(!clicker)return;
+  clicker.particles=clicker.particles||[];
+  if(kind==='death'){
+    const d=clickerDeathStyle();if(!d.color)return;
+    for(let i=0;i<18;i++){
+      const a=Math.random()*Math.PI*2,sp=(60+Math.random()*180)*s;
+      clicker.particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-40*s,life:0.9,max:0.9,col:d.color,size:(2+Math.random()*3)*s,grav:520*s});
+    }
+    return;
+  }
+  const tr=clickerTrail();if(!tr.color)return;
+  clicker.particles.push({x,y,vx:-(20+Math.random()*30)*s,vy:(Math.random()-0.5)*40*s,life:0.55,max:0.55,col:tr.color,size:(1.6+Math.random()*2.2)*s,grav:tr.shape==='ring'?-60*s:60*s,shape:tr.shape});
+}
+function clickerUpdateParticles(dt){
+  if(!clicker||!clicker.particles||!clicker.particles.length)return;
+  clicker.particles.forEach(p=>{p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=p.grav*dt;});
+  clicker.particles=clicker.particles.filter(p=>p.life>0);
+}
+function clickerDrawParticles(ctx){
+  if(!clicker.particles)return;
+  clicker.particles.forEach(p=>{
+    const a=Math.max(0,p.life/p.max);
+    ctx.globalAlpha=a;ctx.fillStyle=p.col;ctx.strokeStyle=p.col;
+    if(p.shape==='ring'){ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.stroke();}
+    else if(p.shape==='shard'){ctx.fillRect(p.x-p.size,p.y-p.size*0.4,p.size*2,p.size*0.8);}
+    else{ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();}
+  });
+  ctx.globalAlpha=1;
+}
+
+function drawClickerCharacter(ctx,r,s,t){
+  const skin=clickerSkin();
+  ctx.shadowColor=skin.glow;ctx.shadowBlur=16*s;
+  ctx.fillStyle=skin.body;
+  if(skin.style==='ghost'){
+    ctx.beginPath();ctx.arc(0,-r*0.15,r,Math.PI,0);
+    ctx.lineTo(r,r*0.6);
+    for(let i=0;i<3;i++){const x=r-(i*2+1)*(r/3);ctx.quadraticCurveTo(x,r*(i%2?0.2:1.05),x-r/3,r*0.6);}
+    ctx.closePath();ctx.fill();
+  } else {
+    ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+  }
+  ctx.shadowBlur=0;
+  if(skin.style==='coin'){
+    ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=1.6*s;
+    ctx.beginPath();ctx.arc(0,0,r*0.68,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(0,0,0,.45)';ctx.font='700 '+Math.round(r*1.1)+"px 'JetBrains Mono',monospace";
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('C',0,r*0.05);
+  } else if(skin.style==='flame'){
+    ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(0,r*0.2,r*0.55,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.arc(0,r*0.3,r*0.24,0,Math.PI*2);ctx.fill();
+  } else if(skin.style==='skull'){
+    ctx.fillStyle='#0a0a0f';
+    ctx.beginPath();ctx.arc(-r*0.33,-r*0.1,r*0.24,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(r*0.33,-r*0.1,r*0.24,0,Math.PI*2);ctx.fill();
+    ctx.fillRect(-r*0.28,r*0.42,r*0.56,r*0.24);
+  } else if(skin.style==='eightball'){
+    ctx.fillStyle='#f0eff5';ctx.beginPath();ctx.arc(0,0,r*0.55,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#14141c';ctx.font='700 '+Math.round(r*0.85)+"px 'JetBrains Mono',monospace";
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('8',0,r*0.05);
+  } else if(skin.style==='spy'){
+    ctx.fillStyle='#0a0a0f';
+    ctx.fillRect(-r*1.05,-r*0.75,r*2.1,r*0.3);            // hat brim
+    ctx.fillRect(-r*0.6,-r*1.25,r*1.2,r*0.5);             // hat crown
+    ctx.fillRect(-r*0.75,-r*0.15,r*1.5,r*0.3);            // sunglasses
+  } else if(skin.style==='disco'){
+    ctx.strokeStyle='rgba(10,10,15,.5)';ctx.lineWidth=1*s;
+    for(let i=-2;i<=2;i++){ctx.beginPath();ctx.moveTo(-r,i*r*0.4);ctx.lineTo(r,i*r*0.4);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(i*r*0.4,-r);ctx.lineTo(i*r*0.4,r);ctx.stroke();}
+    ctx.fillStyle=clickerRainbow(t,0.85);
+    ctx.beginPath();ctx.arc(-r*0.3,-r*0.3,r*0.28,0,Math.PI*2);ctx.fill();
+  } else {
+    ctx.fillStyle='#0a0a0f';
+    ctx.beginPath();ctx.arc(r*0.34,-r*0.3,r*0.22,0,Math.PI*2);ctx.fill();
+    ctx.fillRect(r*0.2,r*0.15,r*0.7,r*0.22);
+  }
+}
+
 function drawClicker(){
   const ctx=clicker.ctx,w=clicker.w,h=clicker.h,s=clickerScale();
   const pw=52*s,birdX=w*0.28,r=11*s;
+  const world=clickerWorld();
+  const t=clicker.scroll;
+  const edge=world.edge==='rainbow'?clickerRainbow(t,0.55):world.edge;
+  const cap=world.cap==='rainbow'?clickerRainbow(t+120,0.75):world.cap;
   ctx.clearRect(0,0,w,h);
-  ctx.fillStyle='#0a0a0f';ctx.fillRect(0,0,w,h);
+  ctx.fillStyle=world.bg;ctx.fillRect(0,0,w,h);
   // drifting grid
-  ctx.strokeStyle='rgba(211,243,75,0.05)';ctx.lineWidth=1;
+  ctx.strokeStyle=world.grid;ctx.lineWidth=1;
   const step=42*s,off=clicker.scroll%step;
   ctx.beginPath();
   for(let x=-off;x<w;x+=step){ctx.moveTo(x,0);ctx.lineTo(x,h);}
@@ -5841,30 +6255,27 @@ function drawClicker(){
   ctx.fillText(String(clicker.score),w/2,14*s);
   // pipes
   clicker.pipes.forEach(p=>{
-    ctx.fillStyle='#1c1c26';ctx.strokeStyle='rgba(211,243,75,0.4)';ctx.lineWidth=1.5;
+    ctx.fillStyle=world.pipe;ctx.strokeStyle=edge;ctx.lineWidth=1.5;
     ctx.fillRect(p.x,0,pw,p.top);ctx.strokeRect(p.x+0.75,-1,pw-1.5,p.top);
     const by=p.top+p.gap;
     ctx.fillRect(p.x,by,pw,h-by);ctx.strokeRect(p.x+0.75,by+0.75,pw-1.5,h-by);
-    ctx.fillStyle='rgba(211,243,75,0.5)';
+    ctx.fillStyle=cap;
     ctx.fillRect(p.x,p.top-3*s,pw,3*s);ctx.fillRect(p.x,by,pw,3*s);
   });
   // ground line
-  ctx.strokeStyle='rgba(211,243,75,0.3)';ctx.lineWidth=2;
+  ctx.strokeStyle=world.ground==='rainbow'?clickerRainbow(t,0.4):world.ground;ctx.lineWidth=2;
   ctx.setLineDash([6*s,6*s]);ctx.lineDashOffset=-clicker.scroll;
   ctx.beginPath();ctx.moveTo(0,h-2*s);ctx.lineTo(w,h-2*s);ctx.stroke();
   ctx.setLineDash([]);
+  clickerDrawParticles(ctx);
   // chrispy
-  const tilt=Math.max(-0.5,Math.min(0.9,(clicker.bird.v/(620*s))));
-  ctx.save();
-  ctx.translate(birdX,clicker.bird.y);ctx.rotate(tilt);
-  ctx.shadowColor='rgba(211,243,75,0.75)';ctx.shadowBlur=16*s;
-  ctx.fillStyle='#d3f34b';
-  ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
-  ctx.shadowBlur=0;
-  ctx.fillStyle='#0a0a0f';
-  ctx.beginPath();ctx.arc(r*0.34,-r*0.3,r*0.22,0,Math.PI*2);ctx.fill();
-  ctx.fillRect(r*0.2,r*0.15,r*0.7,r*0.22);
-  ctx.restore();
+  if(clicker.state!=='dead'||clickerDeathStyle().label==='Standard Wipeout'){
+    const tilt=Math.max(-0.5,Math.min(0.9,(clicker.bird.v/(620*s))));
+    ctx.save();
+    ctx.translate(birdX,clicker.bird.y);ctx.rotate(tilt);
+    drawClickerCharacter(ctx,r,s,t);
+    ctx.restore();
+  }
 }
 
 function clickerLoop(t){
@@ -5873,6 +6284,7 @@ function clickerLoop(t){
   clicker.last=t;
   if(clicker.state==='playing')updateClicker(dt);
   else clicker.scroll+=28*dt;
+  clickerUpdateParticles(dt);
   const ch=clicker.challenge;
   if(ch&&!ch.submitted){
     const left=ch.endsAt?Math.max(0,Math.ceil((ch.endsAt-Date.now())/1000)):ch.seconds;
@@ -6945,9 +7357,9 @@ async function playAgain(){
   await prepareBetsForImmediateReplay(game);
   const isMultiSpy=!!game.multiSpyMode;
   const players=Object.values(game.players||{});if(players.length<3)return;
-  const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
+  const newLocations=shuffle(availableLocations()).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
   const locName=pick(newLocations);
-  const locObj=ALL_LOCATIONS.find(l=>l.name===locName)||ALL_LOCATIONS[0];
+  const locObj=availableLocations().find(l=>l.name===locName)||ALL_LOCATIONS[0];
   const shuffledRoles=shuffle(locObj.roles);
   const roles={};const innocentId=null;
   const count=isMultiSpy?Math.min(Math.max(2,game.spyCount||2),maxSpies(players.length)):1;
@@ -6971,7 +7383,7 @@ async function returnToLobby(){
     promotedPlayerBets[`players/${player.id}/playerBets`]=Object.keys(next).length?next:null;
     promotedPlayerBets[`players/${player.id}/nextBets`]=null;
   });
-  const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
+  const newLocations=shuffle(availableLocations()).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
   await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,lastCaughtSpyId:null,spyfallResumeTimerRunning:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,hotseatPhase:null,hotseatCurrentPlayerId:null,hotseatRoundId:null,hotseatQuestions:null,hotseatPassBank:null,hotseatQuestionIndex:0,hotseatCoins:0,hotseatBankedCoins:{},hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,hotseatTimerStart:null,hotseatPhoneTimerStart:null,witbPhase:null,witbBoxes:null,witbOwners:{},witbDeck:null,witbChallengeNum:0,witbChallenge:null,witbWinnerId:null,witbScores:{},witbLastAction:null,witbRevealOrder:null,witbRevealIndex:0,witbGrandWinnerId:null,bets:game.nextBets||{},nextBets:{},betPayoutEvents:null,lastBetPayoutKey:null,lastBetWinnerIds:null,lastBetPayouts:null,chat:null,...promotedPlayerBets});
 }
 async function leaveGame(){
@@ -9653,8 +10065,8 @@ let witbMyBoxVisible=false;
 // =====================================================
 function witbPrizeCount(n){return Math.max(1,Math.round((n-1)*0.35));}
 function witbDealBoxes(n){
-  const prizes=shuffle(WITB_PRIZES).slice(0,witbPrizeCount(n));
-  const forfeits=shuffle(WITB_FORFEITS).slice(0,Math.max(0,n-1-prizes.length));
+  const prizes=shuffle(witbPrizePool()).slice(0,witbPrizeCount(n));
+  const forfeits=shuffle(witbForfeitPool()).slice(0,Math.max(0,n-1-prizes.length));
   return [{type:'grand',text:WITB_GRAND_DEFAULT},
     ...prizes.map(t=>({type:'prize',text:t})),
     ...forfeits.map(t=>({type:'forfeit',text:t}))];
@@ -9669,10 +10081,11 @@ function witbEnsureBoxes(n){
     localWitbBoxes=[...grand,...rest];
   } else {
     const used=localWitbBoxes.map(b=>b.text);
-    const spare=shuffle([...WITB_FORFEITS,...WITB_PRIZES]).filter(t=>!used.includes(t));
+    const prizePool=witbPrizePool();
+    const spare=shuffle([...witbForfeitPool(),...prizePool]).filter(t=>!used.includes(t));
     while(localWitbBoxes.length<n&&spare.length){
       const text=spare.shift();
-      localWitbBoxes.push({type:WITB_PRIZES.includes(text)?'prize':'forfeit',text});
+      localWitbBoxes.push({type:prizePool.includes(text)?'prize':'forfeit',text});
     }
   }
   return localWitbBoxes;
@@ -10435,6 +10848,9 @@ function witbCleanup(){witbMyBoxVisible=false;localWitbBoxes=null;}
         <button class="shop-tab active" id="shopTabNames" onclick="switchShopTab('names')">Names</button>
         <button class="shop-tab" id="shopTabFrames" onclick="switchShopTab('frames')">Frames</button>
         <button class="shop-tab" id="shopTabWins" onclick="switchShopTab('wins')">Wins</button>
+        <button class="shop-tab" id="shopTabClicker" onclick="switchShopTab('clicker')">Clicker</button>
+        <button class="shop-tab" id="shopTabTitles" onclick="switchShopTab('titles')">Titles</button>
+        <button class="shop-tab" id="shopTabPacks" onclick="switchShopTab('packs')">Packs</button>
         <button class="shop-tab" id="shopTabOwned" onclick="switchShopTab('owned')">Owned</button>
       </div>
       <div class="shop-grid" id="shopItems"></div>
