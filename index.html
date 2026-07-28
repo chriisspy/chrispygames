@@ -556,6 +556,24 @@ select option{background:var(--surface2)}
 .shop-modal-header h2{flex:1;font-size:22px;font-weight:800;margin:0}
 .shop-close-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:16px;cursor:pointer}
 .shop-close-btn:hover{color:var(--text);border-color:var(--accent)}
+/* Chrispy Clicker — night phase mini game */
+.clicker-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+.clicker-backdrop.open{display:flex}
+.clicker-modal{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;box-shadow:0 24px 80px rgba(0,0,0,0.7);animation:fadeIn 0.2s ease}
+.clicker-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.clicker-header>div:first-child{flex:1;min-width:0}
+.clicker-title{font-size:19px;font-weight:800;letter-spacing:.3px;color:var(--accent)}
+.clicker-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:3px}
+.clicker-close-btn{width:34px;height:34px;flex:0 0 34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:14px;line-height:1;cursor:pointer;transition:color .15s,border-color .15s}
+.clicker-close-btn:hover{color:var(--text);border-color:var(--accent)}
+.clicker-stage{position:relative;width:100%;height:min(58dvh,380px);border-radius:var(--radius);overflow:hidden;background:var(--bg);border:1px solid var(--border);touch-action:manipulation;cursor:pointer}
+.clicker-stage canvas{display:block;width:100%;height:100%}
+.clicker-overlay-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:18px;background:rgba(10,10,15,0.72);pointer-events:none}
+.clicker-msg-title{font-size:20px;font-weight:800;color:var(--accent);text-shadow:0 0 18px rgba(211,243,75,0.45)}
+.clicker-msg-sub{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);line-height:1.6;white-space:pre-line}
+.clicker-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted)}
+.clicker-num{color:var(--accent);font-weight:700;font-size:14px;margin-left:4px}
+.clicker-launch-btn{margin-top:4px}
 .shop-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:12px}
 .shop-tab{padding:9px 4px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .shop-tab:hover{color:var(--text);background:var(--surface3)}
@@ -1936,6 +1954,8 @@ body{
     <div id="mafiaKillWaiting" style="display:none;text-align:center">
       <div style="font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--muted)" id="mafiaKillWaitingText">Waiting for your partner...</div>
     </div>
+
+    <button class="btn btn-secondary clicker-launch-btn" onclick="openChrispyClicker()">🎮 Play Chrispy Clicker</button>
   </div>
 </div>
 
@@ -1955,6 +1975,7 @@ body{
     <div id="mafiaSaveSubmitted" style="display:none;text-align:center">
       <div style="font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--doctor)">✓ Protection chosen — waiting for dawn...</div>
     </div>
+    <button class="btn btn-secondary clicker-launch-btn" onclick="openChrispyClicker()">🎮 Play Chrispy Clicker</button>
   </div>
 </div>
 
@@ -1969,6 +1990,7 @@ body{
       <div class="timer-label">until dawn</div>
     </div>
     <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:8px">No peeking 👀</div>
+    <button class="btn btn-secondary clicker-launch-btn" style="max-width:300px" onclick="openChrispyClicker()">🎮 Play Chrispy Clicker</button>
   </div>
 </div>
 
@@ -2202,6 +2224,30 @@ body{
   </div>
 </div>
 
+<!-- CHRISPY CLICKER — night-phase mini game -->
+<div class="clicker-backdrop" id="clickerBackdrop">
+  <div class="clicker-modal">
+    <div class="clicker-header">
+      <div>
+        <div class="clicker-title">Chrispy Clicker</div>
+        <div class="clicker-sub" id="clickerSub">Tap to flap · dodge the gaps</div>
+      </div>
+      <button class="clicker-close-btn" onclick="closeChrispyClicker()" aria-label="Close">✕</button>
+    </div>
+    <div class="clicker-stage" id="clickerStage">
+      <canvas id="clickerCanvas"></canvas>
+      <div class="clicker-overlay-msg" id="clickerMsg">
+        <div class="clicker-msg-title" id="clickerMsgTitle">Tap to start</div>
+        <div class="clicker-msg-sub" id="clickerMsgSub">Keep Chrispy in the air</div>
+      </div>
+    </div>
+    <div class="clicker-footer">
+      <div>SCORE <span class="clicker-num" id="clickerScore">0</span></div>
+      <div>BEST <span class="clicker-num" id="clickerBest">0</span></div>
+    </div>
+  </div>
+</div>
+
 <script>
 // PASSWORD FIX V4: password handling moved to an early <head> script so it cannot be broken by the main game script.
 // =====================================================
@@ -2309,6 +2355,7 @@ const OOO_DISCUSS_DURATION = 30;
 const MAFIA_DAY_TIMER_FIRST = 30;
 const MAFIA_DAY_TIMER_REST = 5*60;
 const MAFIA_NIGHT_TIMER = 30;
+const CLICKER_NIGHT_SCREENS = ['mafia-night-mafia','mafia-night-doctor','mafia-night-town'];
 
 // =====================================================
 // STATE
@@ -2386,6 +2433,8 @@ function clearWinTheme(){
   document.body.classList.remove('gold-win-theme');
 }
 function showScreen(id){
+  // The night-phase mini game never survives leaving the night screens.
+  if(typeof clickerIsOpen==='function'&&clickerIsOpen()&&!CLICKER_NIGHT_SCREENS.includes(id))closeChrispyClicker();
   const winThemeScreens=['result','ooo-result','ooo-gameover','mafia-result','bs-result','guess-final'];
   if(!winThemeScreens.includes(id))clearWinTheme();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -5532,7 +5581,7 @@ function startMafiaNightDecisionTimer(game){
   const nightStart=game.mafiaNightStart;
   if(!nightStart)return;
   mafiaDecisionTimerInterval=setInterval(()=>{
-    const g=localGame;if(!g||g.mafiaPhase!=='night'){clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;return;}
+    const g=localGame;if(!g||g.mafiaPhase!=='night'){clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;closeChrispyClicker();return;}
     const elapsed=Math.floor((Date.now()-nightStart)/1000);
     const remaining=Math.max(0,MAFIA_NIGHT_TIMER-elapsed);
     const m=Math.floor(remaining/60).toString().padStart(2,'0');
@@ -5541,8 +5590,181 @@ function startMafiaNightDecisionTimer(game){
     const kdEl=document.getElementById('mafiaKillDecisionTimer');if(kdEl){kdEl.textContent=timeStr;kdEl.style.color=remaining<20?'var(--spy)':'#e74c3c';}
     const sdEl=document.getElementById('mafiaSaveTimerDisplay');if(sdEl){sdEl.textContent=timeStr;sdEl.style.color=remaining<20?'var(--spy)':'var(--doctor)';}
     const twEl=document.getElementById('mafiaTownTimerDisplay');if(twEl){twEl.textContent=timeStr;twEl.style.color=remaining<20?'var(--spy)':'#e74c3c';}
-    if(remaining===0){clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;if(amHost)mafiaAdvanceToDawn();}
+    if(remaining===0){clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;closeChrispyClicker();if(amHost)mafiaAdvanceToDawn();}
   },500);
+}
+
+// =====================================================
+// CHRISPY CLICKER — night phase mini game
+// =====================================================
+const CLICKER_BEST_KEY='cg_clicker_best';
+let clicker=null;
+
+function clickerIsOpen(){const b=document.getElementById('clickerBackdrop');return!!b&&b.classList.contains('open');}
+
+function openChrispyClicker(){
+  if(clickerIsOpen())return;
+  const backdrop=document.getElementById('clickerBackdrop');const canvas=document.getElementById('clickerCanvas');
+  if(!backdrop||!canvas)return;
+  backdrop.classList.add('open');
+  clicker={canvas,ctx:canvas.getContext('2d'),w:0,h:0,raf:null,last:0,state:'ready',
+    bird:{y:0,v:0},pipes:[],spawn:0,scroll:0,score:0,deadAt:0,
+    best:parseInt(localStorage.getItem(CLICKER_BEST_KEY)||'0',10)||0};
+  sizeClickerCanvas();
+  resetClickerRound();
+  document.getElementById('clickerBest').textContent=clicker.best;
+  window.addEventListener('resize',sizeClickerCanvas);
+  document.addEventListener('keydown',clickerKeyHandler);
+  document.getElementById('clickerStage').addEventListener('pointerdown',clickerTap);
+  clicker.raf=requestAnimationFrame(clickerLoop);
+}
+
+function closeChrispyClicker(){
+  const backdrop=document.getElementById('clickerBackdrop');
+  if(backdrop)backdrop.classList.remove('open');
+  if(!clicker)return;
+  cancelAnimationFrame(clicker.raf);
+  window.removeEventListener('resize',sizeClickerCanvas);
+  document.removeEventListener('keydown',clickerKeyHandler);
+  const stage=document.getElementById('clickerStage');
+  if(stage)stage.removeEventListener('pointerdown',clickerTap);
+  clicker=null;
+}
+
+function sizeClickerCanvas(){
+  if(!clicker)return;
+  const rect=clicker.canvas.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  clicker.w=rect.width;clicker.h=rect.height;
+  clicker.canvas.width=Math.round(rect.width*dpr);
+  clicker.canvas.height=Math.round(rect.height*dpr);
+  clicker.ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+
+function clickerMsg(title,sub){
+  const box=document.getElementById('clickerMsg');if(!box)return;
+  if(title===null){box.style.display='none';return;}
+  box.style.display='flex';
+  document.getElementById('clickerMsgTitle').textContent=title;
+  document.getElementById('clickerMsgSub').textContent=sub;
+}
+
+function resetClickerRound(){
+  if(!clicker)return;
+  clicker.state='ready';clicker.pipes=[];clicker.spawn=0.9;clicker.score=0;
+  clicker.bird.y=clicker.h*0.42;clicker.bird.v=0;
+  document.getElementById('clickerScore').textContent='0';
+  clickerMsg('Tap to start','Keep Chrispy in the air');
+}
+
+function clickerKeyHandler(e){
+  if(e.key===' '||e.code==='Space'){e.preventDefault();clickerTap(e);}
+  else if(e.key==='Escape')closeChrispyClicker();
+}
+
+function clickerTap(e){
+  if(!clicker)return;
+  if(e&&e.preventDefault)e.preventDefault();
+  if(clicker.state==='ready'){clicker.state='playing';clickerMsg(null);clickerFlap();return;}
+  if(clicker.state==='playing'){clickerFlap();return;}
+  if(clicker.state==='dead'&&Date.now()-clicker.deadAt>500){resetClickerRound();clicker.state='playing';clickerMsg(null);clickerFlap();}
+}
+
+function clickerFlap(){if(clicker)clicker.bird.v=-380*clickerScale();}
+function clickerScale(){return clicker?Math.max(0.6,clicker.h/380):1;}
+
+function clickerDie(){
+  if(!clicker||clicker.state==='dead')return;
+  clicker.state='dead';clicker.deadAt=Date.now();
+  if(clicker.score>clicker.best){
+    clicker.best=clicker.score;
+    try{localStorage.setItem(CLICKER_BEST_KEY,String(clicker.best));}catch(err){}
+    document.getElementById('clickerBest').textContent=clicker.best;
+  }
+  clickerMsg('Busted','Score '+clicker.score+' · Best '+clicker.best+'\nTap to try again');
+}
+
+function updateClicker(dt){
+  const s=clickerScale();const w=clicker.w,h=clicker.h;
+  const gap=Math.max(120*s,h*0.33),pw=52*s,speed=145*s,birdX=w*0.28,r=11*s;
+  clicker.bird.v+=1350*s*dt;
+  clicker.bird.y+=clicker.bird.v*dt;
+  if(clicker.bird.y<r){clicker.bird.y=r;clicker.bird.v=0;}
+  clicker.scroll+=speed*dt;
+  clicker.spawn-=dt;
+  if(clicker.spawn<=0){
+    clicker.spawn=1.45;
+    const margin=34*s;
+    const top=margin+Math.random()*Math.max(20,(h-gap-margin*2));
+    clicker.pipes.push({x:w+pw,top,gap,passed:false});
+  }
+  clicker.pipes.forEach(p=>{p.x-=speed*dt;});
+  clicker.pipes=clicker.pipes.filter(p=>p.x+pw>-10);
+  const by=clicker.bird.y;
+  if(by+r>=h-4*s){clicker.bird.y=h-4*s-r;clickerDie();return;}
+  for(const p of clicker.pipes){
+    if(birdX+r>p.x&&birdX-r<p.x+pw&&(by-r<p.top||by+r>p.top+p.gap)){clickerDie();return;}
+    if(!p.passed&&p.x+pw<birdX-r){
+      p.passed=true;clicker.score++;
+      document.getElementById('clickerScore').textContent=clicker.score;
+    }
+  }
+}
+
+function drawClicker(){
+  const ctx=clicker.ctx,w=clicker.w,h=clicker.h,s=clickerScale();
+  const pw=52*s,birdX=w*0.28,r=11*s;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='#0a0a0f';ctx.fillRect(0,0,w,h);
+  // drifting grid
+  ctx.strokeStyle='rgba(211,243,75,0.05)';ctx.lineWidth=1;
+  const step=42*s,off=clicker.scroll%step;
+  ctx.beginPath();
+  for(let x=-off;x<w;x+=step){ctx.moveTo(x,0);ctx.lineTo(x,h);}
+  for(let y=step;y<h;y+=step){ctx.moveTo(0,y);ctx.lineTo(w,y);}
+  ctx.stroke();
+  // score watermark
+  ctx.fillStyle='rgba(240,239,245,0.14)';
+  ctx.font='700 '+Math.round(38*s)+"px 'JetBrains Mono',monospace";
+  ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillText(String(clicker.score),w/2,14*s);
+  // pipes
+  clicker.pipes.forEach(p=>{
+    ctx.fillStyle='#1c1c26';ctx.strokeStyle='rgba(211,243,75,0.4)';ctx.lineWidth=1.5;
+    ctx.fillRect(p.x,0,pw,p.top);ctx.strokeRect(p.x+0.75,-1,pw-1.5,p.top);
+    const by=p.top+p.gap;
+    ctx.fillRect(p.x,by,pw,h-by);ctx.strokeRect(p.x+0.75,by+0.75,pw-1.5,h-by);
+    ctx.fillStyle='rgba(211,243,75,0.5)';
+    ctx.fillRect(p.x,p.top-3*s,pw,3*s);ctx.fillRect(p.x,by,pw,3*s);
+  });
+  // ground line
+  ctx.strokeStyle='rgba(211,243,75,0.3)';ctx.lineWidth=2;
+  ctx.setLineDash([6*s,6*s]);ctx.lineDashOffset=-clicker.scroll;
+  ctx.beginPath();ctx.moveTo(0,h-2*s);ctx.lineTo(w,h-2*s);ctx.stroke();
+  ctx.setLineDash([]);
+  // chrispy
+  const tilt=Math.max(-0.5,Math.min(0.9,(clicker.bird.v/(620*s))));
+  ctx.save();
+  ctx.translate(birdX,clicker.bird.y);ctx.rotate(tilt);
+  ctx.shadowColor='rgba(211,243,75,0.75)';ctx.shadowBlur=16*s;
+  ctx.fillStyle='#d3f34b';
+  ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#0a0a0f';
+  ctx.beginPath();ctx.arc(r*0.34,-r*0.3,r*0.22,0,Math.PI*2);ctx.fill();
+  ctx.fillRect(r*0.2,r*0.15,r*0.7,r*0.22);
+  ctx.restore();
+}
+
+function clickerLoop(t){
+  if(!clicker)return;
+  const dt=Math.min(0.05,(t-(clicker.last||t))/1000);
+  clicker.last=t;
+  if(clicker.state==='playing')updateClicker(dt);
+  else clicker.scroll+=28*dt;
+  if(clicker)drawClicker();
+  if(clicker)clicker.raf=requestAnimationFrame(clickerLoop);
 }
 
 async function mafiaVoteKillDecision(decision){
