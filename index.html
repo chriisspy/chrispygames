@@ -179,6 +179,8 @@ select option{background:var(--surface2)}
 .notice.chaos{background:rgba(255,45,45,0.08);border:1px solid rgba(255,45,45,0.3);color:var(--chaos)}
 .notice.ooo{background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);color:var(--ooo)}
 .notice.mafia{background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.3);color:#e74c3c}
+@keyframes spyGuessFlash{0%,100%{background:rgba(211,243,75,0.08);border-color:rgba(211,243,75,0.2);color:var(--accent);box-shadow:0 0 0 rgba(232,93,77,0)}45%{background:rgba(232,93,77,0.14);border-color:rgba(232,93,77,0.5);color:var(--spy);box-shadow:0 0 16px rgba(232,93,77,0.35)}}
+.notice.info.spy-guess-flash{animation:spyGuessFlash 1.4s ease-in-out}
 .flex-row{display:flex;gap:8px}
 .flex-row .btn{flex:1}
 .back-btn{background:transparent;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;padding:10px 8px;margin:-6px -8px;display:flex;align-items:center;gap:6px}
@@ -325,6 +327,10 @@ select option{background:var(--surface2)}
 /* Locations */
 .location-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
 .location-chip{padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;text-align:center}
+.location-chip.selectable{cursor:pointer;transition:background 0.15s,border-color 0.15s,color 0.15s,transform 0.1s}
+.location-chip.selectable:active{transform:scale(0.97)}
+.location-chip.selected{background:rgba(232,93,77,0.14);border-color:var(--spy);color:var(--spy);font-weight:700}
+.location-chip.guessed{background:rgba(232,93,77,0.1);border-color:rgba(232,93,77,0.45);color:var(--spy);font-weight:700}
 
 /* Vote */
 .vote-list{display:flex;flex-direction:column;gap:8px}
@@ -1666,16 +1672,18 @@ body{
           <button class="btn btn-secondary" id="timerToggleBtn" onclick="toggleTimer()">Pause</button>
           <button class="btn btn-danger" style="flex:0.7" onclick="endGameEarly()">End Round</button>
         </div>
-        <div id="spyGuessSection" style="display:none;margin-top:16px">
-          <div class="notice info" id="spyGuessNotice" style="margin-bottom:10px">You're the spy — guess the location to win!</div>
-          <select id="spyGuessSelect"><option value="">-- Select a location --</option></select>
-          <button class="btn btn-primary" id="spyGuessBtn" onclick="spyGuessLocation()">Submit Guess</button>
-          <div id="spyGuessSubmitted" class="notice safe" style="display:none;margin-top:10px"></div>
-        </div>
       </div>
       <div class="tab-content" id="tab-locations">
         <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace;line-height:1.6" id="locationsTabDesc">All possible locations.</div>
         <div class="location-grid" id="locationGrid"></div>
+        <div id="spyGuessSection" style="display:none;margin-top:14px">
+          <div class="notice info" id="spyGuessNotice" style="margin-bottom:10px"></div>
+          <div class="flex-row">
+            <button class="btn btn-secondary" style="flex:0.6" onclick="clearLocationGuess()">Cancel</button>
+            <button class="btn btn-primary" id="spyGuessBtn" onclick="spyGuessLocation()">Guess Location</button>
+          </div>
+        </div>
+        <div id="spyGuessSubmitted" class="notice success" style="display:none;margin-top:14px"></div>
       </div>
       <div class="tab-content" id="tab-vote">
         <div class="notice info" id="voteNotice">Suspect someone? Tap to accuse. Everyone votes — majority decides.</div>
@@ -2358,6 +2366,8 @@ let gameCode=null,amHost=false,gameRef=null,gameListener=null,localGame=null;
 let nonHostLobbyView=false;
 let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTimerInterval=null;
 let roleVisible=true,revealVisible=true,mafiaCardVisible=true;
+let lastSpyGuessCorrect=null,spyGuessFlashTimeout=null;
+let selectedGuessIndex=null; // spy's tapped location on the Locations tab, null = nothing tapped
 let localSpyCount=1,localMultiSpyMode=false,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localFaWords=3,localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;let localGuessDiscussMinutes=5,localGuessRounds=3,guessTimerInterval=null;
 let chatListener=null,mafiaPrivateChatListener=null;
 // Night phase local state
@@ -5977,42 +5987,76 @@ function spyGuessProgress(game){
   const guesses=(game&&game.spyGuesses)||{};
   return {correct:spyIds.filter(id=>guesses[id]===game.currentLocation).length,total:spyIds.length};
 }
+function flashSpyGuessStatus(el){
+  clearTimeout(spyGuessFlashTimeout);
+  el.classList.remove('spy-guess-flash');
+  void el.offsetWidth; // restart the animation if it's already running
+  el.classList.add('spy-guess-flash');
+  spyGuessFlashTimeout=setTimeout(()=>el.classList.remove('spy-guess-flash'),1400);
+}
 function updateMultiSpyStatus(game){
   const el=document.getElementById('multiSpyGameStatus');if(!el)return;
   const isMulti=!!game.multiSpyMode&&!game.chaosMode&&(game.spyIds||[]).length>1;
   el.style.display=isMulti?'block':'none';
-  if(!isMulti)return;
+  if(!isMulti){lastSpyGuessCorrect=null;return;}
   const progress=spyGuessProgress(game);const remaining=progress.total-spyfallEliminatedIds(game).length;
   el.textContent=`🕵️ ${progress.correct} of ${progress.total} spies have guessed the location correctly · ${remaining} ${remaining===1?'spy remains':'spies remain'}`;
+  if(lastSpyGuessCorrect!==null&&progress.correct>lastSpyGuessCorrect)flashSpyGuessStatus(el);
+  lastSpyGuessCorrect=progress.correct;
+}
+// A spy may guess by tapping a location chip on the Locations tab. With nothing
+// tapped the tab is identical to what the innocents see.
+function canGuessLocation(game){
+  if(!game)return false;
+  const spyIds=game.spyIds||[game.spyId];const isSpy=spyIds.includes(myId);
+  return (game.chaosMode?(isSpy&&game.innocentId!==myId):isSpy)&&roleVisible;
+}
+function renderLocationGrid(game){
+  const grid=document.getElementById('locationGrid');if(!grid||!game||!game.locations)return;
+  const canGuess=canGuessLocation(game);
+  const myGuess=game.spyGuesses&&game.spyGuesses[myId];
+  grid.innerHTML=game.locations.map((loc,i)=>{
+    let cls='location-chip',click='';
+    if(canGuess&&myGuess){if(loc===myGuess)cls+=' guessed';}
+    else if(canGuess){cls+=' selectable'+(selectedGuessIndex===i?' selected':'');click=` onclick="toggleLocationGuess(${i})"`;}
+    return`<div class="${cls}"${click}>${esc(loc)}</div>`;
+  }).join('');
+}
+function toggleLocationGuess(i){
+  if(!canGuessLocation(localGame))return;
+  selectedGuessIndex=selectedGuessIndex===i?null:i;
+  renderSpyGuessSection(localGame);
+}
+function clearLocationGuess(){
+  selectedGuessIndex=null;
+  renderSpyGuessSection(localGame);
 }
 function renderSpyGuessSection(game){
-  const spyIds=game.spyIds||[game.spyId];const isSpy=spyIds.includes(myId);
+  if(!game)return;
+  const spyIds=game.spyIds||[game.spyId];
   const section=document.getElementById('spyGuessSection');if(!section)return;
-  const shouldShow=game.chaosMode?(isSpy&&game.innocentId!==myId):isSpy;
-  section.dataset.spyVisible=shouldShow?'true':'false';
-  section.style.display=shouldShow&&roleVisible?'block':'none';
-  if(!shouldShow)return;
+  const canGuess=canGuessLocation(game);
+  const submitted=!!(game.spyGuesses&&game.spyGuesses[myId]);
+  if(!canGuess||submitted||!game.locations||selectedGuessIndex>=game.locations.length)selectedGuessIndex=null;
   const isMulti=!!game.multiSpyMode&&!game.chaosMode&&spyIds.length>1;
-  const submitted=game.spyGuesses&&game.spyGuesses[myId];
+  section.style.display=selectedGuessIndex===null?'none':'block';
   const notice=document.getElementById('spyGuessNotice');
-  const select=document.getElementById('spyGuessSelect');const btn=document.getElementById('spyGuessBtn');const done=document.getElementById('spyGuessSubmitted');
-  if(notice)notice.textContent=isMulti?`All ${spyIds.length} spies must guess correctly. One wrong guess makes every spy lose.`:`You're the spy — guess the location to win!`;
-  if(select)select.style.display=submitted?'none':'block';
-  if(btn)btn.style.display=submitted?'none':'block';
+  if(notice)notice.textContent=isMulti?`All ${spyIds.length} spies must guess correctly. One wrong guess makes every spy lose.`:`Guess right and you win the round — guess wrong and you lose it.`;
+  const done=document.getElementById('spyGuessSubmitted');
   if(done){
-    done.style.display=submitted?'block':'none';
-    if(submitted){const p=spyGuessProgress(game);done.textContent=`✓ Your correct guess is locked in. ${p.correct} of ${p.total} spies have guessed correctly.`;}
+    done.style.display=canGuess&&submitted?'block':'none';
+    if(submitted){const p=spyGuessProgress(game);done.textContent=isMulti?`✓ Your guess is locked in. ${p.correct} of ${p.total} spies have guessed correctly.`:'✓ Your guess is locked in.';}
   }
+  renderLocationGrid(game);
 }
 function initGameScreen(game){
+  lastSpyGuessCorrect=null; // don't flash the guess counter on first render of a round
   const isChaos=game.chaosMode;
   const spyIds=game.spyIds||[game.spyId];
   const isSpy=spyIds.includes(myId);
   document.getElementById('chaosModeGameBanner').style.display=isChaos?'block':'none';
-  document.getElementById('locationGrid').innerHTML=game.locations.map(loc=>`<div class="location-chip">${esc(loc)}</div>`).join('');
   document.getElementById('locationsTabDesc').textContent=isChaos?(spyIds.includes(myId)?"All locations. You don't know which is real.":'Highlighted = real location. Only you know.'):'All possible locations.';
-  const sel=document.getElementById('spyGuessSelect');
-  sel.innerHTML='<option value="">-- Select a location --</option>'+game.locations.map(l=>`<option value="${l}">${esc(l)}</option>`).join('');
+  selectedGuessIndex=null;
   renderSpyGuessSection(game);
   if(isChaos){document.getElementById('voteNotice').className='notice chaos';document.getElementById('voteNotice').textContent=game.innocentId===myId?'⚡ You are the Innocent — vote to catch a spy.':'⚡ Blend in. Make the Innocent vote wrong.';}
   else{document.getElementById('voteNotice').className='notice info';document.getElementById('voteNotice').textContent='Suspect someone? Everyone votes — majority decides.';}
@@ -6053,22 +6097,21 @@ function updateRoleSummary(game){
 }
 function toggleGameRoleVisibility(){
   roleVisible=!roleVisible;
-  const s=document.getElementById('myRoleSummary');const h=document.getElementById('myRoleHidden');const b=document.getElementById('hideGameRoleBtn');const sg=document.getElementById('spyGuessSection');
+  const s=document.getElementById('myRoleSummary');const h=document.getElementById('myRoleHidden');const b=document.getElementById('hideGameRoleBtn');
   if(roleVisible){
     s.style.display='block';h.style.display='none';b.textContent='🙈 Hide my role';
-    if(sg&&sg.dataset.spyVisible==='true')sg.style.display='block';
   } else {
     s.style.display='none';h.style.display='block';b.textContent='👁 Show my role';
-    if(sg){sg.dataset.spyVisible=sg.style.display!=='none'?'true':'false';sg.style.display='none';}
+    selectedGuessIndex=null; // hiding the role also hides any in-progress guess
   }
+  renderSpyGuessSection(localGame);
 }
 function revealRoleSummary(){
   roleVisible=true;
   document.getElementById('myRoleSummary').style.display='block';
   document.getElementById('myRoleHidden').style.display='none';
   document.getElementById('hideGameRoleBtn').textContent='🙈 Hide my role';
-  const sg=document.getElementById('spyGuessSection');
-  if(sg&&sg.dataset.spyVisible==='true')sg.style.display='block';
+  renderSpyGuessSection(localGame);
 }
 function tickTimer(game){
   if(!game.timerStart)return;
@@ -6227,9 +6270,11 @@ function tickTieTimer(game){
 }
 
 async function spyGuessLocation(){
-  const guess=document.getElementById('spyGuessSelect').value;if(!guess)return;
-  const game=localGame;if(!game)return;
+  const game=localGame;if(!game||!game.locations)return;
+  const guess=selectedGuessIndex===null?null:game.locations[selectedGuessIndex];if(!guess)return;
   const spyIds=game.spyIds||[game.spyId];if(!spyIds.includes(myId))return;
+  if(!confirm(`Lock in "${guess}" as your guess?`))return;
+  selectedGuessIndex=null;
   const isMulti=!!game.multiSpyMode&&!game.chaosMode&&spyIds.length>1;
   if(!isMulti){
     await gameRefFor(gameCode).child('spyGuess').set(guess);
