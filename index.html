@@ -556,6 +556,36 @@ select option{background:var(--surface2)}
 .shop-modal-header h2{flex:1;font-size:22px;font-weight:800;margin:0}
 .shop-close-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:16px;cursor:pointer}
 .shop-close-btn:hover{color:var(--text);border-color:var(--accent)}
+/* What's In The Box */
+.witb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:420px){.witb-grid{grid-template-columns:repeat(4,1fr)}}
+.witb-box{padding:12px 6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);text-align:center;transition:border-color .15s,background .15s,transform .1s}
+.witb-box.selectable{cursor:pointer}
+.witb-box.selectable:active{transform:scale(.96)}
+.witb-box.selectable:hover{border-color:var(--accent)}
+.witb-box.taken{opacity:.55}
+.witb-box.mine{border-color:var(--accent);background:rgba(211,243,75,.1);opacity:1}
+.witb-box-lid{font-size:22px;line-height:1}
+.witb-box-num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-top:4px}
+.witb-box-owner{font-size:10px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.witb-box.mine .witb-box-owner,.witb-box.mine .witb-box-num{color:var(--accent)}
+.witb-mybox{border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);padding:14px;text-align:center}
+.witb-mybox-hidden{cursor:pointer;border-style:dashed}
+.witb-mybox-grand{border-color:var(--accent);background:rgba(211,243,75,.1)}
+.witb-mybox-prize{border-color:rgba(77,232,160,.45);background:rgba(77,232,160,.08)}
+.witb-mybox-forfeit{border-color:rgba(232,93,77,.45);background:rgba(232,93,77,.08)}
+.witb-mybox-head{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+.witb-mybox-text{font-size:15px;font-weight:700;line-height:1.5}
+.witb-peek-btn{margin-top:10px;background:transparent;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:1px;text-transform:uppercase}
+.witb-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;padding:3px 7px;border-radius:6px;white-space:nowrap}
+.witb-tag-grand{background:rgba(211,243,75,.16);color:var(--accent)}
+.witb-tag-prize{background:rgba(77,232,160,.16);color:var(--safe)}
+.witb-tag-forfeit{background:rgba(232,93,77,.16);color:var(--spy)}
+.witb-reveal-card{border-radius:var(--radius-lg);border:1px solid var(--border);padding:22px 16px;text-align:center;animation:fadeIn .25s ease}
+.witb-final-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px}
+.witb-edit-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.witb-edit-row input{margin:0;flex:1;font-size:13px}
+.witb-edit-row .witb-tag{flex:0 0 62px;text-align:center}
 /* Chrispy Clicker — night phase mini game */
 .clicker-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
 .clicker-backdrop.open{display:flex}
@@ -1262,6 +1292,7 @@ body{
       <button class="custom-mode-option" id="homeTileBs" onclick="selectHomeMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
       <button class="custom-mode-option" id="homeTileGuess" onclick="selectHomeMode('guess')"><span class="custom-mode-icon">❓</span><span><span class="custom-mode-name">Guessing Game</span><span class="custom-mode-desc">Guess the answer</span></span></button>
       <button class="custom-mode-option" id="homeTileHs" onclick="selectHomeMode('hotseat')"><span class="custom-mode-icon">🔥</span><span><span class="custom-mode-name">Hot Seat</span><span class="custom-mode-desc">Million dollar trivia</span></span></button>
+      <button class="custom-mode-option" id="homeTileWitb" onclick="selectHomeMode('witb')"><span class="custom-mode-icon">🎁</span><span><span class="custom-mode-name">What's In The Box?</span><span class="custom-mode-desc">Prizes, forfeits, swaps</span></span></button>
     </div>
   </div>
   <div class="card fadeIn">
@@ -1442,6 +1473,7 @@ body{
           <button class="custom-mode-option mode-tab" id="modeTabBs" onclick="setGameMode('bs')"><span class="custom-mode-icon">🕵️</span><span><span class="custom-mode-name">Blind Spot</span><span class="custom-mode-desc">Find the imposter</span></span></button>
           <button class="custom-mode-option mode-tab" id="modeTabGuess" onclick="setGameMode('guess')"><span class="custom-mode-icon">❓</span><span><span class="custom-mode-name">Guessing Game</span><span class="custom-mode-desc">Guess the answer</span></span></button>
           <button class="custom-mode-option mode-tab" id="modeTabHs" onclick="setGameMode('hotseat')"><span class="custom-mode-icon">🔥</span><span><span class="custom-mode-name">Hot Seat</span><span class="custom-mode-desc">Million dollar trivia</span></span></button>
+          <button class="custom-mode-option mode-tab" id="modeTabWitb" onclick="setGameMode('witb')"><span class="custom-mode-icon">🎁</span><span><span class="custom-mode-name">What's In The Box?</span><span class="custom-mode-desc">Prizes, forfeits, swaps</span></span></button>
         </div>
       </div>
       <!-- SPYFALL SETTINGS -->
@@ -1564,6 +1596,20 @@ body{
           </div>
         </div>
         <div class="notice info" style="margin-top:4px">❓ One answer giver chooses a category and secret answer. Everyone else guesses for points.</div>
+      </div>
+      <!-- WHAT'S IN THE BOX SETTINGS -->
+      <div id="witbSettings" style="display:none">
+        <div class="count-wrap">
+          <label>Number of challenges</label>
+          <div class="count-row">
+            <button class="count-btn" onclick="changeWitbChallenges(-1)">−</button>
+            <div class="count-display" id="witbChallengeCountDisplay">5</div>
+            <button class="count-btn" onclick="changeWitbChallenges(1)">+</button>
+            <div class="count-label">challenges</div>
+          </div>
+        </div>
+        <button class="btn btn-secondary" onclick="openWitbBoxEditor()">✏️ Edit box contents</button>
+        <div class="notice info" style="margin-top:10px">🎁 One box each, picked blind. Win a challenge and you can swap boxes with anyone — or keep yours and let them wonder.</div>
       </div>
       <div id="minPlayersNotice" class="notice info" style="margin-top:8px">Need at least 4 players to start Mafia</div>
       <div style="height:8px"></div>
@@ -2243,7 +2289,7 @@ body{
     </div>
     <div class="clicker-footer">
       <div>SCORE <span class="clicker-num" id="clickerScore">0</span></div>
-      <div>BEST <span class="clicker-num" id="clickerBest">0</span></div>
+      <div><span id="clickerBestLabel">BEST</span> <span class="clicker-num" id="clickerBest">0</span></div>
     </div>
   </div>
 </div>
@@ -3106,7 +3152,7 @@ function handleMyRewardDisplays(game){
 
 
 
-const MODE_LABELS={spyfall:'🕵️ Spyfall',ooo:'🎭 Odd One Out',mafia:'🃏 Mafia',fa:'🎨 Fake Artist',bs:'🕵️ Blind Spot',guess:'❓ Guessing Game',hotseat:'🔥 Hot Seat'};
+const MODE_LABELS={spyfall:'🕵️ Spyfall',ooo:'🎭 Odd One Out',mafia:'🃏 Mafia',fa:'🎨 Fake Artist',bs:'🕵️ Blind Spot',guess:'❓ Guessing Game',hotseat:'🔥 Hot Seat',witb:"🎁 What's In The Box?"};
 function toggleModeDropdown(id){
   const wrap=document.getElementById(id);
   if(!wrap)return;
@@ -4279,19 +4325,22 @@ function updateModeUI(mode){
   document.getElementById('modeTabBs').className='custom-mode-option mode-tab'+(mode==='bs'?' active-bs':'');
   const guessTab=document.getElementById('modeTabGuess');if(guessTab)guessTab.className='custom-mode-option mode-tab'+(mode==='guess'?' active-guess':'');
   const hsTab=document.getElementById('modeTabHs');if(hsTab)hsTab.className='custom-mode-option mode-tab'+(mode==='hotseat'?' active-spyfall':'');
+  const witbTab=document.getElementById('modeTabWitb');if(witbTab)witbTab.className='custom-mode-option mode-tab'+(mode==='witb'?' active-spyfall':'');
   document.getElementById('spyfallSettings').style.display=mode==='spyfall'?'block':'none';
   document.getElementById('oooSettings').style.display=mode==='ooo'?'block':'none';
   document.getElementById('mafiaSettings').style.display=mode==='mafia'?'block':'none';
   document.getElementById('faSettings').style.display=mode==='fa'?'block':'none';
   document.getElementById('bsSettings').style.display=mode==='bs'?'block':'none';
   const gs=document.getElementById('guessSettings');if(gs)gs.style.display=mode==='guess'?'block':'none';
+  const ws=document.getElementById('witbSettings');if(ws)ws.style.display=mode==='witb'?'block':'none';
   if(mode==='bs')renderBsCategorySelect();
   const minNotice=document.getElementById('minPlayersNotice');
   if(mode==='mafia'){minNotice.textContent='Need at least 4 players to start Mafia';}
   else if(mode==='guess'){minNotice.textContent='Need at least 2 players to start Guessing Game';}
   else if(mode==='hotseat'){minNotice.textContent='Need at least 2 players to start Hot Seat';}
+  else if(mode==='witb'){minNotice.textContent="Need at least 3 players to start What's In The Box?";}
   else{minNotice.textContent='Need at least 3 players to start';}
-  document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':mode==='mafia'?'Start Mafia':mode==='fa'?'Start Fake Artist':mode==='bs'?'Start Blind Spot':mode==='guess'?'Start Guessing Game':mode==='hotseat'?'Start Hot Seat':'Start Game';
+  document.getElementById('startBtn').textContent=mode==='ooo'?'Start Odd One Out':mode==='mafia'?'Start Mafia':mode==='fa'?'Start Fake Artist':mode==='bs'?'Start Blind Spot':mode==='guess'?'Start Guessing Game':mode==='hotseat'?'Start Hot Seat':mode==='witb'?"Start What's In The Box?":'Start Game';
 }
 function changeOOORounds(delta){
   localOOORounds=Math.min(10,Math.max(1,localOOORounds+delta));
@@ -4566,7 +4615,7 @@ function onGameUpdate(game){
     return;
   }
 
-  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-spy-caught','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result','screen-guess-setup','screen-guess-game','screen-guess-result','screen-guess-final','screen-hs-spin','screen-hs-question','screen-hs-walkaway','screen-hs-bust','screen-hs-leaderboard'];
+  const allGameScreens=['screen-ooo-question','screen-ooo-answers','screen-ooo-result','screen-ooo-gameover','screen-game','screen-result','screen-tie','screen-spy-caught','screen-mafia-reveal','screen-mafia-game','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn','screen-mafia-result','screen-fa-draw','screen-fa-vote','screen-fa-guess','screen-fa-result','screen-fa-gameover','screen-bs-reveal','screen-bs-game','screen-bs-result','screen-guess-setup','screen-guess-game','screen-guess-result','screen-guess-final','screen-hs-spin','screen-hs-question','screen-hs-walkaway','screen-hs-bust','screen-hs-leaderboard','screen-witb-pick','screen-witb-challenge','screen-witb-swap','screen-witb-reveal','screen-witb-final'];
 
   // LOBBY
   if(game.status==='lobby'){
@@ -4622,6 +4671,41 @@ function onGameUpdate(game){
     if(game.status==='result'){
       if(cur!=='screen-guess-final')showGuessFinal(game);
       else renderGuessFinal(game);
+      return;
+    }
+    return;
+  }
+
+  // WHAT'S IN THE BOX
+  if(game.mode==='witb'){
+    if(game.status==='lobby'){
+      if(cur==='screen-lobby')renderLobby(game);
+      if(cur==='screen-waiting')renderWaiting(game);
+      if(allGameScreens.includes(cur)){if(amHost){renderLobby(game);showScreen('lobby');}else{renderWaiting(game);showScreen('waiting');}}
+      return;
+    }
+    if(game.status==='playing'){
+      const phase=game.witbPhase;
+      if(phase==='pick'){
+        if(cur!=='screen-witb-pick')enterWitbPick(game);else renderWitbPick(game);
+        return;
+      }
+      if(phase==='challenge'){
+        if(cur!=='screen-witb-challenge')enterWitbChallenge(game);else renderWitbChallenge(game);
+        return;
+      }
+      if(phase==='swap'){
+        if(cur!=='screen-witb-swap')enterWitbSwap(game);else renderWitbSwap(game);
+        return;
+      }
+      if(phase==='reveal'){
+        if(cur!=='screen-witb-reveal')enterWitbReveal(game);else renderWitbReveal(game);
+        return;
+      }
+      return;
+    }
+    if(game.status==='result'){
+      if(cur!=='screen-witb-final')showWitbFinal(game);else renderWitbFinal(game);
       return;
     }
     return;
@@ -5182,6 +5266,7 @@ async function startGame(){
   if(localGameMode==='bs'||game.mode==='bs'){await startBsGame();return;}
   if(localGameMode==='guess'||game.mode==='guess'){await startGuessGame();return;}
   if(localGameMode==='hotseat'||game.mode==='hotseat'){await startHSGame();return;}
+  if(localGameMode==='witb'||game.mode==='witb'){await startWitbGame();return;}
   // Spyfall
   const players=Object.values(game.players||{});if(players.length<3)return;
   const isMultiSpy=localMultiSpyMode;
@@ -5602,17 +5687,23 @@ let clicker=null;
 
 function clickerIsOpen(){const b=document.getElementById('clickerBackdrop');return!!b&&b.classList.contains('open');}
 
-function openChrispyClicker(){
+function openChrispyClicker(opts){
   if(clickerIsOpen())return;
   const backdrop=document.getElementById('clickerBackdrop');const canvas=document.getElementById('clickerCanvas');
   if(!backdrop||!canvas)return;
   backdrop.classList.add('open');
+  const o=opts&&opts.timed?opts:null;
   clicker={canvas,ctx:canvas.getContext('2d'),w:0,h:0,raf:null,last:0,state:'ready',
     bird:{y:0,v:0},pipes:[],spawn:0,scroll:0,score:0,deadAt:0,
-    best:parseInt(localStorage.getItem(CLICKER_BEST_KEY)||'0',10)||0};
+    best:parseInt(localStorage.getItem(CLICKER_BEST_KEY)||'0',10)||0,
+    challenge:o?{seconds:o.timed,endsAt:0,onFinish:o.onFinish,submitted:false,runBest:0}:null};
   sizeClickerCanvas();
   resetClickerRound();
-  document.getElementById('clickerBest').textContent=clicker.best;
+  document.getElementById('clickerBestLabel').textContent=clicker.challenge?'TIME':'BEST';
+  document.getElementById('clickerBest').textContent=clicker.challenge?clicker.challenge.seconds+'s':clicker.best;
+  document.getElementById('clickerSub').textContent=clicker.challenge
+    ?`Challenge run · ${clicker.challenge.seconds}s · best score counts`
+    :'Tap to flap · dodge the gaps';
   window.addEventListener('resize',sizeClickerCanvas);
   document.addEventListener('keydown',clickerKeyHandler);
   document.getElementById('clickerStage').addEventListener('pointerdown',clickerTap);
@@ -5623,6 +5714,7 @@ function closeChrispyClicker(){
   const backdrop=document.getElementById('clickerBackdrop');
   if(backdrop)backdrop.classList.remove('open');
   if(!clicker)return;
+  witbFinishClickerChallenge(); // leaving early still locks in the run
   cancelAnimationFrame(clicker.raf);
   window.removeEventListener('resize',sizeClickerCanvas);
   document.removeEventListener('keydown',clickerKeyHandler);
@@ -5663,10 +5755,24 @@ function clickerKeyHandler(e){
   else if(e.key==='Escape')closeChrispyClicker();
 }
 
+// Locks in a challenge run: best score across the whole timed window.
+function witbFinishClickerChallenge(){
+  const c=clicker&&clicker.challenge;
+  if(!c||c.submitted)return;
+  c.submitted=true;
+  c.runBest=Math.max(c.runBest,clicker.score);
+  if(typeof c.onFinish==='function')c.onFinish(c.runBest);
+}
+
 function clickerTap(e){
   if(!clicker)return;
   if(e&&e.preventDefault)e.preventDefault();
-  if(clicker.state==='ready'){clicker.state='playing';clickerMsg(null);clickerFlap();return;}
+  if(clicker.challenge&&clicker.challenge.submitted)return;
+  if(clicker.state==='ready'){
+    clicker.state='playing';clickerMsg(null);clickerFlap();
+    if(clicker.challenge&&!clicker.challenge.endsAt)clicker.challenge.endsAt=Date.now()+clicker.challenge.seconds*1000;
+    return;
+  }
   if(clicker.state==='playing'){clickerFlap();return;}
   if(clicker.state==='dead'&&Date.now()-clicker.deadAt>500){resetClickerRound();clicker.state='playing';clickerMsg(null);clickerFlap();}
 }
@@ -5677,12 +5783,16 @@ function clickerScale(){return clicker?Math.max(0.6,clicker.h/380):1;}
 function clickerDie(){
   if(!clicker||clicker.state==='dead')return;
   clicker.state='dead';clicker.deadAt=Date.now();
+  if(clicker.challenge){
+    clicker.challenge.runBest=Math.max(clicker.challenge.runBest,clicker.score);
+    clickerMsg('Busted','Best this run: '+clicker.challenge.runBest+'\nTap to go again before time runs out');
+  }
   if(clicker.score>clicker.best){
     clicker.best=clicker.score;
     try{localStorage.setItem(CLICKER_BEST_KEY,String(clicker.best));}catch(err){}
     document.getElementById('clickerBest').textContent=clicker.best;
   }
-  clickerMsg('Busted','Score '+clicker.score+' · Best '+clicker.best+'\nTap to try again');
+  if(!clicker.challenge)clickerMsg('Busted','Score '+clicker.score+' · Best '+clicker.best+'\nTap to try again');
 }
 
 function updateClicker(dt){
@@ -5763,6 +5873,16 @@ function clickerLoop(t){
   clicker.last=t;
   if(clicker.state==='playing')updateClicker(dt);
   else clicker.scroll+=28*dt;
+  const ch=clicker.challenge;
+  if(ch&&!ch.submitted){
+    const left=ch.endsAt?Math.max(0,Math.ceil((ch.endsAt-Date.now())/1000)):ch.seconds;
+    const el=document.getElementById('clickerBest');if(el)el.textContent=left+'s';
+    if(ch.endsAt&&Date.now()>=ch.endsAt){
+      clicker.state='over';
+      witbFinishClickerChallenge();
+      clickerMsg('Time!','Best score '+ch.runBest+'\nSubmitted — close when you are ready');
+    }
+  }
   if(clicker)drawClicker();
   if(clicker)clicker.raf=requestAnimationFrame(clickerLoop);
 }
@@ -6852,7 +6972,7 @@ async function returnToLobby(){
     promotedPlayerBets[`players/${player.id}/nextBets`]=null;
   });
   const newLocations=shuffle(ALL_LOCATIONS).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,lastCaughtSpyId:null,spyfallResumeTimerRunning:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,hotseatPhase:null,hotseatCurrentPlayerId:null,hotseatRoundId:null,hotseatQuestions:null,hotseatPassBank:null,hotseatQuestionIndex:0,hotseatCoins:0,hotseatBankedCoins:{},hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,hotseatTimerStart:null,hotseatPhoneTimerStart:null,bets:game.nextBets||{},nextBets:{},betPayoutEvents:null,lastBetPayoutKey:null,lastBetWinnerIds:null,lastBetPayouts:null,chat:null,...promotedPlayerBets});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,lastCaughtSpyId:null,spyfallResumeTimerRunning:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,hotseatPhase:null,hotseatCurrentPlayerId:null,hotseatRoundId:null,hotseatQuestions:null,hotseatPassBank:null,hotseatQuestionIndex:0,hotseatCoins:0,hotseatBankedCoins:{},hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,hotseatTimerStart:null,hotseatPhoneTimerStart:null,witbPhase:null,witbBoxes:null,witbOwners:{},witbDeck:null,witbChallengeNum:0,witbChallenge:null,witbWinnerId:null,witbScores:{},witbLastAction:null,witbRevealOrder:null,witbRevealIndex:0,witbGrandWinnerId:null,bets:game.nextBets||{},nextBets:{},betPayoutEvents:null,lastBetPayoutKey:null,lastBetWinnerIds:null,lastBetPayouts:null,chat:null,...promotedPlayerBets});
 }
 async function leaveGame(){
   clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();cancelHostRescue();clearLastGame();
@@ -6867,7 +6987,7 @@ async function leaveGame(){
       }
     }catch(e){console.error(e);}
   }
-  gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;faCanvasCleanup();bsCleanup();hsCleanup();
+  gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localFaWords=3;localFaRounds=0;localWitbChallenges=5;faCanvasCleanup();bsCleanup();hsCleanup();witbCleanup();
   showScreen('home');
 }
 
@@ -9464,6 +9584,447 @@ function hsCleanup(){
   clearInterval(hsPAFTimerInterval);
   hsLastSpinId=null;
 }
+
+// =====================================================
+// WHAT'S IN THE BOX — content packs
+// =====================================================
+const WITB_GRAND_DEFAULT="👑 THE GRAND PRIZE — winner takes the pot";
+const WITB_PRIZES=[
+  "Immunity — you sit out the next forfeit",
+  "Everyone drinks but you",
+  "Hand a forfeit to anyone in the room",
+  "You choose the next challenge",
+  "Free pass — skip any dare tonight",
+  "Someone else buys your next drink",
+  "Pick someone to do 20 pushups",
+  "You get the good seat for the rest of the night",
+  "Name a song — it goes on right now",
+  "Steal any snack in the house",
+  "You sit out the next challenge and keep your box safe",
+  "Everyone owes you one favour tonight",
+];
+const WITB_FORFEITS=[
+  "Down your drink",
+  "Take a shot of the host's choosing",
+  "20 pushups, right now",
+  "Phone in the middle for 15 minutes",
+  "Sing the chorus of the next song that plays",
+  "Speak in an accent until the next challenge ends",
+  "You're on dish duty",
+  "No phone until the game ends",
+  "Buy the next round",
+  "Do your best impression of the person on your left",
+  "Sit on the floor for the rest of the game",
+  "Everyone gets to ask you one question — answer honestly",
+  "Hold a plank while the next challenge is explained",
+  "Wear something ridiculous for the rest of the round",
+  "Let the group pick your profile picture for 24 hours",
+  "Swap seats with whoever the group chooses",
+  "You cannot speak until the next challenge ends",
+  "Do 10 star jumps between every challenge from now on",
+];
+const WITB_CHALLENGES=[
+  {kind:'irl',title:'Staring contest',desc:'Host pairs everyone off. Last person to blink wins.'},
+  {kind:'irl',title:'Rock paper scissors',desc:'Straight knockout until one player is left standing.'},
+  {kind:'irl',title:'Thumb war',desc:'Knockout bracket. Host referees the final.'},
+  {kind:'irl',title:'Best dad joke',desc:'Everyone tells one. Loudest groan wins.'},
+  {kind:'irl',title:'Impression round',desc:'Do an impression of someone in the room. Best one wins.'},
+  {kind:'irl',title:'Hold your breath',desc:'Everyone starts together. Last one still holding wins.'},
+  {kind:'irl',title:'Balance test',desc:'Stand on one leg with your eyes shut. Last one standing wins.'},
+  {kind:'irl',title:'Name ten, fast',desc:'Host picks a category. First to name ten without repeating wins.'},
+  {kind:'irl',title:'Make them laugh',desc:'Two minutes. Whoever breaks the most people wins.'},
+  {kind:'irl',title:'Arm wrestle',desc:'Knockout bracket. Winner of the final takes it.'},
+  {kind:'irl',title:'Closest guess',desc:'Host thinks of a number from 1 to 100. Closest guess wins.'},
+  {kind:'irl',title:'Longest word',desc:'Host calls out a letter. Best word the group accepts wins.'},
+  {kind:'irl',title:'Fifteen second dance',desc:'No music. Most committed performance wins.'},
+  {kind:'irl',title:'The silent minute',desc:'Everyone stands when they think 60 seconds is up. Closest wins.'},
+  {kind:'irl',title:'Rap battle',desc:'Eight bars each. The room decides the winner.'},
+  {kind:'irl',title:'Keep a straight face',desc:'Everyone else tries to break you. Last serious face wins.'},
+];
+const WITB_CLICKER_CHALLENGE={kind:'clicker',title:'Chrispy Clicker showdown',desc:'One run each — 45 seconds on the clock. Highest score wins the swap.'};
+const WITB_CLICKER_SECONDS=45;
+
+let localWitbChallenges=5;
+let localWitbBoxes=null;   // host's editable deal, [{type,text}]
+let witbMyBoxVisible=false;
+
+// =====================================================
+// WHAT'S IN THE BOX — lobby setup
+// =====================================================
+function witbPrizeCount(n){return Math.max(1,Math.round((n-1)*0.35));}
+function witbDealBoxes(n){
+  const prizes=shuffle(WITB_PRIZES).slice(0,witbPrizeCount(n));
+  const forfeits=shuffle(WITB_FORFEITS).slice(0,Math.max(0,n-1-prizes.length));
+  return [{type:'grand',text:WITB_GRAND_DEFAULT},
+    ...prizes.map(t=>({type:'prize',text:t})),
+    ...forfeits.map(t=>({type:'forfeit',text:t}))];
+}
+// Keeps the host's edits when the player count changes.
+function witbEnsureBoxes(n){
+  if(!localWitbBoxes||!localWitbBoxes.length){localWitbBoxes=witbDealBoxes(n);return localWitbBoxes;}
+  if(localWitbBoxes.length===n)return localWitbBoxes;
+  if(localWitbBoxes.length>n){
+    const grand=localWitbBoxes.filter(b=>b.type==='grand');
+    const rest=localWitbBoxes.filter(b=>b.type!=='grand').slice(0,Math.max(0,n-grand.length));
+    localWitbBoxes=[...grand,...rest];
+  } else {
+    const used=localWitbBoxes.map(b=>b.text);
+    const spare=shuffle([...WITB_FORFEITS,...WITB_PRIZES]).filter(t=>!used.includes(t));
+    while(localWitbBoxes.length<n&&spare.length){
+      const text=spare.shift();
+      localWitbBoxes.push({type:WITB_PRIZES.includes(text)?'prize':'forfeit',text});
+    }
+  }
+  return localWitbBoxes;
+}
+function changeWitbChallenges(delta){
+  const steps=[3,5,7];
+  const i=Math.max(0,Math.min(steps.length-1,steps.indexOf(localWitbChallenges)+delta));
+  localWitbChallenges=steps[i];
+  document.getElementById('witbChallengeCountDisplay').textContent=localWitbChallenges;
+  if(gameCode)updateGame(gameCode,{witbTotalChallenges:localWitbChallenges});
+}
+function witbPlayerCount(){return localGame?Object.keys(localGame.players||{}).length:3;}
+function openWitbBoxEditor(){
+  witbEnsureBoxes(Math.max(3,witbPlayerCount()));
+  renderWitbBoxEditor();
+  const m=document.getElementById('witbEditorBackdrop');if(m)m.classList.add('open');
+}
+function closeWitbBoxEditor(event){
+  if(event&&event.target&&event.currentTarget&&event.target!==event.currentTarget)return;
+  const m=document.getElementById('witbEditorBackdrop');if(m)m.classList.remove('open');
+}
+function renderWitbBoxEditor(){
+  const list=document.getElementById('witbEditorList');if(!list)return;
+  const n=Math.max(3,witbPlayerCount());
+  document.getElementById('witbEditorCount').textContent=`${n} box${n===1?'':'es'} · one per player`;
+  list.innerHTML=localWitbBoxes.map((b,i)=>`
+    <div class="witb-edit-row">
+      <span class="witb-tag witb-tag-${b.type}">${b.type==='grand'?'GRAND':b.type==='prize'?'PRIZE':'FORFEIT'}</span>
+      <input type="text" maxlength="90" value="${esc(b.text)}" oninput="witbEditBoxText(${i},this.value)"/>
+    </div>`).join('');
+}
+function witbEditBoxText(i,value){if(localWitbBoxes&&localWitbBoxes[i])localWitbBoxes[i].text=value;}
+function witbReshuffleBoxes(){
+  localWitbBoxes=witbDealBoxes(Math.max(3,witbPlayerCount()));
+  renderWitbBoxEditor();
+}
+
+// =====================================================
+// WHAT'S IN THE BOX — start + helpers
+// =====================================================
+function witbIndexedList(obj){
+  if(!obj)return [];
+  return Object.keys(obj).map(Number).sort((a,b)=>a-b).map(k=>obj[k]);
+}
+function witbToIndexed(arr){return arr.reduce((o,v,i)=>{o[i]=v;return o;},{});}
+function witbBoxList(game){return witbIndexedList(game&&game.witbBoxes);}
+function witbMyBoxIndex(game){const o=(game&&game.witbOwners)||{};return o[myId]===undefined?null:o[myId];}
+function witbBoxFor(game,playerId){
+  const o=(game&&game.witbOwners)||{};const i=o[playerId];
+  if(i===undefined)return null;
+  return witbBoxList(game)[i]||null;
+}
+function witbOrderedPlayers(game){return Object.values((game&&game.players)||{}).sort((a,b)=>a.joinedAt-b.joinedAt);}
+function witbBuildDeck(total){
+  const deck=shuffle(WITB_CHALLENGES).slice(0,total);
+  const clickerSlots=Math.max(1,Math.floor(total/3));
+  shuffle(deck.map((_,i)=>i)).slice(0,clickerSlots).forEach(i=>{deck[i]={...WITB_CLICKER_CHALLENGE};});
+  return deck;
+}
+async function startWitbGame(){
+  const game=localGame;if(!game)return;
+  const players=Object.values(game.players||{});
+  if(players.length<3)return;
+  const boxes=shuffle(witbEnsureBoxes(players.length));
+  await updateGame(gameCode,{
+    status:'playing',mode:'witb',witbPhase:'pick',
+    witbBoxes:witbToIndexed(boxes),witbOwners:{},
+    witbTotalChallenges:localWitbChallenges,witbChallengeNum:0,
+    witbDeck:witbToIndexed(witbBuildDeck(localWitbChallenges)),
+    witbChallenge:null,witbWinnerId:null,witbScores:{},witbLastAction:null,
+    witbRevealOrder:null,witbRevealIndex:0,
+  });
+}
+
+// =====================================================
+// WHAT'S IN THE BOX — the private box card
+// =====================================================
+function witbBoxTypeLabel(type){return type==='grand'?'GRAND PRIZE':type==='prize'?'PRIZE':'FORFEIT';}
+function renderWitbMyBox(wrapId,game){
+  const wrap=document.getElementById(wrapId);if(!wrap)return;
+  const idx=witbMyBoxIndex(game);
+  if(idx===null){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  const box=witbBoxList(game)[idx];
+  if(!box){wrap.style.display='none';return;}
+  wrap.innerHTML=witbMyBoxVisible
+    ?`<div class="witb-mybox witb-mybox-${box.type}">
+        <div class="witb-mybox-head">BOX ${idx+1} · <span class="witb-tag witb-tag-${box.type}">${witbBoxTypeLabel(box.type)}</span></div>
+        <div class="witb-mybox-text">${esc(box.text)}</div>
+        <button class="witb-peek-btn" onclick="toggleWitbBoxVisible()">🙈 Hide</button>
+      </div>`
+    :`<div class="witb-mybox witb-mybox-hidden" onclick="toggleWitbBoxVisible()">
+        <div class="witb-mybox-head">BOX ${idx+1}</div>
+        <div class="witb-mybox-text" style="color:var(--muted)">Tap to peek inside</div>
+      </div>`;
+}
+function toggleWitbBoxVisible(){
+  witbMyBoxVisible=!witbMyBoxVisible;
+  if(localGame)witbRenderCurrent(localGame);
+}
+function witbRenderCurrent(game){
+  const cur=(document.querySelector('.screen.active')||{}).id;
+  if(cur==='screen-witb-pick')renderWitbPick(game);
+  else if(cur==='screen-witb-challenge')renderWitbChallenge(game);
+  else if(cur==='screen-witb-swap')renderWitbSwap(game);
+}
+
+// =====================================================
+// WHAT'S IN THE BOX — pick phase
+// =====================================================
+function enterWitbPick(game){witbMyBoxVisible=false;showScreen('witb-pick');renderWitbPick(game);}
+function renderWitbPick(game){
+  const owners=game.witbOwners||{};
+  const boxes=witbBoxList(game);
+  const players=game.players||{};
+  const myIdx=witbMyBoxIndex(game);
+  const takenBy={};Object.entries(owners).forEach(([pid,i])=>{takenBy[i]=pid;});
+  document.getElementById('witbPickGrid').innerHTML=boxes.map((b,i)=>{
+    const owner=takenBy[i]?players[takenBy[i]]:null;
+    const mine=myIdx===i;
+    const cls='witb-box'+(owner?' taken':'')+(mine?' mine':'')+(!owner&&myIdx===null?' selectable':'');
+    const click=(!owner&&myIdx===null)?` onclick="witbPickBox(${i})"`:'';
+    return`<div class="${cls}"${click}>
+      <div class="witb-box-lid">🎁</div>
+      <div class="witb-box-num">${i+1}</div>
+      <div class="witb-box-owner">${owner?esc(owner.name):'&nbsp;'}</div>
+    </div>`;
+  }).join('');
+  const picked=Object.keys(owners).length,total=Object.keys(players).length;
+  document.getElementById('witbPickStatus').textContent=myIdx===null?`Pick a box — ${picked} of ${total} taken`:`${picked} of ${total} boxes taken`;
+  renderWitbMyBox('witbPickMyBox',game);
+  const allPicked=picked>=total&&total>0;
+  const hostBtn=document.getElementById('witbPickHostBtn');
+  hostBtn.style.display=amHost&&allPicked?'block':'none';
+  document.getElementById('witbPickWaiting').style.display=!amHost&&allPicked?'block':'none';
+  document.getElementById('witbPickWaiting').textContent='Everyone has a box — waiting for the host to start.';
+}
+async function witbPickBox(i){
+  const game=localGame;if(!game||game.witbPhase!=='pick'||!gameCode)return;
+  if(witbMyBoxIndex(game)!==null)return;
+  await gameRefFor(gameCode).child('witbOwners').transaction(cur=>{
+    cur=cur||{};
+    if(cur[myId]!==undefined)return cur;
+    if(Object.values(cur).includes(i))return; // someone beat us to it
+    cur[myId]=i;return cur;
+  });
+  witbMyBoxVisible=true;
+}
+async function witbStartChallenges(){
+  if(!amHost||!localGame)return;
+  await witbNextChallenge();
+}
+
+// =====================================================
+// WHAT'S IN THE BOX — challenge phase
+// =====================================================
+async function witbNextChallenge(){
+  const game=localGame;if(!amHost||!game)return;
+  const n=(game.witbChallengeNum||0)+1;
+  if(n>(game.witbTotalChallenges||localWitbChallenges))return witbStartReveal();
+  const deck=witbIndexedList(game.witbDeck);
+  const ch=deck[n-1]||{...WITB_CLICKER_CHALLENGE};
+  await updateGame(gameCode,{witbPhase:'challenge',witbChallengeNum:n,witbChallenge:ch,witbWinnerId:null,witbScores:{},witbLastAction:null});
+}
+function enterWitbChallenge(game){witbMyBoxVisible=false;showScreen('witb-challenge');renderWitbChallenge(game);}
+function renderWitbChallenge(game){
+  const ch=game.witbChallenge||{};
+  const isClicker=ch.kind==='clicker';
+  document.getElementById('witbChallengeBadge').textContent=`Challenge ${game.witbChallengeNum} of ${game.witbTotalChallenges}`;
+  document.getElementById('witbChallengeTitle').textContent=ch.title||'Challenge';
+  document.getElementById('witbChallengeDesc').textContent=ch.desc||'';
+  renderWitbMyBox('witbChallengeMyBox',game);
+  const scores=game.witbScores||{};
+  const players=witbOrderedPlayers(game);
+  document.getElementById('witbClickerSection').style.display=isClicker?'block':'none';
+  document.getElementById('witbIrlSection').style.display=isClicker?'none':'block';
+  if(isClicker){
+    const mine=scores[myId];
+    const playBtn=document.getElementById('witbClickerPlayBtn');
+    playBtn.style.display=mine===undefined?'block':'none';
+    document.getElementById('witbClickerDone').style.display=mine===undefined?'none':'block';
+    if(mine!==undefined)document.getElementById('witbClickerDone').textContent=`✓ Your run is in — ${mine.score} point${mine.score===1?'':'s'}. Waiting for the rest.`;
+    document.getElementById('witbClickerScores').innerHTML=players.map(p=>{
+      const s=scores[p.id];
+      return`<div class="vote-item"><div style="flex:1;font-size:14px;font-weight:600">${playerNameHtml(p)}</div><div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${s===undefined?'var(--muted)':'var(--accent)'}">${s===undefined?'playing...':s.score}</div></div>`;
+    }).join('');
+    const allIn=players.every(p=>scores[p.id]!==undefined);
+    const lockBtn=document.getElementById('witbClickerLockBtn');
+    lockBtn.style.display=amHost&&Object.keys(scores).length>0?'block':'none';
+    lockBtn.textContent=allIn?'Lock in the winner':'Lock in winner anyway';
+  } else {
+    document.getElementById('witbIrlHostControls').style.display=amHost?'block':'none';
+    document.getElementById('witbIrlWaiting').style.display=amHost?'none':'block';
+    if(amHost){
+      document.getElementById('witbWinnerList').innerHTML=players.map(p=>
+        `<div class="vote-item" onclick="witbPickWinner('${p.id}')"><div style="font-size:20px">🏆</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameHtml(p)}</div></div>`).join('');
+    }
+  }
+}
+async function witbPickWinner(playerId){
+  if(!amHost||!localGame)return;
+  await updateGame(gameCode,{witbWinnerId:playerId,witbPhase:'swap',witbLastAction:null});
+}
+function witbPlayClickerChallenge(){
+  openChrispyClicker({timed:WITB_CLICKER_SECONDS,onFinish:witbSubmitClickerScore});
+}
+async function witbSubmitClickerScore(score){
+  const game=localGame;if(!game||!gameCode)return;
+  if((game.witbScores||{})[myId]!==undefined)return;
+  await gameRefFor(gameCode).child('witbScores/'+myId).set({score,ts:Date.now()});
+}
+async function witbLockClickerWinner(){
+  const game=localGame;if(!amHost||!game)return;
+  const scores=game.witbScores||{};
+  const entries=Object.entries(scores);
+  if(!entries.length)return;
+  entries.sort((a,b)=>b[1].score-a[1].score||a[1].ts-b[1].ts);
+  await updateGame(gameCode,{witbWinnerId:entries[0][0],witbPhase:'swap',witbLastAction:null});
+}
+
+// =====================================================
+// WHAT'S IN THE BOX — swap phase
+// =====================================================
+function enterWitbSwap(game){witbMyBoxVisible=false;showScreen('witb-swap');renderWitbSwap(game);}
+function renderWitbSwap(game){
+  const winnerId=game.witbWinnerId;
+  const winner=(game.players||{})[winnerId];
+  const action=game.witbLastAction;
+  const iWon=winnerId===myId;
+  document.getElementById('witbSwapWinner').innerHTML=`${resultAvatarHtml(winner,'🏆')}<div style="font-size:20px;font-weight:800;color:var(--accent);margin-top:6px">${esc((winner&&winner.name)||'Someone')} won${iWon?' — that\'s you':''}</div>`;
+  const choosing=!action;
+  document.getElementById('witbSwapChoice').style.display=choosing&&iWon?'block':'none';
+  document.getElementById('witbSwapWaiting').style.display=choosing&&!iWon?'block':'none';
+  document.getElementById('witbSwapResult').style.display=action?'block':'none';
+  renderWitbMyBox('witbSwapMyBox',game);
+  if(choosing&&iWon){
+    const others=witbOrderedPlayers(game).filter(p=>p.id!==myId);
+    document.getElementById('witbSwapTargets').innerHTML=others.map(p=>
+      `<div class="vote-item" onclick="witbSwapWith('${p.id}')"><div style="font-size:20px">🎁</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameHtml(p)}</div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">swap</div></div>`).join('');
+  }
+  if(choosing&&!iWon){
+    document.getElementById('witbSwapWaiting').textContent=winner?`${winner.name} is deciding whether to swap...`:'Waiting on the winner...';
+  }
+  if(action){
+    const target=(game.players||{})[action.targetId];
+    const banner=document.getElementById('witbSwapAnnounce');
+    banner.className='result-banner '+(action.type==='swap'?'spy-wins':'crew-wins');
+    banner.innerHTML=action.type==='swap'
+      ?`<h2>Boxes swapped</h2><p>${esc((winner&&winner.name)||'?')} took ${esc((target&&target.name)||'?')}'s box.</p>`
+      :`<h2>Kept it</h2><p>${esc((winner&&winner.name)||'?')} is holding on to their box. Suspicious.</p>`;
+    const more=(game.witbChallengeNum||0)<(game.witbTotalChallenges||0);
+    const btn=document.getElementById('witbSwapNextBtn');
+    btn.style.display=amHost?'block':'none';
+    btn.textContent=more?'Next challenge':'Open the boxes';
+    document.getElementById('witbSwapNextWaiting').style.display=amHost?'none':'block';
+  }
+}
+async function witbKeepBox(){
+  const game=localGame;if(!game||game.witbWinnerId!==myId||game.witbLastAction)return;
+  await updateGame(gameCode,{witbLastAction:{type:'keep',winnerId:myId,targetId:null}});
+}
+async function witbSwapWith(targetId){
+  const game=localGame;if(!game||game.witbWinnerId!==myId||game.witbLastAction)return;
+  const target=(game.players||{})[targetId];
+  if(!confirm(`Swap boxes with ${target?target.name:'them'}? You won't see what you're getting until it's done.`))return;
+  await gameRefFor(gameCode).child('witbOwners').transaction(cur=>{
+    if(!cur||cur[myId]===undefined||cur[targetId]===undefined)return cur;
+    const mine=cur[myId];cur[myId]=cur[targetId];cur[targetId]=mine;
+    return cur;
+  });
+  await updateGame(gameCode,{witbLastAction:{type:'swap',winnerId:myId,targetId}});
+  witbMyBoxVisible=false;
+}
+async function witbContinueAfterSwap(){
+  const game=localGame;if(!amHost||!game)return;
+  if((game.witbChallengeNum||0)<(game.witbTotalChallenges||0))await witbNextChallenge();
+  else await witbStartReveal();
+}
+
+// =====================================================
+// WHAT'S IN THE BOX — reveal
+// =====================================================
+async function witbStartReveal(){
+  const game=localGame;if(!amHost||!game)return;
+  const owners=game.witbOwners||{};const boxes=witbBoxList(game);
+  const ids=Object.keys(owners);
+  const grandId=ids.find(id=>boxes[owners[id]]&&boxes[owners[id]].type==='grand');
+  const order=[...shuffle(ids.filter(id=>id!==grandId)),...(grandId?[grandId]:[])];
+  await updateGame(gameCode,{witbPhase:'reveal',witbRevealOrder:witbToIndexed(order),witbRevealIndex:0,witbLastAction:null});
+}
+function enterWitbReveal(game){showScreen('witb-reveal');renderWitbReveal(game);}
+function renderWitbReveal(game){
+  const order=witbIndexedList(game.witbRevealOrder);
+  const idx=game.witbRevealIndex||0;
+  const players=game.players||{};
+  const pid=order[idx];
+  const p=players[pid];
+  const box=witbBoxFor(game,pid);
+  document.getElementById('witbRevealCount').textContent=`Box ${idx+1} of ${order.length}`;
+  document.getElementById('witbRevealCard').innerHTML=box?`
+    <div class="witb-reveal-card witb-mybox-${box.type}">
+      ${resultAvatarHtml(p,'🎁')}
+      <div style="font-size:20px;font-weight:800;margin-top:6px">${esc((p&&p.name)||'?')}</div>
+      <div class="witb-tag witb-tag-${box.type}" style="margin:10px 0 8px">${witbBoxTypeLabel(box.type)}</div>
+      <div class="witb-mybox-text">${esc(box.text)}</div>
+    </div>`:'';
+  const done=witbIndexedList(game.witbRevealOrder).slice(0,idx).map(id=>{
+    const b=witbBoxFor(game,id);const pl=players[id];
+    return`<div class="vote-item"><div style="flex:1;font-size:13px;font-weight:600">${esc((pl&&pl.name)||'?')}</div><div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:${b&&b.type==='forfeit'?'var(--spy)':'var(--safe)'}">${b?witbBoxTypeLabel(b.type):''}</div></div>`;
+  }).join('');
+  document.getElementById('witbRevealDone').innerHTML=done;
+  const last=idx>=order.length-1;
+  const btn=document.getElementById('witbRevealNextBtn');
+  btn.style.display=amHost?'block':'none';
+  btn.textContent=last?'Final results':'Open the next box';
+  document.getElementById('witbRevealWaiting').style.display=amHost?'none':'block';
+}
+async function witbRevealNext(){
+  const game=localGame;if(!amHost||!game)return;
+  const order=witbIndexedList(game.witbRevealOrder);
+  const idx=(game.witbRevealIndex||0)+1;
+  if(idx>=order.length){
+    const owners=game.witbOwners||{};const boxes=witbBoxList(game);
+    const grandId=Object.keys(owners).find(id=>boxes[owners[id]]&&boxes[owners[id]].type==='grand')||null;
+    await updateGame(gameCode,{status:'result',witbPhase:'final',witbGrandWinnerId:grandId});
+    return;
+  }
+  await updateGame(gameCode,{witbRevealIndex:idx});
+}
+
+// =====================================================
+// WHAT'S IN THE BOX — final
+// =====================================================
+function showWitbFinal(game){showScreen('witb-final');renderWitbFinal(game);}
+function renderWitbFinal(game){
+  const players=game.players||{};
+  const grandId=game.witbGrandWinnerId;
+  const grand=grandId?players[grandId]:null;
+  document.getElementById('witbFinalBanner').innerHTML=grand
+    ?`<div class="result-banner crew-wins">${resultAvatarHtml(grand,'👑')}<h2>${esc(grand.name)} takes the grand prize!</h2><p>${esc((witbBoxFor(game,grandId)||{}).text||'')}</p></div>`
+    :`<div class="result-banner spy-wins"><h2>Nobody found it</h2><p>The grand prize stayed in the pile.</p></div>`;
+  document.getElementById('witbFinalList').innerHTML=witbOrderedPlayers(game).map(p=>{
+    const b=witbBoxFor(game,p.id);
+    if(!b)return'';
+    return`<div class="witb-final-row witb-mybox-${b.type}">
+      <div style="flex:1"><div style="font-size:14px;font-weight:700">${playerNameHtml(p)}</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px">${esc(b.text)}</div></div>
+      <span class="witb-tag witb-tag-${b.type}">${witbBoxTypeLabel(b.type)}</span>
+    </div>`;
+  }).join('');
+}
+function witbCleanup(){witbMyBoxVisible=false;localWitbBoxes=null;}
 </script>
 
 <script>
@@ -9879,5 +10440,118 @@ function hsCleanup(){
       <div class="shop-grid" id="shopItems"></div>
     </div>
   </div>
+
+<!-- WHAT'S IN THE BOX: HOST BOX EDITOR -->
+<div class="shop-modal-backdrop" id="witbEditorBackdrop" onclick="closeWitbBoxEditor(event)">
+  <div class="shop-modal" onclick="event.stopPropagation()">
+    <div class="shop-modal-header">
+      <h2>Box contents</h2>
+      <button class="shop-close-btn" onclick="closeWitbBoxEditor()">x</button>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:10px" id="witbEditorCount"></div>
+    <div id="witbEditorList"></div>
+    <div class="flex-row" style="margin-top:12px">
+      <button class="btn btn-secondary" style="flex:0.8" onclick="witbReshuffleBoxes()">🎲 Reshuffle</button>
+      <button class="btn btn-primary" onclick="closeWitbBoxEditor()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT'S IN THE BOX: PICK -->
+<div class="screen scrollable" id="screen-witb-pick">
+  <div style="width:100%;max-width:440px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)">← Leave game</button>
+    <div style="height:14px"></div>
+    <div class="card fadeIn">
+      <div class="tagline" style="color:var(--accent);margin-bottom:8px">🎁 What's In The Box?</div>
+      <h2>Pick a box</h2>
+      <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:12px" id="witbPickStatus">Pick a box</div>
+      <div id="witbPickMyBox" style="display:none;margin-bottom:12px"></div>
+      <div class="witb-grid" id="witbPickGrid"></div>
+      <button class="btn btn-primary" id="witbPickHostBtn" style="display:none;margin-top:14px" onclick="witbStartChallenges()">Start the challenges</button>
+      <div class="notice info" id="witbPickWaiting" style="display:none;margin-top:14px;text-align:center"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT'S IN THE BOX: CHALLENGE -->
+<div class="screen scrollable" id="screen-witb-challenge">
+  <div style="width:100%;max-width:440px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)">← Leave game</button>
+    <div style="height:14px"></div>
+    <div class="card fadeIn">
+      <div class="tagline" style="color:var(--accent);margin-bottom:6px" id="witbChallengeBadge">Challenge</div>
+      <h2 id="witbChallengeTitle">Challenge</h2>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6;margin:6px 0 14px" id="witbChallengeDesc"></div>
+      <div id="witbChallengeMyBox" style="display:none;margin-bottom:14px"></div>
+      <div id="witbClickerSection" style="display:none">
+        <button class="btn btn-primary" id="witbClickerPlayBtn" onclick="witbPlayClickerChallenge()">🎮 Take your run</button>
+        <div class="notice success" id="witbClickerDone" style="display:none"></div>
+        <div class="vote-list" id="witbClickerScores" style="margin-top:12px"></div>
+        <button class="btn btn-secondary" id="witbClickerLockBtn" style="display:none;margin-top:12px" onclick="witbLockClickerWinner()">Lock in the winner</button>
+      </div>
+      <div id="witbIrlSection" style="display:none">
+        <div id="witbIrlHostControls" style="display:none">
+          <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:8px">Tap whoever won</div>
+          <div class="vote-list" id="witbWinnerList"></div>
+        </div>
+        <div class="notice info" id="witbIrlWaiting" style="display:none;text-align:center">Play it out — the host will tap the winner.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT'S IN THE BOX: SWAP -->
+<div class="screen scrollable" id="screen-witb-swap">
+  <div style="width:100%;max-width:440px">
+    <button class="back-btn" data-leave onclick="confirmLeave(this)">← Leave game</button>
+    <div style="height:14px"></div>
+    <div class="card fadeIn" style="text-align:center">
+      <div id="witbSwapWinner"></div>
+    </div>
+    <div style="height:12px"></div>
+    <div class="card fadeIn">
+      <div id="witbSwapMyBox" style="display:none;margin-bottom:12px"></div>
+      <div id="witbSwapChoice" style="display:none">
+        <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:10px">Swap with anyone, or hold your nerve</div>
+        <div class="vote-list" id="witbSwapTargets"></div>
+        <button class="btn btn-secondary" style="margin-top:12px" onclick="witbKeepBox()">Keep my box</button>
+      </div>
+      <div class="notice info" id="witbSwapWaiting" style="display:none;text-align:center"></div>
+      <div id="witbSwapResult" style="display:none">
+        <div id="witbSwapAnnounce" class="result-banner"></div>
+        <button class="btn btn-primary" id="witbSwapNextBtn" style="display:none;margin-top:12px" onclick="witbContinueAfterSwap()">Next challenge</button>
+        <div class="notice info" id="witbSwapNextWaiting" style="display:none;margin-top:12px;text-align:center">Waiting for the host...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT'S IN THE BOX: REVEAL -->
+<div class="screen scrollable" id="screen-witb-reveal">
+  <div style="width:100%;max-width:440px">
+    <div class="card fadeIn">
+      <div class="tagline" style="color:var(--accent);margin-bottom:6px">🎁 Opening time</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:12px" id="witbRevealCount"></div>
+      <div id="witbRevealCard"></div>
+      <button class="btn btn-primary" id="witbRevealNextBtn" style="display:none;margin-top:14px" onclick="witbRevealNext()">Open the next box</button>
+      <div class="notice info" id="witbRevealWaiting" style="display:none;margin-top:14px;text-align:center">Waiting for the host to open the next box...</div>
+      <div class="vote-list" id="witbRevealDone" style="margin-top:14px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT'S IN THE BOX: FINAL -->
+<div class="screen scrollable" id="screen-witb-final">
+  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px">
+    <button class="back-btn" onclick="devBackHome()">← Back to home</button>
+    <div id="witbFinalBanner" class="fadeIn"></div>
+    <div class="card fadeIn">
+      <h2 style="margin-bottom:14px">Everyone's box</h2>
+      <div id="witbFinalList"></div>
+    </div>
+    <button class="btn btn-secondary" onclick="returnToLobby()">Back to Lobby</button>
+  </div>
+</div>
 </body>
 </html>
