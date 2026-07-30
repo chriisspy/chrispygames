@@ -605,6 +605,24 @@ select option{background:var(--surface2)}
 .clicker-num{color:var(--accent);font-weight:700;font-size:14px;margin-left:4px}
 .clicker-launch-btn{margin-top:4px}
 .shop-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:12px}
+/* Profile card */
+.profile-hero{text-align:center;padding:6px 0 14px}
+.profile-avatar{width:72px;height:72px;border-radius:50%;margin:0 auto 10px;display:block}
+.profile-hero-name{font-size:20px;font-weight:800}
+.profile-hero .player-title{margin-top:5px}
+.profile-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.profile-stat{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 4px;text-align:center}
+.profile-stat b{display:block;font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--accent)}
+.profile-stat b i{font-style:normal;font-size:11px;color:var(--muted)}
+.profile-stat span{display:block;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.profile-rarity-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;justify-content:center}
+.profile-showcase{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.profile-showcase-item{border:1px solid;border-radius:var(--radius);background:var(--surface2);padding:10px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.profile-showcase-item .shop-preview{width:auto;min-width:0}
+.profile-showcase-name{font-size:9px;line-height:1.3;color:var(--muted)}
+.profile-modes{display:flex;flex-direction:column;gap:6px}
+.profile-mode-row{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-size:13px}
+.profile-mode-row b{font-family:'JetBrains Mono',monospace;color:var(--accent)}
 /* Case opening */
 .home-cases-btn{position:relative}
 .home-case-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:var(--accent);color:#0a0a0f;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box}
@@ -1363,6 +1381,7 @@ body{
   </div>
   <div class="home-actions-row">
     <button class="home-shop-btn home-cases-btn" onclick="openCasesModal()">📦 Cases<span id="homeCaseBadge" class="home-case-badge" style="display:none">0</span></button>
+    <button class="home-shop-btn" onclick="openProfileModal()">👤 Profile</button>
   </div>
   <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
@@ -2728,6 +2747,8 @@ function saveLocalProfile(){
       equipped:myProfile.equipped||{},
       cases:myProfile.cases||{},
       pity:myProfile.pity||0,
+      winsByMode:myProfile.winsByMode||{},
+      clickerBest:myProfile.clickerBest||0,
       name:myProfile.name||'',
       avatar:myProfile.avatar||myAvatar||null,
       savedAt:Date.now()
@@ -2743,6 +2764,8 @@ function normaliseProfile(saved){
     equipped:saved.equipped||{},
     cases:saved.cases||{},
     pity:saved.pity||0,
+    winsByMode:saved.winsByMode||{},
+    clickerBest:saved.clickerBest||0,
     name:saved.name||'',
     avatar:saved.avatar||myAvatar||null
   };
@@ -2797,6 +2820,7 @@ function itemIsOwned(item){
   return !!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
 }
 function itemIsSellable(item){return !!item&&!item.free&&!item.unlockedBy&&item.price>0;}
+function shopSellValue(item){return Math.round(((item&&item.price)||0)*SHOP_SELLBACK_RATE);}
 function equipShopItem(item){
   if(item&&item.type==='pack')return; // nothing to equip — owning it is enough
   myProfile.equipped={...(myProfile.equipped||{})};
@@ -2923,7 +2947,7 @@ function renderShop(){
     const priceText=item.unlockedBy&&!owned
       ?`Unlocked by owning the matching name or frame`
       :owned
-        ?(itemIsSellable(item)?`Owned · sell for <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`:'Unlocked')
+        ?(itemIsSellable(item)?`Owned · sell for <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${shopSellValue(item)} coins`:'Unlocked')
         :`<img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`;
     const sellBtn=(owned&&itemIsSellable(item))?`<button class="btn shop-item-btn shop-sell-btn" onclick="sellItem('${item.id}')">Sell</button>`:'';
     const category=`<span class="shop-type-pill">${shopItemCategory(item)}</span>`;
@@ -3007,7 +3031,7 @@ async function sellItem(itemId){
   if(!itemIsSellable(item))return;
   const owned=!!(myProfile.ownedItems&&myProfile.ownedItems[item.id]);
   if(!owned)return;
-  myProfile.coins=(myProfile.coins||0)+item.price;
+  myProfile.coins=(myProfile.coins||0)+shopSellValue(item);
   myProfile.ownedItems={...(myProfile.ownedItems||{})};
   delete myProfile.ownedItems[item.id];
   if(isShopItemEquipped(item)){
@@ -3061,6 +3085,8 @@ const CASES=[
   {id:'case_boysnight',label:'Boys Night Case',price:2000,icon:'🏆',odds:{epic:0.70,legendary:0.30}},
 ];
 const CASE_DUPE_RATE=0.4;   // duplicates convert to this share of the shop price
+const CASE_DROP_CHANCE=0.4; // odds a win drops a Standard Case
+const SHOP_SELLBACK_RATE=0.6; // selling returns this share of the purchase price
 const CASE_PITY=10;         // a Rare or better is guaranteed on this open
 const CASE_TILE=92;         // reel tile width + gap, must match the CSS
 const CASE_WIN_INDEX=52;
@@ -3232,6 +3258,62 @@ function backToCaseChooser(){
   document.getElementById('caseReelWrap').style.display='none';
   document.getElementById('caseChooser').style.display='block';
   renderCasesModal();
+}
+
+// =====================================================
+// PROFILE CARD
+// =====================================================
+const PROFILE_MODE_LABELS={spyfall:'🕵️ Spyfall',mafia:'🃏 Mafia',bs:'🕵️ Blind Spot',ooo:'🎭 Odd One Out',fa:'🎨 Fake Artist',guess:'❓ Guessing Game',hotseat:'🔥 Hot Seat',witb:"🎁 What's In The Box?"};
+function myOwnedShopItems(){return SHOP_ITEMS.filter(i=>i.price>0&&itemIsOwned(i));}
+function myRarestItems(n){
+  return myOwnedShopItems()
+    .sort((a,b)=>RARITY_ORDER.indexOf(itemRarity(b))-RARITY_ORDER.indexOf(itemRarity(a))||b.price-a.price)
+    .slice(0,n);
+}
+function openProfileModal(){
+  renderProfileCard();
+  const m=document.getElementById('profileBackdrop');if(m)m.classList.add('open');
+}
+function closeProfileModal(event){
+  if(event&&event.target&&event.currentTarget&&event.target!==event.currentTarget)return;
+  const m=document.getElementById('profileBackdrop');if(m)m.classList.remove('open');
+}
+function renderProfileCard(){
+  const wrap=document.getElementById('profileBody');if(!wrap)return;
+  const eq=myProfile.equipped||{};
+  const me={id:myId,name:myProfile.name||'You',avatar:myProfile.avatar||myAvatar||null,cosmetics:{equipped:eq}};
+  const owned=myOwnedShopItems();
+  const total=SHOP_ITEMS.filter(i=>i.price>0).length;
+  const rarest=myRarestItems(3);
+  const byMode=myProfile.winsByMode||{};
+  const modeRows=Object.entries(byMode).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const counts={};
+  owned.forEach(i=>{const r=itemRarity(i);counts[r]=(counts[r]||0)+1;});
+  wrap.innerHTML=`
+    <div class="profile-hero">
+      ${playerAvatar(me,'profile-avatar')}
+      <div class="profile-hero-name">${playerNameHtml(me)}</div>
+      ${playerTitleHtml(me)||'<span class="player-title" style="color:var(--muted)">NO TITLE</span>'}
+    </div>
+    <div class="profile-stat-grid">
+      <div class="profile-stat"><b>${myProfile.wins||0}</b><span>Wins</span></div>
+      <div class="profile-stat"><b>${myProfile.coins||0}</b><span>Coins</span></div>
+      <div class="profile-stat"><b>${myProfile.clickerBest||0}</b><span>Clicker best</span></div>
+      <div class="profile-stat"><b>${owned.length}<i>/${total}</i></b><span>Collected</span></div>
+    </div>
+    <div class="profile-rarity-row">
+      ${RARITY_ORDER.slice().reverse().map(r=>`<span class="witb-tag" style="background:${CASE_RARITIES[r].color}22;color:${CASE_RARITIES[r].color}">${CASE_RARITIES[r].label} ${counts[r]||0}</span>`).join('')}
+    </div>
+    <label style="margin-top:14px">Showcase — your rarest</label>
+    ${rarest.length?`<div class="profile-showcase">${rarest.map(i=>{
+      const col=CASE_RARITIES[itemRarity(i)].color;
+      return`<div class="profile-showcase-item" style="border-color:${col}">${shopItemPreview(i)}<div class="profile-showcase-name">${esc(i.label)}</div></div>`;
+    }).join('')}</div>`:'<div class="shop-section-empty">Nothing collected yet — open a case.</div>'}
+    <label style="margin-top:14px">Wins by mode</label>
+    ${modeRows.length?`<div class="profile-modes">${modeRows.map(([m,v])=>
+      `<div class="profile-mode-row"><span>${PROFILE_MODE_LABELS[m]||m}</span><b>${v}</b></div>`).join('')}</div>`
+      :'<div class="shop-section-empty">No wins recorded yet. Per-mode wins start counting from now.</div>'}
+  `;
 }
 
 function playerNameHtml(p){
@@ -3560,13 +3642,23 @@ async function awardCoinsForFinishedGame(game){
 
     if(!claimed||!claimed.committed)return;
 
+    // Roll case drops once, outside the transaction — a transaction handler can
+    // be retried, and the drop must not be re-rolled on each attempt.
+    const caseDrops={};
+    Object.keys(data.rewards).forEach(id=>{caseDrops[id]=Math.random()<CASE_DROP_CHANCE;});
+
     await Promise.all(Object.entries(data.rewards).map(([id,amount])=>db.ref('users/'+id).transaction(user=>{
       user=user||{};
       user.coins=(user.coins||0)+amount;
       user.wins=(user.wins||0)+1;
-      // Every win also drops a Standard Case.
-      user.cases=user.cases||{};
-      user.cases.case_standard=(user.cases.case_standard||0)+1;
+      if(caseDrops[id]){
+        user.cases=user.cases||{};
+        user.cases.case_standard=(user.cases.case_standard||0)+1;
+      }
+      if(data.mode){
+        user.winsByMode=user.winsByMode||{};
+        user.winsByMode[data.mode]=(user.winsByMode[data.mode]||0)+1;
+      }
       user.lastRewardedAt=Date.now();
       return user;
     })));
@@ -6294,7 +6386,12 @@ function clickerDie(){
   if(clicker.score>clicker.best){
     clicker.best=clicker.score;
     try{localStorage.setItem(CLICKER_BEST_KEY,String(clicker.best));}catch(err){}
-    document.getElementById('clickerBest').textContent=clicker.best;
+    if(!clicker.challenge)document.getElementById('clickerBest').textContent=clicker.best;
+    if(clicker.best>(myProfile.clickerBest||0)){
+      myProfile.clickerBest=clicker.best;
+      saveLocalProfile();
+      try{userRef().update({clickerBest:myProfile.clickerBest,savedAt:Date.now()});}catch(err){}
+    }
   }
   if(!clicker.challenge)clickerMsg('Busted','Score '+clicker.score+' · Best '+clicker.best+'\nTap to try again');
 }
@@ -7165,6 +7262,9 @@ async function resolveGame(reason,accusedId=null){
   if(isChaos){
     if(reason==='timeout'){spyWins=true;description='Time ran out — spies fooled the Innocent!';}
     else if(reason==='vote'){if(spyIds.includes(accusedId)){spyWins=false;description='Innocent correctly identified a spy!';}else{spyWins=true;description='Wrong person accused — spies win!';}}
+    // A chaos spy can still guess the location, so these have to resolve here too.
+    else if(reason==='spy_guess_correct'||reason==='all_spies_guessed_correct'){spyWins=true;description='A spy worked out the location — spies win!';}
+    else if(reason==='spy_guess_wrong'){spyWins=false;description='A spy guessed the wrong location and blew their cover!';}
     else if(reason==='early'){spyWins=false;description='Round ended early.';}
   } else {
     const isMulti=spyIds.filter(Boolean).length>1;
@@ -7269,7 +7369,9 @@ async function spyGuessLocation(){
   const spyIds=game.spyIds||[game.spyId];if(!spyIds.includes(myId))return;
   if(!confirm(`Lock in "${guess}" as your guess?`))return;
   selectedGuessIndex=null;
-  const isMulti=!!game.multiSpyMode&&!game.chaosMode&&spyIds.length>1;
+  // Any round with more than one spy needs every spy to guess correctly — that
+  // includes chaos, where excluding it used to let a single guess end the game.
+  const isMulti=spyIds.filter(Boolean).length>1;
   if(!isMulti){
     await gameRefFor(gameCode).child('spyGuess').set(guess);
     if(guess===game.currentLocation)await resolveGame('spy_guess_correct');
@@ -11096,6 +11198,17 @@ function witbCleanup(){witbMyBoxVisible=false;localWitbBoxes=null;}
       <div class="shop-grid" id="shopItems"></div>
     </div>
   </div>
+
+<!-- PROFILE CARD -->
+<div class="shop-modal-backdrop" id="profileBackdrop" onclick="closeProfileModal(event)">
+  <div class="shop-modal" onclick="event.stopPropagation()">
+    <div class="shop-modal-header">
+      <h2>Profile</h2>
+      <button class="shop-close-btn" onclick="closeProfileModal()">x</button>
+    </div>
+    <div id="profileBody"></div>
+  </div>
+</div>
 
 <!-- CASE OPENING -->
 <div class="shop-modal-backdrop" id="casesBackdrop" onclick="closeCasesModal(event)">
