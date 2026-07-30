@@ -586,6 +586,28 @@ select option{background:var(--surface2)}
 .witb-edit-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .witb-edit-row input{margin:0;flex:1;font-size:13px}
 .witb-edit-row .witb-tag{flex:0 0 62px;text-align:center}
+/* General Knowledge */
+.gk-cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.gk-cat-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:border-color .15s,background .15s}
+.gk-cat-btn span{font-size:24px;line-height:1}
+.gk-cat-btn:hover{border-color:var(--accent);background:var(--surface3)}
+.gk-question{font-size:18px;font-weight:800;line-height:1.4;margin:10px 0 14px}
+.gk-choice-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.gk-choice{padding:13px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;text-align:left;cursor:pointer;transition:border-color .15s,background .15s}
+.gk-choice:hover{border-color:var(--accent);background:var(--surface3)}
+.gk-choice:active{transform:scale(.99)}
+.gk-answer-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:11px 12px;margin-bottom:8px}
+.gk-answer-q{font-size:13px;font-weight:700;line-height:1.4}
+.gk-answer-model{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin:4px 0 8px}
+.gk-answer-model b{color:var(--safe)}
+.gk-tap-hint{color:var(--accent)}
+.gk-answer-row{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;font-size:12px}
+.gk-answer-row.ok{background:rgba(77,232,160,.08)}
+.gk-answer-who{flex:0 0 78px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gk-answer-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gk-answer-mark{flex:0 0 14px;text-align:center;color:var(--spy)}
+.gk-answer-row.ok .gk-answer-mark{color:var(--safe)}
+.gk-sudden-badge{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--chaos);text-align:center;margin-bottom:8px}
 /* Chrispy Clicker — night phase mini game */
 .clicker-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
 .clicker-backdrop.open{display:flex}
@@ -7968,7 +7990,7 @@ async function returnToLobby(){
     promotedPlayerBets[`players/${player.id}/nextBets`]=null;
   });
   const newLocations=shuffle(availableLocations()).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,lastCaughtSpyId:null,spyfallResumeTimerRunning:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,hotseatPhase:null,hotseatCurrentPlayerId:null,hotseatRoundId:null,hotseatQuestions:null,hotseatPassBank:null,hotseatQuestionIndex:0,hotseatCoins:0,hotseatBankedCoins:{},hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,hotseatTimerStart:null,hotseatPhoneTimerStart:null,witbPhase:null,witbBoxes:null,witbOwners:{},witbDeck:null,witbChallengeNum:0,witbChallenge:null,witbWinnerId:null,witbScores:{},witbLastAction:null,witbRevealOrder:null,witbRevealIndex:0,witbGrandWinnerId:null,bets:game.nextBets||{},nextBets:{},betPayoutEvents:null,lastBetPayoutKey:null,lastBetWinnerIds:null,lastBetPayouts:null,chat:null,stickerBursts:null,...promotedPlayerBets});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,lastCaughtSpyId:null,spyfallResumeTimerRunning:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,hotseatPhase:null,hotseatCurrentPlayerId:null,hotseatRoundId:null,hotseatQuestions:null,hotseatPassBank:null,hotseatQuestionIndex:0,hotseatCoins:0,hotseatBankedCoins:{},hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,hotseatTimerStart:null,hotseatPhoneTimerStart:null,witbPhase:null,witbBoxes:null,witbOwners:{},witbDeck:null,witbChallengeNum:0,witbChallenge:null,witbWinnerId:null,witbScores:{},witbLastAction:null,witbRevealOrder:null,witbRevealIndex:0,witbGrandWinnerId:null,gkPhase:null,gkCategory:null,gkQuestions:null,gkIndex:0,gkAnswers:{},gkVerdicts:{},gkSudden:null,bets:game.nextBets||{},nextBets:{},betPayoutEvents:null,lastBetPayoutKey:null,lastBetWinnerIds:null,lastBetPayouts:null,chat:null,stickerBursts:null,...promotedPlayerBets});
 }
 async function leaveGame(){
   clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();cancelHostRescue();clearLastGame();
@@ -10646,6 +10668,108 @@ const WITB_CHALLENGES=[
   {kind:'irl',title:'Keep a straight face',desc:'Everyone else tries to break you. Last serious face wins.'},
 ];
 const WITB_CLICKER_CHALLENGE={kind:'clicker',title:'Chrispy Clicker showdown',desc:'One run each — 45 seconds on the clock. Highest score wins the swap.'};
+const WITB_GK_CHALLENGE={kind:'gk',title:'General Knowledge',desc:'Ten questions, host picks the category. Nobody finds out how they did until the end.'};
+
+// =====================================================
+// GENERAL KNOWLEDGE — question bank
+// Multiple choice uses choices[] + a (index). Typed uses accept[]; the first
+// entry is shown as the model answer.
+// =====================================================
+const GK_CATEGORIES=[
+  {id:'gaming',label:'Gaming',icon:'🎮'},
+  {id:'music',label:'Music',icon:'🎵'},
+  {id:'youtube',label:'YouTube & Internet',icon:'📺'},
+  {id:'movies',label:'Movies & TV',icon:'🎬'},
+  {id:'sport',label:'Sport',icon:'🏉'},
+  {id:'general',label:'General Knowledge',icon:'🧠'},
+];
+const GK_QUESTIONS={
+  gaming:[
+    {q:'Which company makes the PlayStation?',choices:['Sony','Microsoft','Nintendo','Sega'],a:0},
+    {q:'Best-selling video game of all time?',accept:['minecraft']},
+    {q:'In Mario Kart, which item targets whoever is in first place?',choices:['Blue shell','Red shell','Banana','Mushroom'],a:0},
+    {q:'Which battle royale game is made by Epic Games?',accept:['fortnite']},
+    {q:'What type is Pikachu?',accept:['electric']},
+    {q:'Which game features Creepers?',choices:['Minecraft','Terraria','Roblox','Valheim'],a:0},
+    {q:'What does FPS stand for as a game genre?',accept:['first person shooter','first-person shooter','firstperson shooter']},
+    {q:'Which Melbourne studio made Untitled Goose Game?',choices:['House House','Halfbrick','Team Cherry','Mighty Kingdom'],a:0},
+    {q:'Which Brisbane studio made Fruit Ninja?',accept:['halfbrick','halfbrick studios']},
+    {q:'Which game series features Master Chief?',accept:['halo']},
+    {q:'What is the in-game currency in Fortnite called?',accept:['v-bucks','vbucks','v bucks']},
+    {q:'Which console did Nintendo launch in 2017?',choices:['Switch','Wii U','3DS','GameCube'],a:0},
+  ],
+  music:[
+    {q:'Which Australian band released "Highway to Hell"?',accept:['acdc','ac/dc','ac dc']},
+    {q:'How many members were in The Beatles?',choices:['Four','Three','Five','Six'],a:0},
+    {q:'Which artist released the album "1989"?',accept:['taylor swift','taylor']},
+    {q:'Which instrument has 88 keys?',accept:['piano']},
+    {q:'Which Aussie artist had a hit with "Riptide"?',choices:['Vance Joy','Flume','Gotye','Tame Impala'],a:0},
+    {q:'Who is known as the King of Pop?',accept:['michael jackson','mj']},
+    {q:'Which festival is held annually in Byron Bay at New Year?',choices:['Falls Festival','Splendour','Groovin the Moo','Big Day Out'],a:0},
+    {q:'Which band did Freddie Mercury front?',accept:['queen']},
+    {q:'"Somebody That I Used to Know" was by which Aussie artist?',accept:['gotye']},
+    {q:'How many strings does a standard bass guitar have?',choices:['Four','Six','Five','Seven'],a:0},
+    {q:'Which rapper released "God\'s Plan"?',accept:['drake']},
+    {q:'Triple J counts down which annual music poll?',choices:['Hottest 100','Top 40','Album of the Year','The Hot List'],a:0},
+  ],
+  youtube:[
+    {q:'Which YouTuber is known for giving away huge cash prizes?',accept:['mrbeast','mr beast','jimmy donaldson']},
+    {q:'What was the first video uploaded to YouTube about?',choices:['A zoo','A concert','A cat','A birthday'],a:0},
+    {q:'Which platform is known for short vertical videos and a "For You" page?',accept:['tiktok','tik tok']},
+    {q:'What does the YouTube "subscribe" button traditionally look like?',choices:['Red','Blue','Green','Black'],a:0},
+    {q:'Which Australian YouTuber group is known for trick shots and cricket?',accept:['how ridiculous']},
+    {q:'What is the name of Twitch\'s subscriber-only chat currency?',choices:['Bits','Coins','Gems','Stars'],a:0},
+    {q:'Which video went viral with the line "Charlie bit my..."?',accept:['finger']},
+    {q:'What does "AMA" stand for online?',accept:['ask me anything']},
+    {q:'Which social app was originally called "Musical.ly"?',accept:['tiktok','tik tok']},
+    {q:'Which streamer platform is owned by Amazon?',choices:['Twitch','Kick','YouTube','Rumble'],a:0},
+    {q:'What does "GOAT" stand for?',accept:['greatest of all time']},
+    {q:'Which meme features a dog sitting in a burning room?',choices:['This Is Fine','Doge','Bad Luck Brian','Distracted Boyfriend'],a:0},
+  ],
+  movies:[
+    {q:'Which film features a character called Jack Dawson?',accept:['titanic']},
+    {q:'How many Infinity Stones are there?',choices:['Six','Five','Seven','Four'],a:0},
+    {q:'Which Australian actor played Wolverine?',accept:['hugh jackman','jackman']},
+    {q:'In The Matrix, which pill does Neo take?',choices:['Red','Blue','Green','Black'],a:0},
+    {q:'Which Aussie film features the line "That\'s not a knife"?',accept:['crocodile dundee','croc dundee']},
+    {q:'Who directed Jurassic Park?',accept:['steven spielberg','spielberg']},
+    {q:'Which streaming show features the Upside Down?',accept:['stranger things']},
+    {q:'Which Mad Max film was released in 2015?',choices:['Fury Road','Thunderdome','The Road Warrior','Furiosa'],a:0},
+    {q:'What is the name of the lion in The Lion King?',accept:['simba']},
+    {q:'Which Aussie soap has run since 1985 in Ramsay Street?',choices:['Neighbours','Home and Away','Packed to the Rafters','Blue Heelers'],a:0},
+    {q:'Which film won Best Picture in 2020, a Korean thriller?',accept:['parasite']},
+    {q:'How many Harry Potter films were released?',choices:['Eight','Seven','Six','Nine'],a:0},
+  ],
+  sport:[
+    {q:'How many players are on the field per AFL team?',choices:['18','15','13','11'],a:0},
+    {q:'Which country won the 2022 FIFA World Cup?',accept:['argentina']},
+    {q:'What trophy do the NRL premiers lift?',choices:['Provan-Summons Trophy','The Ashes','Sheffield Shield','Bledisloe Cup'],a:0},
+    {q:'Australia and England compete for which cricket trophy?',accept:['the ashes','ashes']},
+    {q:'How many points is a try worth in rugby league?',choices:['Four','Five','Six','Three'],a:0},
+    {q:'Which tennis Grand Slam is played in Melbourne?',accept:['australian open','aus open']},
+    {q:'How many players are in a basketball team on court?',choices:['Five','Six','Seven','Four'],a:0},
+    {q:'Which horse race is known as "the race that stops a nation"?',accept:['melbourne cup']},
+    {q:'What colour jersey does the Tour de France leader wear?',choices:['Yellow','Green','Red','White'],a:0},
+    {q:'Which Aussie swimmer won gold in the 400m freestyle at Tokyo 2020?',accept:['ariarne titmus','titmus']},
+    {q:'How many holes in a full round of golf?',choices:['18','9','20','16'],a:0},
+    {q:'What sport does the Bledisloe Cup belong to?',accept:['rugby union','rugby','union']},
+  ],
+  general:[
+    {q:'What is the capital of Australia?',accept:['canberra']},
+    {q:'How many states does Australia have?',choices:['Six','Seven','Eight','Five'],a:0},
+    {q:'What is the chemical symbol for gold?',accept:['au']},
+    {q:'How many sides does a hexagon have?',choices:['Six','Five','Seven','Eight'],a:0},
+    {q:'What is the largest planet in our solar system?',accept:['jupiter']},
+    {q:'Which animal appears with a kangaroo on the Australian coat of arms?',accept:['emu']},
+    {q:'How many minutes in a full day?',choices:['1440','1240','2400','960'],a:0},
+    {q:'What is the tallest mountain above sea level?',accept:['everest','mount everest','mt everest']},
+    {q:'Which Australian city is known as the Harbour City?',choices:['Sydney','Melbourne','Perth','Brisbane'],a:0},
+    {q:'How many bones are in the adult human body?',choices:['206','201','212','198'],a:0},
+    {q:'What is the currency of Japan?',accept:['yen','japanese yen']},
+    {q:'Which ocean lies on Australia\'s west coast?',accept:['indian','indian ocean']},
+  ],
+};
+const GK_QUESTION_COUNT=10;
 const WITB_CLICKER_SECONDS=45;
 
 let localWitbChallenges=5;
@@ -10733,8 +10857,11 @@ function witbBoxFor(game,playerId){
 function witbOrderedPlayers(game){return Object.values((game&&game.players)||{}).sort((a,b)=>a.joinedAt-b.joinedAt);}
 function witbBuildDeck(total){
   const deck=shuffle(WITB_CHALLENGES).slice(0,total);
-  const clickerSlots=Math.max(1,Math.floor(total/3));
-  shuffle(deck.map((_,i)=>i)).slice(0,clickerSlots).forEach(i=>{deck[i]={...WITB_CLICKER_CHALLENGE};});
+  // Roughly a third of the deck is an in-app challenge, split between the
+  // Clicker showdown and a General Knowledge round.
+  const appSlots=Math.max(1,Math.floor(total/3));
+  const slots=shuffle(deck.map((_,i)=>i)).slice(0,appSlots);
+  slots.forEach((i,n)=>{deck[i]={...(n%2===0?WITB_GK_CHALLENGE:WITB_CLICKER_CHALLENGE)};});
   return deck;
 }
 async function startWitbGame(){
@@ -10840,7 +10967,8 @@ async function witbNextChallenge(){
   if(n>(game.witbTotalChallenges||localWitbChallenges))return witbStartReveal();
   const deck=witbIndexedList(game.witbDeck);
   const ch=deck[n-1]||{...WITB_CLICKER_CHALLENGE};
-  await updateGame(gameCode,{witbPhase:'challenge',witbChallengeNum:n,witbChallenge:ch,witbWinnerId:null,witbScores:{},witbLastAction:null});
+  await updateGame(gameCode,{witbPhase:'challenge',witbChallengeNum:n,witbChallenge:ch,witbWinnerId:null,witbScores:{},witbLastAction:null,
+    gkPhase:null,gkCategory:null,gkQuestions:null,gkIndex:0,gkAnswers:{},gkVerdicts:{},gkSudden:null});
 }
 function enterWitbChallenge(game){witbMyBoxVisible=false;showScreen('witb-challenge');renderWitbChallenge(game);}
 function renderWitbChallenge(game){
@@ -10852,8 +10980,11 @@ function renderWitbChallenge(game){
   renderWitbMyBox('witbChallengeMyBox',game);
   const scores=game.witbScores||{};
   const players=witbOrderedPlayers(game);
+  const isGk=ch.kind==='gk';
   document.getElementById('witbClickerSection').style.display=isClicker?'block':'none';
-  document.getElementById('witbIrlSection').style.display=isClicker?'none':'block';
+  document.getElementById('witbGkSection').style.display=isGk?'block':'none';
+  document.getElementById('witbIrlSection').style.display=(isClicker||isGk)?'none':'block';
+  if(isGk){renderGkChallenge(game);return;}
   if(isClicker){
     const mine=scores[myId];
     const playBtn=document.getElementById('witbClickerPlayBtn');
@@ -10877,6 +11008,117 @@ function renderWitbChallenge(game){
     }
   }
 }
+function renderGkChallenge(game){
+  const phase=game.gkPhase;
+  const show=id=>{['gkCategoryView','gkQuestionView','gkReviewView','gkSuddenView'].forEach(v=>{
+    const el=document.getElementById(v);if(el)el.style.display=v===id?'block':'none';});};
+  const players=witbOrderedPlayers(game);
+
+  if(!phase||phase==='done'){
+    show('gkCategoryView');
+    document.getElementById('gkCategoryHost').style.display=amHost?'block':'none';
+    document.getElementById('gkCategoryWait').style.display=amHost?'none':'block';
+    if(amHost)document.getElementById('gkCategoryGrid').innerHTML=GK_CATEGORIES.map(c=>
+      `<button class="gk-cat-btn" onclick="gkStartCategory('${c.id}')"><span>${c.icon}</span>${esc(c.label)}</button>`).join('');
+    return;
+  }
+
+  if(phase==='question'){
+    show('gkQuestionView');
+    const qi=game.gkIndex||0;
+    const qs=gkQuestionList(game);
+    const q=qs[qi];if(!q)return;
+    const mine=gkAnswerFor(game,qi,myId);
+    document.getElementById('gkProgress').textContent=`Question ${qi+1} of ${qs.length}`;
+    document.getElementById('gkQuestionText').textContent=q.q;
+    const answered=Object.keys((game.gkAnswers||{})[qi]||{}).length;
+    document.getElementById('gkAnsweredCount').textContent=`${answered} of ${players.length} locked in`;
+    const choiceWrap=document.getElementById('gkChoices');
+    const typedWrap=document.getElementById('gkTypedWrap');
+    const done=document.getElementById('gkAnsweredNote');
+    choiceWrap.style.display=q.choices&&!mine?'grid':'none';
+    typedWrap.style.display=!q.choices&&!mine?'block':'none';
+    done.style.display=mine?'block':'none';
+    if(mine)done.textContent='✓ Locked in. You find out how you went at the end.';
+    if(q.choices&&!mine){
+      choiceWrap.innerHTML=q.choices.map((c,i)=>`<button class="gk-choice" onclick="gkSubmitAnswer({c:${i}})">${esc(c)}</button>`).join('');
+    }
+    if(!q.choices&&!mine){
+      const input=document.getElementById('gkTypedInput');
+      if(document.activeElement!==input)input.value='';
+    }
+    const nextBtn=document.getElementById('gkNextBtn');
+    nextBtn.style.display=amHost?'block':'none';
+    nextBtn.textContent=qi+1>=qs.length?'Finish and reveal':'Next question';
+    document.getElementById('gkHostWait').style.display=amHost?'none':'block';
+    return;
+  }
+
+  if(phase==='review'){
+    show('gkReviewView');
+    const qs=gkQuestionList(game);
+    const {scores}=gkLeaders(game);
+    const ranked=players.slice().sort((a,b)=>(scores[b.id]||0)-(scores[a.id]||0));
+    document.getElementById('gkScoreboard').innerHTML=ranked.map((p,i)=>
+      `<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${playerNameHtml(p)}</div><div class="scoreboard-pts">${scores[p.id]||0}/${qs.length}</div></div>`).join('');
+    document.getElementById('gkAnswerSheet').innerHTML=qs.map((q,qi)=>{
+      const model=q.choices?q.choices[q.a]:(q.accept&&q.accept[0])||'';
+      const rows=players.map(p=>{
+        const ans=gkAnswerFor(game,qi,p.id);
+        const correct=gkIsCorrect(game,qi,p.id);
+        const given=!ans?'—':(q.choices?(q.choices[ans.c]||'—'):(ans.t||'—'));
+        const canToggle=amHost&&!q.choices&&!!ans;
+        return`<div class="gk-answer-row${correct?' ok':''}"${canToggle?` onclick="gkToggleVerdict(${qi},'${p.id}')"`:''}>
+          <span class="gk-answer-who">${esc(p.name)}</span>
+          <span class="gk-answer-text">${esc(given)}</span>
+          <span class="gk-answer-mark">${correct?'✓':'✗'}</span>
+        </div>`;
+      }).join('');
+      return`<div class="gk-answer-block">
+        <div class="gk-answer-q">${qi+1}. ${esc(q.q)}</div>
+        <div class="gk-answer-model">Answer: <b>${esc(model)}</b>${q.choices?'':' <span class="gk-tap-hint">(host can tap a typed answer to flip it)</span>'}</div>
+        ${rows}
+      </div>`;
+    }).join('');
+    const btn=document.getElementById('gkConfirmBtn');
+    btn.style.display=amHost?'block':'none';
+    const {ids}=gkLeaders(game);
+    btn.textContent=ids.length>1?`Tie — go to sudden death`:'Confirm the winner';
+    document.getElementById('gkReviewWait').style.display=amHost?'none':'block';
+    return;
+  }
+
+  if(phase==='sudden'){
+    show('gkSuddenView');
+    const s=game.gkSudden||{};
+    const tied=witbIndexedList(s.tied);
+    const q=s.question||{};
+    const amTied=tied.includes(myId);
+    const mine=(s.answers||{})[myId];
+    document.getElementById('gkSuddenNames').textContent=tied.map(id=>((game.players||{})[id]||{}).name||'?').join(' vs ');
+    document.getElementById('gkSuddenQuestion').textContent=q.q||'';
+    const cw=document.getElementById('gkSuddenChoices');
+    const tw=document.getElementById('gkSuddenTypedWrap');
+    cw.style.display=amTied&&q.choices&&!mine?'grid':'none';
+    tw.style.display=amTied&&!q.choices&&!mine?'block':'none';
+    document.getElementById('gkSuddenWait').style.display=amTied?'none':'block';
+    document.getElementById('gkSuddenLocked').style.display=mine?'block':'none';
+    if(amTied&&q.choices&&!mine)cw.innerHTML=q.choices.map((c,i)=>`<button class="gk-choice" onclick="gkSubmitSudden({c:${i}})">${esc(c)}</button>`).join('');
+    const answered=Object.keys(s.answers||{}).length;
+    document.getElementById('gkSuddenCount').textContent=`${answered} of ${tied.length} answered`;
+    const btn=document.getElementById('gkSuddenResolveBtn');
+    btn.style.display=amHost?'block':'none';
+    btn.textContent=gkSuddenWinner(game)?'Reveal the winner':'Nobody got it — go again';
+  }
+}
+function gkSubmitTyped(sudden){
+  const input=document.getElementById(sudden?'gkSuddenTypedInput':'gkTypedInput');
+  if(!input)return;
+  const text=input.value.trim();if(!text)return;
+  input.value='';
+  if(sudden)gkSubmitSudden({t:text});else gkSubmitAnswer({t:text});
+}
+
 async function witbPickWinner(playerId){
   if(!amHost||!localGame)return;
   await updateGame(gameCode,{witbWinnerId:playerId,witbPhase:'swap',witbLastAction:null});
@@ -10896,6 +11138,128 @@ async function witbLockClickerWinner(){
   if(!entries.length)return;
   entries.sort((a,b)=>b[1].score-a[1].score||a[1].ts-b[1].ts);
   await updateGame(gameCode,{witbWinnerId:entries[0][0],witbPhase:'swap',witbLastAction:null});
+}
+
+// =====================================================
+// GENERAL KNOWLEDGE — scoring engine
+// =====================================================
+const GK_FILLER=/^(the|a|an)\s+/;
+// Punctuation is normalised two ways — dropped and turned into a space — so
+// "AC/DC" matches "acdc" and "first-person" matches "first person".
+function gkForms(s){
+  const base=String(s||'').toLowerCase().trim();
+  const tidy=t=>t.replace(/\s+/g,' ').replace(GK_FILLER,'').trim();
+  const dropped=tidy(base.replace(/[^\w\s]/g,''));
+  const spaced=tidy(base.replace(/[^\w\s]/g,' '));
+  return [dropped,spaced].filter(Boolean);
+}
+function gkNormalise(s){return gkForms(s)[0]||'';}
+function gkTypedMatches(answer,accept){
+  const mine=gkForms(answer);
+  if(!mine.length)return false;
+  return (accept||[]).some(a=>{
+    const theirs=gkForms(a);
+    return mine.some(m=>theirs.includes(m));
+  });
+}
+function gkQuestionList(game){return witbIndexedList(game&&game.gkQuestions);}
+function gkAnswerFor(game,qi,pid){return (((game&&game.gkAnswers)||{})[qi]||{})[pid];}
+function gkAutoCorrect(q,ans){
+  if(!q||!ans)return false;
+  if(q.choices)return ans.c===q.a;
+  return gkTypedMatches(ans.t,q.accept);
+}
+// Host verdicts override the auto-marker for typed answers.
+function gkIsCorrect(game,qi,pid){
+  const v=((game&&game.gkVerdicts)||{})[qi+'_'+pid];
+  if(v!==undefined)return !!v;
+  return gkAutoCorrect(gkQuestionList(game)[qi],gkAnswerFor(game,qi,pid));
+}
+function gkScores(game){
+  const out={};
+  const players=Object.keys((game&&game.players)||{});
+  const qs=gkQuestionList(game);
+  players.forEach(pid=>{
+    let score=0;
+    qs.forEach((q,qi)=>{if(gkIsCorrect(game,qi,pid))score++;});
+    out[pid]=score;
+  });
+  return out;
+}
+function gkLeaders(game){
+  const scores=gkScores(game);
+  const best=Math.max(...Object.values(scores),0);
+  return {best,ids:Object.keys(scores).filter(id=>scores[id]===best),scores};
+}
+function gkPickQuestions(categoryId,count,exclude){
+  const pool=(GK_QUESTIONS[categoryId]||[]).filter(q=>!(exclude||[]).includes(q.q));
+  return shuffle(pool).slice(0,count);
+}
+async function gkStartCategory(categoryId){
+  if(!amHost||!localGame)return;
+  const qs=gkPickQuestions(categoryId,GK_QUESTION_COUNT);
+  if(!qs.length)return;
+  await updateGame(gameCode,{
+    gkCategory:categoryId,gkQuestions:witbToIndexed(qs),gkIndex:0,
+    gkAnswers:{},gkVerdicts:{},gkPhase:'question',gkSudden:null,
+  });
+}
+async function gkSubmitAnswer(payload){
+  const game=localGame;if(!game||game.gkPhase!=='question'||!gameCode)return;
+  const qi=game.gkIndex||0;
+  if(gkAnswerFor(game,qi,myId)!==undefined)return; // locked in
+  await gameRefFor(gameCode).child('gkAnswers/'+qi+'/'+myId).set({...payload,ts:Date.now()});
+}
+async function gkNextQuestion(){
+  const game=localGame;if(!amHost||!game)return;
+  const next=(game.gkIndex||0)+1;
+  if(next>=gkQuestionList(game).length)await updateGame(gameCode,{gkPhase:'review'});
+  else await updateGame(gameCode,{gkIndex:next});
+}
+async function gkToggleVerdict(qi,pid){
+  const game=localGame;if(!amHost||!game)return;
+  const current=gkIsCorrect(game,qi,pid);
+  await gameRefFor(gameCode).child('gkVerdicts/'+qi+'_'+pid).set(!current);
+}
+async function gkConfirmResults(){
+  const game=localGame;if(!amHost||!game)return;
+  const {ids}=gkLeaders(game);
+  if(ids.length===1){await updateGame(gameCode,{witbWinnerId:ids[0],witbPhase:'swap',witbLastAction:null,gkPhase:'done'});return;}
+  await gkStartSuddenDeath(ids);
+}
+async function gkStartSuddenDeath(tiedIds){
+  const game=localGame;if(!amHost||!game)return;
+  const used=gkQuestionList(game).map(q=>q.q).concat(((game.gkSudden&&game.gkSudden.used)||[]));
+  const pick1=gkPickQuestions(game.gkCategory,1,used)[0]
+    ||gkPickQuestions(pick(GK_CATEGORIES).id,1,used)[0];
+  if(!pick1){ // bank exhausted — fall back to the fastest of the tied players
+    await updateGame(gameCode,{witbWinnerId:tiedIds[0],witbPhase:'swap',witbLastAction:null,gkPhase:'done'});
+    return;
+  }
+  await updateGame(gameCode,{gkPhase:'sudden',gkSudden:{
+    question:pick1,tied:witbToIndexed(tiedIds),answers:{},used:used.concat([pick1.q]),round:(((game.gkSudden||{}).round)||0)+1,
+  }});
+}
+async function gkSubmitSudden(payload){
+  const game=localGame;if(!game||game.gkPhase!=='sudden'||!gameCode)return;
+  const tied=witbIndexedList(game.gkSudden&&game.gkSudden.tied);
+  if(!tied.includes(myId))return;
+  if(((game.gkSudden.answers)||{})[myId]!==undefined)return;
+  await gameRefFor(gameCode).child('gkSudden/answers/'+myId).set({...payload,ts:Date.now()});
+}
+// First correct answer wins; if nobody gets it, the host runs another.
+function gkSuddenWinner(game){
+  const s=game&&game.gkSudden;if(!s)return null;
+  const correct=Object.entries(s.answers||{})
+    .filter(([,a])=>gkAutoCorrect(s.question,a))
+    .sort((a,b)=>a[1].ts-b[1].ts);
+  return correct.length?correct[0][0]:null;
+}
+async function gkResolveSudden(){
+  const game=localGame;if(!amHost||!game)return;
+  const winner=gkSuddenWinner(game);
+  if(winner){await updateGame(gameCode,{witbWinnerId:winner,witbPhase:'swap',witbLastAction:null,gkPhase:'done'});return;}
+  await gkStartSuddenDeath(witbIndexedList(game.gkSudden.tied));
 }
 
 // =====================================================
@@ -11533,6 +11897,55 @@ function witbCleanup(){witbMyBoxVisible=false;localWitbBoxes=null;}
         <div class="notice success" id="witbClickerDone" style="display:none"></div>
         <div class="vote-list" id="witbClickerScores" style="margin-top:12px"></div>
         <button class="btn btn-secondary" id="witbClickerLockBtn" style="display:none;margin-top:12px" onclick="witbLockClickerWinner()">Lock in the winner</button>
+      </div>
+      <div id="witbGkSection" style="display:none">
+        <!-- category pick -->
+        <div id="gkCategoryView" style="display:none">
+          <div id="gkCategoryHost" style="display:none">
+            <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:10px">Pick a category</div>
+            <div class="gk-cat-grid" id="gkCategoryGrid"></div>
+          </div>
+          <div class="notice info" id="gkCategoryWait" style="display:none;text-align:center">The host is picking a category...</div>
+        </div>
+        <!-- question -->
+        <div id="gkQuestionView" style="display:none">
+          <div style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px" id="gkProgress"></div>
+          <div class="gk-question" id="gkQuestionText"></div>
+          <div class="gk-choice-grid" id="gkChoices" style="display:none"></div>
+          <div id="gkTypedWrap" style="display:none">
+            <input id="gkTypedInput" type="text" placeholder="Type your answer..." maxlength="40" autocomplete="off" onkeydown="if(event.key==='Enter')gkSubmitTyped(false)"/>
+            <button class="btn btn-primary" onclick="gkSubmitTyped(false)">Lock it in</button>
+          </div>
+          <div class="notice success" id="gkAnsweredNote" style="display:none"></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:10px" id="gkAnsweredCount"></div>
+          <button class="btn btn-secondary" id="gkNextBtn" style="display:none;margin-top:10px" onclick="gkNextQuestion()">Next question</button>
+          <div class="notice info" id="gkHostWait" style="display:none;margin-top:10px;text-align:center">Waiting for the host to move on...</div>
+        </div>
+        <!-- review -->
+        <div id="gkReviewView" style="display:none">
+          <label>Final scores</label>
+          <div id="gkScoreboard"></div>
+          <div style="height:12px"></div>
+          <label>Every answer</label>
+          <div id="gkAnswerSheet"></div>
+          <button class="btn btn-primary" id="gkConfirmBtn" style="display:none;margin-top:12px" onclick="gkConfirmResults()">Confirm the winner</button>
+          <div class="notice info" id="gkReviewWait" style="display:none;margin-top:12px;text-align:center">Waiting for the host to confirm...</div>
+        </div>
+        <!-- sudden death -->
+        <div id="gkSuddenView" style="display:none">
+          <div class="gk-sudden-badge">⚡ SUDDEN DEATH</div>
+          <div style="font-size:13px;font-weight:700;text-align:center;margin-bottom:6px" id="gkSuddenNames"></div>
+          <div class="gk-question" id="gkSuddenQuestion"></div>
+          <div class="gk-choice-grid" id="gkSuddenChoices" style="display:none"></div>
+          <div id="gkSuddenTypedWrap" style="display:none">
+            <input id="gkSuddenTypedInput" type="text" placeholder="Type your answer..." maxlength="40" autocomplete="off" onkeydown="if(event.key==='Enter')gkSubmitTyped(true)"/>
+            <button class="btn btn-primary" onclick="gkSubmitTyped(true)">Lock it in</button>
+          </div>
+          <div class="notice success" id="gkSuddenLocked" style="display:none">✓ Locked in.</div>
+          <div class="notice info" id="gkSuddenWait" style="display:none;text-align:center">Sudden death — you're watching this one.</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:10px" id="gkSuddenCount"></div>
+          <button class="btn btn-primary" id="gkSuddenResolveBtn" style="display:none;margin-top:10px" onclick="gkResolveSudden()">Reveal the winner</button>
+        </div>
       </div>
       <div id="witbIrlSection" style="display:none">
         <div id="witbIrlHostControls" style="display:none">
