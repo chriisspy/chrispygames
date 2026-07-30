@@ -608,6 +608,20 @@ select option{background:var(--surface2)}
 .gk-answer-mark{flex:0 0 14px;text-align:center;color:var(--spy)}
 .gk-answer-row.ok .gk-answer-mark{color:var(--safe)}
 .gk-sudden-badge{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--chaos);text-align:center;margin-bottom:8px}
+/* Imposter */
+.imp-word-card{border-radius:var(--radius-lg);border:1px solid var(--border);background:var(--surface2);padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.imp-word-card.hidden{border-style:dashed}
+.imp-word-card.crew{border-color:rgba(77,232,160,.5);background:rgba(77,232,160,.08)}
+.imp-word-card.imposter{border-color:rgba(232,93,77,.55);background:rgba(232,93,77,.1)}
+.imp-word-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px}
+.imp-word{font-size:26px;font-weight:800;line-height:1.2;word-break:break-word}
+.imp-word-card.imposter .imp-word{color:var(--spy)}
+.imp-word-card.crew .imp-word{color:var(--safe)}
+.imp-word-hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:10px;line-height:1.5}
+.imp-turn-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);margin-bottom:6px;font-size:13px}
+.imp-turn-row.now{border-color:var(--accent);background:rgba(211,243,75,.1);font-weight:700}
+.imp-turn-row.done{opacity:.45}
+.imp-turn-row span:first-child{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);width:14px}
 /* Chrispy Clicker — night phase mini game */
 .clicker-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
 .clicker-backdrop.open{display:flex}
@@ -7990,7 +8004,7 @@ async function returnToLobby(){
     promotedPlayerBets[`players/${player.id}/nextBets`]=null;
   });
   const newLocations=shuffle(availableLocations()).slice(0,LOCATIONS_PER_GAME).map(l=>l.name);
-  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,lastCaughtSpyId:null,spyfallResumeTimerRunning:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,hotseatPhase:null,hotseatCurrentPlayerId:null,hotseatRoundId:null,hotseatQuestions:null,hotseatPassBank:null,hotseatQuestionIndex:0,hotseatCoins:0,hotseatBankedCoins:{},hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,hotseatTimerStart:null,hotseatPhoneTimerStart:null,witbPhase:null,witbBoxes:null,witbOwners:{},witbDeck:null,witbChallengeNum:0,witbChallenge:null,witbWinnerId:null,witbScores:{},witbLastAction:null,witbRevealOrder:null,witbRevealIndex:0,witbGrandWinnerId:null,gkPhase:null,gkCategory:null,gkQuestions:null,gkIndex:0,gkAnswers:{},gkVerdicts:{},gkSudden:null,bets:game.nextBets||{},nextBets:{},betPayoutEvents:null,lastBetPayoutKey:null,lastBetWinnerIds:null,lastBetPayouts:null,chat:null,stickerBursts:null,...promotedPlayerBets});
+  await updateGame(gameCode,{status:'lobby',spyId:null,spyIds:null,innocentId:null,currentLocation:null,roles:{},votes:{},result:null,spyGuess:null,spyGuesses:{},eliminatedSpyIds:{},spyfallPhase:null,lastCaughtSpyId:null,spyfallResumeTimerRunning:null,timerStart:null,timerRunning:false,timerOffset:0,timerDuration:TIMER_DURATION,locations:newLocations,oooRound:0,oooPhase:null,oooAnswers:{},oooVotes:{},oooResult:null,oooImposterId:null,oooScores:{},tiePhase:false,tiePlayerIds:null,tieStart:null,tieRound:0,mafiaPhase:null,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaElimRevealId:null,mafiaElimRevealTie:false,mafiaElimRevealDay1:false,mafiaResult:null,faPhase:null,faWord:null,faStrokes:[],faVotes:{},faGuess:null,faResult:null,bsPhase:null,bsReady:{},bsVotes:{},bsGuesses:[],bsCorrectGuesses:[],bsIncorrectCount:0,bsResult:null,hotseatPhase:null,hotseatCurrentPlayerId:null,hotseatRoundId:null,hotseatQuestions:null,hotseatPassBank:null,hotseatQuestionIndex:0,hotseatCoins:0,hotseatBankedCoins:{},hotseatPassUsed:false,hotseatPhoneUsed:false,hotseatPhoneFriendId:null,hotseatAnswered:false,hotseatWrongAnswer:null,hotseatBustCorrectAnswer:null,hotseatTimerStart:null,hotseatPhoneTimerStart:null,witbPhase:null,witbBoxes:null,witbOwners:{},witbDeck:null,witbChallengeNum:0,witbChallenge:null,witbWinnerId:null,witbScores:{},witbLastAction:null,witbRevealOrder:null,witbRevealIndex:0,witbGrandWinnerId:null,gkPhase:null,gkCategory:null,gkQuestions:null,gkIndex:0,gkAnswers:{},gkVerdicts:{},gkSudden:null,impPhase:null,impCategory:null,impWord:null,impImposterId:null,impOrder:null,impReady:{},impTurn:0,impVotes:{},impWinnerId:null,impTiedCount:0,bets:game.nextBets||{},nextBets:{},betPayoutEvents:null,lastBetPayoutKey:null,lastBetWinnerIds:null,lastBetPayouts:null,chat:null,stickerBursts:null,...promotedPlayerBets});
 }
 async function leaveGame(){
   clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();cancelHostRescue();clearLastGame();
@@ -10770,6 +10784,29 @@ const GK_QUESTIONS={
   ],
 };
 const GK_QUESTION_COUNT=10;
+
+// =====================================================
+// IMPOSTER — word bank
+// =====================================================
+const IMPOSTER_CATEGORIES=[
+  {id:'people',label:'People & Celebrities',icon:'⭐',words:[
+    'Taylor Swift','Dwayne Johnson','Elon Musk','Beyoncé','Steve Irwin','Hugh Jackman','Margot Robbie',
+    'Cristiano Ronaldo','LeBron James','Adele','Keanu Reeves','Ariana Grande','Snoop Dogg','Gordon Ramsay',
+    'David Attenborough','Chris Hemsworth','Serena Williams','Eminem','Barack Obama','Kim Kardashian']},
+  {id:'screen',label:'Movies & TV',icon:'🎬',words:[
+    'Titanic','The Office','Breaking Bad','Star Wars','Jurassic Park','Friends','Game of Thrones','Shrek',
+    'The Matrix','Stranger Things','Home and Away','Harry Potter','Toy Story','The Simpsons','Fast and Furious',
+    'Squid Game','Mad Max','Neighbours','Avatar','Peaky Blinders']},
+  {id:'food',label:'Food & Drink',icon:'🍕',words:[
+    'Pizza','Sushi','Vegemite','Meat Pie','Tim Tam','Pavlova','Coffee','Beer','Sausage Roll','Ice Cream',
+    'Tacos','Fish and Chips','Pancakes','Nachos','Curry','Kebab','Chicken Parmi','Lamington','Espresso Martini','Smashed Avo']},
+  {id:'places',label:'Places & Landmarks',icon:'🗺️',words:[
+    'Bondi Beach','Eiffel Tower','Uluru','Great Barrier Reef','Sydney Opera House','Las Vegas','Tokyo','The Moon',
+    'Antarctica','Times Square','Bali','Grand Canyon','London','Machu Picchu','Melbourne','Hawaii',
+    'The Pyramids','Niagara Falls','Amazon Rainforest','Disneyland']},
+];
+const IMPOSTER_PASSES=2;
+const WITB_IMPOSTER_CHALLENGE={kind:'imposter',title:'Imposter',desc:'Everyone gets the same word except one. Two words each, out loud, then vote.'};
 const WITB_CLICKER_SECONDS=45;
 
 let localWitbChallenges=5;
@@ -10860,8 +10897,10 @@ function witbBuildDeck(total){
   // Roughly a third of the deck is an in-app challenge, split between the
   // Clicker showdown and a General Knowledge round.
   const appSlots=Math.max(1,Math.floor(total/3));
+  const inApp=[WITB_GK_CHALLENGE,WITB_IMPOSTER_CHALLENGE,WITB_CLICKER_CHALLENGE];
   const slots=shuffle(deck.map((_,i)=>i)).slice(0,appSlots);
-  slots.forEach((i,n)=>{deck[i]={...(n%2===0?WITB_GK_CHALLENGE:WITB_CLICKER_CHALLENGE)};});
+  const rota=shuffle(inApp);
+  slots.forEach((i,n)=>{deck[i]={...rota[n%rota.length]};});
   return deck;
 }
 async function startWitbGame(){
@@ -10968,7 +11007,8 @@ async function witbNextChallenge(){
   const deck=witbIndexedList(game.witbDeck);
   const ch=deck[n-1]||{...WITB_CLICKER_CHALLENGE};
   await updateGame(gameCode,{witbPhase:'challenge',witbChallengeNum:n,witbChallenge:ch,witbWinnerId:null,witbScores:{},witbLastAction:null,
-    gkPhase:null,gkCategory:null,gkQuestions:null,gkIndex:0,gkAnswers:{},gkVerdicts:{},gkSudden:null});
+    gkPhase:null,gkCategory:null,gkQuestions:null,gkIndex:0,gkAnswers:{},gkVerdicts:{},gkSudden:null,
+    impPhase:null,impCategory:null,impWord:null,impImposterId:null,impOrder:null,impReady:{},impTurn:0,impVotes:{},impWinnerId:null,impTiedCount:0});
 }
 function enterWitbChallenge(game){witbMyBoxVisible=false;showScreen('witb-challenge');renderWitbChallenge(game);}
 function renderWitbChallenge(game){
@@ -10981,10 +11021,13 @@ function renderWitbChallenge(game){
   const scores=game.witbScores||{};
   const players=witbOrderedPlayers(game);
   const isGk=ch.kind==='gk';
+  const isImp=ch.kind==='imposter';
   document.getElementById('witbClickerSection').style.display=isClicker?'block':'none';
   document.getElementById('witbGkSection').style.display=isGk?'block':'none';
-  document.getElementById('witbIrlSection').style.display=(isClicker||isGk)?'none':'block';
+  document.getElementById('witbImposterSection').style.display=isImp?'block':'none';
+  document.getElementById('witbIrlSection').style.display=(isClicker||isGk||isImp)?'none':'block';
   if(isGk){renderGkChallenge(game);return;}
+  if(isImp){renderImposterChallenge(game);return;}
   if(isClicker){
     const mine=scores[myId];
     const playBtn=document.getElementById('witbClickerPlayBtn');
@@ -11260,6 +11303,186 @@ async function gkResolveSudden(){
   const winner=gkSuddenWinner(game);
   if(winner){await updateGame(gameCode,{witbWinnerId:winner,witbPhase:'swap',witbLastAction:null,gkPhase:'done'});return;}
   await gkStartSuddenDeath(witbIndexedList(game.gkSudden.tied));
+}
+
+// =====================================================
+// IMPOSTER — engine
+// =====================================================
+function impOrderList(game){return witbIndexedList(game&&game.impOrder);}
+function impTotalTurns(game){return impOrderList(game).length*IMPOSTER_PASSES;}
+function impCurrentPlayer(game){
+  const order=impOrderList(game);if(!order.length)return null;
+  return order[(game.impTurn||0)%order.length];
+}
+function impPassNumber(game){
+  const order=impOrderList(game);if(!order.length)return 1;
+  return Math.floor((game.impTurn||0)/order.length)+1;
+}
+function impCategory(game){return IMPOSTER_CATEGORIES.find(c=>c.id===(game&&game.impCategory))||IMPOSTER_CATEGORIES[0];}
+// Imposter takes 2 per crew member who voted elsewhere; crew take 1 for a correct vote.
+function impScores(game){
+  const impId=game&&game.impImposterId;
+  const votes=(game&&game.impVotes)||{};
+  const ids=Object.keys((game&&game.players)||{});
+  const scores={};ids.forEach(id=>{scores[id]=0;});
+  const crew=ids.filter(id=>id!==impId);
+  const fooled=crew.filter(id=>votes[id]&&votes[id]!==impId).length;
+  if(impId)scores[impId]=fooled*2;
+  crew.forEach(id=>{if(votes[id]===impId)scores[id]=1;});
+  return scores;
+}
+function impCaught(game){
+  const impId=game&&game.impImposterId;
+  const votes=(game&&game.impVotes)||{};
+  const counts={};Object.values(votes).forEach(v=>{counts[v]=(counts[v]||0)+1;});
+  const top=Math.max(...Object.values(counts),0);
+  const leaders=Object.keys(counts).filter(id=>counts[id]===top);
+  return leaders.length===1&&leaders[0]===impId;
+}
+async function impStartRound(){
+  const game=localGame;if(!amHost||!game)return;
+  const players=Object.values(game.players||{});
+  if(players.length<3)return;
+  const cat=pick(IMPOSTER_CATEGORIES);
+  const word=pick(cat.words);
+  const imposter=pick(players).id;
+  const order=shuffle(players.map(p=>p.id));
+  await updateGame(gameCode,{
+    impPhase:'reveal',impCategory:cat.id,impWord:word,impImposterId:imposter,
+    impOrder:witbToIndexed(order),impReady:{},impTurn:0,impVotes:{},
+  });
+}
+async function impSetReady(){
+  const game=localGame;if(!game||game.impPhase!=='reveal'||!gameCode)return;
+  await gameRefFor(gameCode).child('impReady/'+myId).set(true);
+}
+async function impNextTurn(){
+  const game=localGame;if(!game||game.impPhase!=='words')return;
+  // The player whose turn it is advances it; the host can unstick a round.
+  if(impCurrentPlayer(game)!==myId&&!amHost)return;
+  const next=(game.impTurn||0)+1;
+  if(next>=impTotalTurns(game))await updateGame(gameCode,{impPhase:'vote',impTurn:next});
+  else await updateGame(gameCode,{impTurn:next});
+}
+async function impVote(targetId){
+  const game=localGame;if(!game||game.impPhase!=='vote'||!gameCode)return;
+  if((game.impVotes||{})[myId])return;
+  await gameRefFor(gameCode).child('impVotes/'+myId).set(targetId);
+}
+async function impResolve(){
+  const game=localGame;if(!amHost||!game)return;
+  const scores=impScores(game);
+  const best=Math.max(...Object.values(scores),0);
+  const tied=Object.keys(scores).filter(id=>scores[id]===best);
+  const winner=tied.length?pick(tied):null;   // ties are settled at random
+  await updateGame(gameCode,{impWinnerId:winner,impTiedCount:tied.length,impPhase:'result'});
+}
+async function impConfirmWinner(){
+  const game=localGame;if(!amHost||!game)return;
+  await updateGame(gameCode,{witbWinnerId:game.impWinnerId,witbPhase:'swap',witbLastAction:null,impPhase:'done'});
+}
+
+function renderImposterChallenge(game){
+  const phase=game.impPhase;
+  const show=id=>{['impStartView','impRevealView','impWordsView','impVoteView','impResultView'].forEach(v=>{
+    const el=document.getElementById(v);if(el)el.style.display=v===id?'block':'none';});};
+  const players=witbOrderedPlayers(game);
+  const cat=impCategory(game);
+
+  if(!phase||phase==='done'){
+    show('impStartView');
+    document.getElementById('impStartBtn').style.display=amHost?'block':'none';
+    document.getElementById('impStartWait').style.display=amHost?'none':'block';
+    return;
+  }
+  if(phase==='reveal'){
+    show('impRevealView');
+    const amImposter=game.impImposterId===myId;
+    const ready=(game.impReady||{})[myId];
+    document.getElementById('impCategoryLabel').textContent=cat.icon+' '+cat.label;
+    const card=document.getElementById('impWordCard');
+    card.className='imp-word-card'+(witbMyBoxVisible?(amImposter?' imposter':' crew'):' hidden');
+    card.innerHTML=witbMyBoxVisible
+      ?`<div class="imp-word-label">${amImposter?'YOU ARE THE IMPOSTER':'THE WORD'}</div>
+        <div class="imp-word">${amImposter?'???':esc(game.impWord||'')}</div>
+        <div class="imp-word-hint">${amImposter?'Bluff it. You only know the category.':'One word clues — don\'t make it obvious.'}</div>`
+      :`<div class="imp-word-label">YOUR WORD</div><div class="imp-word" style="color:var(--muted)">Tap to peek</div>`;
+    card.onclick=()=>{witbMyBoxVisible=!witbMyBoxVisible;renderImposterChallenge(localGame);};
+    const btn=document.getElementById('impReadyBtn');
+    btn.style.display=ready?'none':'block';
+    document.getElementById('impReadyNote').style.display=ready?'block':'none';
+    const readyCount=Object.keys(game.impReady||{}).length;
+    document.getElementById('impReadyCount').textContent=`${readyCount} of ${players.length} ready`;
+    if(amHost&&readyCount>=players.length&&players.length>0){
+      updateGame(gameCode,{impPhase:'words'}).catch(e=>console.warn('imposter advance failed',e));
+    }
+    return;
+  }
+  if(phase==='words'){
+    show('impWordsView');
+    witbMyBoxVisible=false;
+    const order=impOrderList(game);
+    const currentId=impCurrentPlayer(game);
+    const current=(game.players||{})[currentId];
+    document.getElementById('impPassLabel').textContent=`Pass ${impPassNumber(game)} of ${IMPOSTER_PASSES} · ${cat.icon} ${cat.label}`;
+    document.getElementById('impTurnName').innerHTML=currentId===myId
+      ?'<span style="color:var(--accent)">Your turn — say your word</span>'
+      :`${esc((current&&current.name)||'?')} is up`;
+    const posInPass=(game.impTurn||0)%order.length;
+    document.getElementById('impOrderList').innerHTML=order.map((id,i)=>{
+      const p=(game.players||{})[id];
+      const done=i<posInPass;   // already spoken this pass
+      const isNow=id===currentId;
+      return`<div class="imp-turn-row${isNow?' now':''}${done&&!isNow?' done':''}"><span>${i+1}</span><span style="flex:1">${esc((p&&p.name)||'?')}</span>${isNow?'<span>🎤</span>':''}</div>`;
+    }).join('');
+    const btn=document.getElementById('impSaidBtn');
+    const canAdvance=currentId===myId||amHost;
+    btn.style.display=canAdvance?'block':'none';
+    btn.textContent=currentId===myId?'Said it — next':'Skip to next (host)';
+    document.getElementById('impWordsWait').style.display=canAdvance?'none':'block';
+    return;
+  }
+  if(phase==='vote'){
+    show('impVoteView');
+    const votes=game.impVotes||{};
+    const myVote=votes[myId];
+    document.getElementById('impVoteList').innerHTML=players.map(p=>{
+      const count=Object.values(votes).filter(v=>v===p.id).length;
+      const mine=myVote===p.id;
+      const self=p.id===myId;
+      return`<div class="vote-item ${mine?'voted':''}"${(!myVote&&!self)?` onclick="impVote('${p.id}')"`:''} style="${self?'opacity:.5':''}">
+        <div style="font-size:20px">🕵️</div><div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>
+        ${count?`<div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--spy)">${count}</div>`:''}
+        ${mine?'<div style="color:var(--spy);font-size:13px">✓</div>':''}</div>`;
+    }).join('');
+    document.getElementById('impVoteCount').textContent=`${Object.keys(votes).length} of ${players.length} voted`;
+    const allIn=Object.keys(votes).length>=players.length;
+    const btn=document.getElementById('impRevealBtn');
+    btn.style.display=amHost&&allIn?'block':'none';
+    document.getElementById('impVoteWait').style.display=(!amHost&&allIn)?'block':'none';
+    return;
+  }
+  if(phase==='result'){
+    show('impResultView');
+    const impId=game.impImposterId;
+    const imp=(game.players||{})[impId];
+    const caught=impCaught(game);
+    const scores=impScores(game);
+    const winner=(game.players||{})[game.impWinnerId];
+    const banner=document.getElementById('impResultBanner');
+    banner.className='result-banner '+(caught?'crew-wins':'spy-wins');
+    banner.innerHTML=`${resultAvatarHtml(imp,'🕵️')}<h2>${esc((imp&&imp.name)||'?')} was the imposter</h2>
+      <p>${caught?'Caught out.':'Got away with it.'} The word was <b>${esc(game.impWord||'')}</b>.</p>`;
+    document.getElementById('impScoreboard').innerHTML=players.slice()
+      .sort((a,b)=>(scores[b.id]||0)-(scores[a.id]||0))
+      .map((p,i)=>`<div class="scoreboard-item ${p.id===myId?'me':''}"><div class="scoreboard-rank">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div class="scoreboard-name">${playerNameHtml(p)}${p.id===impId?' 🕵️':''}</div><div class="scoreboard-pts">${scores[p.id]||0} pts</div></div>`).join('');
+    document.getElementById('impWinnerNote').innerHTML=winner
+      ?`<b>${esc(winner.name)}</b> takes the swap${(game.impTiedCount||1)>1?` — drawn at random from ${game.impTiedCount} tied on ${scores[game.impWinnerId]||0}`:''}.`
+      :'No winner this round.';
+    const btn=document.getElementById('impContinueBtn');
+    btn.style.display=amHost?'block':'none';
+    document.getElementById('impResultWait').style.display=amHost?'none':'block';
+  }
 }
 
 // =====================================================
@@ -11945,6 +12168,42 @@ function witbCleanup(){witbMyBoxVisible=false;localWitbBoxes=null;}
           <div class="notice info" id="gkSuddenWait" style="display:none;text-align:center">Sudden death — you're watching this one.</div>
           <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:10px" id="gkSuddenCount"></div>
           <button class="btn btn-primary" id="gkSuddenResolveBtn" style="display:none;margin-top:10px" onclick="gkResolveSudden()">Reveal the winner</button>
+        </div>
+      </div>
+      <div id="witbImposterSection" style="display:none">
+        <div id="impStartView" style="display:none">
+          <div class="notice info" style="text-align:center">Everyone gets the same word except one person. Two words each, out loud, then vote.</div>
+          <button class="btn btn-primary" id="impStartBtn" style="display:none" onclick="impStartRound()">Deal the word</button>
+          <div class="notice info" id="impStartWait" style="display:none;text-align:center">Waiting for the host to deal...</div>
+        </div>
+        <div id="impRevealView" style="display:none">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;text-align:center;margin-bottom:8px" id="impCategoryLabel"></div>
+          <div class="imp-word-card hidden" id="impWordCard"></div>
+          <button class="btn btn-primary" id="impReadyBtn" style="margin-top:12px" onclick="impSetReady()">I'm ready</button>
+          <div class="notice success" id="impReadyNote" style="display:none;margin-top:12px">✓ Ready — waiting for everyone else.</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:10px" id="impReadyCount"></div>
+        </div>
+        <div id="impWordsView" style="display:none">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;text-align:center" id="impPassLabel"></div>
+          <div style="font-size:19px;font-weight:800;text-align:center;margin:10px 0 14px" id="impTurnName"></div>
+          <div id="impOrderList"></div>
+          <button class="btn btn-primary" id="impSaidBtn" style="display:none;margin-top:12px" onclick="impNextTurn()">Said it — next</button>
+          <div class="notice info" id="impWordsWait" style="display:none;margin-top:12px;text-align:center">Listen up — your turn is coming.</div>
+        </div>
+        <div id="impVoteView" style="display:none">
+          <div class="notice info" style="text-align:center">Who was faking it?</div>
+          <div class="vote-list" id="impVoteList"></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:10px" id="impVoteCount"></div>
+          <button class="btn btn-primary" id="impRevealBtn" style="display:none;margin-top:12px" onclick="impResolve()">Reveal the imposter</button>
+          <div class="notice info" id="impVoteWait" style="display:none;margin-top:12px;text-align:center">All votes in — waiting for the host.</div>
+        </div>
+        <div id="impResultView" style="display:none">
+          <div id="impResultBanner" class="result-banner"></div>
+          <div style="height:12px"></div>
+          <div id="impScoreboard"></div>
+          <div class="notice info" id="impWinnerNote" style="margin-top:12px;text-align:center"></div>
+          <button class="btn btn-primary" id="impContinueBtn" style="display:none" onclick="impConfirmWinner()">On to the swap</button>
+          <div class="notice info" id="impResultWait" style="display:none;text-align:center">Waiting for the host...</div>
         </div>
       </div>
       <div id="witbIrlSection" style="display:none">
