@@ -692,6 +692,7 @@ select option{background:var(--surface2)}
 .profile-mode-row b{font-family:'JetBrains Mono',monospace;color:var(--accent)}
 /* Case opening */
 .home-cases-btn{position:relative}
+.home-clicker-best{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-left:8px}
 .home-case-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:var(--accent);color:#0a0a0f;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box}
 .case-pity{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin:10px 0 8px}
 .case-footnote{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);line-height:1.6;margin-top:4px}
@@ -1454,6 +1455,9 @@ body{
     <button class="home-shop-btn home-cases-btn" onclick="openCasesModal()">📦 Cases<span id="homeCaseBadge" class="home-case-badge" style="display:none">0</span></button>
     <button class="home-shop-btn" onclick="openProfileModal()">👤 Profile</button>
   </div>
+  <div class="home-actions-row">
+    <button class="home-shop-btn home-clicker-btn" onclick="openChrispyClicker()">🎮 Chrispy Clicker<span class="home-clicker-best" id="homeClickerBest"></span></button>
+  </div>
   <!-- DEV TOOLS -->
   <div style="width:100%;max-width:440px">
     <div onclick="toggleDevPanel()" style="height:36px;width:64px;margin:0 auto;cursor:pointer;opacity:0" aria-hidden="true">
@@ -1579,6 +1583,9 @@ body{
       <div class="home-actions-row" style="margin-top:4px">
         <button class="home-shop-btn" onclick="openShopModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Shop</button>
         <button class="home-shop-btn home-betting-btn" onclick="openBettingModal()"><img src="coin-icon-2.png" class="coin-icon" alt=""/> Bet</button>
+      </div>
+      <div class="home-actions-row">
+        <button class="home-shop-btn home-clicker-btn" onclick="openChrispyClicker()">🎮 Chrispy Clicker<span class="home-clicker-best" id="lobbyClickerBest"></span></button>
       </div>
       <div id="lobbyBettingSummary"></div>
       <div style="height:8px"></div>
@@ -1775,6 +1782,9 @@ body{
       <label>Players (<span id="waitingCount">...</span>)</label>
       <div class="player-list" id="waitingPlayerList"></div>
       <button class="btn btn-bet-green betting-open-btn" onclick="openBettingModal()">Place bet</button>
+      <div class="home-actions-row">
+        <button class="home-shop-btn home-clicker-btn" onclick="openChrispyClicker()">🎮 Chrispy Clicker<span class="home-clicker-best" id="waitingClickerBest"></span></button>
+      </div>
       <div id="waitingBettingSummary"></div>
       <div style="height:10px"></div>
       <div class="notice info" style="margin-bottom:0" id="waitingNotice">Waiting for the host to start...</div>
@@ -2533,7 +2543,9 @@ const OOO_DISCUSS_DURATION = 30;
 const MAFIA_DAY_TIMER_FIRST = 30;
 const MAFIA_DAY_TIMER_REST = 5*60;
 const MAFIA_NIGHT_TIMER = 30;
-const CLICKER_NIGHT_SCREENS = ['mafia-night-mafia','mafia-night-doctor','mafia-night-town'];
+// Screens the Clicker popup is allowed to stay open on. Anything else — a game
+// starting, the night ending — closes it automatically.
+const CLICKER_OPEN_SCREENS = ['home','lobby','waiting','mafia-night-mafia','mafia-night-doctor','mafia-night-town'];
 
 // =====================================================
 // STATE
@@ -2826,7 +2838,7 @@ function clearWinTheme(){
 }
 function showScreen(id){
   // The night-phase mini game never survives leaving the night screens.
-  if(typeof clickerIsOpen==='function'&&clickerIsOpen()&&!CLICKER_NIGHT_SCREENS.includes(id))closeChrispyClicker();
+  if(typeof clickerIsOpen==='function'&&clickerIsOpen()&&!CLICKER_OPEN_SCREENS.includes(id))closeChrispyClicker();
   const winThemeScreens=['result','ooo-result','ooo-gameover','mafia-result','bs-result','guess-final'];
   if(!winThemeScreens.includes(id))clearWinTheme();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -3043,6 +3055,18 @@ function switchShopTab(tab){
   });
   renderShop();
 }
+function clickerBestScore(){
+  let local=0;
+  try{local=parseInt(localStorage.getItem(CLICKER_BEST_KEY)||'0',10)||0;}catch(e){}
+  return Math.max(local,(myProfile&&myProfile.clickerBest)||0);
+}
+function updateClickerBestLabels(){
+  const best=clickerBestScore();
+  ['homeClickerBest','lobbyClickerBest','waitingClickerBest'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.textContent=best?'BEST '+best:'';
+  });
+}
 function updateCaseBadge(){
   const badge=document.getElementById('homeCaseBadge');if(!badge)return;
   const n=CASES.reduce((t,c)=>t+myCaseCount(c.id),0);
@@ -3050,7 +3074,7 @@ function updateCaseBadge(){
   badge.textContent=n>99?'99+':n;
 }
 function renderShop(){
-  updateCaseBadge();updateHostPerkUI();
+  updateCaseBadge();updateHostPerkUI();updateClickerBestLabels();
   const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
   const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
   ['names','frames','wins','clicker','titles','packs','extras','owned'].forEach(t=>{
@@ -6590,6 +6614,7 @@ function closeChrispyClicker(){
   const stage=document.getElementById('clickerStage');
   if(stage)stage.removeEventListener('pointerdown',clickerTap);
   clicker=null;
+  updateClickerBestLabels();
 }
 
 function sizeClickerCanvas(){
