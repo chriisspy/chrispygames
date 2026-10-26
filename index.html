@@ -412,6 +412,86 @@ select option{background:var(--surface2)}
 .mafia-tab-btn.active{background:var(--surface3);color:var(--text)}
 .mafia-tab-content{display:none}
 .mafia-tab-content.active{display:block}
+/* Mafia extra roles */
+.playing-card.card-detective{background:linear-gradient(145deg,#04101f 0%,#0b2547 40%,#04101f 100%);border:2px solid #1e40af}
+.card-detective .card-corner-rank,.card-detective .card-role-name{color:#60a5fa}
+.card-detective .card-inner-border{border:1px solid rgba(30,64,175,.45)}
+.playing-card.card-jester{background:linear-gradient(145deg,#14051f 0%,#2e0b47 40%,#14051f 100%);border:2px solid #7e22ce}
+.card-jester .card-corner-rank,.card-jester .card-role-name{color:#c084fc}
+.card-jester .card-inner-border{border:1px solid rgba(126,34,206,.45)}
+.playing-card.card-bodyguard{background:linear-gradient(145deg,#1a1003 0%,#3d2606 40%,#1a1003 100%);border:2px solid #b45309}
+.card-bodyguard .card-corner-rank,.card-bodyguard .card-role-name{color:#f59e0b}
+.card-bodyguard .card-inner-border{border:1px solid rgba(180,83,9,.45)}
+.role-action-box{padding:12px 14px;border-radius:var(--radius);margin:10px 0 0;font-size:12px;font-family:'JetBrains Mono',monospace;line-height:1.6}
+.role-action-box.detective{background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.3);color:#93c5fd}
+.role-action-box.jester{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.3);color:#d8b4fe}
+.role-action-box.bodyguard{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);color:#fcd34d}
+.mafia-role-toggles-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:16px 2px -4px}
+.dawn-title.jester{color:#c084fc}
+.result-banner.jester-wins{background:linear-gradient(135deg,#1f0a2e,#12051c);border:2px solid #a855f7;box-shadow:0 0 40px -10px rgba(168,85,247,.7)}
+.result-banner.jester-wins h2{color:#d8b4fe}
+/* Night role screen (detective / bodyguard) */
+.mr-wrap{width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.mr-head{text-align:center}
+.mr-eyebrow{font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.mr-title{font-size:28px;font-weight:800;line-height:1.15;margin-bottom:6px}
+.mr-sub{font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.mr-sub span{font-weight:700}
+.mr-panel{width:100%;box-sizing:border-box;padding:16px;border-radius:var(--radius-lg);animation:mvRise .45s cubic-bezier(.2,.8,.2,1) both}
+.mr-detective .mr-panel{background:linear-gradient(180deg,rgba(96,165,250,.12),var(--surface) 60%);border:1px solid rgba(96,165,250,.4)}
+.mr-bodyguard .mr-panel{background:linear-gradient(180deg,rgba(245,158,11,.12),var(--surface) 60%);border:1px solid rgba(245,158,11,.4)}
+.mr-detective .mr-eyebrow,.mr-detective .mr-sub span{color:#60a5fa}
+.mr-bodyguard .mr-eyebrow,.mr-bodyguard .mr-sub span{color:#f59e0b}
+.mr-detective .mv-pick.selected{border-color:#60a5fa;background:rgba(96,165,250,.14);box-shadow:0 0 0 3px rgba(96,165,250,.2)}
+.mr-detective .mv-pick-check{background:#3b82f6}
+.mr-bodyguard .mv-pick.selected{border-color:#f59e0b;background:rgba(245,158,11,.14);box-shadow:0 0 0 3px rgba(245,158,11,.2)}
+.mr-bodyguard .mv-pick-check{background:#d97706}
+.mr-confirm{color:#0a0a0f}
+.mr-detective .mr-confirm{background:#60a5fa}
+.mr-bodyguard .mr-confirm{background:#f59e0b}
+.mr-confirm:disabled{opacity:.35;cursor:not-allowed}
+.mr-result{perspective:900px;margin:2px 0 6px}
+.mr-result-card{position:relative;padding:22px 16px;border-radius:18px;text-align:center;animation:mrFlip .8s cubic-bezier(.2,.8,.2,1) both}
+.mr-result-card.is-mafia{background:linear-gradient(160deg,rgba(192,57,43,.3),rgba(26,5,5,.9));border:1px solid #e74c3c;box-shadow:0 0 40px -10px rgba(231,76,60,.7)}
+.mr-result-card.not-mafia{background:linear-gradient(160deg,rgba(39,174,96,.25),rgba(2,26,8,.9));border:1px solid #27ae60;box-shadow:0 0 40px -10px rgba(39,174,96,.6)}
+.mr-result-card.guard{background:linear-gradient(160deg,rgba(245,158,11,.22),rgba(26,16,3,.9));border:1px solid #f59e0b;box-shadow:0 0 40px -10px rgba(245,158,11,.6)}
+.mr-result-card>.av,.mr-result-card>.av-placeholder{width:64px;height:64px;margin:0 auto 10px;font-size:26px}
+.mr-result-verdict{font-size:26px;font-weight:800;margin-top:4px;letter-spacing:.5px}
+.is-mafia .mr-result-verdict{color:#ff6b5b}
+.not-mafia .mr-result-verdict{color:#4ade80}
+.guard .mr-result-verdict{color:#fbbf24}
+.mr-result-sub{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:6px;line-height:1.5}
+.mr-result-card.rest{background:linear-gradient(160deg,rgba(96,165,250,.14),rgba(4,16,31,.9));border:1px solid rgba(96,165,250,.45)}
+.rest .mr-result-verdict{color:#93c5fd}
+.mr-pair{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:6px}
+.mr-pair>div{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:14px;font-weight:700;min-width:0;max-width:110px}
+.mr-pair>div span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.mr-pair .av,.mr-pair .av-placeholder{width:54px;height:54px;font-size:22px}
+.mr-pair>b{font-size:20px;color:var(--muted);margin-bottom:22px}
+.mr-hint{font-size:12px;color:#93c5fd;font-family:'JetBrains Mono',monospace;text-align:center;margin:-2px 0 12px;line-height:1.5}
+.mr-notes{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.mr-note{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--surface2);font-size:13px}
+.mr-note b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mr-note-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;padding:3px 7px;border-radius:6px;font-weight:700}
+.mr-note-tag.bad{background:rgba(231,76,60,.15);color:#ff6b5b}
+.mr-note-tag.good{background:rgba(39,174,96,.15);color:#4ade80}
+.mr-note-night{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+@keyframes mrFlip{0%{opacity:0;transform:rotateY(-90deg) scale(.9)}60%{opacity:1;transform:rotateY(10deg)}100%{transform:none}}
+/* Dawn story */
+.ds-lines{display:flex;flex-direction:column;gap:14px;max-width:340px;margin:0 auto;min-height:150px}
+.ds-line{font-size:17px;line-height:1.55;color:var(--muted);opacity:0;transform:translateY(10px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1),color .7s}
+.ds-line.show{opacity:1;transform:none}
+.ds-line.show.latest{color:var(--text)}
+.ds-line em{font-style:normal;font-weight:700;color:var(--text)}
+.ds-line.final{font-size:22px;font-weight:800;color:var(--text);margin-top:4px}
+.ds-line.final.death em{color:var(--spy)}
+.ds-line.final.saved em,.ds-line.final em.safe{color:var(--safe)}
+.ds-outcome{opacity:0;transform:scale(.88);transition:opacity .5s ease,transform .7s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.ds-outcome.show{opacity:1;transform:none;pointer-events:auto}
+.ds-outcome .dawn-icon,.ds-outcome .dawn-title{animation:none}
+.ds-skip{position:fixed;right:16px;bottom:16px;z-index:5;padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;cursor:pointer}
+.ds-skip.hide{display:none}
+@media (prefers-reduced-motion:reduce){.ds-line,.ds-outcome{transition:none}.mr-result-card{animation:none}}
 /* Mafia discussion ring timer */
 .mafia-ring-wrap{position:relative;width:184px;height:184px;margin:4px auto 2px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .mafia-ring-wrap svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
@@ -734,6 +814,57 @@ select option{background:var(--surface2)}
 .clicker-prev-trail{width:64px;height:40px}
 .case-tile .clicker-prev-skin{width:42px;height:42px}
 .case-tile .clicker-prev-trail{width:60px;height:36px}
+/* Halloween: avatar overlays */
+.av-ov-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;overflow:visible;box-sizing:content-box;vertical-align:middle}
+.av-ov-wrap .av-ov-photo{width:100%;height:100%;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:.85em;background:var(--surface3)}
+.av-ov{position:absolute;pointer-events:none;background-repeat:no-repeat;background-size:100% 100%}
+.av-frame-pumpkin{border-color:transparent!important;background:transparent!important}
+.av-ov-pumpkin{inset:-32%;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M49 15c-2-6 1-11 7-13l3 4c-4 2-5 5-4 9z' fill='%2365a30d'/><path d='M57 5c6-3 13-1 16 4-6 1-11 0-16-4z' fill='%2384cc16'/><ellipse cx='50' cy='53' rx='48' ry='41' fill='%23c2410c'/><ellipse cx='29' cy='53' rx='23' ry='39' fill='%23ea580c'/><ellipse cx='71' cy='53' rx='23' ry='39' fill='%23ea580c'/><ellipse cx='50' cy='53' rx='19' ry='41' fill='%23f97316'/><circle cx='50' cy='50' r='31.8' fill='none' stroke='%237c2d12' stroke-width='3'/></svg>");-webkit-mask:radial-gradient(closest-side,transparent 60.5%,#000 61.5%);mask:radial-gradient(closest-side,transparent 60.5%,#000 61.5%);filter:drop-shadow(0 0 4px rgba(249,115,22,.55))}
+.av-frame-witchhat{border-color:#7CFF4F!important;box-shadow:0 0 8px rgba(124,255,79,.45)}
+.av-ov-witchhat{left:-18%;right:-18%;top:-74%;height:94%;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'><path d='M4 66 Q50 50 96 66 Q50 80 4 66z' fill='%23140b1f' stroke='%237CFF4F' stroke-width='1.2'/><path d='M26 63 L47 12 Q52 1 61 5 Q68 9 72 18 Q63 12 57 17 L74 63z' fill='%232a1840' stroke='%237CFF4F' stroke-width='1.2'/><path d='M29 56 L71 56 L74 63 L26 63z' fill='%23f97316'/><rect x='44' y='54.5' width='11' height='9' rx='1' fill='none' stroke='%23fde68a' stroke-width='2'/></svg>");transform:rotate(-9deg);transform-origin:50% 100%;filter:drop-shadow(0 0 3px rgba(124,255,79,.5))}
+.av-frame-spiderweb{border-color:#d1d5db!important}
+.av-ov-spiderweb{inset:-8%;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23e5e7eb' stroke-opacity='.9' stroke-width='2' stroke-linecap='round'><path d='M6 6L66 12M6 6L58 44M6 6L42 60M6 6L12 66'/><path d='M24 8Q22 15 21 18Q17 21 15 24Q12 21 8 24'/><path d='M42 10Q37 22 35 28Q27 33 24 39Q17 37 10 42'/><path d='M60 12Q52 30 49 37Q38 46 34 53Q24 53 11 60'/></svg>")}
+.av-ov-spider{position:absolute;right:-6%;top:-22%;width:30%;height:48%;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 64'><line x1='20' y1='0' x2='20' y2='32' stroke='%23e5e7eb' stroke-width='1'/><g stroke='%237CFF4F' stroke-width='2.4' fill='none' stroke-linecap='round'><path d='M14 36l-9-7M13 41h-10M14 46l-9 7M26 36l9-7M27 41h10M26 46l9 7'/></g><circle cx='20' cy='42' r='8' fill='%231b0f2b' stroke='%237CFF4F' stroke-width='1.4'/><circle cx='20' cy='33' r='5' fill='%231b0f2b' stroke='%237CFF4F' stroke-width='1.2'/><circle cx='18.2' cy='32.4' r='1.2' fill='%23ef4444'/><circle cx='21.8' cy='32.4' r='1.2' fill='%23ef4444'/></svg>") no-repeat center/100% 100%;animation:spiderBob 2.8s ease-in-out infinite;transform-origin:50% 0}
+.av-frame-ghostly{border-color:#dcfce7!important;box-shadow:0 0 10px rgba(220,252,231,.7),0 0 22px rgba(124,255,79,.35);animation:frameGhostly 3.2s ease-in-out infinite}
+@keyframes spiderBob{0%,100%{transform:translateY(0)}50%{transform:translateY(22%)}}
+@keyframes frameGhostly{0%,100%{box-shadow:0 0 8px rgba(220,252,231,.55),0 0 18px rgba(124,255,79,.25)}50%{box-shadow:0 0 14px rgba(220,252,231,.9),0 0 30px rgba(124,255,79,.5)}}
+@keyframes toxicGlow{0%,100%{color:#7CFF4F;text-shadow:0 0 6px rgba(124,255,79,.7)}50%{color:#d9ffbf;text-shadow:0 0 12px rgba(124,255,79,1),0 0 26px rgba(124,255,79,.55)}}
+.shop-season-pill{margin-left:4px;background:rgba(249,115,22,.15);color:#ff7a1a}
+.shop-tab-season{color:#ff7a1a}
+.shop-tab-season.active{background:#ff7a1a;color:#0a0a0f}
+/* Halloween: site theme */
+body.season-halloween .logo span{color:#7CFF4F;text-shadow:0 0 12px rgba(124,255,79,.75),0 0 32px rgba(124,255,79,.35);animation:hwGlow 3.2s ease-in-out infinite}
+body.season-halloween .tagline{color:#a3e635;text-shadow:0 0 8px rgba(124,255,79,.35)}
+body.season-halloween .card h2{color:#c6ffa3;text-shadow:0 0 10px rgba(124,255,79,.45)}
+body.season-halloween.hw-ambient::before,body.season-halloween.hw-ambient::after{content:'';position:fixed;top:0;width:150px;height:150px;pointer-events:none;z-index:-1;opacity:.4;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23e5e7eb' stroke-opacity='.9' stroke-width='2' stroke-linecap='round'><path d='M6 6L66 12M6 6L58 44M6 6L42 60M6 6L12 66'/><path d='M24 8Q22 15 21 18Q17 21 15 24Q12 21 8 24'/><path d='M42 10Q37 22 35 28Q27 33 24 39Q17 37 10 42'/><path d='M60 12Q52 30 49 37Q38 46 34 53Q24 53 11 60'/></svg>") no-repeat 0 0/100% 100%}
+body.season-halloween.hw-ambient::before{left:0}
+body.season-halloween.hw-ambient::after{right:0;transform:scaleX(-1)}
+.hw-fog{position:fixed;left:0;right:0;bottom:0;height:28vh;pointer-events:none;z-index:-1;background:radial-gradient(ellipse 70% 100% at 50% 110%,rgba(124,255,79,.10),transparent 70%);display:none}
+body.season-halloween .hw-fog{display:block}
+.hw-bats{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden;display:none}
+body.season-halloween.hw-ambient .hw-bats{display:block}
+.hw-bat{position:absolute;left:0;width:var(--sz);height:calc(var(--sz)*.5);opacity:.7;animation:hwBatAcross var(--dur) linear forwards}
+.hw-bat.rtl{animation-name:hwBatBack}
+.hw-bat i{display:block;width:100%;height:100%;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'><path d='M20 8 Q16 2 10 3 Q12 6 8 8 Q4 6 0 9 Q8 10 12 15 Q16 12 20 15 Q24 12 28 15 Q32 10 40 9 Q36 6 32 8 Q28 6 30 3 Q24 2 20 8z' fill='%23261d33' stroke='%23a78bfa' stroke-opacity='.55' stroke-width='.8'/></svg>") no-repeat center/contain;animation:hwBatBob 1.6s ease-in-out infinite}
+@keyframes hwBatAcross{from{transform:translateX(-40px)}to{transform:translateX(calc(100vw + 40px))}}
+@keyframes hwBatBack{from{transform:translateX(calc(100vw + 40px)) scaleX(-1)}to{transform:translateX(-40px) scaleX(-1)}}
+@keyframes hwBatBob{0%,100%{transform:translateY(0) scaleY(1)}25%{transform:translateY(-6px) scaleY(.55)}50%{transform:translateY(0) scaleY(1)}75%{transform:translateY(5px) scaleY(.6)}}
+@keyframes hwFlap{from{transform:scaleY(1)}to{transform:scaleY(.45)}}
+@keyframes hwGlow{0%,100%{text-shadow:0 0 10px rgba(124,255,79,.6),0 0 26px rgba(124,255,79,.25)}50%{text-shadow:0 0 16px rgba(124,255,79,.95),0 0 40px rgba(124,255,79,.45)}}
+@media (prefers-reduced-motion:reduce){.av-ov-spider,.av-frame-ghostly,body.season-halloween .logo span{animation:none}.hw-bats{display:none!important}}
+/* Spyfall stuck questions */
+.stuck-btn{display:block;width:100%;margin:2px 0 10px;padding:9px 12px;border-radius:999px;border:1px dashed var(--border);background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;transition:color .15s,border-color .15s}
+.stuck-btn:hover{color:var(--accent);border-color:var(--accent)}
+.stuck-sheet{position:fixed;inset:0;z-index:10030;display:none;align-items:flex-end;justify-content:center;padding:16px;background:rgba(5,5,8,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.stuck-sheet.open{display:flex;animation:fadeIn .2s ease}
+.stuck-card{width:100%;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:22px 20px 18px;box-shadow:0 -10px 60px rgba(0,0,0,.6);animation:stuckUp .4s cubic-bezier(.2,.8,.2,1) both;margin-bottom:max(8px,env(safe-area-inset-bottom))}
+.stuck-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);text-align:center}
+.stuck-q{font-size:22px;font-weight:800;text-align:center;line-height:1.3;margin:12px 0 10px;min-height:58px;display:flex;align-items:center;justify-content:center}
+.stuck-q.swap{animation:stuckSwap .35s cubic-bezier(.2,.8,.2,1)}
+.stuck-tip{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;text-align:center;line-height:1.5}
+.stuck-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:10px;margin-top:16px}
+@keyframes stuckUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes stuckSwap{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 /* Daily deal */
 .shop-deal{position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;padding:14px 12px;margin-bottom:4px;border-radius:var(--radius);border:1px solid rgba(255,216,107,.45);background:linear-gradient(120deg,rgba(255,216,107,.10),rgba(28,28,38,1) 60%)}
 .shop-deal>*:not(.shop-deal-glow){position:relative}
@@ -1810,7 +1941,35 @@ body{
             </label>
           </div>
         </div>
-        <div class="notice mafia" style="margin-top:4px">🃏 Roles: Mafia, Townspeople, and optionally Doctor. Mafia win when they equal or outnumber Town. Town wins by eliminating all Mafia.</div>
+        <div class="mafia-role-toggles-label">Extra roles</div>
+        <div class="chaos-toggle-wrap" id="mafiaRoleWrap_detective" style="background:rgba(30,30,40,0.5);border-color:rgba(42,42,58,0.8)">
+          <div class="chaos-toggle-header">
+            <div>
+              <div class="chaos-title" style="color:#60a5fa">🔍 DETECTIVE</div>
+              <div class="chaos-desc">Checks two players at once (is one of them Mafia?), then rests a night.</div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" id="mafiaRoleToggle_detective" onchange="toggleMafiaExtraRole('detective')"/><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="chaos-toggle-wrap" id="mafiaRoleWrap_jester" style="background:rgba(30,30,40,0.5);border-color:rgba(42,42,58,0.8)">
+          <div class="chaos-toggle-header">
+            <div>
+              <div class="chaos-title" style="color:#c084fc">🃏 JESTER</div>
+              <div class="chaos-desc">Wins the whole game if the town votes them out.</div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" id="mafiaRoleToggle_jester" onchange="toggleMafiaExtraRole('jester')"/><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="chaos-toggle-wrap" id="mafiaRoleWrap_bodyguard" style="background:rgba(30,30,40,0.5);border-color:rgba(42,42,58,0.8)">
+          <div class="chaos-toggle-header">
+            <div>
+              <div class="chaos-title" style="color:#f59e0b">🛡️ BODYGUARD</div>
+              <div class="chaos-desc">Guards one player each night and dies in their place.</div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" id="mafiaRoleToggle_bodyguard" onchange="toggleMafiaExtraRole('bodyguard')"/><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="notice mafia" style="margin-top:4px">🃏 Mafia win when they equal or outnumber everyone else. Town wins by eliminating all Mafia. Extra roles go to non-Mafia players, and there's always at least one plain Civilian.</div>
       </div>
       <!-- FA SETTINGS -->
       <div id="faSettings" style="display:none">
@@ -2015,6 +2174,7 @@ body{
           </div>
           <button class="hide-toggle-btn" id="hideGameRoleBtn" onclick="toggleGameRoleVisibility()">🙈 Hide my role</button>
         </div>
+        <button class="stuck-btn" onclick="openStuckQuestion()">😶 Stuck? Get a question</button>
         <div class="flex-row" id="timerControls">
           <button class="btn btn-secondary" id="timerToggleBtn" onclick="toggleTimer()">Pause</button>
           <button class="btn btn-danger" style="flex:0.7" onclick="endGameEarly()">End Round</button>
@@ -2213,6 +2373,7 @@ body{
             <div style="font-size:13px;color:var(--muted)">Role hidden — tap to peek</div>
           </div>
           <button class="hide-toggle-btn" id="hideMafiaRoleBtn" onclick="toggleMafiaGameRoleVisibility()">🙈 Hide my role</button>
+          <div id="mafiaRoleExtra"></div>
         </div>
         <div id="mafiaVoteSection">
           <div class="notice mafia" id="mafiaVoteNotice" style="margin-bottom:10px">Vote to eliminate someone — most votes wins.</div>
@@ -2327,6 +2488,19 @@ body{
     <div id="mafiaSaveSubmitted" style="display:none;text-align:center">
       <div style="font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--doctor)">✓ Protection chosen — waiting for dawn...</div>
     </div>
+    <button class="btn btn-secondary clicker-launch-btn" onclick="openChrispyClicker()">🎮 Play Chrispy Clicker</button>
+  </div>
+</div>
+
+<!-- MAFIA: NIGHT — DETECTIVE / BODYGUARD -->
+<div class="screen scrollable" id="screen-mafia-night-role">
+  <div class="mr-wrap" id="mrWrap">
+    <div class="mr-head">
+      <div class="mr-eyebrow" id="mrEyebrow">🌙 Night Phase</div>
+      <div class="mr-title" id="mrTitle">Who will you<br>investigate?</div>
+      <div class="mr-sub"><span id="mafiaRoleTimerDisplay">00:30</span> until dawn</div>
+    </div>
+    <div id="mrStage" style="width:100%"></div>
     <button class="btn btn-secondary clicker-launch-btn" onclick="openChrispyClicker()">🎮 Play Chrispy Clicker</button>
   </div>
 </div>
@@ -2576,6 +2750,19 @@ body{
   </div>
 </div>
 
+<!-- SPYFALL: STUCK? QUESTION SHEET -->
+<div class="stuck-sheet" id="stuckSheet" onclick="closeStuckQuestion(event)">
+  <div class="stuck-card">
+    <div class="stuck-eyebrow">Ask someone</div>
+    <div class="stuck-q" id="stuckQ"></div>
+    <div class="stuck-tip">Spies: keep answers vague. Everyone else: watch for dodgy ones.</div>
+    <div class="stuck-actions">
+      <button class="btn btn-secondary" onclick="nextStuckQuestion()">Another</button>
+      <button class="btn btn-primary" onclick="closeStuckQuestion()">Got it</button>
+    </div>
+  </div>
+</div>
+
 <!-- CASE DROP POP UP -->
 <div class="case-drop-backdrop" id="caseDropBackdrop" onclick="closeCaseDrop(event)">
   <div class="case-drop-card">
@@ -2727,10 +2914,55 @@ const OOO_DISCUSS_DURATION = 30;
 const MAFIA_DAY_TIMER_FIRST = 30;
 const MAFIA_DAY_TIMER_REST = 5*60;
 const MAFIA_DISCUSS_TIMER = 5*60;
+const MAFIA_EXTRA_ROLES=['detective','jester','bodyguard'];
+const MAFIA_ROLE_META={
+  mafia:{label:'MAFIA',icon:'🔴',color:'#e74c3c'},
+  doctor:{label:'DOCTOR',icon:'💚',color:'var(--doctor)'},
+  town:{label:'CIVILIAN',icon:'⬜',color:'var(--muted)'},
+  detective:{label:'DETECTIVE',icon:'🔍',color:'#60a5fa',tint:'rgba(96,165,250,0.07)',border:'rgba(96,165,250,0.35)'},
+  jester:{label:'JESTER',icon:'🃏',color:'#c084fc',tint:'rgba(192,132,252,0.07)',border:'rgba(192,132,252,0.35)'},
+  bodyguard:{label:'BODYGUARD',icon:'🛡️',color:'#f59e0b',tint:'rgba(245,158,11,0.07)',border:'rgba(245,158,11,0.35)'},
+};
+// Dawn stories. {d} = a decoy who seems to be in danger, {v} = victim (or the one saved),
+// {t} = the Mafia's target, {g} = the Bodyguard. The last line is the reveal.
+const MAFIA_DAWN_STORIES={
+  kill:[
+    ["The town went to sleep.","Around midnight, footsteps stopped outside {d}'s door.","The handle turned. Slowly.","{d} held their breath...","...but the footsteps moved on.","Next door, {v} never woke up."],
+    ["A storm rolled in last night.","{d} heard glass smash downstairs.","They grabbed the closest weapon. A frying pan.","It was just the cat.","Across town, the Mafia weren't playing around.","{v} was found at sunrise."],
+    ["{d} couldn't sleep, so they went for a walk.","A black car crept up behind them.","The window rolled down...","\"Not you,\" said a voice. The car drove off.","It stopped outside {v}'s house instead.","{v} is dead."],
+    ["The Mafia met in the dark.","\"We go for {d} tonight,\" one of them said.","Everyone nodded.","Then someone changed their mind.","{v} is dead."],
+    ["{d} woke at 3am to a knock.","Knock. Knock. Knock.","They opened the door...","...a pizza guy. Wrong address.","Two streets over, {v} opened their door too.","{v} wasn't so lucky."],
+    ["Word got around that {d} was next.","{d} barricaded the door and stayed up all night.","Nobody came.","The Mafia had already picked someone else.","{v} is dead."],
+    ["{d} left their window open last night.","A shadow climbed the drainpipe.","It reached the top... and stopped.","Then it climbed back down and kept walking.","All the way to {v}'s house.","{v} is dead."],
+    ["The streetlights flickered out at midnight.","{d} saw someone standing in their garden.","They called out. No answer.","At sunrise the garden was empty.","But {v}'s front door was wide open.","{v} is dead."],
+  ],
+  saved:[
+    ["The Mafia picked their target: {d}.","At the last second, someone said \"no, not them.\"","They switched to {v}.","They crept in at midnight...","...and walked straight into the Doctor.","{v} survives."],
+    ["{d} saw a figure sneaking around the houses.","It stopped at {v}'s window.","The knife came out.","Then a torch flicked on. It was the Doctor.","{v} is alive."],
+    ["Everyone woke up expecting the worst.","{d} counted heads. One missing.","Panic.","Then {v} walked in with a bandage on their head.","The Doctor saved {v}."],
+    ["The Mafia were sure about tonight.","{d} looked like the easy pick.","But they went for {v} instead.","The Doctor was already waiting there.","Nobody died. {v} survives."],
+  ],
+  guard:[
+    ["Rumours said {d} was the target.","They weren't.","The Mafia came for {t}.","Someone stepped out of the dark and took the blade.","{g} was the Bodyguard. They died a hero."],
+    ["{d} heard a fight in the street.","Shouting. A crash. Then silence.","{t} is alive.","{g} gave their life to save them."],
+    ["Everyone thought {d} was finished.","The Mafia were already inside {t}'s house.","But the Bodyguard was faster.","{g} took the hit. {t} survives."],
+  ],
+  guardsaved:[
+    ["The Mafia came for {t}.","The Bodyguard jumped in the way.","The blade hit {g}...","...and the Doctor patched them up on the spot.","Nobody died. Not tonight."],
+    ["{d} heard a scream around 2am.","Everyone feared the worst.","{g} had blocked the Mafia's attack on {t}.","Then the Doctor showed up just in time.","Everyone made it to morning."],
+  ],
+  quiet:[
+    ["The night was quiet.","Too quiet.","{d} swore they heard whispers by the river...","Just the wind.","Nobody died."],
+    ["The Mafia argued all night.","Nobody could agree on a name.","{d}'s name came up. Twice.","In the end they all went home.","Nobody died."],
+    ["{d} woke up screaming.","A nightmare. Only a nightmare.","Everyone made it to morning."],
+    ["The Mafia watched {d}'s house for hours.","The lights went off.","They waited...","...and then they just went home.","Nobody died last night."],
+  ],
+};
+function mafiaRoleLabels(){const o={};Object.entries(MAFIA_ROLE_META).forEach(([k,m])=>{o[k]=m.label;});return o;}
 const MAFIA_NIGHT_TIMER = 30;
 // Screens the Clicker popup is allowed to stay open on. Anything else — a game
 // starting, the night ending — closes it automatically.
-const CLICKER_OPEN_SCREENS = ['home','lobby','waiting','mafia-night-mafia','mafia-night-doctor','mafia-night-town'];
+const CLICKER_OPEN_SCREENS = ['home','lobby','waiting','mafia-night-mafia','mafia-night-doctor','mafia-night-role','mafia-night-town'];
 
 // =====================================================
 // STATE
@@ -2741,7 +2973,7 @@ let myProfile={coins:0,wins:0,ownedItems:{},equipped:{}};
 let currentShopTab='names';
 const REWARD_AMOUNTS={
   spyfall:{spy:100,innocent:10},
-  mafia:{mafia:100,civilian:50},
+  mafia:{mafia:100,civilian:50,jester:150},
   bs:{imposter:150,innocent:50},
   ooo:{imposter:75,normal:10},
   fa:{imposter:75,normal:10},
@@ -2804,6 +3036,20 @@ const SHOP_ITEMS=[
   {id:'clicker_plasma',type:'clickerSkin',label:'Plasma Orb',price:2200,value:'plasma'},
   {id:'clicker_prism',type:'clickerSkin',label:'Prism Ball',price:2500,value:'prism'},
   {id:'clicker_blackhole',type:'clickerSkin',label:'Black Hole',price:3000,value:'blackhole'},
+  // --- Halloween (limited, October only — owned forever) ---
+  {id:'frame_pumpkin',type:'avatarFrame',label:'Pumpkin Head',price:800,value:'pumpkin',season:'halloween'},
+  {id:'frame_witchhat',type:'avatarFrame',label:"Witch's Hat",price:600,value:'witchhat',season:'halloween'},
+  {id:'frame_spiderweb',type:'avatarFrame',label:'Spider Web',price:500,value:'spiderweb',season:'halloween'},
+  {id:'frame_ghostly',type:'avatarFrame',label:'Ghostly Glow',price:450,value:'ghostly',season:'halloween'},
+  {id:'animated_toxic_glow',type:'animatedName',label:'Toxic Glow Name',price:400,value:'toxicGlow',season:'halloween'},
+  {id:'name_pumpkin',type:'nameColor',label:'Pumpkin Orange Name',price:150,value:'#ff7a1a',season:'halloween'},
+  {id:'clicker_jackolantern',type:'clickerSkin',label:"Jack-o'-Lantern",price:900,value:'jackolantern',season:'halloween'},
+  {id:'clicker_potion',type:'clickerSkin',label:'Witch Potion',price:1100,value:'potion',season:'halloween'},
+  {id:'trail_bats',type:'clickerTrail',label:'Bat Swarm',price:700,value:'bats',season:'halloween'},
+  {id:'trail_ecto',type:'clickerTrail',label:'Ectoplasm',price:1000,value:'ecto',season:'halloween'},
+  {id:'world_haunted',type:'clickerWorld',label:'Haunted World',price:0,value:'haunted',unlockedBy:['frame_pumpkin','frame_witchhat','frame_spiderweb','frame_ghostly'],season:'halloween'},
+  {id:'title_pumpkinking',type:'title',label:'Pumpkin King',price:600,value:'pumpkinking',season:'halloween'},
+  {id:'title_witchinghour',type:'title',label:'Witching Hour',price:600,value:'witchinghour',season:'halloween'},
   // --- Chrispy Clicker trails ---
   {id:'trail_none',type:'clickerTrail',label:'No Trail',price:0,value:'none',free:true},
   {id:'trail_embers',type:'clickerTrail',label:'Ember Trail',price:350,value:'embers'},
@@ -3000,6 +3246,8 @@ function activePackLabels(){
 }
 const TITLES={
   rookie:{label:'ROOKIE',color:'#9494a8'},
+  pumpkinking:{label:'PUMPKIN KING',color:'#ff7a1a'},
+  witchinghour:{label:'WITCHING HOUR',color:'#7CFF4F'},
   regular:{label:'THE REGULAR',color:'#9494a8'},
   warmbody:{label:'WARM BODY',color:'#9494a8'},
   vibes:{label:'VIBES ONLY',color:'#4de8a0'},
@@ -3029,7 +3277,7 @@ let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTime
 let roleVisible=true,revealVisible=true,mafiaCardVisible=true;
 let lastSpyGuessCorrect=null,spyGuessFlashTimeout=null;
 let selectedGuessIndex=null; // spy's tapped location on the Locations tab, null = nothing tapped
-let localSpyCount=1,localMultiSpyMode=false,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localMafiaOG=false,localFaWords=3,localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;let localGuessDiscussMinutes=5,localGuessRounds=3,guessTimerInterval=null;
+let localSpyCount=1,localMultiSpyMode=false,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localMafiaOG=false,localMafiaExtra={detective:false,jester:false,bodyguard:false},localFaWords=3,localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;let localGuessDiscussMinutes=5,localGuessRounds=3,guessTimerInterval=null;
 let chatListener=null,mafiaPrivateChatListener=null;
 // Night phase local state
 let mafiaKillDecision=null; // 'yes'|'no' — local kill decision before committing
@@ -3055,6 +3303,7 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
   document.body.classList.toggle('no-scroll',id==='game');
+  if(typeof hwUpdateAmbient==='function')hwUpdateAmbient(id);
   if(typeof refreshLeaveButtons==='function')refreshLeaveButtons();
 }
 function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
@@ -3090,6 +3339,7 @@ function saveLocalProfile(){
       winsByMode:myProfile.winsByMode||{},
       clickerBest:myProfile.clickerBest||0,
       clickerMilestones:myProfile.clickerMilestones||{},
+      clickerCoinDay:myProfile.clickerCoinDay||null,
       name:myProfile.name||'',
       avatar:myProfile.avatar||myAvatar||null,
       savedAt:Date.now()
@@ -3108,6 +3358,7 @@ function normaliseProfile(saved){
     winsByMode:saved.winsByMode||{},
     clickerBest:saved.clickerBest||0,
     clickerMilestones:saved.clickerMilestones||{},
+    clickerCoinDay:saved.clickerCoinDay||null,
     name:saved.name||'',
     avatar:saved.avatar||myAvatar||null
   };
@@ -3321,12 +3572,18 @@ function renderShop(){
   updateCaseBadge();updateHostPerkUI();updateClickerBestLabels();
   const coinsEl=document.getElementById('coinBalance');if(coinsEl)coinsEl.textContent=myProfile.coins||0;
   const winsEl=document.getElementById('winCount');if(winsEl)winsEl.textContent=myProfile.wins||0;
-  ['names','frames','wins','clicker','titles','packs','extras','owned'].forEach(t=>{
+  ['names','frames','wins','clicker','titles','packs','extras','halloween','owned'].forEach(t=>{
     const el=document.getElementById('shopTab'+t.charAt(0).toUpperCase()+t.slice(1));
     if(el)el.classList.toggle('active',t===currentShopTab);
   });
   const list=document.getElementById('shopItems');if(!list)return;
+  const season=activeSeason();
+  const seasonTab=document.getElementById('shopTabHalloween');if(seasonTab)seasonTab.style.display=season==='halloween'?'':'none';
+  if(currentShopTab==='halloween'&&season!=='halloween')currentShopTab='names';
   let items=SHOP_ITEMS.filter(item=>{
+    // Seasonal items only show in season, unless you already own them.
+    if(item.season&&item.season!==season&&!itemIsOwned(item))return false;
+    if(currentShopTab==='halloween')return item.season==='halloween';
     if(currentShopTab==='names')return isNameShopItem(item);
     if(currentShopTab==='frames')return item.type==='avatarFrame';
     if(currentShopTab==='wins')return item.type==='winAnim';
@@ -3355,10 +3612,10 @@ function renderShop(){
           ?`<s>${item.price}</s> <img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${shopPrice(item)} coins · deal`
           :`<img src="coin-icon-2.png" class="coin-icon-sm" alt=""/> ${item.price} coins`;
     const sellBtn=(owned&&itemIsSellable(item))?`<button class="btn shop-item-btn shop-sell-btn" onclick="sellItem('${item.id}')">Sell</button>`:'';
-    const category=`<span class="shop-type-pill">${shopItemCategory(item)}</span>`;
+    const category=`<span class="shop-type-pill">${shopItemCategory(item)}</span>${item.season?'<span class="shop-type-pill shop-season-pill">🎃 Limited</span>':''}`;
     return `<div class="shop-item">${shopItemPreview(item)}<div class="shop-item-info"><div class="shop-item-name">${item.label}</div><div class="shop-item-price">${priceText}</div>${category}</div><div class="shop-item-actions"><button class="btn ${mainBtnClass} shop-item-btn" onclick="buyOrEquipItem('${item.id}')" ${equipped||(owned&&isPassiveShopItem(item))||(!owned&&(!canBuy||item.unlockedBy))?'disabled':''}>${owned?label:(item.unlockedBy?'Locked':label)}</button>${sellBtn}</div></div>`;
   }).join('');
-  if(currentShopTab!=='owned')list.insertAdjacentHTML('afterbegin',dailyDealHtml());
+  if(currentShopTab!=='owned'&&currentShopTab!=='halloween')list.insertAdjacentHTML('afterbegin',dailyDealHtml());
 }
 function refreshMyCosmeticsDisplay(){
   if(localGame&&localGame.players&&localGame.players[myId]){
@@ -3499,7 +3756,7 @@ const CASE_TILE=92;         // reel tile width + gap, must match the CSS
 const CASE_WIN_INDEX=52;
 let caseSpinning=false;
 
-function caseLootPool(){return SHOP_ITEMS.filter(i=>i.price>0&&!i.free&&!i.unlockedBy);}
+function caseLootPool(){return SHOP_ITEMS.filter(i=>i.price>0&&!i.free&&!i.unlockedBy&&!i.season);}
 function caseById(id){return CASES.find(c=>c.id===id);}
 function myCaseCount(id){return (myProfile.cases||{})[id]||0;}
 function caseOddsText(cs){
@@ -3906,8 +4163,10 @@ function rewardDataForGame(game){
   // Mafia final result
   if(game.mode==='mafia'&&game.status==='result'&&game.mafiaResult){
     const mafiaIds=game.mafiaIds||[];
+    const roles=game.mafiaRoles||{};
     if(game.mafiaResult.winner==='mafia')mafiaIds.forEach(id=>add(id,REWARD_AMOUNTS.mafia.mafia));
-    else players.filter(p=>!mafiaIds.includes(p.id)).forEach(p=>add(p.id,REWARD_AMOUNTS.mafia.civilian));
+    else if(game.mafiaResult.winner==='jester')players.filter(p=>roles[p.id]==='jester').forEach(p=>add(p.id,REWARD_AMOUNTS.mafia.jester));
+    else players.filter(p=>!mafiaIds.includes(p.id)&&roles[p.id]!=='jester').forEach(p=>add(p.id,REWARD_AMOUNTS.mafia.civilian));
     const roundKey=rewardRoundKey(game,'mafia_round');
     if(!roundKey)return null;
     return {key:roundKey,mode:'mafia',rewards};
@@ -4263,6 +4522,40 @@ function handleMyRewardDisplays(game){
 }
 
 
+
+// Spyfall "Stuck?" questions — vague enough for spies, revealing enough to catch them.
+const SPYFALL_QUESTIONS=[
+  "What would you wear to come here?","How did you get here today?","How long do people usually stay here?","What does it smell like right now?",
+  "Would you bring your mum here?","Is it loud or quiet here?","What time of day is the busiest?","How much money should I bring?",
+  "Would a kid enjoy it here?","What's the worst thing that could happen here?","Do you need a ticket to get in?","Would you come here on a first date?",
+  "What do you do with your hands most of the day?","Who's in charge around here?","Is there food here? Is it any good?","Do you need a uniform here?",
+  "What would get you kicked out of here?","How would you describe the lighting?","What's one thing you'd never forget to bring?","Are there animals around?",
+  "Could you fall asleep here?","How dangerous is it here?","What noise do you hear the most?","Is it crowded right now?",
+  "What would your nan think of this place?","Do people here get paid well?","Who annoys you the most here?","Do people come here alone or in groups?",
+  "Would you need special training to be here?","What's on the walls?","What's the floor like?","Can you use your phone here?",
+  "Is there a dress code?","Would you come back next year?","How old is the average person here?","What would you do if the power went out?",
+  "Rate the vibe out of 10.","What would make today a bad day here?","Is anyone here in a rush?","Would you need a passport?",
+  "What's the first thing you see when you walk in?","Could you bring a dog?","Who would you call if something went wrong?","Is this place older than you?",
+  "Would you get sunburnt here?","Is there a queue?","What's the most expensive thing here?","What do people always forget here?",
+  "Would a celebrity come here?","How's the wifi?","Are you allowed to drink here?","What would you complain about in a review?",
+  "Do you have to be quiet here?","Is it hot or cold here?","What song would they play here?","Would you take a selfie here?",
+  "Are you here for work or for fun?","How would you get out in an emergency?","What's the best seat in the house?","Would you tip here? How much?",
+];
+let stuckDeck=[];
+function nextStuckQuestion(){
+  if(!stuckDeck.length)stuckDeck=shuffle([...SPYFALL_QUESTIONS]);
+  const q=document.getElementById('stuckQ');if(!q)return;
+  q.textContent=stuckDeck.pop();
+  q.classList.remove('swap');void q.offsetWidth;q.classList.add('swap');
+}
+function openStuckQuestion(){
+  nextStuckQuestion();
+  const sh=document.getElementById('stuckSheet');if(sh)sh.classList.add('open');
+}
+function closeStuckQuestion(event){
+  if(event&&event.target!==event.currentTarget)return;
+  const sh=document.getElementById('stuckSheet');if(sh)sh.classList.remove('open');
+}
 
 // Case drop pop up for the winner, a small toast for everyone else.
 function handleCaseDropDisplay(game,key,event){
@@ -5518,6 +5811,20 @@ function paintMafiaOGToggle(){
     wrap.style.borderColor=localMafiaOG?'rgba(192,57,43,0.4)':'rgba(42,42,58,0.8)';
   }
 }
+function paintMafiaExtraToggles(){
+  MAFIA_EXTRA_ROLES.forEach(r=>{
+    const on=!!localMafiaExtra[r],m=MAFIA_ROLE_META[r];
+    const t=document.getElementById('mafiaRoleToggle_'+r);if(t)t.checked=on;
+    const w=document.getElementById('mafiaRoleWrap_'+r);
+    if(w){w.style.background=on?m.tint:'rgba(30,30,40,0.5)';w.style.borderColor=on?m.border:'rgba(42,42,58,0.8)';}
+  });
+}
+function toggleMafiaExtraRole(role){
+  const t=document.getElementById('mafiaRoleToggle_'+role);
+  localMafiaExtra={...localMafiaExtra,[role]:!!(t&&t.checked)};
+  paintMafiaExtraToggles();
+  if(gameCode)updateGame(gameCode,{mafiaExtraRoles:localMafiaExtra});
+}
 function toggleMafiaOG(){
   localMafiaOG=document.getElementById('mafiaOGToggle').checked;
   paintMafiaOGToggle();
@@ -5977,7 +6284,7 @@ function onGameUpdate(game){
   // MAFIA
   if(game.mode==='mafia'&&game.status==='playing'){
     if(cur==='screen-mafia-reveal'){return;} // stay on reveal until player taps
-    const mafiaScreens=['screen-mafia-game','screen-mafia-vote','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town','screen-mafia-dawn'];
+    const mafiaScreens=['screen-mafia-game','screen-mafia-vote','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-role','screen-mafia-night-town','screen-mafia-dawn'];
     const phase=game.mafiaPhase;
     // Enter from lobby/waiting/other
     if(!mafiaScreens.includes(cur)&&cur!=='screen-mafia-reveal'){enterMafiaReveal(game);return;}
@@ -5994,7 +6301,7 @@ function onGameUpdate(game){
     }
     // Night transition
     if(phase==='night'){
-      const nightScreens=['screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-town'];
+      const nightScreens=['screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-role','screen-mafia-night-town'];
       if(!nightScreens.includes(cur)){enterMafiaNight(game);return;}
       updateMafiaNightScreens(game);
       return;
@@ -6350,6 +6657,11 @@ function renderLobby(game){
   }
 
   if(!!game.mafiaOG!==localMafiaOG){localMafiaOG=!!game.mafiaOG;paintMafiaOGToggle();}
+  const exRoles=game.mafiaExtraRoles||{};
+  if(MAFIA_EXTRA_ROLES.some(r=>!!exRoles[r]!==!!localMafiaExtra[r])){
+    localMafiaExtra={detective:!!exRoles.detective,jester:!!exRoles.jester,bodyguard:!!exRoles.bodyguard};
+    paintMafiaExtraToggles();
+  }
 
   localChaosMode=false;
   if(game.status==='lobby'&&game.chaosMode&&amHost){
@@ -6500,12 +6812,10 @@ async function startMafiaGame(){
   const nonMafia=shuffled.slice(count);
   const mafiaRoles={};
   mafiaIds.forEach(id=>{mafiaRoles[id]='mafia';});
-  const useDoctor=localDoctorEnabled&&nonMafia.length>1;
-  let doctorAssigned=false;
-  nonMafia.forEach(p=>{
-    if(!doctorAssigned&&useDoctor){mafiaRoles[p.id]='doctor';doctorAssigned=true;}
-    else{mafiaRoles[p.id]='town';}
-  });
+  // Special roles go to non-Mafia players, always leaving at least one plain Civilian.
+  const specials=[localDoctorEnabled?'doctor':null,...MAFIA_EXTRA_ROLES.filter(r=>localMafiaExtra[r])].filter(Boolean);
+  nonMafia.forEach(p=>{mafiaRoles[p.id]='town';});
+  specials.slice(0,Math.max(0,nonMafia.length-1)).forEach((r,i)=>{mafiaRoles[nonMafia[i].id]=r;});
   await updateGame(gameCode,{
     status:'playing',mode:'mafia',
     mafiaRoles,mafiaIds,
@@ -6516,7 +6826,7 @@ async function startMafiaGame(){
     mafiaNightStart:null,
     mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],
     mafiaResult:null,mafiaCount:count,
-    mafiaOG:localMafiaOG,mafiaDaySub:null,mafiaVoteOrder:null,mafiaVoteTurn:0,mafiaLastVotes:null,mafiaElimRevealNoVote:false,
+    mafiaOG:localMafiaOG,mafiaExtraRoles:localMafiaExtra,mafiaDetectVote:null,mafiaGuardVote:null,mafiaDetectiveLog:null,mafiaDawnStory:null,mafiaDawnGuarded:null,mafiaStoryUsed:null,mafiaDaySub:null,mafiaVoteOrder:null,mafiaVoteTurn:0,mafiaLastVotes:null,mafiaElimRevealNoVote:false,
     votes:{},result:null,
   });
 }
@@ -6529,6 +6839,9 @@ function getMafiaCardHTML(role){
     mafia:{cls:'card-mafia',rank:'M',suit:'♠',icon:'🔴',name:'MAFIA',desc:'Kill one each night.\nBlend in during the day.'},
     doctor:{cls:'card-doctor',rank:'Dr',suit:'♥',icon:'💚',name:'DOCTOR',desc:'Save one player\nfrom death each night.'},
     town:{cls:'card-town',rank:'C',suit:'♣',icon:'⬜',name:'CIVILIAN',desc:'Discuss by day.\nFind all Mafia.'},
+    detective:{cls:'card-detective',rank:'D',suit:'♦',icon:'🔍',name:'DETECTIVE',desc:'Check two players at once.\nIs one of them Mafia?'},
+    jester:{cls:'card-jester',rank:'J',suit:'★',icon:'🃏',name:'JESTER',desc:'Get voted out by the town.\nThat is how you win.'},
+    bodyguard:{cls:'card-bodyguard',rank:'B',suit:'♠',icon:'🛡️',name:'BODYGUARD',desc:'Guard one player each night.\nTake the hit for them.'},
   };
   const c=configs[role]||configs.town;
   // Generate suit pattern
@@ -6577,6 +6890,12 @@ function enterMafiaReveal(game){
       extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:#e74c3c;margin-bottom:6px">YOUR MAFIA TEAM</div><div style="font-family:'JetBrains Mono',monospace;font-size:14px">${teammates.map(n=>esc(n)).join(', ')}</div></div>`;
     } else if(role==='mafia'){
       extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;color:#e74c3c;font-family:'JetBrains Mono',monospace">You are the only Mafia member. Blend in.</div></div>`;
+    } else if(role==='detective'){
+      extra=`<div class="role-action-box detective" style="margin-top:12px">At night, pick two players. You'll find out if at least one of them is Mafia, but not which one. After a check you rest for a night. Don't get yourself killed.</div>`;
+    } else if(role==='jester'){
+      extra=`<div class="role-action-box jester" style="margin-top:12px">You're on nobody's team. If the town votes you out, you win the whole game. Act a bit suss, but not too suss.</div>`;
+    } else if(role==='bodyguard'){
+      extra=`<div class="role-action-box bodyguard" style="margin-top:12px">Each night, guard one player. If the Mafia come for them, you die in their place. Pick carefully.</div>`;
     } else if(role==='doctor'){
       extra=`<div class="doctor-action-box" style="margin-top:12px"><div style="font-size:12px;color:var(--doctor);font-family:'JetBrains Mono',monospace">Each night you can protect one player from being killed by Mafia.</div></div>`;
     }
@@ -6620,13 +6939,11 @@ function renderMafiaGame(game){
   document.getElementById('mafiaAdvanceBtn').textContent=(!og&&day>1)?'Skip to voting →':'Skip Vote → Go to Night';
   document.getElementById('mafiaDeadBanner').style.display=amDead?'block':'none';
 
-  const roleColors={mafia:'#e74c3c',doctor:'var(--doctor)',town:'var(--muted)'};
-  const roleIcons={mafia:'🔴',doctor:'💚',town:'⬜'};
-  const roleLabel={mafia:'MAFIA',doctor:'DOCTOR',town:'CIVILIAN'};
+  const meta=MAFIA_ROLE_META[myRole]||MAFIA_ROLE_META.town;
   const roleSummary=document.getElementById('mafiaRoleSummary');
   const roleHidden=document.getElementById('mafiaRoleHidden');
   const hideBtn=document.getElementById('hideMafiaRoleBtn');
-  if(roleSummary)roleSummary.innerHTML=`<span style="color:${roleColors[myRole]};font-weight:700">${roleIcons[myRole]} ${roleLabel[myRole]}</span>`;
+  if(roleSummary)roleSummary.innerHTML=`<span style="color:${meta.color};font-weight:700">${meta.icon} ${meta.label}</span>`;
   // Restore visibility state without resetting it on every re-render
   if(roleHidden&&roleHidden.style.display==='block'){
     if(roleSummary)roleSummary.style.display='none';
@@ -6635,6 +6952,11 @@ function renderMafiaGame(game){
     if(roleSummary)roleSummary.style.display='block';
     if(roleHidden)roleHidden.style.display='none';
     if(hideBtn)hideBtn.textContent='🙈 Hide my role';
+  }
+  const roleExtraEl=document.getElementById('mafiaRoleExtra');
+  if(roleExtraEl){
+    roleExtraEl.innerHTML=amDead?'':mafiaRoleExtraHTML(game,myRole);
+    roleExtraEl.style.display=(roleHidden&&roleHidden.style.display==='block')?'none':'block';
   }
 
   document.getElementById('mafiaPlayerStatusList').innerHTML=players.map(p=>{
@@ -6719,8 +7041,11 @@ function showMafiaEliminationReveal(game){
     const elimName=players[elimId].name;
     const isMafia=mafiaIds.includes(elimId);
     const role=(game.mafiaRoles&&game.mafiaRoles[elimId])||'town';
-    const rLabel={mafia:'MAFIA',doctor:'DOCTOR',town:'CIVILIAN'};
-    if(isMafia){
+    const rLabel=mafiaRoleLabels();
+    if(role==='jester'){
+      icon='🃏';titleCls='jester';title='The Jester wins!';
+      storyHTML=`<p class="dawn-story-text">The group voted out <em style="color:#c084fc">${esc(elimName)}</em>.</p><p class="dawn-story-text" style="margin-top:8px"><em style="color:#c084fc">${esc(elimName)}</em> was the <strong style="color:#c084fc">JESTER</strong>. That's exactly what they wanted.</p>`;
+    } else if(isMafia){
       icon='🎉';titleCls='saved';title='Mafia caught!';
       storyHTML=`<p class="dawn-story-text">The group voted out <em style="color:var(--spy)">${esc(elimName)}</em>.</p><p class="dawn-story-text saved-name" style="margin-top:8px"><em>${esc(elimName)}</em> was <strong>MAFIA</strong>. The civilians got one!</p>`;
     } else {
@@ -6731,7 +7056,10 @@ function showMafiaEliminationReveal(game){
     icon='🌙';titleCls='quiet';title='Night falls...';
     storyHTML=`<p class="dawn-story-text">Nobody was eliminated. The night begins.</p>`;
   }
-  const hostControls=amHost
+  const jesterWon=!!elimId&&!isTie&&!game.mafiaElimRevealDay1&&!game.mafiaElimRevealNoVote&&(game.mafiaRoles||{})[elimId]==='jester';
+  const hostControls=jesterWon
+    ?(amHost?`<button class="btn dawn-continue-btn" style="background:#c084fc;color:#0a0a0f" onclick="mafiaFinishJester()">See results →</button>`:`<div class="dawn-day-label" style="margin-top:8px">Waiting for host...</div>`)
+    :amHost
     ?`<div class="dawn-day-label" style="margin-bottom:12px">Night begins now</div><button class="btn btn-danger dawn-continue-btn" onclick="mafiaStartNightFromElim()" style="background:#e74c3c;color:#fff">Begin Night →</button>`
     :`<div class="dawn-day-label" style="margin-top:8px">Waiting for host to begin night...</div>`;
 
@@ -6752,7 +7080,7 @@ function showMafiaEliminationReveal(game){
 
 async function mafiaStartNightFromElim(){
   if(!amHost||!gameCode||!localGame)return;
-  await updateGame(gameCode,{mafiaPhase:'night',mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaNightStart:Date.now()});
+  await updateGame(gameCode,{mafiaPhase:'night',mafiaKillVotes:{},mafiaSaveVote:null,mafiaDetectVote:null,mafiaGuardVote:null,mafiaKillDecisions:{},mafiaNightStart:Date.now()});
 }
 
 
@@ -6793,6 +7121,7 @@ function enterMafiaNight(game){
   if(amDead){showScreen('mafia-night-town');renderMafiaTownWait(game);return;}
   if(myRole==='mafia'){showScreen('mafia-night-mafia');renderMafiaNightMafia(game);return;}
   if(myRole==='doctor'){showScreen('mafia-night-doctor');renderMafiaNightDoctor(game);return;}
+  if(myRole==='detective'||myRole==='bodyguard'){mafiaRoleStageKey='';showScreen('mafia-night-role');renderMafiaNightRole(game);return;}
   showScreen('mafia-night-town');renderMafiaTownWait(game);
 }
 
@@ -6800,6 +7129,7 @@ function updateMafiaNightScreens(game){
   const cur=(document.querySelector('.screen.active')||{}).id;
   if(cur==='screen-mafia-night-mafia')renderMafiaNightMafia(game);
   else if(cur==='screen-mafia-night-doctor')renderMafiaNightDoctor(game);
+  else if(cur==='screen-mafia-night-role')renderMafiaNightRole(game);
   else if(cur==='screen-mafia-night-town')renderMafiaTownWait(game);
 }
 
@@ -6904,6 +7234,7 @@ function startMafiaNightDecisionTimer(game){
     const timeStr=`${m}:${s}`;
     const kdEl=document.getElementById('mafiaKillDecisionTimer');if(kdEl){kdEl.textContent=timeStr;kdEl.style.color=remaining<20?'var(--spy)':'#e74c3c';}
     const sdEl=document.getElementById('mafiaSaveTimerDisplay');if(sdEl){sdEl.textContent=timeStr;sdEl.style.color=remaining<20?'var(--spy)':'var(--doctor)';}
+    const rlEl=document.getElementById('mafiaRoleTimerDisplay');if(rlEl)rlEl.textContent=timeStr;
     const twEl=document.getElementById('mafiaTownTimerDisplay');if(twEl){twEl.textContent=timeStr;twEl.style.color=remaining<20?'var(--spy)':'#e74c3c';}
     if(remaining===0){clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;closeChrispyClicker();if(amHost)mafiaAdvanceToDawn();}
   },500);
@@ -6931,6 +7262,7 @@ function openChrispyClicker(opts){
     best:clickerBestScore(),
     trail:{ribbon:[],particles:[],emit:0},fx:[],floaters:[],banner:null,stars:[],
     shake:0,flash:0,flashCol:'#fff',slowmo:0,pulse:0,combo:0,level:1,newBest:false,
+    orbs:[],boost:0,invuln:0,runCoins:0,party:{},partyDisp:{},partyRef:null,partyCb:null,partySent:0,
     challenge:o?{seconds:o.timed,endsAt:0,onFinish:o.onFinish,submitted:false,runBest:0}:null};
   sizeClickerCanvas();
   resetClickerRound();
@@ -6942,7 +7274,37 @@ function openChrispyClicker(opts){
   window.addEventListener('resize',sizeClickerCanvas);
   document.addEventListener('keydown',clickerKeyHandler);
   document.getElementById('clickerStage').addEventListener('pointerdown',clickerTap);
+  clickerPartyStart();
   clicker.raf=requestAnimationFrame(clickerLoop);
+}
+
+// Party mode: everyone in the same game with Clicker open sees each other's balls (no names).
+// Each player's live ball sits on their own profile node, tagged with the game code,
+// so it never touches the game node (which would re-render every screen 10x a second).
+function clickerPartyStart(){
+  const c=clicker;if(!c||!gameCode||/^DEV/.test(gameCode)||!localGame)return;
+  try{
+    c.partyRef=db.ref('users/'+myId+'/clickerLive');
+    c.partyRef.onDisconnect().remove();
+    c.partyWatch=Object.keys(localGame.players||{}).filter(id=>id!==myId).map(id=>{
+      const ref=db.ref('users/'+id+'/clickerLive');
+      const cb=ref.on('value',snap=>{if(clicker)clicker.party[id]=snap.val();},()=>{});
+      return {ref,cb};
+    });
+  }catch(e){c.partyRef=null;}
+}
+function clickerPartyStop(c){
+  if(!c||!c.partyRef)return;
+  try{(c.partyWatch||[]).forEach(w=>w.ref.off('value',w.cb));c.partyRef.remove();c.partyRef.onDisconnect().cancel();}catch(e){}
+  c.partyRef=null;c.partyWatch=[];
+}
+function clickerPartySend(){
+  const c=clicker;if(!c||!c.partyRef)return;
+  const now=Date.now();
+  const every=c.state==='playing'?110:900;
+  if(now-c.partySent<every)return;
+  c.partySent=now;
+  try{c.partyRef.set({g:gameCode,y:Math.round(c.bird.y/Math.max(1,c.h)*1000),st:c.state==='playing'?1:c.state==='dead'?2:0,sk:clickerCosmetic('clickerSkin','classic'),t:syncedNow()});}catch(e){}
 }
 
 function closeChrispyClicker(){
@@ -6950,6 +7312,8 @@ function closeChrispyClicker(){
   if(backdrop)backdrop.classList.remove('open');
   if(!clicker)return;
   witbFinishClickerChallenge(); // leaving early still locks in the run
+  clickerPayCoins();
+  clickerPartyStop(clicker);
   cancelAnimationFrame(clicker.raf);
   window.removeEventListener('resize',sizeClickerCanvas);
   document.removeEventListener('keydown',clickerKeyHandler);
@@ -6991,6 +7355,7 @@ function resetClickerRound(){
   clicker.state='ready';clicker.pipes=[];clicker.spawnDist=clicker.w*0.55;clicker.score=0;
   clicker.trail={ribbon:[],particles:[],emit:0};clicker.fx=[];clicker.floaters=[];clicker.banner=null;
   clicker.combo=0;clicker.level=1;clicker.newBest=false;clicker.slowmo=0;clicker.shake=0;
+  clicker.orbs=[];clicker.boost=0;clicker.invuln=0;clicker.runCoins=0;
   clicker.bird.y=clicker.h*0.42;clicker.bird.v=0;clicker.bird.sq=0;
   document.getElementById('clickerScore').textContent='0';
   clickerMsg('Tap to start','Keep Chrispy in the air\n'+clickerNextRewardText());
@@ -7061,7 +7426,8 @@ function clickerBurst(x,y,col,n,spd,shape,s){
 
 function clickerOnPass(p,s){
   const c=clicker;
-  c.score++;c.pulse=1;p.flash=1;
+  const pts=c.boost>0?2:1;
+  c.score+=pts;c.pulse=1;p.flash=1;
   document.getElementById('clickerScore').textContent=c.score;
   const world=clickerWorld();
   const cap=world.cap==='rainbow'?clickerRainbow(c.time,0.95):world.cap;
@@ -7076,9 +7442,15 @@ function clickerOnPass(p,s){
   } else {
     c.combo=0;
     if(off>0.78)clickerFloater('CLOSE!',c.w*0.28,c.bird.y-26*s,'#e85d4d',14);
-    else clickerFloater('+1',c.w*0.28+14*s,c.bird.y-20*s,'#f0eff5',14);
+    else clickerFloater('+'+pts,c.w*0.28+14*s,c.bird.y-20*s,pts>1?'#22d3ee':'#f0eff5',14);
   }
   clickerVibrate(6);
+  clickerAfterScore(s,cap);
+}
+
+// New best, level ups and coin rewards — shared by tower passes and warps.
+function clickerAfterScore(s,cap){
+  const c=clicker;
   if(!c.newBest&&c.best>0&&c.score>c.best&&!c.challenge){
     c.newBest=true;clickerBanner('NEW BEST','Keep going','#ffd86b');
     clickerBurst(c.w/2,c.h*0.3,'rainbow',30,220,'square',s);
@@ -7095,9 +7467,10 @@ function clickerOnPass(p,s){
 
 function clickerCheckReward(s){
   const got=myProfile.clickerMilestones||{};
-  const r=CLICKER_REWARDS.find(x=>clicker.score===x.score&&!got[x.score]);
-  if(!r)return;
-  myProfile.clickerMilestones={...got,[r.score]:true};
+  const due=CLICKER_REWARDS.filter(x=>clicker.score>=x.score&&!got[x.score]);
+  if(!due.length)return;
+  const r={score:due[due.length-1].score,coins:due.reduce((t,x)=>t+x.coins,0)};
+  myProfile.clickerMilestones={...got};due.forEach(x=>{myProfile.clickerMilestones[x.score]=true;});
   myProfile.coins=(myProfile.coins||0)+r.coins;
   saveLocalProfile();
   clickerBanner('+'+r.coins+' COINS','First time reaching '+r.score,'#ffd86b');
@@ -7115,9 +7488,11 @@ function clickerDie(){
   c.shake=1;c.flash=0.7;c.flashCol='#ffffff';c.slowmo=0.6;
   clickerVibrate([30,30,60]);
   clickerSpawnDeath(c.w*0.28,c.bird.y,s);
+  const paid=clickerPayCoins();
+  const coinLine=paid?'\n+'+paid+' coins collected':'';
   if(c.challenge){
     c.challenge.runBest=Math.max(c.challenge.runBest,c.score);
-    clickerMsg('Busted','Best this run: '+c.challenge.runBest+'\nTap to go again before time runs out');
+    clickerMsg('Busted','Best this run: '+c.challenge.runBest+coinLine+'\nTap to go again before time runs out');
   }
   const prevBest=c.best;
   if(c.score>c.best){
@@ -7134,7 +7509,7 @@ function clickerDie(){
     const m=clickerMedal(c.score);
     const isBest=c.score>prevBest&&c.score>0;
     const title=isBest?'🎉 New best!':(m?m.icon+' '+m.label:'Busted');
-    clickerMsg(title,'Score '+c.score+' · Best '+c.best+' · Level '+c.level+'\n'+clickerNextRewardText()+'\nTap to try again');
+    clickerMsg(title,'Score '+c.score+' · Best '+c.best+' · Level '+c.level+coinLine+'\n'+clickerNextRewardText()+'\nTap to try again');
   }
 }
 
@@ -7142,12 +7517,15 @@ function updateClicker(dt){
   const c=clicker;
   const s=clickerScale();const w=c.w,h=c.h;
   const d=clickerDifficulty(c.score,s,h);
+  const speed=d.speed*(c.boost>0?1.4:1);
   const pw=52*s,birdX=w*0.28,r=11*s;
+  if(c.boost>0)c.boost=Math.max(0,c.boost-dt);
+  if(c.invuln>0)c.invuln=Math.max(0,c.invuln-dt);
   c.bird.v+=1350*s*dt;
   c.bird.y+=c.bird.v*dt;
   if(c.bird.y<r){c.bird.y=r;c.bird.v=0;}
-  c.scroll+=d.speed*dt;
-  c.spawnDist-=d.speed*dt;
+  c.scroll+=speed*dt;
+  c.spawnDist-=speed*dt;
   if(c.spawnDist<=0){
     c.spawnDist=d.spacing;
     const margin=34*s;
@@ -7155,21 +7533,138 @@ function updateClicker(dt){
     const amp=moving?d.moveAmp:0;
     const room=Math.max(20,h-d.gap-margin*2-amp*2);
     const base=margin+amp+Math.random()*room;
-    c.pipes.push({x:w+pw,top:base,base,gap:d.gap,amp,ph:Math.random()*Math.PI*2,freq:1.3+Math.random()*0.9,passed:false,flash:0});
+    const pipe={x:w+pw,top:base,base,gap:d.gap,amp,ph:Math.random()*Math.PI*2,freq:1.3+Math.random()*0.9,passed:false,flash:0};
+    c.pipes.push(pipe);
+    clickerMaybeSpawnOrb(pipe,d,s,h,pw);
   }
   c.pipes.forEach(p=>{
-    p.x-=d.speed*dt;
+    p.x-=speed*dt;
     if(p.amp)p.top=p.base+Math.sin(c.time*p.freq+p.ph)*p.amp;
     if(p.flash>0)p.flash=Math.max(0,p.flash-dt*2.5);
   });
   c.pipes=c.pipes.filter(p=>p.x+pw>-10);
-  clickerTrailStep(c.trail,clickerTrail(),birdX-r*0.6,c.bird.y,s,dt,d.speed,c.time);
+  c.orbs.forEach(o=>{o.x-=speed*dt;o.t+=dt;});
+  c.orbs=c.orbs.filter(o=>o.x>-30&&!o.taken);
+  clickerTrailStep(c.trail,clickerTrail(),birdX-r*0.6,c.bird.y,s,dt,speed,c.time);
+  if(c.boost>0)c.fx.push({x:birdX-r,y:c.bird.y+(Math.random()-0.5)*r*1.4,vx:-speed*0.5,vy:0,life:0.22,max:0.22,col:'#22d3ee',size:1.6*s,grav:0,shape:'spark'});
   const by=c.bird.y;
-  if(by+r>=h-4*s){c.bird.y=h-4*s-r;clickerDie();return;}
+  for(const o of c.orbs){
+    if(!o.taken&&Math.hypot(o.x-birdX,o.y-by)<r+o.r){o.taken=true;clickerTakeOrb(o,s,d);break;}
+  }
+  if(by+r>=h-4*s){
+    if(c.invuln>0){c.bird.y=h-4*s-r;c.bird.v=-320*s;}
+    else{c.bird.y=h-4*s-r;clickerDie();return;}
+  }
   for(const p of c.pipes){
-    if(birdX+r>p.x&&birdX-r<p.x+pw&&(by-r<p.top||by+r>p.top+p.gap)){clickerDie();return;}
+    if(!(c.invuln>0)&&birdX+r>p.x&&birdX-r<p.x+pw&&(by-r<p.top||by+r>p.top+p.gap)){clickerDie();return;}
     if(!p.passed&&p.x+pw<birdX-r){p.passed=true;clickerOnPass(p,s);}
   }
+}
+
+// Orbs sit between towers, well away from the safe line, so grabbing one is a gamble.
+function clickerMaybeSpawnOrb(pipe,d,s,h,pw){
+  const c=clicker;
+  const roll=Math.random();
+  const x=pipe.x+pw+(d.spacing-pw)/2;
+  const gapMid=pipe.base+pipe.gap/2;
+  const margin=30*s;
+  let type=null;
+  if(c.score>=6&&roll<0.07)type='warp';
+  else if(c.score>=1&&roll<0.24)type='boost';
+  if(type){
+    // A short hop off the safe line: worth it, but you have to commit.
+    const dir=gapMid<h/2?1:-1;
+    const off=type==='boost'?h*(0.12+Math.random()*0.1):h*(0.2+Math.random()*0.12);
+    const y=Math.max(margin,Math.min(h-margin,gapMid+dir*off));
+    c.orbs.push({x,y,type,r:(type==='warp'?12:11)*s,t:Math.random()*6,taken:false});
+    return;
+  }
+  // Coins are rare and sit near the safe line.
+  if(c.score>=1&&Math.random()<0.16){
+    const y=Math.max(margin,Math.min(h-margin,gapMid+(Math.random()-0.5)*pipe.gap*0.5));
+    c.orbs.push({x,y,type:'coin',r:8*s,t:Math.random()*6,taken:false});
+  }
+}
+// Coins collected in Clicker turn into real coins, capped per day.
+const CLICKER_COIN_DAILY_CAP=50;
+function clickerToday(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function clickerCoinsLeftToday(){
+  const cd=myProfile.clickerCoinDay;
+  const used=cd&&cd.d===clickerToday()?cd.n||0:0;
+  return Math.max(0,CLICKER_COIN_DAILY_CAP-used);
+}
+function clickerPayCoins(){
+  const c=clicker;if(!c||!c.runCoins)return 0;
+  const pay=Math.min(c.runCoins,clickerCoinsLeftToday());
+  c.runCoins=0;
+  if(!pay)return 0;
+  const cd=myProfile.clickerCoinDay;
+  const used=cd&&cd.d===clickerToday()?cd.n||0:0;
+  myProfile.coins=(myProfile.coins||0)+pay;
+  myProfile.clickerCoinDay={d:clickerToday(),n:used+pay};
+  saveLocalProfile();
+  try{userRef().update({coins:myProfile.coins,clickerCoinDay:myProfile.clickerCoinDay,savedAt:Date.now()});}catch(e){}
+  return pay;
+}
+function clickerTakeOrb(o,s,d){
+  const c=clicker;
+  if(o.type==='coin'){
+    const capped=c.runCoins>=clickerCoinsLeftToday();
+    if(!capped)c.runCoins++;
+    clickerFloater(capped?'DAILY CAP':'+1 COIN',o.x,o.y-14*s,capped?'#9494a8':'#ffd86b',13);
+    clickerBurst(o.x,o.y,'#ffd86b',10,120,'star',s);
+    clickerVibrate(8);
+    return;
+  }
+  if(o.type==='boost'){
+    c.boost=3.5;c.flash=0.25;c.flashCol='#22d3ee';
+    clickerBanner('BOOST','Double points','#22d3ee');
+    clickerBurst(o.x,o.y,'#22d3ee',18,180,'spark',s);
+    c.fx.push({x:o.x,y:o.y,vx:0,vy:0,life:0.5,max:0.5,col:'#22d3ee',size:8*s,grav:0,shape:'ring',grow:5,lw:2});
+    clickerVibrate([15,30,15]);
+    return;
+  }
+  const n=2+Math.floor(Math.random()*4);
+  c.score+=n;c.pulse=1;
+  document.getElementById('clickerScore').textContent=c.score;
+  c.pipes=c.pipes.filter(p=>p.passed);
+  c.orbs=[];
+  c.spawnDist=d.spacing*1.1;
+  c.bird.y=c.h*0.45;c.bird.v=-140*s;c.invuln=1.3;
+  c.flash=0.8;c.flashCol='#a855f7';c.shake=Math.max(c.shake,0.45);
+  for(let i=0;i<3;i++)c.fx.push({x:c.w*0.28,y:c.bird.y,vx:0,vy:0,life:0.5+i*0.15,max:0.5+i*0.15,col:i%2?'#22d3ee':'#c084fc',size:(6+i*4)*s,grav:0,shape:'ring',grow:6+i*3,lw:2.5});
+  clickerBurst(c.w*0.28,c.bird.y,'#c084fc',26,240,'star',s);
+  clickerBanner('WARP +'+n,'Skipped '+n+' towers','#c084fc');
+  clickerVibrate([20,30,60]);
+  clickerAfterScore(s,'#c084fc');
+}
+function clickerDrawOrb(ctx,o,s,t){
+  const pulse=1+Math.sin(o.t*5)*0.08;
+  ctx.save();ctx.translate(o.x,o.y+Math.sin(o.t*2.5)*3*s);ctx.scale(pulse,pulse);
+  if(o.type==='coin'){
+    const spin=Math.cos(o.t*4);
+    ctx.scale(Math.max(0.15,Math.abs(spin)),1);
+    ctx.shadowColor='rgba(255,216,107,.9)';ctx.shadowBlur=12*s;
+    ctx.fillStyle=spin>0?'#ffd86b':'#e0a92e';ctx.beginPath();ctx.arc(0,0,o.r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    ctx.strokeStyle='rgba(120,70,0,.55)';ctx.lineWidth=1.3*s;ctx.beginPath();ctx.arc(0,0,o.r*0.7,0,Math.PI*2);ctx.stroke();
+    if(spin>0){ctx.fillStyle='rgba(120,70,0,.7)';ctx.font='800 '+Math.round(o.r*1.1)+"px 'JetBrains Mono',monospace";ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('C',0,o.r*0.05);}
+  } else if(o.type==='boost'){
+    ctx.shadowColor='#22d3ee';ctx.shadowBlur=18*s;
+    const g=ctx.createRadialGradient(-o.r*0.3,-o.r*0.3,o.r*0.1,0,0,o.r);g.addColorStop(0,'#ecfeff');g.addColorStop(0.5,'#22d3ee');g.addColorStop(1,'#0e7490');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,o.r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    ctx.strokeStyle='rgba(165,243,252,.8)';ctx.lineWidth=1.4*s;ctx.setLineDash([3*s,3*s]);ctx.lineDashOffset=-o.t*20;
+    ctx.beginPath();ctx.arc(0,0,o.r*1.45,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#083344';ctx.font='900 '+Math.round(o.r*1.05)+"px 'Space Grotesk',sans-serif";ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('»',o.r*0.05,o.r*0.02);
+  } else {
+    ctx.shadowColor='#a855f7';ctx.shadowBlur=22*s;
+    ctx.fillStyle='#12051f';ctx.beginPath();ctx.arc(0,0,o.r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    for(let i=0;i<3;i++){
+      ctx.strokeStyle=i%2?'rgba(34,211,238,.85)':'rgba(192,132,252,.95)';ctx.lineWidth=(2-i*0.4)*s;
+      const a=o.t*(3+i)+i*2;ctx.beginPath();ctx.arc(0,0,o.r*(1-i*0.25),a,a+Math.PI*1.2);ctx.stroke();
+    }
+    ctx.fillStyle='#f5d0fe';ctx.beginPath();ctx.arc(0,0,o.r*0.16,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
 }
 
 // =====================================================
@@ -7196,6 +7691,8 @@ const CLICKER_SKINS={
   plasma:{label:'Plasma Orb',body:'#a78bfa',glow:'rgba(167,139,250,.95)',style:'plasma'},
   prism:{label:'Prism Ball',body:'#ffffff',glow:'rgba(255,255,255,.8)',style:'prism'},
   blackhole:{label:'Black Hole',body:'#000000',glow:'rgba(167,139,250,.9)',style:'blackhole'},
+  jackolantern:{label:"Jack-o'-Lantern",body:'#f97316',glow:'rgba(255,182,39,.85)',style:'jackolantern'},
+  potion:{label:'Witch Potion',body:'rgba(200,230,255,.22)',glow:'rgba(124,255,79,.85)',style:'potion'},
 };
 const CLICKER_WORLDS={
   classic:{label:'Chrispy Green',bg:'#0a0a0f',grid:'rgba(211,243,75,0.05)',pipe:'#1c1c26',edge:'rgba(211,243,75,0.4)',cap:'rgba(211,243,75,0.55)',ground:'rgba(211,243,75,0.3)'},
@@ -7210,6 +7707,7 @@ const CLICKER_WORLDS={
   neon:{label:'Neon',bg:'#08030f',grid:'rgba(167,139,250,0.07)',pipe:'#1d0f2e',edge:'rgba(236,72,153,0.55)',cap:'rgba(6,182,212,0.75)',ground:'rgba(167,139,250,0.35)'},
   shadow:{label:'Shadow',bg:'#050506',grid:'rgba(148,148,168,0.05)',pipe:'#141419',edge:'rgba(148,148,168,0.4)',cap:'rgba(240,239,245,0.4)',ground:'rgba(148,148,168,0.25)'},
   rainbow:{label:'Rainbow',bg:'#0a0a0f',grid:'rgba(255,255,255,0.05)',pipe:'#1c1c26',edge:'rainbow',cap:'rainbow',ground:'rgba(255,255,255,0.3)'},
+  haunted:{label:'Haunted',bg:'#06080a',grid:'rgba(124,255,79,0.06)',pipe:'#12160f',edge:'rgba(124,255,79,0.5)',cap:'rgba(249,115,22,0.8)',ground:'rgba(124,255,79,0.35)'},
 };
 // Owning the matching name effect or avatar frame unlocks the world for free.
 const CLICKER_WORLD_SOURCES={
@@ -7224,6 +7722,7 @@ const CLICKER_WORLD_SOURCES={
   neon:['animated_neon_flicker','frame_neon'],
   rainbow:['animated_rainbow_shift','frame_rainbow'],
   shadow:['frame_shadow'],
+  haunted:['frame_pumpkin','frame_witchhat','frame_spiderweb','frame_ghostly'],
 };
 // Particle trails drop bits behind Chrispy; ribbon trails draw a line through its path.
 const CLICKER_TRAILS={
@@ -7243,6 +7742,8 @@ const CLICKER_TRAILS={
   lightning:{label:'Lightning',color:'#7dd3fc',ribbon:'lightning',width:3},
   galaxy:{label:'Stardust',color:'#a78bfa',ribbon:'galaxy',width:8,shape:'star',sparkCol:'#ffffff'},
   rainbow:{label:'Rainbow Road',color:'rainbow',ribbon:'rainbow',width:9},
+  bats:{label:'Bat Swarm',color:'#a78bfa',shape:'glyph',glyph:'🦇',rise:true},
+  ecto:{label:'Ectoplasm',color:'#7CFF4F',ribbon:'ecto',width:9,shape:'circle',sparkCol:'#b6ff8a'},
 };
 const CLICKER_DEATHS={
   none:{label:'Standard Wipeout'},
@@ -7352,9 +7853,10 @@ function clickerDrawRibbon(ctx,pts,tr,t,s){
       else if(tr.ribbon==='comet'){col=`rgba(191,230,255,${k*0.75})`;w*=k;}
       else if(tr.ribbon==='fire')col=`hsla(${8+k*38},100%,${42+k*22}%,${k*0.9})`;
       else if(tr.ribbon==='galaxy')col=`hsla(${250+k*70},85%,62%,${k*0.8})`;
+      else if(tr.ribbon==='ecto')col=`rgba(124,255,79,${k*0.75})`;
       else if(tr.ribbon==='neon'){col=pass?`rgba(34,211,238,${k})`:`rgba(236,72,153,${k})`;w=(pass?1.6:4)*s;}
       else col=tr.color;
-      const dy=tr.ribbon==='neon'?(pass?2.5:-2.5)*s:0;
+      const dy=tr.ribbon==='neon'?(pass?2.5:-2.5)*s:tr.ribbon==='ecto'?Math.sin(i*0.6+t*5)*2.5*s:0;
       ctx.strokeStyle=col;ctx.lineWidth=Math.max(0.6,w);
       ctx.beginPath();ctx.moveTo(a.x,a.y+dy);ctx.lineTo(b.x,b.y+dy);ctx.stroke();
     }
@@ -7491,6 +7993,30 @@ function drawClickerCharacter(ctx,r,s,t,skinKey,look){
     ctx.strokeStyle=g;ctx.lineWidth=3.2*s;ctx.shadowColor='rgba(249,115,22,.9)';ctx.shadowBlur=12*s;
     ctx.beginPath();ctx.ellipse(0,0,r*1.75,r*0.5,0,0,Math.PI);ctx.stroke();ctx.restore();ctx.shadowBlur=0;
     ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1*s;ctx.beginPath();ctx.arc(0,0,r*0.98,t*3,t*3+2);ctx.stroke();
+  } else if(st==='jackolantern'){
+    ctx.strokeStyle='rgba(124,45,18,.55)';ctx.lineWidth=1.2*s;
+    ctx.beginPath();ctx.ellipse(0,0,r*0.45,r*0.98,0,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#4d7c0f';ctx.fillRect(-r*0.12,-r*1.28,r*0.24,r*0.38);
+    const fl=Math.min(1,0.7+0.25*Math.sin(t*9)+0.1*Math.sin(t*23));
+    ctx.fillStyle=`rgba(255,214,102,${fl})`;ctx.shadowColor='#ffb627';ctx.shadowBlur=10*s;
+    ctx.beginPath();ctx.moveTo(-r*0.58,-r*0.02);ctx.lineTo(-r*0.18,-r*0.02);ctx.lineTo(-r*0.38,-r*0.46);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(r*0.18,-r*0.02);ctx.lineTo(r*0.58,-r*0.02);ctx.lineTo(r*0.38,-r*0.46);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(-r*0.62,r*0.22);ctx.lineTo(-r*0.4,r*0.42);ctx.lineTo(-r*0.2,r*0.28);ctx.lineTo(0,r*0.48);ctx.lineTo(r*0.2,r*0.28);ctx.lineTo(r*0.4,r*0.42);ctx.lineTo(r*0.62,r*0.22);ctx.lineTo(r*0.32,r*0.66);ctx.lineTo(-r*0.32,r*0.66);ctx.closePath();ctx.fill();
+    ctx.shadowBlur=0;
+  } else if(st==='potion'){
+    ctx.save();ctx.beginPath();ctx.arc(0,0,r*0.9,0,Math.PI*2);ctx.clip();
+    const lvl=r*0.05+Math.sin(t*3)*r*0.08;
+    const lg=ctx.createLinearGradient(0,-r,0,r);lg.addColorStop(0,'#a3e635');lg.addColorStop(1,'#15803d');
+    ctx.fillStyle=lg;ctx.beginPath();ctx.moveTo(-r,lvl);
+    for(let x=-r;x<=r;x+=r/4)ctx.lineTo(x,lvl+Math.sin(x/r*4+t*5)*r*0.07);
+    ctx.lineTo(r,r);ctx.lineTo(-r,r);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.6)';
+    for(let i=0;i<3;i++){const ph=(t*0.8+i*0.33)%1;ctx.beginPath();ctx.arc((i-1)*r*0.35,r*0.8-ph*(r*0.8-lvl),r*0.08*(1-ph*0.4),0,Math.PI*2);ctx.fill();}
+    ctx.restore();
+    ctx.strokeStyle='rgba(220,240,255,.6)';ctx.lineWidth=1.2*s;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(220,240,255,.35)';ctx.fillRect(-r*0.3,-r*1.12,r*0.6,r*0.22);
+    ctx.fillStyle='#8b5e34';ctx.fillRect(-r*0.22,-r*1.38,r*0.44,r*0.3);
+    ctx.fillStyle='rgba(255,255,255,.45)';ctx.beginPath();ctx.arc(-r*0.42,-r*0.38,r*0.16,0,Math.PI*2);ctx.fill();
   } else if(st==='prism'){
     ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(-r*0.35,-r*0.35,r*0.25,0,Math.PI*2);ctx.fill();
   } else if(st!=='sun'){
@@ -7536,8 +8062,8 @@ function drawClicker(){
   for(let y=step;y<h;y+=step){ctx.moveTo(0,y);ctx.lineTo(w,y);}
   ctx.stroke();
   // speed lines once it's fast
-  if(c.state==='playing'&&speedK>1.25){
-    ctx.strokeStyle=`rgba(240,239,245,${Math.min(0.12,(speedK-1.25)*0.3)})`;ctx.lineWidth=1;
+  if(c.state==='playing'&&(speedK>1.25||c.boost>0)){
+    ctx.strokeStyle=c.boost>0?'rgba(34,211,238,.28)':`rgba(240,239,245,${Math.min(0.12,(speedK-1.25)*0.3)})`;ctx.lineWidth=1;
     for(let i=0;i<7;i++){const y=(i*97+((t*37)%h))%h,x=(w-((c.scroll*1.7+i*211)%(w+120)));ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+60*s,y);ctx.stroke();}
   }
   // score watermark with a pulse on every point
@@ -7552,6 +8078,7 @@ function drawClicker(){
   if(c.state!=='ready'){
     ctx.fillStyle='rgba(240,239,245,.35)';ctx.font='700 '+Math.round(10*s)+"px 'JetBrains Mono',monospace";
     ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('LVL '+c.level,10*s,10*s);
+    if(c.runCoins){ctx.fillStyle='#ffd86b';ctx.fillText('● '+c.runCoins,10*s,24*s);}
   }
   // pipes
   c.pipes.forEach(p=>{
@@ -7566,6 +8093,7 @@ function drawClicker(){
     ctx.fillRect(p.x-p.flash*3*s,p.top-ch,pw+p.flash*6*s,ch);ctx.fillRect(p.x-p.flash*3*s,by,pw+p.flash*6*s,ch);
     if(p.amp){ctx.fillStyle=cap;ctx.globalAlpha=0.5+0.5*Math.sin(t*6);ctx.beginPath();ctx.arc(p.x+pw/2,p.top-ch-6*s,2*s,0,Math.PI*2);ctx.arc(p.x+pw/2,by+ch+6*s,2*s,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
   });
+  (c.orbs||[]).forEach(o=>clickerDrawOrb(ctx,o,s,t));
   // ground line
   ctx.strokeStyle=world.ground==='rainbow'?clickerRainbow(t,0.4):world.ground;ctx.lineWidth=2;
   ctx.setLineDash([6*s,6*s]);ctx.lineDashOffset=-c.scroll;
@@ -7573,6 +8101,29 @@ function drawClicker(){
   ctx.setLineDash([]);
   clickerDrawTrail(ctx,c.trail,clickerTrail(),t,s);
   c.fx.forEach(p=>{if(!(p.delay>0))clickerDrawParticle(ctx,p);});
+  // other players' balls (party mode) — no names, just balls
+  if(c.party){
+    const now=syncedNow();
+    const others=Object.entries(c.party).filter(([id,v])=>id!==myId&&v&&v.g===gameCode&&now-(v.t||0)<4000);
+    others.forEach(([id,v],i)=>{
+      const ty=(v.y||500)/1000*h;
+      const prev=c.partyDisp[id];
+      const y=prev==null?ty:prev+(ty-prev)*0.28;
+      c.partyDisp[id]=y;
+      ctx.save();ctx.globalAlpha=v.st===2?0.15:0.42;
+      ctx.translate(birdX-(i%2?6:-6)*s,y);
+      drawClickerCharacter(ctx,r*0.92,s,t+i,v.sk||'classic',null);
+      ctx.restore();
+    });
+    if(others.length){
+      ctx.globalAlpha=1;ctx.fillStyle='rgba(240,239,245,.45)';ctx.font='700 '+Math.round(10*s)+"px 'JetBrains Mono',monospace";
+      ctx.textAlign='right';ctx.textBaseline='top';ctx.fillText('● '+(others.length+1)+' PLAYING',w-10*s,10*s);
+    }
+  }
+  if(c.boost>0){
+    ctx.fillStyle='rgba(34,211,238,.18)';ctx.fillRect(w/2-40*s,62*s,80*s,4*s);
+    ctx.fillStyle='#22d3ee';ctx.fillRect(w/2-40*s,62*s,80*s*(c.boost/3.5),4*s);
+  }
   // chrispy
   const ds=clickerDeathStyle();
   if(c.state!=='dead'||ds.label==='Standard Wipeout'){
@@ -7583,6 +8134,8 @@ function drawClicker(){
       const ca=Math.cos(-tilt),sa=Math.sin(-tilt);look={x:look.x*ca-look.y*sa,y:look.x*sa+look.y*ca};}
     const sq=c.bird.sq;
     ctx.save();
+    if(c.invuln>0&&Math.floor(c.time*18)%2)ctx.globalAlpha=0.35;
+    if(c.boost>0){ctx.shadowColor='#22d3ee';}
     ctx.translate(birdX,c.bird.y);ctx.rotate(tilt);ctx.scale(1-sq*0.18,1+sq*0.22);
     drawClickerCharacter(ctx,r,s,t,null,look);
     ctx.restore();
@@ -7650,7 +8203,7 @@ function clickerLoop(ts){
       clickerMsg('Time!','Best score '+ch.runBest+'\nSubmitted — close when you are ready');
     }
   }
-  if(clicker)drawClicker();
+  if(clicker){drawClicker();clickerPartySend();}
   if(clicker)clicker.raf=requestAnimationFrame(clickerLoop);
 }
 
@@ -7798,6 +8351,105 @@ async function sendMafiaPrivateChat(){
 }
 
 // =====================================================
+// MAFIA: NIGHT — DETECTIVE / BODYGUARD SCREEN
+// =====================================================
+let mafiaRolePick=null,mafiaRoleStageKey='',mafiaRoleSubmitting=false;
+// The Detective checks TWO players and only learns whether at least one is Mafia,
+// then rests for a night before checking again.
+function mafiaDetectiveChecks(game){
+  return Object.values(game.mafiaDetectiveLog||{}).map(n=>({night:n.night,targets:n.targets||(n.target?[n.target]:[]),hit:n.targets?!!n.hit:!!n.isMafia})).sort((x,y)=>x.night-y.night);
+}
+function mafiaDetectiveResting(game){
+  const day=game.mafiaDay||1;
+  return mafiaDetectiveChecks(game).some(n=>n.night===day-1);
+}
+function mafiaDetectiveNotesHTML(game){
+  const log=mafiaDetectiveChecks(game);
+  if(!log.length)return'';
+  const players=game.players||{};
+  const nm=id=>esc((players[id]||{}).name||'?');
+  return `<div class="mr-notes"><div class="mv-label" style="margin:4px 2px 0"><span>Your notes</span></div>${log.map(n=>`<div class="mr-note"><span class="mr-note-night">N${n.night}</span><b>${n.targets.map(nm).join(' + ')}</b><span class="mr-note-tag ${n.hit?'bad':'good'}">${n.hit?(n.targets.length>1?'ONE IS MAFIA':'MAFIA'):'CLEAR'}</span></div>`).join('')}</div>`;
+}
+function mafiaRoleExtraHTML(game,role){
+  if(role==='detective'){
+    const notes=mafiaDetectiveNotesHTML(game);
+    const resting=game.mafiaPhase==='day'&&mafiaDetectiveChecks(game).some(n=>n.night===(game.mafiaDay||1)-1);
+    return `<div class="role-action-box detective">🔍 You check two players at a time, then rest a night.${resting?' You rest tonight.':''}${notes?'':' No checks yet.'}</div>${notes}`;
+  }
+  if(role==='jester')return `<div class="role-action-box jester">🃏 You win if the town votes you out. Act a bit suss, but not too suss.</div>`;
+  if(role==='bodyguard')return `<div class="role-action-box bodyguard">🛡️ Each night you guard someone. If the Mafia come for them, you die instead.</div>`;
+  return '';
+}
+function renderMafiaNightRole(game){
+  startMafiaNightDecisionTimer(game);
+  const role=(game.mafiaRoles||{})[myId];
+  const isDet=role==='detective';
+  const players=game.players||{};
+  const elim=game.mafiaEliminated||{};
+  const day=game.mafiaDay||1;
+  const raw=isDet?game.mafiaDetectVote:game.mafiaGuardVote;
+  const chosen=isDet?(Array.isArray(raw)?raw:(raw?[raw]:null)):raw;
+  const resting=isDet&&!chosen&&mafiaDetectiveResting(game);
+  const p=id=>players[id]||{id,name:'?'};
+  document.getElementById('mrWrap').className='mr-wrap mr-'+(isDet?'detective':'bodyguard');
+  document.getElementById('mrEyebrow').textContent=(isDet?'🔍 Detective':'🛡️ Bodyguard')+' · Night '+day;
+  document.getElementById('mrTitle').innerHTML=resting?'Off duty<br>tonight':chosen?(isDet?'Case closed<br>for tonight':'You are on<br>guard duty'):(isDet?'Pick two to<br>investigate':'Who will you<br>protect?');
+  const key=`${day}|${role}|${chosen?[].concat(chosen).join(','):''}|${resting}`;
+  if(key===mafiaRoleStageKey)return;
+  mafiaRoleStageKey=key;
+  const stage=document.getElementById('mrStage');
+  if(resting){
+    stage.innerHTML=`<div class="mr-panel"><div class="mr-result"><div class="mr-result-card rest"><div style="font-size:44px;margin-bottom:6px">☕</div><div class="mr-result-verdict">RESTING</div><div class="mr-result-sub">You checked last night.<br>Back on the case tomorrow night.</div></div></div>${mafiaDetectiveNotesHTML(game)}</div>`;
+    return;
+  }
+  if(chosen){
+    if(isDet){
+      const hit=chosen.some(id=>(game.mafiaIds||[]).includes(id));
+      stage.innerHTML=`<div class="mr-panel"><div class="mr-result"><div class="mr-result-card ${hit?'is-mafia':'not-mafia'}"><div class="mr-pair">${chosen.map(id=>`<div>${playerAvatar(p(id))}<span>${playerNameHtml(p(id))}</span></div>`).join('<b>+</b>')}</div><div class="mr-result-verdict">${hit?'ONE IS MAFIA':'NEITHER IS MAFIA'}</div><div class="mr-result-sub">${hit?'At least one of them is lying.<br>But which one?':'Both of them are clear.'}</div></div></div>${mafiaDetectiveNotesHTML(game)}</div>`;
+      try{if(navigator.vibrate)navigator.vibrate(hit?[40,60,40]:25);}catch(e){}
+    } else {
+      stage.innerHTML=`<div class="mr-panel"><div class="mr-result"><div class="mr-result-card guard">${playerAvatar(p(chosen))}<div style="font-size:15px;font-weight:700">${playerNameHtml(p(chosen))}</div><div class="mr-result-verdict">GUARDED</div><div class="mr-result-sub">If the Mafia come for them,<br>you take the hit.</div></div></div></div>`;
+    }
+    return;
+  }
+  mafiaRolePick=[];
+  const targets=Object.values(players).filter(x=>!elim[x.id]&&x.id!==myId).sort((a,b)=>a.joinedAt-b.joinedAt);
+  stage.innerHTML=`<div class="mr-panel">
+    ${isDet?'<div class="mr-hint" id="mrHint">Tap two players. You\'ll find out if at least one of them is Mafia.</div>':''}
+    <div class="mv-grid" style="margin-top:0">${targets.map(x=>`<button class="mv-pick" data-id="${x.id}" onclick="pickMafiaRoleTarget('${x.id}')">${playerAvatar(x)}<span class="mv-pick-name">${playerNameHtml(x)}</span><span class="mv-pick-check">✓</span></button>`).join('')}</div>
+    <button class="btn mr-confirm" id="mrConfirmBtn" onclick="confirmMafiaRoleTarget()" disabled>${isDet?'Investigate (0/2)':'Guard them'}</button>
+    ${isDet?mafiaDetectiveNotesHTML(game):''}
+  </div>`;
+}
+function pickMafiaRoleTarget(id){
+  const role=localGame&&(localGame.mafiaRoles||{})[myId];
+  const need=role==='detective'?2:1;
+  let picks=Array.isArray(mafiaRolePick)?[...mafiaRolePick]:[];
+  if(picks.includes(id))picks=picks.filter(x=>x!==id);
+  else{picks.push(id);if(picks.length>need)picks.shift();}
+  mafiaRolePick=picks;
+  document.querySelectorAll('#mrStage .mv-pick').forEach(b=>b.classList.toggle('selected',picks.includes(b.dataset.id)));
+  const btn=document.getElementById('mrConfirmBtn');
+  if(btn){btn.disabled=picks.length!==need;if(need===2)btn.textContent=`Investigate (${picks.length}/2)`;}
+}
+async function confirmMafiaRoleTarget(){
+  const g=localGame;
+  const picks=Array.isArray(mafiaRolePick)?mafiaRolePick:[];
+  if(!g||!gameCode||g.mafiaPhase!=='night'||!picks.length||mafiaRoleSubmitting)return;
+  const role=(g.mafiaRoles||{})[myId];const day=g.mafiaDay||1;
+  mafiaRoleSubmitting=true;
+  try{
+    if(role==='detective'){
+      if(picks.length!==2||mafiaDetectiveResting(g))return;
+      const hit=picks.some(id=>(g.mafiaIds||[]).includes(id));
+      await updateGame(gameCode,{mafiaDetectVote:picks,['mafiaDetectiveLog/n'+day]:{targets:picks,hit,night:day}});
+    } else if(role==='bodyguard'){
+      await updateGame(gameCode,{mafiaGuardVote:picks[0]});
+    }
+  } finally {mafiaRoleSubmitting=false;}
+}
+
+// =====================================================
 // MAFIA: NIGHT — DOCTOR SCREEN
 // =====================================================
 function renderMafiaNightDoctor(game){
@@ -7841,12 +8493,14 @@ function toggleMafiaGameRoleVisibility(){
   const b=document.getElementById('hideMafiaRoleBtn');
   if(mafiaRoleVisibleInGame){s.style.display='block';h.style.display='none';b.textContent='🙈 Hide my role';}
   else{s.style.display='none';h.style.display='block';b.textContent='👁 Show my role';}
+  const ex=document.getElementById('mafiaRoleExtra');if(ex)ex.style.display=mafiaRoleVisibleInGame?'block':'none';
 }
 function revealMafiaRoleSummary(){
   mafiaRoleVisibleInGame=true;
   document.getElementById('mafiaRoleSummary').style.display='block';
   document.getElementById('mafiaRoleHidden').style.display='none';
   document.getElementById('hideMafiaRoleBtn').textContent='🙈 Hide my role';
+  const ex=document.getElementById('mafiaRoleExtra');if(ex)ex.style.display='block';
 }
 
 // MAFIA VOTES
@@ -7925,7 +8579,7 @@ async function resolveMafiaDayVote(game){
     mafiaLastVotes:game.mafiaOG?null:{votes,order:game.mafiaVoteOrder||[]},
   });
   // Check win after potential elimination
-  if(elimId)checkMafiaWin({...game,mafiaEliminated:eliminated});
+  if(elimId&&(game.mafiaRoles||{})[elimId]!=='jester')checkMafiaWin({...game,mafiaEliminated:eliminated});
 }
 
 // HOST ADVANCE PHASE (host skips day early)
@@ -8135,26 +8789,48 @@ async function mafiaAdvanceToDawn(){
   const saveVote=game.mafiaSaveVote;
   const eliminated={...(game.mafiaEliminated||{})};
   const log=[...(game.mafiaLog||[])];
-
+  const roles=game.mafiaRoles||{};
+  const night=game.mafiaDay;
+  const nameOf=id=>(game.players&&game.players[id]&&game.players[id].name)||'?';
   const killTarget=mafiaUnanimousKillTarget(game);
-
-  let dawnEliminated=null,dawnSaved=null;
+  const guardId=Object.keys(roles).find(id=>roles[id]==='bodyguard'&&!eliminated[id]);
+  const guardVote=guardId?game.mafiaGuardVote:null;
+  let dawnEliminated=null,dawnSaved=null,dawnGuarded=null,type='quiet';
 
   if(killTarget){
-    const killName=(game.players&&game.players[killTarget]&&game.players[killTarget].name)||'?';
     if(saveVote===killTarget){
-      dawnSaved=killTarget;
-      log.push({text:`Night ${game.mafiaDay}: The Mafia targeted ${killName}, but the Doctor saved them!`,type:'saved',ts:Date.now()});
+      dawnSaved=killTarget;type='saved';
+      log.push({text:`Night ${night}: The Mafia targeted ${nameOf(killTarget)}, but the Doctor saved them!`,type:'saved',ts:Date.now()});
+    } else if(guardId&&guardVote===killTarget&&guardId!==killTarget){
+      dawnGuarded=killTarget;
+      if(saveVote===guardId){
+        dawnSaved=guardId;type='guardsaved';
+        log.push({text:`Night ${night}: The Bodyguard blocked the attack on ${nameOf(killTarget)}, and the Doctor saved the Bodyguard!`,type:'saved',ts:Date.now()});
+      } else {
+        dawnEliminated=guardId;eliminated[guardId]=true;type='guard';
+        log.push({text:`Night ${night}: ${nameOf(guardId)} died protecting ${nameOf(killTarget)}. They were the BODYGUARD.`,type:'death',ts:Date.now()});
+      }
     } else {
-      dawnEliminated=killTarget;
-      eliminated[killTarget]=true;
-      log.push({text:`Night ${game.mafiaDay}: ${killName} was killed by the Mafia.`,type:'death',ts:Date.now()});
+      dawnEliminated=killTarget;eliminated[killTarget]=true;type='kill';
+      log.push({text:`Night ${night}: ${nameOf(killTarget)} was killed by the Mafia.`,type:'death',ts:Date.now()});
     }
   } else {
-    log.push({text:`Night ${game.mafiaDay}: The Mafia couldn't agree on a target. No one died.`,type:'system',ts:Date.now()});
+    log.push({text:`Night ${night}: The Mafia didn't strike. No one died.`,type:'system',ts:Date.now()});
   }
 
-  await updateGame(gameCode,{mafiaPhase:'dawn',mafiaEliminated:eliminated,mafiaLog:log,mafiaVotes:{},mafiaDawnEliminated:dawnEliminated,mafiaDawnSaved:dawnSaved});
+  // Dawn story: a template nobody has heard yet this game, plus a decoy who seems to be in danger.
+  const tpls=MAFIA_DAWN_STORIES[type];
+  const used=((game.mafiaStoryUsed||{})[type])||[];
+  let pool=tpls.map((_,i)=>i).filter(i=>!used.includes(i));
+  if(!pool.length)pool=tpls.map((_,i)=>i);
+  const tpl=pool[Math.floor(Math.random()*pool.length)];
+  const involved=[killTarget,dawnEliminated,guardId].filter(Boolean);
+  const decoys=Object.keys(game.players||{}).filter(id=>!eliminated[id]&&!involved.includes(id));
+  const decoyId=decoys.length?decoys[Math.floor(Math.random()*decoys.length)]:null;
+  const story={type,tpl,decoyId,targetId:killTarget||null,guardId:guardId||null};
+  const storyUsed={...(game.mafiaStoryUsed||{}),[type]:pool.length===tpls.length&&used.length?[tpl]:[...used,tpl]};
+
+  await updateGame(gameCode,{mafiaPhase:'dawn',mafiaEliminated:eliminated,mafiaLog:log,mafiaVotes:{},mafiaDawnEliminated:dawnEliminated,mafiaDawnSaved:dawnSaved,mafiaDawnGuarded:dawnGuarded,mafiaDawnStory:story,mafiaStoryUsed:storyUsed});
 }
 async function mafiaAdvanceToDay(){
   const game=localGame;if(!game)return;
@@ -8174,7 +8850,78 @@ async function mafiaAdvanceToDay(){
 }
 
 // DAWN STORY SCREEN
+let mafiaDawnTimers=[];
+function mafiaStoryLines(game){
+  const st=game.mafiaDawnStory;
+  if(!st||!MAFIA_DAWN_STORIES[st.type])return null;
+  const tpls=MAFIA_DAWN_STORIES[st.type];
+  const tpl=tpls[(st.tpl||0)%tpls.length];
+  const players=game.players||{};
+  const nm=id=>id&&players[id]?`<em>${esc(players[id].name)}</em>`:'<em>someone</em>';
+  const victim=(st.type==='kill')?game.mafiaDawnEliminated:st.targetId;
+  const safe=html=>html.replace('<em>','<em class="safe">');
+  const tokens={d:st.decoyId?nm(st.decoyId):'<em>Someone</em>',v:nm(victim),t:st.type==='guard'?safe(nm(st.targetId)):nm(st.targetId),g:nm(st.guardId)};
+  return tpl.map(line=>line.replace(/\{([dvtg])\}/g,(_,k)=>tokens[k]));
+}
 function showMafiaDawnStory(game){
+  mafiaDawnTimers.forEach(clearTimeout);mafiaDawnTimers=[];
+  const lines=mafiaStoryLines(game);
+  if(!lines){showMafiaDawnStoryStatic(game);return;}
+  const st=game.mafiaDawnStory;
+  const players=game.players||{};
+  const eliminated=game.mafiaEliminated||{};
+  const day=game.mafiaDay||1;
+  const aliveCount=Object.values(players).filter(p=>!eliminated[p.id]).length;
+  const nameOf=id=>esc((players[id]&&players[id].name)||'Someone');
+  const outcomes={
+    kill:{icon:'☠️',cls:'death',title:`${nameOf(game.mafiaDawnEliminated)} is dead`},
+    guard:{icon:'🛡️',cls:'death',title:'The Bodyguard fell'},
+    saved:{icon:'🌿',cls:'saved',title:'The Doctor saves the day'},
+    guardsaved:{icon:'🛡️',cls:'saved',title:'Nobody died'},
+    quiet:{icon:'🌅',cls:'quiet',title:'A quiet night'},
+  };
+  const o=outcomes[st.type]||outcomes.quiet;
+  const finalCls=(st.type==='kill'||st.type==='guard')?'death':(st.type==='quiet'?'':'saved');
+  const nextDay=day+1;
+  const hostControls=amHost
+    ?`<div class="dawn-day-label">Next up: Day ${nextDay}</div><button class="btn btn-primary dawn-continue-btn" onclick="mafiaAdvanceToDay()">Start Day ${nextDay} →</button>`
+    :`<div class="dawn-day-label" style="margin-top:8px">Waiting for host to continue...</div>`;
+  document.getElementById('dawnStoryWrap').innerHTML=`
+    <div class="dawn-screen-bg">
+      <div class="dawn-eyebrow">🌅 Dawn · Night ${day}</div>
+      <div class="ds-lines">${lines.map((l,i)=>`<div class="ds-line${i===lines.length-1?' final '+finalCls:''}">${l}</div>`).join('')}</div>
+      <div class="ds-outcome" id="dsOutcome">
+        <div class="dawn-divider"></div>
+        <div class="dawn-icon" style="margin-bottom:10px">${o.icon}</div>
+        <div class="dawn-title ${o.cls}" style="font-size:30px">${o.title}</div>
+        <div class="dawn-alive-count">${aliveCount} player${aliveCount!==1?'s':''} remain</div>
+        <div style="height:24px"></div>
+        ${hostControls}
+      </div>
+      <button class="ds-skip" id="dsSkip" onclick="skipMafiaDawnStory()">SKIP ▸▸</button>
+    </div>`;
+  showScreen('mafia-dawn');
+  const els=[...document.querySelectorAll('#dawnStoryWrap .ds-line')];
+  let at=700;
+  els.forEach((el,i)=>{
+    const last=i===els.length-1;
+    if(last)at+=700;
+    mafiaDawnTimers.push(setTimeout(()=>{
+      els.forEach(e=>e.classList.remove('latest'));
+      el.classList.add('show','latest');
+      if(last){try{if(navigator.vibrate)navigator.vibrate(finalCls==='death'?[60,40,60]:30);}catch(e){}}
+    },at));
+    at+=last?0:1900;
+  });
+  mafiaDawnTimers.push(setTimeout(skipMafiaDawnStory,at+1500));
+}
+function skipMafiaDawnStory(){
+  mafiaDawnTimers.forEach(clearTimeout);mafiaDawnTimers=[];
+  document.querySelectorAll('#dawnStoryWrap .ds-line').forEach(e=>e.classList.add('show'));
+  const o=document.getElementById('dsOutcome');if(o)o.classList.add('show');
+  const sk=document.getElementById('dsSkip');if(sk)sk.classList.add('hide');
+}
+function showMafiaDawnStoryStatic(game){
   const eliminated=game.mafiaEliminated||{};
   const players=game.players||{};
   const dawnElimId=game.mafiaDawnEliminated;
@@ -8244,8 +8991,12 @@ function checkMafiaWin(game){
 }
 async function endMafiaGame(winner,game){
   const log=[...(game.mafiaLog||[])];
-  log.push({text:winner==='town'?'All Mafia eliminated — Civilians win!':'Mafia equals or outnumbers Civilians — Mafia wins!',type:winner==='town'?'saved':'death',ts:Date.now()});
+  log.push({text:winner==='jester'?'The Jester was voted out — the Jester wins!':winner==='town'?'All Mafia eliminated — Civilians win!':'Mafia equals or outnumbers Civilians — Mafia wins!',type:winner==='town'?'saved':'death',ts:Date.now()});
   await updateGame(gameCode,{status:'result',mafiaResult:{winner},mafiaLog:log,timerRunning:false});
+}
+async function mafiaFinishJester(){
+  if(!amHost||!gameCode||!localGame)return;
+  await endMafiaGame('jester',localGame);
 }
 async function mafiaEndGame(){
   if(!confirm('End the Mafia game now?'))return;
@@ -8262,14 +9013,17 @@ function showMafiaResult(game){
   const bannerEl=document.getElementById('mafiaResultBanner');
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
   const townPlayers=players.filter(p=>!mafiaIds.includes(p.id));
-  if(winner==='mafia'){
+  if(winner==='jester'){
+    const jesters=players.filter(p=>(game.mafiaRoles||{})[p.id]==='jester');
+    bannerEl.innerHTML=`<div class="result-banner jester-wins">${resultAvatarGroupHtml(jesters,'🃏')}<h2>The Jester Wins!</h2><p>The town voted out the one person who wanted it.</p></div>`;
+  } else if(winner==='mafia'){
     bannerEl.innerHTML=`<div class="result-banner mafia-wins">${resultAvatarGroupHtml(mafiaPlayers,'🔴')}<h2>Mafia Wins!</h2><p>The civilians were overrun.</p></div>`;
   } else {
     bannerEl.innerHTML=`<div class="result-banner town-wins">${resultAvatarGroupHtml(townPlayers,'🎉')}<h2>Civilians Win!</h2><p>All Mafia members eliminated.</p></div>`;
   }
   document.getElementById('mafiaResultReveal').innerHTML=`${resultAvatarGroupHtml(mafiaPlayers,'🔴')}<div style="font-size:20px;font-weight:800;color:#e74c3c">${mafiaPlayers.map(p=>esc(p.name)).join(', ')||'Unknown'}</div>`;
   // Show all roles
-  const roleLabel={mafia:'🔴 MAFIA',doctor:'💚 DOCTOR',town:'⬜ CIVILIAN'};
+  const roleLabel={};Object.entries(MAFIA_ROLE_META).forEach(([k,m])=>{roleLabel[k]=m.icon+' '+m.label;});
   document.getElementById('mafiaFinalRoles').innerHTML=players.map(p=>{
     const role=(game.mafiaRoles&&game.mafiaRoles[p.id])||'town';
     return`<div class="player-item"><div class="player-name">${playerNameHtml(p)}</div><div class="player-badge">${roleLabel[role]||role}</div></div>`;
@@ -9005,7 +9759,7 @@ async function leaveGame(){
       }
     }catch(e){console.error(e);}
   }
-  gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localMafiaOG=false;localFaWords=3;localFaRounds=0;localWitbChallenges=5;faCanvasCleanup();bsCleanup();hsCleanup();witbCleanup();resetLobbyEntrances();
+  gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localMafiaOG=false;localMafiaExtra={detective:false,jester:false,bodyguard:false};localFaWords=3;localFaRounds=0;localWitbChallenges=5;faCanvasCleanup();bsCleanup();hsCleanup();witbCleanup();resetLobbyEntrances();
   showScreen('home');
 }
 
@@ -9196,7 +9950,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();cancelHostRescue();clearLastGame();faCanvasCleanup();bsCleanup();hsCleanup();gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localMafiaOG=false;localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();cancelHostRescue();clearLastGame();faCanvasCleanup();bsCleanup();hsCleanup();gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localMafiaOG=false;localMafiaExtra={detective:false,jester:false,bodyguard:false};localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
 
 
 
@@ -10739,8 +11493,15 @@ function updateAvatarBtns(){
   });
 }
 
+const OVERLAY_FRAMES=['pumpkin','witchhat','spiderweb'];
 function avatarImg(av, extraClass=''){
   const classes=(extraClass||'').trim();
+  const ov=OVERLAY_FRAMES.find(fr=>classes.includes('av-frame-'+fr));
+  if(ov){
+    const wrapClass=`av av-ov-wrap ${classes}`.trim().replace(/\s+/g,' ');
+    const inner=av?`<img src="${av}" class="av-ov-photo" alt=""/>`:`<span class="av-ov-photo av-ov-empty">👤</span>`;
+    return `<span class="${wrapClass}">${inner}<span class="av-ov av-ov-${ov}">${ov==='spiderweb'?'<i class="av-ov-spider"></i>':''}</span></span>`;
+  }
   if(classes.includes('av-frame-inferno')){
     const wrapClass=`av av-inferno-wrap ${classes}`.trim().replace(/\s+/g,' ');
     if(av) return `<span class="${wrapClass}"><img src="${av}" class="av-inferno-photo" alt=""/></span>`;
@@ -12603,6 +13364,53 @@ function renderWitbFinal(game){
   }).join('');
 }
 function witbCleanup(){witbMyBoxVisible=false;localWitbBoxes=null;}
+
+// =====================================================
+// SEASONS — Halloween runs all of October (and 1–2 Nov)
+// =====================================================
+function activeSeason(){
+  try{const o=localStorage.getItem('cg_season');if(o)return o==='none'?null:o;}catch(e){}
+  const d=new Date(),m=d.getMonth(),day=d.getDate();
+  if(m===9||(m===10&&day<=2))return'halloween';
+  return null;
+}
+let hwBatTimer=null,hwNextBat=0;
+const HW_AMBIENT_SCREENS=['home','lobby','waiting'];
+// Webs and bats only on the home, lobby and waiting screens — never in a game.
+function hwUpdateAmbient(id){
+  if(!document.body.classList.contains('season-halloween'))return;
+  document.body.classList.toggle('hw-ambient',HW_AMBIENT_SCREENS.includes(id));
+}
+function initSeasonTheme(){
+  const halloween=activeSeason()==='halloween';
+  document.body.classList.toggle('season-halloween',halloween);
+  const tab=document.getElementById('shopTabHalloween');if(tab)tab.style.display=halloween?'':'none';
+  if(!halloween)return;
+  const tag=document.querySelector('#screen-home .tagline');if(tag)tag.textContent='Spooky games for the boys 🎃';
+  if(!document.getElementById('hwBats')){
+    const fog=document.createElement('div');fog.className='hw-fog';document.body.appendChild(fog);
+    const bats=document.createElement('div');bats.className='hw-bats';bats.id='hwBats';bats.setAttribute('aria-hidden','true');
+    document.body.appendChild(bats);
+  }
+  const cur=((document.querySelector('.screen.active')||{}).id||'').replace('screen-','');
+  hwUpdateAmbient(cur);
+  if(!hwBatTimer)hwBatTimer=setInterval(hwMaybeBat,700);
+}
+function hwMaybeBat(){
+  const box=document.getElementById('hwBats');
+  if(!box||document.hidden||!document.body.classList.contains('hw-ambient'))return;
+  if(Date.now()<hwNextBat||box.children.length>=4)return;
+  hwNextBat=Date.now()+1800+Math.random()*3200;
+  const bat=document.createElement('span');
+  bat.className='hw-bat'+(Math.random()<0.5?' rtl':'');
+  bat.style.top=(4+Math.random()*58)+'vh';
+  bat.style.setProperty('--sz',(12+Math.random()*12).toFixed(0)+'px');
+  bat.style.setProperty('--dur',(9+Math.random()*8).toFixed(1)+'s');
+  bat.innerHTML='<i></i>';
+  bat.addEventListener('animationend',e=>{if(e.target===bat)bat.remove();});
+  box.appendChild(bat);
+}
+if(document.body)initSeasonTheme();else document.addEventListener('DOMContentLoaded',initSeasonTheme);
 </script>
 
 <script>
@@ -13017,6 +13825,7 @@ function witbCleanup(){witbMyBoxVisible=false;localWitbBoxes=null;}
         <button class="shop-tab" id="shopTabTitles" onclick="switchShopTab('titles')">Titles</button>
         <button class="shop-tab" id="shopTabPacks" onclick="switchShopTab('packs')">Packs</button>
         <button class="shop-tab" id="shopTabExtras" onclick="switchShopTab('extras')">Extras</button>
+        <button class="shop-tab shop-tab-season" id="shopTabHalloween" onclick="switchShopTab('halloween')" style="display:none">🎃 Spooky</button>
         <button class="shop-tab" id="shopTabOwned" onclick="switchShopTab('owned')">Owned</button>
       </div>
       <div class="shop-grid" id="shopItems"></div>
