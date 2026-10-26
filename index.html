@@ -13649,8 +13649,13 @@ function initSeasonTheme(){
     const bats=document.createElement('div');bats.className='hw-bats';bats.id='hwBats';bats.setAttribute('aria-hidden','true');
     document.body.appendChild(bats);
   }
-  const cur=((document.querySelector('.screen.active')||{}).id||'').replace('screen-','');
-  hwUpdateAmbient(cur);
+  // Screens are switched from more than one place (the startup/password code too),
+  // so follow the active screen itself rather than relying on showScreen.
+  const syncAmbient=()=>hwUpdateAmbient(((document.querySelector('.screen.active')||{}).id||'').replace('screen-',''));
+  const obs=new MutationObserver(syncAmbient);
+  document.querySelectorAll('.screen').forEach(el=>obs.observe(el,{attributes:true,attributeFilter:['class']}));
+  syncAmbient();
+  document.addEventListener('DOMContentLoaded',syncAmbient);
   if(!hwBatTimer)hwBatTimer=setInterval(hwMaybeBat,700);
 }
 function hwMaybeBat(){

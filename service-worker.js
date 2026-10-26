@@ -1,7 +1,7 @@
 /* Chrispy Games Service Worker
    Change VERSION every time you update the site. */
 
-const VERSION = "chrispy-games-v2026-10-26-dawn-fx-5";
+const VERSION = "chrispy-games-v2026-10-26-webs-firstopen-6";
 const CACHE_NAME = VERSION;
 
 const CORE_ASSETS = [
