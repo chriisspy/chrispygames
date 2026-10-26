@@ -2924,38 +2924,63 @@ const MAFIA_ROLE_META={
   bodyguard:{label:'BODYGUARD',icon:'🛡️',color:'#f59e0b',tint:'rgba(245,158,11,0.07)',border:'rgba(245,158,11,0.35)'},
 };
 // Dawn stories. {d} = a decoy who seems to be in danger, {v} = victim (or the one saved),
-// {t} = the Mafia's target, {g} = the Bodyguard. The last line is the reveal.
+// {t} = the Mafia's target, {g} = the Bodyguard. A line starting with "~" is a twist:
+// the story pauses before it. Mixes decoy fake-outs, straight-to-the-point ones and double bluffs.
 const MAFIA_DAWN_STORIES={
   kill:[
-    ["The town went to sleep.","Around midnight, footsteps stopped outside {d}'s door.","The handle turned. Slowly.","{d} held their breath...","...but the footsteps moved on.","Next door, {v} never woke up."],
-    ["A storm rolled in last night.","{d} heard glass smash downstairs.","They grabbed the closest weapon. A frying pan.","It was just the cat.","Across town, the Mafia weren't playing around.","{v} was found at sunrise."],
-    ["{d} couldn't sleep, so they went for a walk.","A black car crept up behind them.","The window rolled down...","\"Not you,\" said a voice. The car drove off.","It stopped outside {v}'s house instead.","{v} is dead."],
-    ["The Mafia met in the dark.","\"We go for {d} tonight,\" one of them said.","Everyone nodded.","Then someone changed their mind.","{v} is dead."],
-    ["{d} woke at 3am to a knock.","Knock. Knock. Knock.","They opened the door...","...a pizza guy. Wrong address.","Two streets over, {v} opened their door too.","{v} wasn't so lucky."],
-    ["Word got around that {d} was next.","{d} barricaded the door and stayed up all night.","Nobody came.","The Mafia had already picked someone else.","{v} is dead."],
-    ["{d} left their window open last night.","A shadow climbed the drainpipe.","It reached the top... and stopped.","Then it climbed back down and kept walking.","All the way to {v}'s house.","{v} is dead."],
-    ["The streetlights flickered out at midnight.","{d} saw someone standing in their garden.","They called out. No answer.","At sunrise the garden was empty.","But {v}'s front door was wide open.","{v} is dead."],
+    ["The town went to sleep.","Around midnight, footsteps stopped outside {d}'s door.","The handle turned. Slowly.","{d} held their breath...","~...but the footsteps moved on.","~Next door, {v} never woke up."],
+    ["A storm rolled in last night.","{d} heard glass smash downstairs.","They grabbed the closest weapon. A frying pan.","~It was just the cat.","Across town, the Mafia weren't playing around.","~{v} was found at sunrise."],
+    ["{d} couldn't sleep, so they went for a walk.","A black car crept up behind them.","The window rolled down...","~\"Not you,\" said a voice. The car drove off.","It stopped outside {v}'s house instead.","{v} is dead."],
+    ["The Mafia met in the dark.","\"We go for {d} tonight,\" one of them said.","Everyone nodded.","~Then someone changed their mind.","~{v} is dead."],
+    ["{d} woke at 3am to a knock.","Knock. Knock. Knock.","They opened the door...","~...a pizza guy. Wrong address.","Two streets over, {v} opened their door too.","{v} wasn't so lucky."],
+    ["Word got around that {d} was next.","{d} barricaded the door and stayed up all night.","~Nobody came.","The Mafia had already picked someone else.","~{v} is dead."],
+    ["{d} left their window open last night.","A shadow climbed the drainpipe.","It reached the top... and stopped.","~Then it climbed back down and kept walking.","All the way to {v}'s house.","{v} is dead."],
+    ["The streetlights flickered out at midnight.","{d} saw someone standing in their garden.","They called out. No answer.","~At sunrise the garden was empty.","~But {v}'s front door was wide open.","{v} is dead."],
+    ["{v} went to bed early last night.","~They never woke up.","{v} is dead."],
+    ["{v} heard a noise downstairs.","They went to check.","~They shouldn't have.","{v} is dead."],
+    ["The Mafia had one name on their list.","~{v}.","They didn't miss.","{v} is dead."],
+    ["{v} was walking home alone.","A car slowed down beside them.","~That's the last anyone saw of them.","{v} is dead."],
+    ["{v} thought they'd be safe tonight.","~They were wrong.","{v} is dead."],
+    ["Nobody heard a thing last night.","~Not even {v}.","{v} is dead."],
+    ["{v} and {d} walked home together.","At the corner, they split up.","{d} made it home.","~{v} didn't.","{v} is dead."],
+    ["{v} locked every door and window.","Checked them twice.","Went to sleep feeling safe.","~The Mafia were already inside.","{v} is dead."],
+    ["{d} was sure they'd be the one tonight.","They even wrote a goodbye note.","~They woke up fine.","~{v} didn't wake up at all."],
+    ["{v} stayed up late, watching the street.","Hours went by. Nothing.","They finally closed their eyes...","~{v} is dead."],
+    ["Everyone heard the scream.","{d} ran outside first.","~It wasn't coming from {d}'s street.","~It was {v}.","{v} is dead."],
+    ["The Mafia knocked on {v}'s door.","{v} answered it.","~Big mistake.","{v} is dead."],
   ],
   saved:[
-    ["The Mafia picked their target: {d}.","At the last second, someone said \"no, not them.\"","They switched to {v}.","They crept in at midnight...","...and walked straight into the Doctor.","{v} survives."],
-    ["{d} saw a figure sneaking around the houses.","It stopped at {v}'s window.","The knife came out.","Then a torch flicked on. It was the Doctor.","{v} is alive."],
-    ["Everyone woke up expecting the worst.","{d} counted heads. One missing.","Panic.","Then {v} walked in with a bandage on their head.","The Doctor saved {v}."],
-    ["The Mafia were sure about tonight.","{d} looked like the easy pick.","But they went for {v} instead.","The Doctor was already waiting there.","Nobody died. {v} survives."],
+    ["The Mafia picked their target: {d}.","At the last second, someone said \"no, not them.\"","~They switched to {v}.","They crept in at midnight...","~...and walked straight into the Doctor.","{v} survives."],
+    ["{d} saw a figure sneaking around the houses.","~It stopped at {v}'s window.","The knife came out.","~Then a torch flicked on. It was the Doctor.","{v} is alive."],
+    ["Everyone woke up expecting the worst.","{d} counted heads. One missing.","Panic.","~Then {v} walked in with a bandage on their head.","The Doctor saved {v}."],
+    ["The Mafia were sure about tonight.","{d} looked like the easy pick.","~But they went for {v} instead.","~The Doctor was already waiting there.","Nobody died. {v} survives."],
+    ["{v} heard the window slide open.","A figure climbed in, knife out.","~Then the Doctor stepped out of the wardrobe.","{v} survives."],
+    ["The Mafia went straight for {v}.","No hesitation. No mercy.","~No luck either. The Doctor got there first.","{v} is alive."],
+    ["{d} heard a scream at 2am.","Everyone thought that was it for {v}.","~But the Doctor had been watching all night.","{v} survives."],
+    ["{v} was attacked last night.","It looked bad. Really bad.","~The Doctor worked until sunrise.","{v} pulled through."],
   ],
   guard:[
-    ["Rumours said {d} was the target.","They weren't.","The Mafia came for {t}.","Someone stepped out of the dark and took the blade.","{g} was the Bodyguard. They died a hero."],
-    ["{d} heard a fight in the street.","Shouting. A crash. Then silence.","{t} is alive.","{g} gave their life to save them."],
-    ["Everyone thought {d} was finished.","The Mafia were already inside {t}'s house.","But the Bodyguard was faster.","{g} took the hit. {t} survives."],
+    ["Rumours said {d} was the target.","~They weren't.","The Mafia came for {t}.","~Someone stepped out of the dark and took the blade.","{g} was the Bodyguard. They died a hero."],
+    ["{d} heard a fight in the street.","Shouting. A crash. Then silence.","~{t} is alive.","~{g} gave their life to save them."],
+    ["Everyone thought {d} was finished.","~The Mafia were already inside {t}'s house.","But the Bodyguard was faster.","{g} took the hit. {t} survives."],
+    ["{g} had a bad feeling about tonight.","So they stood watch outside {t}'s house.","~They were right.","{g} died protecting {t}."],
+    ["The Mafia came for {t}.","~They got {g} instead.","{g} was the Bodyguard. {t} is alive because of them."],
+    ["{d} saw two shadows fighting in the street.","One of them fell.","~It was {g}, the Bodyguard.","{t} survives."],
   ],
   guardsaved:[
-    ["The Mafia came for {t}.","The Bodyguard jumped in the way.","The blade hit {g}...","...and the Doctor patched them up on the spot.","Nobody died. Not tonight."],
-    ["{d} heard a scream around 2am.","Everyone feared the worst.","{g} had blocked the Mafia's attack on {t}.","Then the Doctor showed up just in time.","Everyone made it to morning."],
+    ["The Mafia came for {t}.","The Bodyguard jumped in the way.","The blade hit {g}...","~...and the Doctor patched them up on the spot.","Nobody died. Not tonight."],
+    ["{d} heard a scream around 2am.","Everyone feared the worst.","~{g} had blocked the Mafia's attack on {t}.","~Then the Doctor showed up just in time.","Everyone made it to morning."],
+    ["{t} was the target.","{g} took the hit for them.","~And the Doctor saved {g}.","What a night. Nobody died."],
   ],
   quiet:[
-    ["The night was quiet.","Too quiet.","{d} swore they heard whispers by the river...","Just the wind.","Nobody died."],
-    ["The Mafia argued all night.","Nobody could agree on a name.","{d}'s name came up. Twice.","In the end they all went home.","Nobody died."],
-    ["{d} woke up screaming.","A nightmare. Only a nightmare.","Everyone made it to morning."],
-    ["The Mafia watched {d}'s house for hours.","The lights went off.","They waited...","...and then they just went home.","Nobody died last night."],
+    ["The night was quiet.","Too quiet.","{d} swore they heard whispers by the river...","~Just the wind.","Nobody died."],
+    ["The Mafia argued all night.","Nobody could agree on a name.","{d}'s name came up. Twice.","~In the end they all went home.","Nobody died."],
+    ["{d} woke up screaming.","~A nightmare. Only a nightmare.","Everyone made it to morning."],
+    ["The Mafia watched {d}'s house for hours.","The lights went off.","They waited...","~...and then they just went home.","Nobody died last night."],
+    ["The Mafia stayed home last night.","Maybe they're scared.","~Maybe they're planning something bigger.","Nobody died."],
+    ["{d} heard footsteps on the roof.","They stayed perfectly still until sunrise.","~It was a possum.","Nobody died."],
+    ["Everyone made it through the night.","Nobody died.","~...but the Mafia are still out there."],
+    ["{d} swore they saw someone in a mask.","Nobody believed them.","~Maybe they should have.","But nobody died. This time."],
   ],
 };
 function mafiaRoleLabels(){const o={};Object.entries(MAFIA_ROLE_META).forEach(([k,m])=>{o[k]=m.label;});return o;}
@@ -8861,7 +8886,11 @@ function mafiaStoryLines(game){
   const victim=(st.type==='kill')?game.mafiaDawnEliminated:st.targetId;
   const safe=html=>html.replace('<em>','<em class="safe">');
   const tokens={d:st.decoyId?nm(st.decoyId):'<em>Someone</em>',v:nm(victim),t:st.type==='guard'?safe(nm(st.targetId)):nm(st.targetId),g:nm(st.guardId)};
-  return tpl.map(line=>line.replace(/\{([dvtg])\}/g,(_,k)=>tokens[k]));
+  return tpl.map(line=>{
+    const twist=line.startsWith('~');
+    const text=twist?line.slice(1):line;
+    return {html:text.replace(/\{([dvtg])\}/g,(_,k)=>tokens[k]),twist,named:/\{[dvtg]\}/.test(text)};
+  });
 }
 function showMafiaDawnStory(game){
   mafiaDawnTimers.forEach(clearTimeout);mafiaDawnTimers=[];
@@ -8889,7 +8918,7 @@ function showMafiaDawnStory(game){
   document.getElementById('dawnStoryWrap').innerHTML=`
     <div class="dawn-screen-bg">
       <div class="dawn-eyebrow">🌅 Dawn · Night ${day}</div>
-      <div class="ds-lines">${lines.map((l,i)=>`<div class="ds-line${i===lines.length-1?' final '+finalCls:''}">${l}</div>`).join('')}</div>
+      <div class="ds-lines">${lines.map((l,i)=>`<div class="ds-line${i===lines.length-1?' final '+finalCls:''}">${l.html}</div>`).join('')}</div>
       <div class="ds-outcome" id="dsOutcome">
         <div class="dawn-divider"></div>
         <div class="dawn-icon" style="margin-bottom:10px">${o.icon}</div>
@@ -8902,18 +8931,25 @@ function showMafiaDawnStory(game){
     </div>`;
   showScreen('mafia-dawn');
   const els=[...document.querySelectorAll('#dawnStoryWrap .ds-line')];
-  let at=700;
+  // Pacing: the gap after a line scales with how long it takes to read,
+  // a little longer after a name, a held breath before a twist, and the longest hold before the reveal.
+  const readMs=el=>Math.max(1750,Math.min(2900,2200+(el.textContent.trim().length-35)*22));
+  let at=900;
   els.forEach((el,i)=>{
     const last=i===els.length-1;
-    if(last)at+=700;
+    if(i>0){
+      at+=readMs(els[i-1]);
+      if(lines[i-1].named)at+=350;
+      if(lines[i].twist)at+=1300;
+      if(last)at+=900;
+    }
     mafiaDawnTimers.push(setTimeout(()=>{
       els.forEach(e=>e.classList.remove('latest'));
       el.classList.add('show','latest');
       if(last){try{if(navigator.vibrate)navigator.vibrate(finalCls==='death'?[60,40,60]:30);}catch(e){}}
     },at));
-    at+=last?0:1900;
   });
-  mafiaDawnTimers.push(setTimeout(skipMafiaDawnStory,at+1500));
+  mafiaDawnTimers.push(setTimeout(skipMafiaDawnStory,at+Math.max(1800,readMs(els[els.length-1]))));
 }
 function skipMafiaDawnStory(){
   mafiaDawnTimers.forEach(clearTimeout);mafiaDawnTimers=[];
