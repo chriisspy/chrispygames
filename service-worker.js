@@ -1,7 +1,7 @@
 /* Chrispy Games Service Worker
    Change VERSION every time you update the site. */
 
-const VERSION = "chrispy-games-v2026-10-26-dawn-stories-3";
+const VERSION = "chrispy-games-v2026-10-26-detective-watch-4";
 const CACHE_NAME = VERSION;
 
 const CORE_ASSETS = [

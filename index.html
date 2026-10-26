@@ -468,6 +468,10 @@ select option{background:var(--surface2)}
 .mr-pair>div span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .mr-pair .av,.mr-pair .av-placeholder{width:54px;height:54px;font-size:22px}
 .mr-pair>b{font-size:20px;color:var(--muted);margin-bottom:22px}
+.ds-report{margin:18px auto 0;max-width:320px;padding:12px 14px;border-radius:14px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.4);font-size:14px;line-height:1.55;color:var(--text)}
+.ds-report-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#60a5fa;margin-bottom:4px}
+.ds-report .bad{color:#ff6b5b;font-weight:700}
+.ds-report .good{color:#4ade80;font-weight:700}
 .mr-hint{font-size:12px;color:#93c5fd;font-family:'JetBrains Mono',monospace;text-align:center;margin:-2px 0 12px;line-height:1.5}
 .mr-notes{display:flex;flex-direction:column;gap:6px;margin-top:12px}
 .mr-note{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--surface2);font-size:13px}
@@ -1946,7 +1950,7 @@ body{
           <div class="chaos-toggle-header">
             <div>
               <div class="chaos-title" style="color:#60a5fa">🔍 DETECTIVE</div>
-              <div class="chaos-desc">Checks two players at once (is one of them Mafia?), then rests a night.</div>
+              <div class="chaos-desc">Watches two players each night and learns if they left the house.</div>
             </div>
             <label class="toggle-switch"><input type="checkbox" id="mafiaRoleToggle_detective" onchange="toggleMafiaExtraRole('detective')"/><span class="toggle-slider"></span></label>
           </div>
@@ -6864,7 +6868,7 @@ function getMafiaCardHTML(role){
     mafia:{cls:'card-mafia',rank:'M',suit:'♠',icon:'🔴',name:'MAFIA',desc:'Kill one each night.\nBlend in during the day.'},
     doctor:{cls:'card-doctor',rank:'Dr',suit:'♥',icon:'💚',name:'DOCTOR',desc:'Save one player\nfrom death each night.'},
     town:{cls:'card-town',rank:'C',suit:'♣',icon:'⬜',name:'CIVILIAN',desc:'Discuss by day.\nFind all Mafia.'},
-    detective:{cls:'card-detective',rank:'D',suit:'♦',icon:'🔍',name:'DETECTIVE',desc:'Check two players at once.\nIs one of them Mafia?'},
+    detective:{cls:'card-detective',rank:'D',suit:'♦',icon:'🔍',name:'DETECTIVE',desc:'Watch two players each night.\nDid they leave the house?'},
     jester:{cls:'card-jester',rank:'J',suit:'★',icon:'🃏',name:'JESTER',desc:'Get voted out by the town.\nThat is how you win.'},
     bodyguard:{cls:'card-bodyguard',rank:'B',suit:'♠',icon:'🛡️',name:'BODYGUARD',desc:'Guard one player each night.\nTake the hit for them.'},
   };
@@ -6916,7 +6920,7 @@ function enterMafiaReveal(game){
     } else if(role==='mafia'){
       extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;color:#e74c3c;font-family:'JetBrains Mono',monospace">You are the only Mafia member. Blend in.</div></div>`;
     } else if(role==='detective'){
-      extra=`<div class="role-action-box detective" style="margin-top:12px">At night, pick two players. You'll find out if at least one of them is Mafia, but not which one. After a check you rest for a night. Don't get yourself killed.</div>`;
+      extra=`<div class="role-action-box detective" style="margin-top:12px">Each night, pick two players to watch. At dawn you'll learn if neither, one or both of them left the house. The Mafia, Doctor and Bodyguard all go out at night. Don't get yourself killed.</div>`;
     } else if(role==='jester'){
       extra=`<div class="role-action-box jester" style="margin-top:12px">You're on nobody's team. If the town votes you out, you win the whole game. Act a bit suss, but not too suss.</div>`;
     } else if(role==='bodyguard'){
@@ -8379,31 +8383,53 @@ async function sendMafiaPrivateChat(){
 // MAFIA: NIGHT — DETECTIVE / BODYGUARD SCREEN
 // =====================================================
 let mafiaRolePick=null,mafiaRoleStageKey='',mafiaRoleSubmitting=false;
-// The Detective checks TWO players and only learns whether at least one is Mafia,
-// then rests for a night before checking again.
+// The Detective watches TWO players each night. At dawn they learn how many of them
+// left the house: Mafia going out to kill, the Doctor saving someone else, the Bodyguard on guard.
 function mafiaDetectiveChecks(game){
-  return Object.values(game.mafiaDetectiveLog||{}).map(n=>({night:n.night,targets:n.targets||(n.target?[n.target]:[]),hit:n.targets?!!n.hit:!!n.isMafia})).sort((x,y)=>x.night-y.night);
+  return Object.values(game.mafiaDetectiveLog||{}).filter(n=>n&&n.targets).sort((x,y)=>x.night-y.night);
 }
-function mafiaDetectiveResting(game){
-  const day=game.mafiaDay||1;
-  return mafiaDetectiveChecks(game).some(n=>n.night===day-1);
+function mafiaLeftText(n){
+  const l=n.left||0;
+  return l===0?'NEITHER LEFT':l===1?'ONE LEFT':'BOTH LEFT';
 }
 function mafiaDetectiveNotesHTML(game){
   const log=mafiaDetectiveChecks(game);
   if(!log.length)return'';
   const players=game.players||{};
   const nm=id=>esc((players[id]||{}).name||'?');
-  return `<div class="mr-notes"><div class="mv-label" style="margin:4px 2px 0"><span>Your notes</span></div>${log.map(n=>`<div class="mr-note"><span class="mr-note-night">N${n.night}</span><b>${n.targets.map(nm).join(' + ')}</b><span class="mr-note-tag ${n.hit?'bad':'good'}">${n.hit?(n.targets.length>1?'ONE IS MAFIA':'MAFIA'):'CLEAR'}</span></div>`).join('')}</div>`;
+  return `<div class="mr-notes"><div class="mv-label" style="margin:4px 2px 0"><span>Your notes</span></div>${log.map(n=>`<div class="mr-note"><span class="mr-note-night">N${n.night}</span><b>${n.targets.map(nm).join(' + ')}</b><span class="mr-note-tag ${n.left?'bad':'good'}">${mafiaLeftText(n)}</span></div>`).join('')}</div>`;
 }
 function mafiaRoleExtraHTML(game,role){
   if(role==='detective'){
     const notes=mafiaDetectiveNotesHTML(game);
-    const resting=game.mafiaPhase==='day'&&mafiaDetectiveChecks(game).some(n=>n.night===(game.mafiaDay||1)-1);
-    return `<div class="role-action-box detective">🔍 You check two players at a time, then rest a night.${resting?' You rest tonight.':''}${notes?'':' No checks yet.'}</div>${notes}`;
+    return `<div class="role-action-box detective">🔍 Each night you watch two players. At dawn you find out how many of them left the house.${notes?'':' No reports yet.'}</div>${notes}`;
   }
   if(role==='jester')return `<div class="role-action-box jester">🃏 You win if the town votes you out. Act a bit suss, but not too suss.</div>`;
   if(role==='bodyguard')return `<div class="role-action-box bodyguard">🛡️ Each night you guard someone. If the Mafia come for them, you die instead.</div>`;
   return '';
+}
+// Who left the house tonight (host, at dawn).
+function mafiaLeftHouseCount(game,ids){
+  const roles=game.mafiaRoles||{},elim=game.mafiaEliminated||{},kill=game.mafiaKillVotes||{};
+  return ids.filter(id=>{
+    if(elim[id])return false;
+    const r=roles[id];
+    if(r==='mafia')return !!kill[id];
+    if(r==='doctor')return !!game.mafiaSaveVote&&game.mafiaSaveVote!==id;
+    if(r==='bodyguard')return !!game.mafiaGuardVote;
+    return false;
+  }).length;
+}
+// Private line for the Detective on the dawn screen.
+function mafiaDetectiveDawnHTML(game){
+  if(((game.mafiaRoles||{})[myId])!=='detective')return'';
+  const n=(game.mafiaDetectiveLog||{})['n'+(game.mafiaDay||1)];
+  if(!n||!n.targets)return'';
+  const players=game.players||{};
+  const nm=id=>`<b>${esc((players[id]||{}).name||'?')}</b>`;
+  const l=n.left||0;
+  const verdict=l===0?'<span class="good">neither left the house</span>':l===1?'<span class="bad">one of them left the house</span>':'<span class="bad">both left the house</span>';
+  return `<div class="ds-report"><div class="ds-report-eyebrow">🔍 Only you can see this</div>Of ${nm(n.targets[0])} and ${nm(n.targets[1])}, ${verdict} last night.</div>`;
 }
 function renderMafiaNightRole(game){
   startMafiaNightDecisionTimer(game);
@@ -8413,25 +8439,18 @@ function renderMafiaNightRole(game){
   const elim=game.mafiaEliminated||{};
   const day=game.mafiaDay||1;
   const raw=isDet?game.mafiaDetectVote:game.mafiaGuardVote;
-  const chosen=isDet?(Array.isArray(raw)?raw:(raw?[raw]:null)):raw;
-  const resting=isDet&&!chosen&&mafiaDetectiveResting(game);
+  const chosen=isDet?(Array.isArray(raw)&&raw.length?raw:null):raw;
   const p=id=>players[id]||{id,name:'?'};
   document.getElementById('mrWrap').className='mr-wrap mr-'+(isDet?'detective':'bodyguard');
   document.getElementById('mrEyebrow').textContent=(isDet?'🔍 Detective':'🛡️ Bodyguard')+' · Night '+day;
-  document.getElementById('mrTitle').innerHTML=resting?'Off duty<br>tonight':chosen?(isDet?'Case closed<br>for tonight':'You are on<br>guard duty'):(isDet?'Pick two to<br>investigate':'Who will you<br>protect?');
-  const key=`${day}|${role}|${chosen?[].concat(chosen).join(','):''}|${resting}`;
+  document.getElementById('mrTitle').innerHTML=chosen?(isDet?'Eyes on<br>the street':'You are on<br>guard duty'):(isDet?'Pick two<br>to watch':'Who will you<br>protect?');
+  const key=`${day}|${role}|${chosen?[].concat(chosen).join(','):''}`;
   if(key===mafiaRoleStageKey)return;
   mafiaRoleStageKey=key;
   const stage=document.getElementById('mrStage');
-  if(resting){
-    stage.innerHTML=`<div class="mr-panel"><div class="mr-result"><div class="mr-result-card rest"><div style="font-size:44px;margin-bottom:6px">☕</div><div class="mr-result-verdict">RESTING</div><div class="mr-result-sub">You checked last night.<br>Back on the case tomorrow night.</div></div></div>${mafiaDetectiveNotesHTML(game)}</div>`;
-    return;
-  }
   if(chosen){
     if(isDet){
-      const hit=chosen.some(id=>(game.mafiaIds||[]).includes(id));
-      stage.innerHTML=`<div class="mr-panel"><div class="mr-result"><div class="mr-result-card ${hit?'is-mafia':'not-mafia'}"><div class="mr-pair">${chosen.map(id=>`<div>${playerAvatar(p(id))}<span>${playerNameHtml(p(id))}</span></div>`).join('<b>+</b>')}</div><div class="mr-result-verdict">${hit?'ONE IS MAFIA':'NEITHER IS MAFIA'}</div><div class="mr-result-sub">${hit?'At least one of them is lying.<br>But which one?':'Both of them are clear.'}</div></div></div>${mafiaDetectiveNotesHTML(game)}</div>`;
-      try{if(navigator.vibrate)navigator.vibrate(hit?[40,60,40]:25);}catch(e){}
+      stage.innerHTML=`<div class="mr-panel"><div class="mr-result"><div class="mr-result-card rest"><div class="mr-pair">${chosen.map(id=>`<div>${playerAvatar(p(id))}<span>${playerNameHtml(p(id))}</span></div>`).join('<b>+</b>')}</div><div class="mr-result-verdict">WATCHING</div><div class="mr-result-sub">Your report arrives at dawn:<br>did either of them leave the house?</div></div></div>${mafiaDetectiveNotesHTML(game)}</div>`;
     } else {
       stage.innerHTML=`<div class="mr-panel"><div class="mr-result"><div class="mr-result-card guard">${playerAvatar(p(chosen))}<div style="font-size:15px;font-weight:700">${playerNameHtml(p(chosen))}</div><div class="mr-result-verdict">GUARDED</div><div class="mr-result-sub">If the Mafia come for them,<br>you take the hit.</div></div></div></div>`;
     }
@@ -8440,9 +8459,9 @@ function renderMafiaNightRole(game){
   mafiaRolePick=[];
   const targets=Object.values(players).filter(x=>!elim[x.id]&&x.id!==myId).sort((a,b)=>a.joinedAt-b.joinedAt);
   stage.innerHTML=`<div class="mr-panel">
-    ${isDet?'<div class="mr-hint" id="mrHint">Tap two players. You\'ll find out if at least one of them is Mafia.</div>':''}
+    ${isDet?'<div class="mr-hint" id="mrHint">Tap two players. At dawn you\'ll find out how many of them left the house tonight.</div>':''}
     <div class="mv-grid" style="margin-top:0">${targets.map(x=>`<button class="mv-pick" data-id="${x.id}" onclick="pickMafiaRoleTarget('${x.id}')">${playerAvatar(x)}<span class="mv-pick-name">${playerNameHtml(x)}</span><span class="mv-pick-check">✓</span></button>`).join('')}</div>
-    <button class="btn mr-confirm" id="mrConfirmBtn" onclick="confirmMafiaRoleTarget()" disabled>${isDet?'Investigate (0/2)':'Guard them'}</button>
+    <button class="btn mr-confirm" id="mrConfirmBtn" onclick="confirmMafiaRoleTarget()" disabled>${isDet?'Watch them (0/2)':'Guard them'}</button>
     ${isDet?mafiaDetectiveNotesHTML(game):''}
   </div>`;
 }
@@ -8455,19 +8474,18 @@ function pickMafiaRoleTarget(id){
   mafiaRolePick=picks;
   document.querySelectorAll('#mrStage .mv-pick').forEach(b=>b.classList.toggle('selected',picks.includes(b.dataset.id)));
   const btn=document.getElementById('mrConfirmBtn');
-  if(btn){btn.disabled=picks.length!==need;if(need===2)btn.textContent=`Investigate (${picks.length}/2)`;}
+  if(btn){btn.disabled=picks.length!==need;if(need===2)btn.textContent=`Watch them (${picks.length}/2)`;}
 }
 async function confirmMafiaRoleTarget(){
   const g=localGame;
   const picks=Array.isArray(mafiaRolePick)?mafiaRolePick:[];
   if(!g||!gameCode||g.mafiaPhase!=='night'||!picks.length||mafiaRoleSubmitting)return;
-  const role=(g.mafiaRoles||{})[myId];const day=g.mafiaDay||1;
+  const role=(g.mafiaRoles||{})[myId];
   mafiaRoleSubmitting=true;
   try{
     if(role==='detective'){
-      if(picks.length!==2||mafiaDetectiveResting(g))return;
-      const hit=picks.some(id=>(g.mafiaIds||[]).includes(id));
-      await updateGame(gameCode,{mafiaDetectVote:picks,['mafiaDetectiveLog/n'+day]:{targets:picks,hit,night:day}});
+      if(picks.length!==2)return;
+      await updateGame(gameCode,{mafiaDetectVote:picks});
     } else if(role==='bodyguard'){
       await updateGame(gameCode,{mafiaGuardVote:picks[0]});
     }
@@ -8855,7 +8873,13 @@ async function mafiaAdvanceToDawn(){
   const story={type,tpl,decoyId,targetId:killTarget||null,guardId:guardId||null};
   const storyUsed={...(game.mafiaStoryUsed||{}),[type]:pool.length===tpls.length&&used.length?[tpl]:[...used,tpl]};
 
-  await updateGame(gameCode,{mafiaPhase:'dawn',mafiaEliminated:eliminated,mafiaLog:log,mafiaVotes:{},mafiaDawnEliminated:dawnEliminated,mafiaDawnSaved:dawnSaved,mafiaDawnGuarded:dawnGuarded,mafiaDawnStory:story,mafiaStoryUsed:storyUsed});
+  // Detective report: how many of the two they watched left the house tonight.
+  const detUpdate={};
+  const detId=Object.keys(roles).find(id=>roles[id]==='detective'&&!(game.mafiaEliminated||{})[id]);
+  const watched=Array.isArray(game.mafiaDetectVote)?game.mafiaDetectVote:[];
+  if(detId&&watched.length===2)detUpdate['mafiaDetectiveLog/n'+night]={targets:watched,left:mafiaLeftHouseCount(game,watched),night};
+
+  await updateGame(gameCode,{mafiaPhase:'dawn',mafiaEliminated:eliminated,mafiaLog:log,mafiaVotes:{},mafiaDawnEliminated:dawnEliminated,mafiaDawnSaved:dawnSaved,mafiaDawnGuarded:dawnGuarded,mafiaDawnStory:story,mafiaStoryUsed:storyUsed,...detUpdate});
 }
 async function mafiaAdvanceToDay(){
   const game=localGame;if(!game)return;
@@ -8924,6 +8948,7 @@ function showMafiaDawnStory(game){
         <div class="dawn-icon" style="margin-bottom:10px">${o.icon}</div>
         <div class="dawn-title ${o.cls}" style="font-size:30px">${o.title}</div>
         <div class="dawn-alive-count">${aliveCount} player${aliveCount!==1?'s':''} remain</div>
+        ${mafiaDetectiveDawnHTML(game)}
         <div style="height:24px"></div>
         ${hostControls}
       </div>
