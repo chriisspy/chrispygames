@@ -407,6 +407,59 @@ select option{background:var(--surface2)}
 .mafia-log-item.vote-out{border-left-color:var(--accent);color:var(--accent)}
 .mafia-log-item.system{border-left-color:var(--muted);color:var(--muted)}
 .dead-spectator-banner{padding:20px;background:rgba(232,93,77,0.08);border:2px solid rgba(232,93,77,0.3);border-radius:var(--radius-lg);text-align:center;margin-bottom:12px}
+/* Mafia ghosts: dead players watch someone, see every role, and talk in dead chat */
+.ghost-panel{width:100%;box-sizing:border-box;padding:16px;background:linear-gradient(180deg,rgba(167,139,250,.1),rgba(19,19,26,1) 70%);border:1px solid rgba(167,139,250,.35);border-radius:var(--radius-lg);text-align:left;animation:fadeIn .3s ease}
+.ghost-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ghost-head-icon{font-size:28px;animation:ghostFloat 3s ease-in-out infinite}
+.ghost-head-title{font-size:17px;font-weight:800;color:var(--text)}
+.ghost-head-sub{font-size:11px;color:#c4b5fd;font-family:'JetBrains Mono',monospace}
+.ghost-panel .mafia-tab-bar{margin-bottom:12px}
+.ghost-badge{display:none;min-width:16px;height:16px;padding:0 4px;margin-left:4px;border-radius:8px;background:#a78bfa;color:#0a0a0f;font-size:10px;font-weight:800;font-family:'JetBrains Mono',monospace;align-items:center;justify-content:center;vertical-align:1px}
+.ghost-badge.on{display:inline-flex}
+.ghost-pane{display:none}
+.ghost-pane.active{display:block}
+.ghost-watch{padding:14px;border-radius:14px;background:var(--surface);border:1px solid var(--border);margin-bottom:14px}
+.ghost-watch.empty{text-align:center;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;border-style:dashed}
+.ghost-watch-top{display:flex;align-items:center;gap:12px}
+.ghost-watch-top .av,.ghost-watch-top .av-placeholder{width:46px;height:46px;font-size:20px;border-color:rgba(167,139,250,.6)}
+.ghost-watch-who{flex:1;min-width:0}
+.ghost-watch-eyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#c4b5fd;font-family:'JetBrains Mono',monospace}
+.ghost-watch-name{font-size:17px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ghost-doing{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--surface2);font-size:14px;line-height:1.6}
+.ghost-doing .av,.ghost-doing .av-placeholder{display:inline-flex;width:20px;height:20px;font-size:10px;border-width:1px;vertical-align:-5px;margin:0 3px}
+.ghost-sub-label{margin:12px 2px 6px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.ghost-feed{max-height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding:8px 10px;border-radius:10px;background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.3)}
+.ghost-stop{margin-top:12px;width:100%;padding:9px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer}
+.ghost-stop:hover{color:var(--text)}
+.ghost-roster{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.ghost-row{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:inherit;font-size:14px;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .2s,background .2s}
+.ghost-row:active{transform:scale(.98)}
+.ghost-row .av,.ghost-row .av-placeholder{width:30px;height:30px}
+.ghost-row-name{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ghost-row-eye{font-size:11px;font-family:'JetBrains Mono',monospace;color:#c4b5fd}
+.ghost-row.watching{border-color:#a78bfa;background:rgba(167,139,250,.12)}
+.ghost-row.dead,.ghost-row.me{cursor:default}
+.ghost-row.dead{opacity:.45;border-style:dashed}
+.ghost-role{flex-shrink:0;padding:3px 7px;border-radius:6px;border:1px solid color-mix(in srgb,currentColor 45%,transparent);background:color-mix(in srgb,currentColor 12%,transparent);font-size:10px;font-weight:700;letter-spacing:1px;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.ghost-chat{height:180px;border-color:rgba(167,139,250,.35)}
+.chat-send-btn.ghost-send{background:#a78bfa}
+.chat-send-btn.ghost-send:hover{background:#c4b5fd}
+@keyframes ghostFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+/* "Sam is spectating you" bar for living players */
+.mafia-watch-bar{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;z-index:850;display:none;align-items:center;gap:8px;max-width:calc(100vw - 24px);box-sizing:border-box;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(19,19,26,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(167,139,250,.5);box-shadow:0 10px 30px rgba(0,0,0,.45);transform:translateX(-50%);pointer-events:none}
+.mafia-watch-bar.show{display:flex;animation:watchBarIn .4s cubic-bezier(.2,.8,.2,1)}
+.mafia-watch-faces{display:flex;flex-shrink:0}
+.mafia-watch-faces .av,.mafia-watch-faces .av-placeholder{width:26px;height:26px;font-size:12px;border-color:#a78bfa}
+.mafia-watch-faces>*+*{margin-left:-8px}
+.mafia-watch-text{font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.mafia-watched .screen.active{padding-top:calc(24px + env(safe-area-inset-top,0px) + 46px)}
+@keyframes watchBarIn{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+.mt-wrap{width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:80vh}
+.mt-wrap.ghost{min-height:0;justify-content:flex-start;gap:14px}
+.mt-wrap.ghost #mafiaWaitIcon{font-size:40px}
+.mt-wrap.ghost #mafiaTownTimerDisplay{font-size:34px}
+.mt-wrap.ghost .mt-peek{display:none}
+@media (prefers-reduced-motion:reduce){.ghost-head-icon,.mafia-watch-bar.show{animation:none}}
 .mafia-tab-bar{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:14px}
 .mafia-tab-btn{flex:1;padding:7px;background:transparent;border:none;border-radius:8px;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s}
 .mafia-tab-btn.active{background:var(--surface3);color:var(--text)}
@@ -1754,6 +1807,8 @@ body{
           <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('mafia')">🔴 As Mafia</button>
           <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('doctor')">💚 As Doctor</button>
           <button class="dev-btn dev-btn-mafia" onclick="devMafiaTest('town')">⬜ As Town</button>
+          <button class="dev-btn dev-btn-mafia" onclick="devMafiaGhostTest('ghost')">👻 As Ghost</button>
+          <button class="dev-btn dev-btn-mafia" onclick="devMafiaGhostTest('watched')">👁 Being watched</button>
         </div>
         <div class="dev-section-label" style="margin-top:10px">Blind Spot</div>
         <div class="dev-grid">
@@ -2351,11 +2406,7 @@ body{
   <div style="width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px">
     <button class="back-btn" data-leave onclick="confirmLeave(this)">← Leave game</button>
 
-    <div id="mafiaDeadBanner" class="dead-spectator-banner" style="display:none">
-      <div style="font-size:32px;margin-bottom:8px">💀</div>
-      <div style="font-size:18px;font-weight:800;color:var(--spy);margin-bottom:4px">You are dead</div>
-      <div style="font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace">Spectating — no peeking!</div>
-    </div>
+    <div class="ghost-slot" id="ghostSlotDay"></div>
 
     <div class="card fadeIn">
       <div id="mafiaPhaseDisplay" class="mafia-phase-banner day">☀️ DAY 1 — DISCUSSION</div>
@@ -2428,6 +2479,7 @@ body{
         <button class="btn btn-danger" onclick="mafiaEndGame()">End Game</button>
       </div>
     </div>
+    <div class="ghost-slot" id="ghostSlotVote"></div>
   </div>
   <div class="mv-stamp" id="mvStamp" aria-live="polite"></div>
 </div>
@@ -2517,18 +2569,47 @@ body{
 
 <!-- MAFIA: NIGHT — TOWN WAITING -->
 <div class="screen" id="screen-mafia-night-town">
-  <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:80vh">
+  <div class="mt-wrap" id="mafiaTownWrap">
     <div style="font-size:64px" id="mafiaWaitIcon">🌙</div>
     <div style="text-align:center">
-      <div style="font-size:24px;font-weight:800;color:var(--text);margin-bottom:8px">You must wait<br>until dawn.</div>
+      <div style="font-size:24px;font-weight:800;color:var(--text);margin-bottom:8px" id="mafiaWaitTitle">You must wait<br>until dawn.</div>
       <div style="font-size:13px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:12px" id="mafiaWaitSubtext">The night is unfolding...</div>
       <div class="timer-display" id="mafiaTownTimerDisplay" style="font-size:44px;color:#e74c3c">00:30</div>
       <div class="timer-label">until dawn</div>
     </div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:8px">No peeking 👀</div>
+    <div class="mt-peek" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-top:8px">No peeking 👀</div>
+    <div class="ghost-slot" id="ghostSlotNight" style="width:100%"></div>
     <button class="btn btn-secondary clicker-launch-btn" style="max-width:300px" onclick="openChrispyClicker()">🎮 Play Chrispy Clicker</button>
   </div>
 </div>
+
+<!-- MAFIA: GHOST PANEL (dead players). Moved into the active screen's .ghost-slot. -->
+<div class="ghost-panel" id="mafiaGhostPanel" style="display:none">
+  <div class="ghost-head">
+    <span class="ghost-head-icon">👻</span>
+    <div>
+      <div class="ghost-head-title">You're dead</div>
+      <div class="ghost-head-sub">Only the dead can see this</div>
+    </div>
+  </div>
+  <div class="mafia-tab-bar">
+    <button class="mafia-tab-btn active" data-gtab="watch" onclick="switchGhostTab('watch')">👁 Spectate</button>
+    <button class="mafia-tab-btn" data-gtab="chat" onclick="switchGhostTab('chat')">💬 Dead chat<span class="ghost-badge" id="ghostChatBadge"></span></button>
+  </div>
+  <div class="ghost-pane active" id="ghostPaneWatch">
+    <div id="ghostWatchCard"></div>
+    <div class="mv-label"><span>Everyone's role</span></div>
+    <div class="ghost-roster" id="ghostRoster"></div>
+  </div>
+  <div class="ghost-pane" id="ghostPaneChat">
+    <div class="chat-messages ghost-chat" id="ghostChatMessages"></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="ghostChatInput" type="text" placeholder="Message the dead..." maxlength="120" autocomplete="off" onkeydown="if(event.key==='Enter')sendMafiaDeadChat()"/>
+      <button class="chat-send-btn ghost-send" onclick="sendMafiaDeadChat()">Send</button>
+    </div>
+  </div>
+</div>
+<div class="mafia-watch-bar" id="mafiaWatchBar" aria-live="polite"></div>
 
 <!-- MAFIA: DAWN STORY -->
 <div class="screen" id="screen-mafia-dawn">
@@ -3340,6 +3421,7 @@ function showScreen(id){
   document.body.classList.toggle('no-scroll',id==='game');
   if(typeof hwUpdateAmbient==='function')hwUpdateAmbient(id);
   if(typeof refreshLeaveButtons==='function')refreshLeaveButtons();
+  if(typeof updateMafiaWatchBar==='function')updateMafiaWatchBar();
 }
 function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3500);}
 function setLoading(btnId,loading,text){const btn=document.getElementById(btnId);if(!btn)return;btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${text}`:text;}
@@ -6317,6 +6399,7 @@ function onGameUpdate(game){
   }
 
   // MAFIA
+  if(game.mode==='mafia')setTimeout(updateMafiaWatchBar,0); // after this update picks the screen
   if(game.mode==='mafia'&&game.status==='playing'){
     if(cur==='screen-mafia-reveal'){return;} // stay on reveal until player taps
     const mafiaScreens=['screen-mafia-game','screen-mafia-vote','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-role','screen-mafia-night-town','screen-mafia-dawn'];
@@ -6862,6 +6945,7 @@ async function startMafiaGame(){
     mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],
     mafiaResult:null,mafiaCount:count,
     mafiaOG:localMafiaOG,mafiaExtraRoles:localMafiaExtra,mafiaDetectVote:null,mafiaGuardVote:null,mafiaDetectiveLog:null,mafiaDawnStory:null,mafiaDawnGuarded:null,mafiaStoryUsed:null,mafiaDaySub:null,mafiaVoteOrder:null,mafiaVoteTurn:0,mafiaLastVotes:null,mafiaElimRevealNoVote:false,
+    mafiaSpectate:null,mafiaDeadChat:null,
     votes:{},result:null,
   });
 }
@@ -6972,7 +7056,7 @@ function renderMafiaGame(game){
   document.getElementById('mafiaDayRingWrap').classList.toggle('og',og);
   document.getElementById('mafiaDayTimerLabel').textContent=(!og&&day>1)?'until voting':'until night';
   document.getElementById('mafiaAdvanceBtn').textContent=(!og&&day>1)?'Skip to voting →':'Skip Vote → Go to Night';
-  document.getElementById('mafiaDeadBanner').style.display=amDead?'block':'none';
+  renderMafiaGhost(game,'ghostSlotDay');
 
   const meta=MAFIA_ROLE_META[myRole]||MAFIA_ROLE_META.town;
   const roleSummary=document.getElementById('mafiaRoleSummary');
@@ -6996,7 +7080,9 @@ function renderMafiaGame(game){
 
   document.getElementById('mafiaPlayerStatusList').innerHTML=players.map(p=>{
     const isDead=!!eliminated[p.id];
-    return`<div class="player-status-item ${isDead?'dead-player':''}"><div class="status-dot ${isDead?'dead':'alive'}"></div><div style="flex:1;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${isDead?`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--spy)">💀 eliminated</div>`:''}</div>`;
+    // The dead see everyone's role
+    const roleTag=amDead?mafiaRoleTagHTML(game,p.id):'';
+    return`<div class="player-status-item ${isDead?'dead-player':''}"><div class="status-dot ${isDead?'dead':'alive'}"></div><div style="flex:1;min-width:0;font-size:14px;font-weight:600">${playerNameWithYou(p)}</div>${roleTag}${isDead?`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--spy)">💀 eliminated</div>`:''}</div>`;
   }).join('');
 
   const log=game.mafiaLog||[];
@@ -8398,12 +8484,12 @@ function mafiaLeftText(n){
   const l=n.left||0;
   return l===0?'NEITHER LEFT':l===1?'ONE LEFT':'BOTH LEFT';
 }
-function mafiaDetectiveNotesHTML(game){
+function mafiaDetectiveNotesHTML(game,label='Your notes'){
   const log=mafiaDetectiveChecks(game);
   if(!log.length)return'';
   const players=game.players||{};
   const nm=id=>esc((players[id]||{}).name||'?');
-  return `<div class="mr-notes"><div class="mv-label" style="margin:4px 2px 0"><span>Your notes</span></div>${log.map(n=>`<div class="mr-note"><span class="mr-note-night">N${n.night}</span><b>${n.targets.map(nm).join(' + ')}</b><span class="mr-note-tag ${n.left?'bad':'good'}">${mafiaLeftText(n)}</span></div>`).join('')}</div>`;
+  return `<div class="mr-notes"><div class="mv-label" style="margin:4px 2px 0"><span>${label}</span></div>${log.map(n=>`<div class="mr-note"><span class="mr-note-night">N${n.night}</span><b>${n.targets.map(nm).join(' + ')}</b><span class="mr-note-tag ${n.left?'bad':'good'}">${mafiaLeftText(n)}</span></div>`).join('')}</div>`;
 }
 function mafiaRoleExtraHTML(game,role){
   if(role==='detective'){
@@ -8530,7 +8616,160 @@ function renderMafiaTownWait(game){
   const eliminated=game.mafiaEliminated||{};
   const amDead=!!eliminated[myId];
   document.getElementById('mafiaWaitIcon').textContent=amDead?'💀':'🌙';
-  document.getElementById('mafiaWaitSubtext').textContent=amDead?"You're dead — no peeking!":'The night is unfolding...';
+  document.getElementById('mafiaWaitTitle').innerHTML=amDead?'Night falls':'You must wait<br>until dawn.';
+  const sub=document.getElementById('mafiaWaitSubtext');
+  sub.textContent='The night is unfolding...';sub.style.display=amDead?'none':'';
+  document.getElementById('screen-mafia-night-town').classList.toggle('scrollable',amDead);
+  document.getElementById('mafiaTownWrap').classList.toggle('ghost',amDead);
+  renderMafiaGhost(game,'ghostSlotNight');
+}
+
+// =====================================================
+// MAFIA: GHOSTS — dead players spectate, see roles, dead chat
+// =====================================================
+// game.mafiaSpectate = {ghostId: watchedId}, game.mafiaDeadChat = pushed {uid,name,text,ts}
+let mafiaGhostTab='watch',mafiaGhostChatSeenTs=0;
+function mafiaRoleTagHTML(game,id){
+  const role=(game.mafiaRoles||{})[id]||'town';
+  const m=MAFIA_ROLE_META[role]||MAFIA_ROLE_META.town;
+  return `<span class="ghost-role" style="color:${m.color}">${m.icon} ${m.label}</span>`;
+}
+function setGhostHTML(el,html){if(el&&el._html!==html){el._html=html;el.innerHTML=html;}}
+function renderMafiaGhost(game,slotId){
+  const panel=document.getElementById('mafiaGhostPanel');if(!panel)return;
+  const elim=(game&&game.mafiaEliminated)||{};
+  if(!game||game.mode!=='mafia'||game.status!=='playing'||!elim[myId]){panel.style.display='none';return;}
+  const slot=document.getElementById(slotId);
+  if(slot&&panel.parentNode!==slot)slot.appendChild(panel);
+  panel.style.display='block';
+  const players=game.players||{};
+  const p=id=>players[id]||{id,name:'?'};
+  const watchId=(game.mafiaSpectate||{})[myId];
+  const watching=watchId&&players[watchId]&&!elim[watchId]?watchId:null;
+
+  // Who I'm watching and what they're doing
+  let card;
+  if(watching){
+    card=`<div class="ghost-watch"><div class="ghost-watch-top">${playerAvatar(p(watching))}<div class="ghost-watch-who"><div class="ghost-watch-eyebrow">👁 Spectating</div><div class="ghost-watch-name">${playerNameHtml(p(watching))}</div></div>${mafiaRoleTagHTML(game,watching)}</div>${mafiaGhostDoingHTML(game,watching)}<button class="ghost-stop" onclick="mafiaSpectate(null)">Stop spectating</button></div>`;
+  } else if(watchId&&players[watchId]){
+    card=`<div class="ghost-watch empty">💀 ${esc(p(watchId).name)} died. Pick someone else.</div>`;
+  } else {
+    card=`<div class="ghost-watch empty">Tap a player to spectate them</div>`;
+  }
+  setGhostHTML(document.getElementById('ghostWatchCard'),card);
+
+  // Everyone, with their role. Tap someone alive to spectate them.
+  const roster=Object.values(players).sort((a,b)=>a.joinedAt-b.joinedAt).map(x=>{
+    const dead=!!elim[x.id],me=x.id===myId,on=x.id===watching;
+    const cls=`ghost-row${dead?' dead':''}${me?' me':''}${on?' watching':''}`;
+    const tail=me?'<span class="ghost-row-eye">you</span>':dead?'<span class="ghost-row-eye">💀</span>':on?'<span class="ghost-row-eye">👁</span>':'';
+    const tap=!dead&&!me?` onclick="mafiaSpectate('${x.id}')"`:' disabled';
+    return `<button class="${cls}"${tap}>${playerAvatar(x)}<span class="ghost-row-name">${playerNameHtml(x)}</span>${mafiaRoleTagHTML(game,x.id)}${tail}</button>`;
+  }).join('');
+  setGhostHTML(document.getElementById('ghostRoster'),roster);
+
+  // Dead chat
+  const msgs=Object.values(game.mafiaDeadChat||{}).filter(m=>m&&m.ts).sort((a,b)=>a.ts-b.ts);
+  const chatEl=document.getElementById('ghostChatMessages');
+  const chatHtml=msgs.length?msgs.map(m=>{
+    const time=new Date(m.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    return `<div class="chat-msg"><span class="chat-name ${m.uid===myId?'you':'other'}">${esc(m.name)}</span><span style="color:var(--text)">${esc(m.text)}</span><span class="chat-time">${time}</span></div>`;
+  }).join(''):'<div class="chat-empty">Nobody has said anything yet</div>';
+  if(chatEl&&chatEl._html!==chatHtml){setGhostHTML(chatEl,chatHtml);chatEl.scrollTop=chatEl.scrollHeight;}
+  if(mafiaGhostTab==='chat'&&msgs.length)mafiaGhostChatSeenTs=Math.max(mafiaGhostChatSeenTs,msgs[msgs.length-1].ts);
+  const unread=msgs.filter(m=>m.ts>mafiaGhostChatSeenTs&&m.uid!==myId).length;
+  const badge=document.getElementById('ghostChatBadge');
+  if(badge){badge.textContent=unread>9?'9+':String(unread);badge.classList.toggle('on',unread>0);}
+}
+// One line on what the watched player is doing right now
+function mafiaGhostDoingHTML(game,t){
+  const players=game.players||{};
+  const who=id=>`${playerAvatar(players[id]||{id})}<b>${playerNameHtml(players[id]||{id,name:'?'})}</b>`;
+  const role=(game.mafiaRoles||{})[t]||'town';
+  const phase=game.mafiaPhase;
+  const day=game.mafiaDay||1;
+  let line,extra='';
+  if(phase==='night'){
+    if(role==='mafia'){
+      const d=(game.mafiaKillDecisions||{})[t],v=(game.mafiaKillVotes||{})[t];
+      line=v?`🔪 Wants to kill ${who(v)}`:d==='no'?'😇 Chose to spare everyone tonight':d==='yes'?'🔪 Wants to kill. Picking a target...':'🤔 Deciding whether to kill tonight...';
+      // Read along with the Mafia chat
+      const elim=game.mafiaEliminated||{};
+      if((game.mafiaIds||[]).filter(id=>!elim[id]).length>=2){
+        const chat=Object.values(game['mafiaPrivateChat_'+gameCode+'_'+day]||{}).filter(m=>m&&m.ts).sort((a,b)=>a.ts-b.ts);
+        extra=`<div class="ghost-sub-label">Mafia chat</div><div class="ghost-feed">${chat.length?chat.slice(-8).map(m=>`<div class="chat-msg"><span class="chat-name other">${esc(m.name)}</span>${m.sticker?`<span class="chat-sticker">${esc(m.sticker)}</span>`:`<span style="color:var(--text)">${esc(m.text)}</span>`}</div>`).join(''):'<div class="chat-empty" style="padding:6px 0">No messages yet</div>'}</div>`;
+      }
+    } else if(role==='doctor'){
+      const s=game.mafiaSaveVote;
+      line=s?`💊 Protecting ${s===t?'themself':who(s)}`:'💊 Choosing who to save...';
+    } else if(role==='detective'){
+      const w=Array.isArray(game.mafiaDetectVote)?game.mafiaDetectVote:[];
+      line=w.length===2?`🔍 Watching ${who(w[0])} + ${who(w[1])}`:'🔍 Picking two people to watch...';
+    } else if(role==='bodyguard'){
+      const g=game.mafiaGuardVote;
+      line=g?`🛡️ Guarding ${who(g)}`:'🛡️ Choosing who to guard...';
+    } else line='🌙 Waiting for dawn';
+  } else if(phase==='day'){
+    const sub=game.mafiaDaySub,v=(game.mafiaVotes||{})[t];
+    const voted=v==='none'?'✕ Chose No vote':v?`🗳️ Voted for ${who(v)}`:'';
+    if(!game.mafiaOG&&(sub==='vote'||sub==='tally')){
+      const cur=(game.mafiaVoteOrder||[])[game.mafiaVoteTurn||0];
+      line=voted||(sub==='vote'&&cur===t?'🗳️ Voting right now...':'⏳ Waiting for their turn to vote');
+    } else if(game.mafiaOG&&day>1)line=voted||'💬 Talking it out. No vote yet';
+    else line='💬 Talking it out';
+  } else if(phase==='dawn')line='☀️ Finding out what happened last night';
+  else line='⚖️ Hearing the verdict';
+  if(role==='detective')extra=mafiaDetectiveNotesHTML(game,'Their notes');
+  return `<div class="ghost-doing">${line}</div>${extra}`;
+}
+async function mafiaSpectate(targetId){
+  const g=localGame;if(!g||!gameCode)return;
+  const elim=g.mafiaEliminated||{};
+  if(!elim[myId]||(targetId&&(elim[targetId]||targetId===myId)))return;
+  // Show it straight away, then save it so the watched player sees the banner
+  g.mafiaSpectate={...(g.mafiaSpectate||{}),[myId]:targetId||null};
+  renderMafiaGhost(g,(document.getElementById('mafiaGhostPanel').parentNode||{}).id);
+  if(gameCode==='DEV0')return;
+  await gameRefFor(gameCode).child('mafiaSpectate/'+myId).set(targetId||null);
+}
+function switchGhostTab(tab){
+  mafiaGhostTab=tab;
+  document.querySelectorAll('#mafiaGhostPanel [data-gtab]').forEach(b=>b.classList.toggle('active',b.dataset.gtab===tab));
+  document.getElementById('ghostPaneWatch').classList.toggle('active',tab==='watch');
+  document.getElementById('ghostPaneChat').classList.toggle('active',tab==='chat');
+  if(tab==='chat'){const el=document.getElementById('ghostChatMessages');if(el)el.scrollTop=el.scrollHeight;}
+  if(localGame)renderMafiaGhost(localGame,(document.getElementById('mafiaGhostPanel').parentNode||{}).id);
+}
+async function sendMafiaDeadChat(){
+  const input=document.getElementById('ghostChatInput');if(!input)return;
+  const text=input.value.trim();const g=localGame;
+  if(!text||!gameCode||!g||!(g.mafiaEliminated||{})[myId])return;
+  input.value='';
+  const name=((g.players||{})[myId]||{}).name||'Unknown';
+  const msg={uid:myId,name,text,ts:Date.now()};
+  if(gameCode==='DEV0'){g.mafiaDeadChat={...(g.mafiaDeadChat||{}),['m'+msg.ts]:msg};renderMafiaGhost(g,(document.getElementById('mafiaGhostPanel').parentNode||{}).id);return;}
+  await gameRefFor(gameCode).child('mafiaDeadChat').push().set(msg);
+}
+// Living players see who is spectating them, with their pictures
+function updateMafiaWatchBar(){
+  const bar=document.getElementById('mafiaWatchBar');if(!bar)return;
+  const g=localGame;
+  const cur=(document.querySelector('.screen.active')||{}).id||'';
+  const elim=(g&&g.mafiaEliminated)||{};
+  let ghosts=[];
+  if(g&&g.mode==='mafia'&&g.status==='playing'&&cur.startsWith('screen-mafia-')&&cur!=='screen-mafia-reveal'&&!elim[myId]){
+    const players=g.players||{};
+    ghosts=Object.entries(g.mafiaSpectate||{}).filter(([gid,t])=>t===myId&&elim[gid]&&players[gid]).map(([gid])=>players[gid]).sort((a,b)=>a.joinedAt-b.joinedAt);
+  }
+  document.body.classList.toggle('mafia-watched',ghosts.length>0);
+  const key=ghosts.map(x=>x.id+(x.avatar||'').length).join(',');
+  if(bar.dataset.key===key)return;
+  bar.dataset.key=key;
+  if(!ghosts.length){bar.classList.remove('show');bar.innerHTML='';return;}
+  const nm=x=>playerNameHtml(x);
+  const names=ghosts.length===1?nm(ghosts[0]):ghosts.length===2?`${nm(ghosts[0])} and ${nm(ghosts[1])}`:`${nm(ghosts[0])}, ${nm(ghosts[1])} +${ghosts.length-2}`;
+  bar.innerHTML=`<span class="mafia-watch-faces">${ghosts.slice(0,3).map(x=>playerAvatar(x)).join('')}</span><span class="mafia-watch-text"><b>${names}</b> ${ghosts.length===1?'is':'are'} spectating you 👻</span>`;
+  bar.classList.add('show');
 }
 
 // MAFIA ROLE VISIBILITY
@@ -8769,6 +9008,7 @@ function renderMafiaVoteScreen(game){
   const hc=document.getElementById('mvHostControls');
   hc.style.display=amHost&&sub==='vote'&&currentId?'block':'none';
   if(currentId)document.getElementById('mvSkipBtn').textContent=currentId===myId?'Skip my turn':`Skip ${p(currentId).name}'s turn`;
+  renderMafiaGhost(game,'ghostSlotVote');
 }
 function showMafiaVoteStamp(game,voterId,choice){
   const el=document.getElementById('mvStamp');if(!el)return;
@@ -10141,6 +10381,28 @@ function devMafiaTest(role){
   const mafiaIds=Object.entries(mafiaRoles).filter(([,r])=>r==='mafia').map(([id])=>id);
   const game={code:'DEV0',status:'playing',mode:'mafia',hostId:myId,mafiaRoles,mafiaIds,mafiaPhase:'day',mafiaDay:1,mafiaEliminated:{},mafiaVotes:{},mafiaKillVotes:{},mafiaSaveVote:null,mafiaKillDecisions:{},mafiaDayTimerStart:Date.now(),mafiaDayTimerDuration:MAFIA_DAY_TIMER_FIRST,mafiaNightStart:null,mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],mafiaResult:null,players:mockPlayers,createdAt:Date.now()};
   localGame=game;enterMafiaReveal(game);devShowStatus(`Mafia: you are ${role}`);
+}
+// 'ghost' = you're dead at night, spectating a Mafia. 'watched' = you're alive and two ghosts spectate you.
+function devMafiaGhostTest(variant){
+  const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
+  gameCode='DEV0';amHost=false; // not host, so the timers never write anything
+  const t=Date.now();
+  const mockPlayers={[myId]:{id:myId,name:'You (Dev)',isHost:true,joinedAt:t,online:true},'dev_p2':{id:'dev_p2',name:'Player 2',joinedAt:t+1,online:true},'dev_p3':{id:'dev_p3',name:'Player 3',joinedAt:t+2,online:true},'dev_p4':{id:'dev_p4',name:'Player 4',joinedAt:t+3,online:true},'dev_p5':{id:'dev_p5',name:'Player 5',joinedAt:t+4,online:true},'dev_p6':{id:'dev_p6',name:'Player 6',joinedAt:t+5,online:true},'dev_p7':{id:'dev_p7',name:'Player 7',joinedAt:t+6,online:true}};
+  const ghost=variant==='ghost';
+  const mafiaRoles={[myId]:ghost?'town':'mafia',dev_p2:ghost?'mafia':'town',dev_p3:ghost?'mafia':'town',dev_p4:'doctor',dev_p5:'detective',dev_p6:'town',dev_p7:'town'};
+  const mafiaIds=Object.entries(mafiaRoles).filter(([,r])=>r==='mafia').map(([id])=>id);
+  const game={code:'DEV0',status:'playing',mode:'mafia',hostId:'dev_p7',mafiaRoles,mafiaIds,mafiaDay:2,mafiaVotes:{},mafiaSaveVote:'dev_p4',mafiaLog:[],mafiaResult:null,players:mockPlayers,createdAt:t,mafiaOG:false};
+  if(ghost){
+    Object.assign(game,{mafiaPhase:'night',mafiaNightStart:t,mafiaEliminated:{[myId]:true,dev_p6:true},
+      mafiaKillDecisions:{dev_p2:'yes',dev_p3:'yes'},mafiaKillVotes:{dev_p2:'dev_p4'},
+      mafiaSpectate:{[myId]:'dev_p2',dev_p6:'dev_p4'},
+      mafiaDeadChat:{a:{uid:'dev_p6',name:'Player 6',text:'Player 2 is so obviously Mafia',ts:t-60000}},
+      ['mafiaPrivateChat_DEV0_2']:{a:{uid:'dev_p2',name:'Player 2',text:'doctor tonight?',ts:t-30000},b:{uid:'dev_p3',name:'Player 3',text:'yeah go Player 4',ts:t-20000}}});
+    localGame=game;enterMafiaNight(game);devShowStatus('Mafia: you are a ghost');
+  } else {
+    Object.assign(game,{mafiaPhase:'day',mafiaDaySub:'discuss',mafiaDayTimerStart:t,mafiaDayTimerDuration:MAFIA_DISCUSS_TIMER,mafiaEliminated:{dev_p5:true,dev_p6:true},mafiaKillDecisions:{},mafiaKillVotes:{},mafiaSpectate:{dev_p5:myId,dev_p6:myId}});
+    localGame=game;showScreen('mafia-game');renderMafiaGame(game);updateMafiaWatchBar();devShowStatus('Mafia: two ghosts spectate you');
+  }
 }
 function devBsTest(variant){
   const nameInput=document.getElementById('playerName');if(!nameInput.value.trim())nameInput.value='Dev';
