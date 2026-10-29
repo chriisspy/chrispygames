@@ -1972,7 +1972,7 @@ body{
         <button class="home-shop-btn home-clicker-btn" onclick="openChrispyClicker()">🎮 Chrispy Clicker<span class="home-clicker-best" id="lobbyClickerBest"></span></button>
       </div>
       <div id="lobbyBettingSummary"></div>
-      <div class="home-actions-row" id="lobbyHostFunRow">
+      <div class="home-actions-row" id="lobbyHostFunRow" style="margin-top:12px">
         <button class="home-shop-btn" onclick="spinGameWheel()">🎡 Spin the wheel</button>
         <button class="home-shop-btn" onclick="endTheNight()">🏆 End the night</button>
       </div>
@@ -7760,7 +7760,7 @@ function clickerPartySend(){
   const every=c.state==='playing'?110:900;
   if(now-c.partySent<every)return;
   c.partySent=now;
-  try{c.partyRef.set({g:gameCode,y:Math.round(c.bird.y/Math.max(1,c.h)*1000),st:c.state==='playing'?1:c.state==='dead'?2:0,sk:clickerCosmetic('clickerSkin','classic'),t:syncedNow()});}catch(e){}
+  try{c.partyRef.set({g:gameCode,y:Math.round(c.bird.y/Math.max(1,c.h)*1000),st:c.state==='playing'?1:c.state==='dead'?2:0,t:syncedNow()});}catch(e){}
 }
 
 function closeChrispyClicker(){
@@ -8557,7 +8557,7 @@ function drawClicker(){
   ctx.setLineDash([]);
   clickerDrawTrail(ctx,c.trail,clickerTrail(),t,s);
   c.fx.forEach(p=>{if(!(p.delay>0))clickerDrawParticle(ctx,p);});
-  // other players' balls (party mode) — no names, just balls
+  // other players' balls (party mode) — always the plain default ball, so nobody can tell who is who
   if(c.party){
     const now=syncedNow();
     const others=Object.entries(c.party).filter(([id,v])=>id!==myId&&v&&v.g===gameCode&&now-(v.t||0)<4000);
@@ -8568,7 +8568,7 @@ function drawClicker(){
       c.partyDisp[id]=y;
       ctx.save();ctx.globalAlpha=v.st===2?0.15:0.42;
       ctx.translate(birdX-(i%2?6:-6)*s,y);
-      drawClickerCharacter(ctx,r*0.92,s,t+i,v.sk||'classic',null);
+      drawClickerCharacter(ctx,r*0.92,s,t+i,'classic',null);
       ctx.restore();
     });
     if(others.length){
