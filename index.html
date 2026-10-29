@@ -445,6 +445,28 @@ select option{background:var(--surface2)}
 .chat-send-btn.ghost-send{background:#a78bfa}
 .chat-send-btn.ghost-send:hover{background:#c4b5fd}
 @keyframes ghostFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.ghost-haunts{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.ghost-haunt-btn{aspect-ratio:1;padding:0;border-radius:10px;border:1px solid rgba(167,139,250,.3);background:rgba(167,139,250,.08);font-size:18px;cursor:pointer;transition:transform .15s,opacity .2s;-webkit-tap-highlight-color:transparent}
+.ghost-haunt-btn:active{transform:scale(.88)}
+.ghost-haunt-btn:disabled{opacity:.35;cursor:default}
+.ghost-haunt-btn.sent{opacity:1;border-color:#a78bfa;background:rgba(167,139,250,.3);animation:hauntSent .5s ease}
+.ghost-haunt-btn.nope{animation:hauntNope .3s ease}
+@keyframes hauntSent{40%{transform:scale(1.25) rotate(-8deg)}}
+@keyframes hauntNope{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+/* Haunt hitting a living player's screen */
+.haunt-fx{position:fixed;inset:0;z-index:9500;pointer-events:none;overflow:hidden}
+.haunt-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 35%,rgba(40,10,70,.75) 100%);animation:hauntVig 2.7s ease forwards}
+.haunt-big{position:absolute;top:34%;font-size:110px;filter:drop-shadow(0 0 30px rgba(167,139,250,.8));animation:hauntSwoopL 2.4s cubic-bezier(.3,.6,.3,1) forwards}
+.haunt-big.rtl{animation-name:hauntSwoopR}
+.haunt-bit{position:absolute;bottom:-60px;opacity:0;animation:hauntRise 2.2s ease-out forwards}
+.haunt-who{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(19,19,26,.92);border:1px solid rgba(167,139,250,.5);font-size:14px;white-space:nowrap;animation:hauntWho 2.7s ease forwards}
+.haunt-who .av,.haunt-who .av-placeholder{width:28px;height:28px;font-size:13px;border-color:#a78bfa}
+@keyframes hauntVig{0%{opacity:0}12%{opacity:1}22%{opacity:.6}30%{opacity:1}80%{opacity:1}100%{opacity:0}}
+@keyframes hauntSwoopL{0%{left:-140px;opacity:0;transform:rotate(-20deg) scale(.6)}20%{opacity:1}50%{left:calc(50% - 55px);transform:rotate(8deg) scale(1.15) translateY(-20px)}100%{left:calc(100% + 40px);opacity:0;transform:rotate(-10deg) scale(.8) translateY(30px)}}
+@keyframes hauntSwoopR{0%{left:calc(100% + 40px);opacity:0;transform:rotate(20deg) scale(.6)}20%{opacity:1}50%{left:calc(50% - 55px);transform:rotate(-8deg) scale(1.15) translateY(-20px)}100%{left:-140px;opacity:0;transform:rotate(10deg) scale(.8) translateY(30px)}}
+@keyframes hauntRise{0%{opacity:0;transform:translateY(0)}20%{opacity:.9}100%{opacity:0;transform:translateY(-75vh) rotate(25deg)}}
+@keyframes hauntWho{0%,8%{opacity:0;transform:translate(-50%,12px)}18%,82%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.haunt-big,.haunt-bit{animation-duration:.01s}.haunt-big{display:none}}
 /* "Sam is spectating you" bar for living players */
 .mafia-watch-bar{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;z-index:850;display:none;align-items:center;gap:8px;max-width:calc(100vw - 24px);box-sizing:border-box;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(19,19,26,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(167,139,250,.5);box-shadow:0 10px 30px rgba(0,0,0,.45);transform:translateX(-50%);pointer-events:none}
 .mafia-watch-bar.show{display:flex;animation:watchBarIn .4s cubic-bezier(.2,.8,.2,1)}
@@ -479,6 +501,17 @@ body.mafia-watched .screen.active{padding-top:calc(24px + env(safe-area-inset-to
 .role-action-box.detective{background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.3);color:#93c5fd}
 .role-action-box.jester{background:rgba(192,132,252,.08);border:1px solid rgba(192,132,252,.3);color:#d8b4fe}
 .role-action-box.bodyguard{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);color:#fcd34d}
+.playing-card.card-framer{background:linear-gradient(145deg,#1f0514 0%,#4a0d31 40%,#1f0514 100%);border:2px solid #db2777}
+.card-framer .card-corner-rank,.card-framer .card-role-name{color:#f472b6}
+.card-framer .card-inner-border{border:1px solid rgba(219,39,119,.45)}
+.role-action-box.framer{background:rgba(244,114,182,.08);border:1px solid rgba(244,114,182,.3);color:#f9a8d4}
+.mr-framer .mr-panel{background:linear-gradient(180deg,rgba(244,114,182,.12),var(--surface) 60%);border:1px solid rgba(244,114,182,.4)}
+.mr-framer .mr-eyebrow,.mr-framer .mr-sub span{color:#f472b6}
+.mr-framer .mv-pick.selected{border-color:#f472b6;background:rgba(244,114,182,.14);box-shadow:0 0 0 3px rgba(244,114,182,.2)}
+.mr-framer .mv-pick-check{background:#db2777}
+.mr-framer .mr-confirm{background:#f472b6}
+.mr-result-card.framed{background:linear-gradient(160deg,rgba(244,114,182,.22),rgba(31,5,20,.9));border:1px solid #f472b6;box-shadow:0 0 40px -10px rgba(244,114,182,.6)}
+.framed .mr-result-verdict{color:#f472b6}
 .mafia-role-toggles-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:16px 2px -4px}
 .dawn-title.jester{color:#c084fc}
 .result-banner.jester-wins{background:linear-gradient(135deg,#1f0a2e,#12051c);border:2px solid #a855f7;box-shadow:0 0 40px -10px rgba(168,85,247,.7)}
@@ -1008,6 +1041,32 @@ body.season-halloween.hw-ambient .hw-bats{display:block}
 .profile-modes{display:flex;flex-direction:column;gap:6px}
 .profile-mode-row{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-size:13px}
 .profile-mode-row b{font-family:'JetBrains Mono',monospace;color:var(--accent)}
+/* End-of-night awards show */
+.na-backdrop{position:fixed;inset:0;z-index:9800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 30%,rgba(211,243,75,.14),transparent 60%),#050509;animation:fadeIn .3s ease}
+.na-card{width:100%;max-width:360px;text-align:center;animation:naIn .55s cubic-bezier(.2,.8,.2,1) both}
+.na-count{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--muted);margin-bottom:10px}
+.na-icon{font-size:76px;line-height:1;margin-bottom:12px;animation:naPop .6s .1s cubic-bezier(.2,.8,.2,1) both;filter:drop-shadow(0 0 24px rgba(211,243,75,.35))}
+.na-title{font-size:28px;font-weight:800;line-height:1.15;color:var(--accent);margin-bottom:16px}
+.na-faces{display:flex;justify-content:center;gap:10px;margin-bottom:10px}
+.na-faces .av,.na-faces .av-placeholder{width:72px;height:72px;font-size:30px;border-color:var(--accent);animation:naPop .5s .35s cubic-bezier(.2,.8,.2,1) both}
+.na-name{font-size:22px;font-weight:800;margin-bottom:10px;animation:fadeIn .4s .5s both}
+.na-line{font-size:16px;line-height:1.5;color:var(--text);opacity:.85;animation:fadeIn .5s .7s both}
+.na-btn{width:100%;max-width:360px}
+@keyframes naIn{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes naPop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+/* Game wheel */
+.wheel-backdrop{position:fixed;inset:0;z-index:9700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px;box-sizing:border-box;background:rgba(5,5,9,.9);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .25s ease}
+.wheel-wrap{position:relative;width:min(82vw,330px);aspect-ratio:1}
+.wheel-wrap svg{width:100%;height:100%;display:block;transition:transform 4.2s cubic-bezier(.12,.75,.15,1);filter:drop-shadow(0 18px 40px rgba(0,0,0,.6))}
+.wheel-pointer{position:absolute;left:50%;top:-14px;transform:translateX(-50%);width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:28px solid #fff;filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));z-index:2}
+.wheel-hub{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:#0a0a0f;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:2}
+.wheel-title{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+.wheel-result{min-height:44px;font-size:30px;font-weight:800;color:var(--accent);text-align:center}
+.wheel-result.show{animation:naPop .5s cubic-bezier(.2,.8,.2,1) both}
+.mafia-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px}
+.mafia-fact{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px}
+.mafia-fact b{display:block;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--text)}
+.mafia-fact span{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-top:2px}
 /* Case opening */
 .home-cases-btn{position:relative}
 /* Neutral grey and full width across both grid columns. */
@@ -1913,6 +1972,10 @@ body{
         <button class="home-shop-btn home-clicker-btn" onclick="openChrispyClicker()">🎮 Chrispy Clicker<span class="home-clicker-best" id="lobbyClickerBest"></span></button>
       </div>
       <div id="lobbyBettingSummary"></div>
+      <div class="home-actions-row" id="lobbyHostFunRow">
+        <button class="home-shop-btn" onclick="spinGameWheel()">🎡 Spin the wheel</button>
+        <button class="home-shop-btn" onclick="endTheNight()">🏆 End the night</button>
+      </div>
       <div style="height:8px"></div>
       <label>Game Mode</label>
       <div class="custom-mode-wrap" id="lobbyModeDropdown">
@@ -2032,6 +2095,15 @@ body{
               <div class="chaos-desc">Guards one player each night and dies in their place.</div>
             </div>
             <label class="toggle-switch"><input type="checkbox" id="mafiaRoleToggle_bodyguard" onchange="toggleMafiaExtraRole('bodyguard')"/><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="chaos-toggle-wrap" id="mafiaRoleWrap_framer" style="background:rgba(30,30,40,0.5);border-color:rgba(42,42,58,0.8)">
+          <div class="chaos-toggle-header">
+            <div>
+              <div class="chaos-title" style="color:#f472b6">🎭 FRAMER</div>
+              <div class="chaos-desc">On the Mafia's side. Frames one player each night so the Detective thinks they left the house.</div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" id="mafiaRoleToggle_framer" onchange="toggleMafiaExtraRole('framer')"/><span class="toggle-slider"></span></label>
           </div>
         </div>
         <div class="notice mafia" style="margin-top:4px">🃏 Mafia win when they equal or outnumber everyone else. Town wins by eliminating all Mafia. Extra roles go to non-Mafia players, and there's always at least one plain Civilian.</div>
@@ -3005,7 +3077,7 @@ const OOO_DISCUSS_DURATION = 30;
 const MAFIA_DAY_TIMER_FIRST = 30;
 const MAFIA_DAY_TIMER_REST = 5*60;
 const MAFIA_DISCUSS_TIMER = 5*60;
-const MAFIA_EXTRA_ROLES=['detective','jester','bodyguard'];
+const MAFIA_EXTRA_ROLES=['detective','jester','bodyguard','framer'];
 const MAFIA_ROLE_META={
   mafia:{label:'MAFIA',icon:'🔴',color:'#e74c3c'},
   doctor:{label:'DOCTOR',icon:'💚',color:'var(--doctor)'},
@@ -3013,7 +3085,13 @@ const MAFIA_ROLE_META={
   detective:{label:'DETECTIVE',icon:'🔍',color:'#60a5fa',tint:'rgba(96,165,250,0.07)',border:'rgba(96,165,250,0.35)'},
   jester:{label:'JESTER',icon:'🃏',color:'#c084fc',tint:'rgba(192,132,252,0.07)',border:'rgba(192,132,252,0.35)'},
   bodyguard:{label:'BODYGUARD',icon:'🛡️',color:'#f59e0b',tint:'rgba(245,158,11,0.07)',border:'rgba(245,158,11,0.35)'},
+  framer:{label:'FRAMER',icon:'🎭',color:'#f472b6',tint:'rgba(244,114,182,0.07)',border:'rgba(244,114,182,0.35)'},
 };
+// Mafia's side: the killers plus the Framer
+function mafiaTeamIds(game){
+  const roles=(game&&game.mafiaRoles)||{};
+  return [...((game&&game.mafiaIds)||[]),...Object.keys(roles).filter(id=>roles[id]==='framer')];
+}
 // Dawn stories. {d} = a decoy who seems to be in danger, {v} = victim (or the one saved),
 // {t} = the Mafia's target, {g} = the Bodyguard. A line starting with "~" is a twist:
 // the story pauses before it. Mixes decoy fake-outs, straight-to-the-point ones and double bluffs.
@@ -3393,7 +3471,7 @@ let timerInterval=null,oooVoteTimerInterval=null,tieTimerInterval=null,mafiaTime
 let roleVisible=true,revealVisible=true,mafiaCardVisible=true;
 let lastSpyGuessCorrect=null,spyGuessFlashTimeout=null;
 let selectedGuessIndex=null; // spy's tapped location on the Locations tab, null = nothing tapped
-let localSpyCount=1,localMultiSpyMode=false,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localMafiaOG=false,localMafiaExtra={detective:false,jester:false,bodyguard:false},localFaWords=3,localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;let localGuessDiscussMinutes=5,localGuessRounds=3,guessTimerInterval=null;
+let localSpyCount=1,localMultiSpyMode=false,localChaosMode=false,localGameMode='spyfall',localOOORounds=3,localMafiaCount=1,localDoctorEnabled=true,localMafiaOG=false,localMafiaExtra={detective:false,jester:false,bodyguard:false,framer:false},localFaWords=3,localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;let localGuessDiscussMinutes=5,localGuessRounds=3,guessTimerInterval=null;
 let chatListener=null,mafiaPrivateChatListener=null;
 // Night phase local state
 let mafiaKillDecision=null; // 'yes'|'no' — local kill decision before committing
@@ -3457,6 +3535,7 @@ function saveLocalProfile(){
       clickerBest:myProfile.clickerBest||0,
       clickerMilestones:myProfile.clickerMilestones||{},
       clickerCoinDay:myProfile.clickerCoinDay||null,
+      mafiaStats:myProfile.mafiaStats||{},
       name:myProfile.name||'',
       avatar:myProfile.avatar||myAvatar||null,
       savedAt:Date.now()
@@ -3476,6 +3555,7 @@ function normaliseProfile(saved){
     clickerBest:saved.clickerBest||0,
     clickerMilestones:saved.clickerMilestones||{},
     clickerCoinDay:saved.clickerCoinDay||null,
+    mafiaStats:saved.mafiaStats||{},
     name:saved.name||'',
     avatar:saved.avatar||myAvatar||null
   };
@@ -4095,6 +4175,7 @@ async function sendSticker(sticker){
   const game=localGame;const player=game&&game.players&&game.players[myId];const name=player?player.name:'Unknown';
   const ref=db.ref('games/'+gameCode+'/stickerBursts').push();
   await ref.set({uid:myId,name,sticker,ts:now});
+  gameRefFor(gameCode).child('nightStickers/'+myId).transaction(n=>(n||0)+1).catch(()=>{}); // for the night awards
   // Ephemeral — clear it once everyone has had time to see it.
   setTimeout(()=>{ref.remove().catch(()=>{});},4000);
 }
@@ -4217,7 +4298,245 @@ function renderProfileCard(){
     ${modeRows.length?`<div class="profile-modes">${modeRows.map(([m,v])=>
       `<div class="profile-mode-row"><span>${PROFILE_MODE_LABELS[m]||m}</span><b>${v}</b></div>`).join('')}</div>`
       :'<div class="shop-section-empty">No wins recorded yet. Per-mode wins start counting from now.</div>'}
+    ${mafiaStatsHTML(myProfile.mafiaStats)}
   `;
+}
+
+// =====================================================
+// MAFIA STATS — saved per player at the end of every Mafia game
+// =====================================================
+function mafiaStatsHTML(s){
+  s=s||{};
+  if(!s.games)return `<label style="margin-top:14px">🃏 Mafia stats</label><div class="shop-section-empty">Play a game of Mafia to start your stats.</div>`;
+  const pct=(a,b)=>b?Math.round(a/b*100)+'%':'–';
+  const roles=Object.entries(s.roles||{}).sort((a,b)=>(b[1].g||0)-(a[1].g||0));
+  const votes=(s.rightVotes||0)+(s.wrongVotes||0);
+  const facts=[
+    ['🔪','Kills',s.kills],['💊','Saves',s.saves],['🛡️','Blocks',s.blocks],['🎭','Detectives fooled',s.frames],
+    ['🎯','Votes on the Mafia',votes?pct(s.rightVotes||0,votes):0],['🗳️','Times voted out',s.votedOut],['💀','Killed at night',s.killed],
+  ].filter(f=>f[2]);
+  return `<label style="margin-top:14px">🃏 Mafia stats</label>
+    <div class="profile-stat-grid">
+      <div class="profile-stat"><b>${s.games}</b><span>Games</span></div>
+      <div class="profile-stat"><b>${s.wins||0}</b><span>Wins</span></div>
+      <div class="profile-stat"><b>${pct(s.wins||0,s.games)}</b><span>Win rate</span></div>
+      <div class="profile-stat"><b>${s.survived||0}</b><span>Survived</span></div>
+    </div>
+    <div class="profile-modes" style="margin-top:8px">${roles.map(([r,v])=>{const m=MAFIA_ROLE_META[r]||MAFIA_ROLE_META.town;
+      return `<div class="profile-mode-row"><span style="color:${m.color}">${m.icon} ${m.label}</span><b>${v.w||0}<i style="color:var(--muted);font-style:normal;font-weight:500"> / ${v.g||0} won</i></b></div>`;}).join('')}</div>
+    ${facts.length?`<div class="mafia-facts">${facts.map(([i,l,v])=>`<div class="mafia-fact"><b>${i} ${v}</b><span>${l}</span></div>`).join('')}</div>`:''}`;
+}
+async function recordMyMafiaStats(game){
+  const r=game.mafiaResult;
+  if(!r||r.forced||!gameCode||gameCode==='DEV0')return;
+  const role=(game.mafiaRoles||{})[myId];if(!role)return;
+  const key=rewardRoundKey(game,'mafia_round');if(!key)return;
+  const seenKey='cg_mafia_stats_'+gameCode+'_'+key;
+  try{if(localStorage.getItem(seenKey))return;localStorage.setItem(seenKey,'1');}catch(e){return;}
+  const won=winnerIdsForGame(game).includes(myId);
+  const t=(game.mafiaTally||{})[myId]||{};
+  const death=(game.mafiaDeaths||{})[myId];
+  const alive=!(game.mafiaEliminated||{})[myId];
+  const apply=s=>{
+    s=s||{};
+    s.games=(s.games||0)+1;if(won)s.wins=(s.wins||0)+1;
+    s.roles=s.roles||{};const rs=s.roles[role]=s.roles[role]||{};rs.g=(rs.g||0)+1;if(won)rs.w=(rs.w||0)+1;
+    if(alive)s.survived=(s.survived||0)+1;
+    if(death&&death.how==='vote')s.votedOut=(s.votedOut||0)+1;
+    if(death&&death.how==='night')s.killed=(s.killed||0)+1;
+    ['kills','saves','blocks','frames','rightVotes','wrongVotes'].forEach(k=>{if(t[k])s[k]=(s[k]||0)+t[k];});
+    return s;
+  };
+  myProfile.mafiaStats=apply(JSON.parse(JSON.stringify(myProfile.mafiaStats||{})));
+  saveLocalProfile();
+  try{await userRef().child('mafiaStats').transaction(apply);}catch(e){console.warn('Mafia stats save failed',e);}
+}
+
+// =====================================================
+// END OF NIGHT AWARDS
+// =====================================================
+// game.nightLog/{rewardKey} = one entry per finished game (written by whoever claims the coins).
+// Host taps "End the night": awards are worked out from the log + lobby chat since game.nightStartedAt,
+// saved to game.nightAwards, and everyone in the lobby sees the show.
+function nightLogEntry(game,data){
+  const e={at:Date.now(),mode:data.mode,players:Object.keys(game.players||{}),winners:Object.keys(data.rewards||{})};
+  let liars=[],liarWon=false;
+  if(data.mode==='spyfall'){liars=game.spyIds||[game.spyId];liarWon=!!(game.result&&game.result.spyWins);}
+  else if(data.mode==='mafia'){
+    liars=game.mafiaResult.forced?[]:mafiaTeamIds(game);liarWon=game.mafiaResult.winner==='mafia';
+    e.mafia={roles:game.mafiaRoles||{},deaths:game.mafiaDeaths||{},tally:game.mafiaTally||{},winner:game.mafiaResult.winner};
+  }
+  else if(data.mode==='bs'){liars=[game.bsImposterId];liarWon=game.bsResult.winner==='imposter';}
+  else if(data.mode==='ooo'){liars=[game.oooImposterId];liarWon=!game.oooResult.caught;}
+  else if(data.mode==='fa'){liars=[game.faImposterId];liarWon=!game.faResult.townWins;}
+  e.liars=liars.filter(Boolean);e.liarWon=liarWon;
+  return e;
+}
+const nightTimes=n=>n===1?'once':n===2?'twice':n+' times';
+// In show order. The last one is the big finish.
+const NIGHT_AWARDS=[
+  {icon:'🗣️',title:'Yapper Of The Night',stat:s=>s.msgs,min:5,line:n=>`Sent ${n} messages in the chat. Not one of them was useful.`},
+  {icon:'🤪',title:'Sticker Goblin',stat:s=>s.stickers,min:4,line:n=>`${n} stickers. Use your words, mate.`},
+  {icon:'🐍',title:'Certified Dog Act',stat:s=>s.liarWon,min:1,line:n=>`Lied to everyone's face ${nightTimes(n)} and got away with it. Never trust this person with your Uber Eats order.`},
+  {icon:'😬',title:"Couldn't Lie To A Toddler",stat:s=>s.liarCaught,min:1,line:n=>`Got caught lying ${nightTimes(n)}. Your face is a snitch.`},
+  {icon:'🤡',title:'Town Idiot',stat:s=>s.votedOutInnocent,min:1,line:n=>`Voted out ${nightTimes(n)} while completely innocent. Something about you just looks guilty.`},
+  {icon:'🎯',title:"Mafia's Favourite Snack",stat:s=>s.killed,min:1,line:n=>`Killed in their sleep ${nightTimes(n)}. The Mafia simply do not want you here.`},
+  {icon:'⚰️',title:'First To Die',stat:s=>s.diedFirst,min:1,line:n=>`First one dead ${nightTimes(n)}. Is everything ok at home?`},
+  {icon:'🔪',title:'Serial Killer',stat:s=>s.kills,min:2,line:n=>`${n} kills tonight. Someone check this person's search history.`},
+  {icon:'🎭',title:'Framed You All',stat:s=>s.frames,min:1,line:n=>`Fooled the Detective ${nightTimes(n)}. Pure evil. Respect.`},
+  {icon:'🦇',title:'Blind As A Bat',stat:s=>s.wrongVotes,min:2,line:n=>`Voted for innocent people ${n} times. Zero detective skills. Negative, actually.`},
+  {icon:'🧠',title:'Suspiciously Good At This',stat:s=>s.rightVotes,min:2,line:n=>`Voted for the actual Mafia ${n} times. How did you know? Hmm?`},
+  {icon:'🃏',title:'Clown Of The Night',stat:s=>s.jester,min:1,line:()=>`Got voted out on purpose and WON. Big brain or no brain, we'll never know.`},
+  {icon:'💊',title:'Actually Useful',stat:s=>s.saves,min:1,line:n=>`Saved ${n} ${n===1?'life':'lives'} as the Doctor. The only one here pulling their weight.`},
+  {icon:'🥉',title:'Participation Trophy',stat:s=>s.g>=3&&s.w/s.g<=0.25?s.g-s.w:0,min:1,line:(n,s)=>`Won ${s.w} of ${s.g} games. Thanks for coming, I guess.`},
+  {icon:'👑',title:'Carried The Lobby',stat:s=>s.w,min:2,line:(n,s)=>`Won ${n} of ${s.g} games. Everyone else was basically furniture.`},
+];
+function computeNightAwards(game){
+  const since=game.nightStartedAt||0;
+  const players=game.players||{};
+  const S={};
+  const st=id=>S[id]=S[id]||{g:0,w:0,liarWon:0,liarCaught:0,votedOutInnocent:0,killed:0,diedFirst:0,kills:0,saves:0,wrongVotes:0,rightVotes:0,jester:0,frames:0,msgs:0,stickers:0};
+  Object.values(game.nightLog||{}).filter(e=>e&&e.at>since).forEach(e=>{
+    (e.players||[]).forEach(id=>{const s=st(id);s.g++;if((e.winners||[]).includes(id))s.w++;});
+    (e.liars||[]).forEach(id=>{if(e.liarWon)st(id).liarWon++;else st(id).liarCaught++;});
+    const m=e.mafia;if(!m)return;
+    const roles=m.roles||{};
+    const team=Object.keys(roles).filter(id=>roles[id]==='mafia'||roles[id]==='framer');
+    const deaths=Object.entries(m.deaths||{}).sort((a,b)=>a[1].at-b[1].at);
+    if(deaths.length)st(deaths[0][0]).diedFirst++;
+    deaths.forEach(([id,d])=>{
+      if(d.how==='night')st(id).killed++;
+      else if(d.how==='vote'&&!team.includes(id)&&roles[id]!=='jester')st(id).votedOutInnocent++;
+    });
+    Object.entries(m.tally||{}).forEach(([id,t])=>{const s=st(id);['kills','saves','wrongVotes','rightVotes','frames'].forEach(k=>{s[k]+=t[k]||0;});});
+    if(m.winner==='jester')Object.keys(roles).filter(id=>roles[id]==='jester').forEach(id=>st(id).jester++);
+  });
+  Object.values(game.chat||{}).filter(m=>m&&m.uid&&m.ts>since).forEach(m=>st(m.uid).msgs++);
+  Object.entries(game.nightStickers||{}).forEach(([id,n])=>{st(id).stickers+=n||0;});
+  // Only people still in the lobby. Two awards each at most.
+  const ids=Object.keys(S).filter(id=>players[id]);
+  const count={};
+  const list=[];
+  NIGHT_AWARDS.forEach(a=>{
+    const best=Math.max(0,...ids.map(id=>a.stat(S[id])||0));
+    if(best<a.min)return;
+    const winners=ids.filter(id=>(a.stat(S[id])||0)===best&&(count[id]||0)<2).slice(0,3);
+    if(!winners.length)return;
+    winners.forEach(id=>{count[id]=(count[id]||0)+1;});
+    list.push({icon:a.icon,title:a.title,line:a.line(best,S[winners[0]]),winners:winners.map(id=>({id,name:players[id].name}))});
+  });
+  return list;
+}
+async function endTheNight(){
+  const g=localGame;if(!amHost||!g||!gameCode)return;
+  const list=computeNightAwards(g);
+  if(!list.length){alert("Nobody has done anything award-worthy yet. Play a few games first.");return;}
+  if(!confirm('End the night and hand out the awards?'))return;
+  const at=Date.now();
+  const awards={at,list};
+  if(gameCode==='DEV0'){g.nightAwards=awards;g.nightStartedAt=at;checkNightAwards(g);return;}
+  await updateGame(gameCode,{nightAwards:awards,nightStartedAt:at,nightStickers:null});
+}
+// Everyone in the lobby: play the awards once when they land
+function checkNightAwards(game){
+  const a=game&&game.nightAwards;
+  if(!a||!a.at||!Array.isArray(a.list)||a.at<Date.now()-15*60*1000)return;
+  const seenKey='cg_awards_seen_'+gameCode+'_'+a.at;
+  try{if(localStorage.getItem(seenKey))return;localStorage.setItem(seenKey,'1');}catch(e){if(document.getElementById('naBackdrop'))return;}
+  showNightAwards(a.list,game.players||{});
+}
+let nightAwardsShow=null;
+function showNightAwards(list,players){
+  document.getElementById('naBackdrop')?.remove();
+  const el=document.createElement('div');
+  el.className='na-backdrop';el.id='naBackdrop';
+  document.body.appendChild(el);
+  nightAwardsShow={list,players,i:-1};
+  nightAwardsStep();
+}
+function nightAwardsStep(){
+  const s=nightAwardsShow;const el=document.getElementById('naBackdrop');if(!s||!el)return;
+  s.i++;
+  const n=s.list.length;
+  let card,btn;
+  if(s.i===0){
+    card=`<div class="na-icon">🏆</div><div class="na-title">The awards are in</div><div class="na-line">${n} award${n===1?'':'s'} tonight. Some of you should be embarrassed.</div>`;
+    btn='Let\'s go';
+  } else if(s.i<=n){
+    const a=s.list[s.i-1];
+    const faces=a.winners.map(w=>playerAvatar(s.players[w.id]||{id:w.id,name:w.name})).join('');
+    const names=a.winners.map(w=>esc(w.name)).join(' & ');
+    card=`<div class="na-count">${s.i} / ${n}</div><div class="na-icon">${a.icon}</div><div class="na-title">${esc(a.title)}</div><div class="na-faces">${faces}</div><div class="na-name">${names}</div><div class="na-line">${esc(a.line)}</div>`;
+    btn=s.i===n?'Finish':'Next award';
+  } else {
+    card=`<div class="na-icon">🌙</div><div class="na-title">That's the night</div><div class="na-line">Same time next week. Bring better lies.</div>`;
+    btn='Close';
+  }
+  el.innerHTML=`<div class="na-card">${card}</div><button class="btn btn-primary na-btn" onclick="${s.i>n?'closeNightAwards()':'nightAwardsStep()'}">${btn}</button>`;
+  if(s.i>=1&&s.i<=n&&navigator.vibrate){try{navigator.vibrate(30);}catch(e){}}
+}
+function closeNightAwards(){document.getElementById('naBackdrop')?.remove();nightAwardsShow=null;}
+
+// =====================================================
+// GAME WHEEL — host spins, everyone in the lobby watches it land
+// =====================================================
+// game.wheelSpin = {at, modes:[...], pick}
+const WHEEL_MODES={
+  spyfall:{icon:'🕵️',label:'Spyfall',min:3,color:'#d3f34b'},
+  ooo:{icon:'🎭',label:'Odd One Out',min:3,color:'#a78bfa'},
+  mafia:{icon:'🃏',label:'Mafia',min:4,color:'#e74c3c'},
+  fa:{icon:'🎨',label:'Fake Artist',min:3,color:'#f97316'},
+  bs:{icon:'👁️',label:'Blind Spot',min:3,color:'#06b6d4'},
+  guess:{icon:'❓',label:'Guessing Game',min:2,color:'#60a5fa'},
+  hotseat:{icon:'🔥',label:'Hot Seat',min:2,color:'#f59e0b'},
+  witb:{icon:'🎁',label:"What's In The Box?",min:3,color:'#ec4899'},
+};
+let wheelLastAt=0;
+async function spinGameWheel(){
+  const g=localGame;if(!amHost||!g||!gameCode||g.status!=='lobby')return;
+  const n=Object.keys(g.players||{}).length;
+  let modes=Object.keys(WHEEL_MODES).filter(m=>WHEEL_MODES[m].min<=n);
+  if(modes.length<2)modes=Object.keys(WHEEL_MODES);
+  const pool=modes.filter(m=>m!==(g.mode||localGameMode));
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  const spin={at:Date.now(),modes,pick};
+  if(gameCode==='DEV0'){g.wheelSpin=spin;checkWheelSpin(g);return;}
+  await updateGame(gameCode,{wheelSpin:spin});
+}
+function checkWheelSpin(game){
+  const w=game&&game.wheelSpin;
+  if(!w||game.status!=='lobby'||!w.at||w.at===wheelLastAt||w.at<Date.now()-8000||!Array.isArray(w.modes))return;
+  wheelLastAt=w.at;
+  showGameWheel(w);
+}
+function showGameWheel(w){
+  document.getElementById('wheelBackdrop')?.remove();
+  const modes=w.modes.filter(m=>WHEEL_MODES[m]);
+  const k=modes.indexOf(w.pick);if(k<0)return;
+  const seg=360/modes.length,R=100;
+  const pt=(deg,r)=>{const a=(deg-90)*Math.PI/180;return[(R+r*Math.cos(a)).toFixed(2),(R+r*Math.sin(a)).toFixed(2)];};
+  const slices=modes.map((m,i)=>{
+    const a0=i*seg,a1=(i+1)*seg,[x0,y0]=pt(a0,R),[x1,y1]=pt(a1,R),[lx,ly]=pt(a0+seg/2,R*0.68);
+    return `<path d="M${R},${R} L${x0},${y0} A${R},${R} 0 ${seg>180?1:0} 1 ${x1},${y1} Z" fill="${WHEEL_MODES[m].color}" fill-opacity="${i%2?0.78:0.95}" stroke="#0a0a0f" stroke-width="1.5"/><text x="${lx}" y="${ly}" font-size="24" text-anchor="middle" dominant-baseline="central">${WHEEL_MODES[m].icon}</text>`;
+  }).join('');
+  const el=document.createElement('div');
+  el.className='wheel-backdrop';el.id='wheelBackdrop';
+  el.innerHTML=`<div class="wheel-title">🎡 Spinning for the next game</div><div class="wheel-wrap"><div class="wheel-pointer"></div><svg viewBox="0 0 200 200" id="wheelSvg">${slices}</svg><div class="wheel-hub">🎲</div></div><div class="wheel-result" id="wheelResult"></div>`;
+  document.body.appendChild(el);
+  // Land the picked slice under the pointer, a little off-centre so it feels real
+  const jitter=(Math.random()-.5)*seg*.6;
+  const turn=360*6-(k*seg+seg/2)+jitter;
+  const svg=document.getElementById('wheelSvg');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{svg.style.transform=`rotate(${turn}deg)`;}));
+  setTimeout(()=>{
+    const r=document.getElementById('wheelResult');if(!r)return;
+    const m=WHEEL_MODES[w.pick];
+    r.textContent=`${m.icon} ${m.label}${/[?!]$/.test(m.label)?'':'!'}`;r.classList.add('show');
+    if(navigator.vibrate){try{navigator.vibrate([40,40,80]);}catch(e){}}
+    if(amHost&&localGame&&localGame.status==='lobby'&&localGame.wheelSpin&&localGame.wheelSpin.at===w.at)setGameMode(w.pick);
+    setTimeout(()=>el.remove(),2000);
+  },4400);
+  el.onclick=()=>{if(document.getElementById('wheelResult')?.classList.contains('show'))el.remove();};
 }
 
 function playerNameHtml(p){
@@ -4281,9 +4600,10 @@ function rewardDataForGame(game){
   if(game.mode==='mafia'&&game.status==='result'&&game.mafiaResult){
     const mafiaIds=game.mafiaIds||[];
     const roles=game.mafiaRoles||{};
-    if(game.mafiaResult.winner==='mafia')mafiaIds.forEach(id=>add(id,REWARD_AMOUNTS.mafia.mafia));
+    const team=mafiaTeamIds(game);
+    if(game.mafiaResult.winner==='mafia')team.forEach(id=>add(id,REWARD_AMOUNTS.mafia.mafia));
     else if(game.mafiaResult.winner==='jester')players.filter(p=>roles[p.id]==='jester').forEach(p=>add(p.id,REWARD_AMOUNTS.mafia.jester));
-    else players.filter(p=>!mafiaIds.includes(p.id)&&roles[p.id]!=='jester').forEach(p=>add(p.id,REWARD_AMOUNTS.mafia.civilian));
+    else players.filter(p=>!team.includes(p.id)&&roles[p.id]!=='jester').forEach(p=>add(p.id,REWARD_AMOUNTS.mafia.civilian));
     const roundKey=rewardRoundKey(game,'mafia_round');
     if(!roundKey)return null;
     return {key:roundKey,mode:'mafia',rewards};
@@ -4553,6 +4873,8 @@ async function awardCoinsForFinishedGame(game){
     });
 
     if(!claimed||!claimed.committed)return;
+    // Remember this game for the end-of-night awards
+    gameRefFor(gameCode).child('nightLog/'+data.key).set(nightLogEntry(game,data)).catch(e=>console.warn('Night log failed',e));
 
     await Promise.all(Object.entries(data.rewards).map(([id,amount])=>db.ref('users/'+id).transaction(user=>{
       user=user||{};
@@ -6207,6 +6529,8 @@ function onGameUpdate(game){
   checkHostPresence(game);
   awardCoinsForFinishedGame(game);
   awardBetPayoutsForFinishedGame(game);
+  checkNightAwards(game);
+  checkWheelSpin(game);
   handleMyRewardDisplays(game);
   handleMyBetDisplays(game);
   voidAndRefundMyBetsForUnavailableTargets(game).catch(e=>console.warn('Bet void check failed',e));
@@ -6399,7 +6723,7 @@ function onGameUpdate(game){
   }
 
   // MAFIA
-  if(game.mode==='mafia')setTimeout(updateMafiaWatchBar,0); // after this update picks the screen
+  if(game.mode==='mafia'){setTimeout(updateMafiaWatchBar,0);checkMafiaHaunts(game);} // bar waits until this update picks the screen
   if(game.mode==='mafia'&&game.status==='playing'){
     if(cur==='screen-mafia-reveal'){return;} // stay on reveal until player taps
     const mafiaScreens=['screen-mafia-game','screen-mafia-vote','screen-mafia-eliminated','screen-mafia-night-mafia','screen-mafia-night-doctor','screen-mafia-night-role','screen-mafia-night-town','screen-mafia-dawn'];
@@ -6439,6 +6763,7 @@ function onGameUpdate(game){
   }
   if(game.mode==='mafia'&&game.status==='result'){
     if(cur!=='screen-mafia-result')showMafiaResult(game);
+    recordMyMafiaStats(game);
     return;
   }
 
@@ -6727,6 +7052,7 @@ function renderLobby(game){
   const n=players.length;
 
   try{renderBettingSummaries(game);}catch(e){console.warn('Betting summary render failed',e);}
+  const funRow=document.getElementById('lobbyHostFunRow');if(funRow)funRow.style.display=amHost?'':'none';
 
   if(game.multiSpyMode!==undefined)localMultiSpyMode=!!game.multiSpyMode;
   const multiToggle=document.getElementById('multiSpyModeToggle');if(multiToggle)multiToggle.checked=localMultiSpyMode;
@@ -6777,7 +7103,7 @@ function renderLobby(game){
   if(!!game.mafiaOG!==localMafiaOG){localMafiaOG=!!game.mafiaOG;paintMafiaOGToggle();}
   const exRoles=game.mafiaExtraRoles||{};
   if(MAFIA_EXTRA_ROLES.some(r=>!!exRoles[r]!==!!localMafiaExtra[r])){
-    localMafiaExtra={detective:!!exRoles.detective,jester:!!exRoles.jester,bodyguard:!!exRoles.bodyguard};
+    localMafiaExtra={detective:!!exRoles.detective,jester:!!exRoles.jester,bodyguard:!!exRoles.bodyguard,framer:!!exRoles.framer};
     paintMafiaExtraToggles();
   }
 
@@ -6944,8 +7270,8 @@ async function startMafiaGame(){
     mafiaNightStart:null,
     mafiaLog:[{text:'Game started — Day 1 begins.',type:'system',ts:Date.now()}],
     mafiaResult:null,mafiaCount:count,
-    mafiaOG:localMafiaOG,mafiaExtraRoles:localMafiaExtra,mafiaDetectVote:null,mafiaGuardVote:null,mafiaDetectiveLog:null,mafiaDawnStory:null,mafiaDawnGuarded:null,mafiaStoryUsed:null,mafiaDaySub:null,mafiaVoteOrder:null,mafiaVoteTurn:0,mafiaLastVotes:null,mafiaElimRevealNoVote:false,
-    mafiaSpectate:null,mafiaDeadChat:null,
+    mafiaOG:localMafiaOG,mafiaExtraRoles:localMafiaExtra,mafiaDetectVote:null,mafiaGuardVote:null,mafiaFrameVote:null,mafiaDetectiveLog:null,mafiaDawnStory:null,mafiaDawnGuarded:null,mafiaStoryUsed:null,mafiaDaySub:null,mafiaVoteOrder:null,mafiaVoteTurn:0,mafiaLastVotes:null,mafiaElimRevealNoVote:false,
+    mafiaSpectate:null,mafiaDeadChat:null,mafiaHaunts:null,mafiaTally:null,mafiaDeaths:null,
     votes:{},result:null,
   });
 }
@@ -6961,6 +7287,7 @@ function getMafiaCardHTML(role){
     detective:{cls:'card-detective',rank:'D',suit:'♦',icon:'🔍',name:'DETECTIVE',desc:'Watch two players each night.\nDid they leave the house?'},
     jester:{cls:'card-jester',rank:'J',suit:'★',icon:'🃏',name:'JESTER',desc:'Get voted out by the town.\nThat is how you win.'},
     bodyguard:{cls:'card-bodyguard',rank:'B',suit:'♠',icon:'🛡️',name:'BODYGUARD',desc:'Guard one player each night.\nTake the hit for them.'},
+    framer:{cls:'card-framer',rank:'F',suit:'♦',icon:'🎭',name:'FRAMER',desc:'Frame one player each night.\nMake the Detective doubt.'},
   };
   const c=configs[role]||configs.town;
   // Generate suit pattern
@@ -7004,11 +7331,16 @@ function enterMafiaReveal(game){
     document.getElementById('mafiaRevealTap').style.display='none';
     const cardEl=document.getElementById('mafiaRevealCard');
     let extra='';
+    const framerNames=Object.keys(game.mafiaRoles||{}).filter(id=>game.mafiaRoles[id]==='framer').map(id=>(game.players&&game.players[id]&&game.players[id].name)||'?');
+    const framerLine=framerNames.length?`<div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#f472b6;margin-top:8px">🎭 Your Framer: ${framerNames.map(n=>esc(n)).join(', ')}</div>`:'';
     if(role==='mafia'&&mafiaIds.length>1){
       const teammates=mafiaIds.filter(id=>id!==myId).map(id=>(game.players&&game.players[id]&&game.players[id].name)||'?');
-      extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:#e74c3c;margin-bottom:6px">YOUR MAFIA TEAM</div><div style="font-family:'JetBrains Mono',monospace;font-size:14px">${teammates.map(n=>esc(n)).join(', ')}</div></div>`;
+      extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:#e74c3c;margin-bottom:6px">YOUR MAFIA TEAM</div><div style="font-family:'JetBrains Mono',monospace;font-size:14px">${teammates.map(n=>esc(n)).join(', ')}</div>${framerLine}</div>`;
     } else if(role==='mafia'){
-      extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;color:#e74c3c;font-family:'JetBrains Mono',monospace">You are the only Mafia member. Blend in.</div></div>`;
+      extra=`<div class="mafia-action-box" style="margin-top:12px"><div style="font-size:12px;color:#e74c3c;font-family:'JetBrains Mono',monospace">You are the only Mafia member. Blend in.</div>${framerLine}</div>`;
+    } else if(role==='framer'){
+      const mafiaNames=mafiaIds.map(id=>(game.players&&game.players[id]&&game.players[id].name)||'?');
+      extra=`<div class="role-action-box framer" style="margin-top:12px">You're on the Mafia's side, but you don't kill. Each night, frame one player. If the Detective watches them, it looks like they left the house. You win when the Mafia win.<div style="margin-top:8px;font-weight:700">🔴 The Mafia: ${mafiaNames.map(n=>esc(n)).join(', ')}</div></div>`;
     } else if(role==='detective'){
       extra=`<div class="role-action-box detective" style="margin-top:12px">Each night, pick two players to watch. At dawn you'll learn if neither, one or both of them left the house. The Mafia, Doctor and Bodyguard all go out at night. Don't get yourself killed.</div>`;
     } else if(role==='jester'){
@@ -7166,6 +7498,9 @@ function showMafiaEliminationReveal(game){
     if(role==='jester'){
       icon='🃏';titleCls='jester';title='The Jester wins!';
       storyHTML=`<p class="dawn-story-text">The group voted out <em style="color:#c084fc">${esc(elimName)}</em>.</p><p class="dawn-story-text" style="margin-top:8px"><em style="color:#c084fc">${esc(elimName)}</em> was the <strong style="color:#c084fc">JESTER</strong>. That's exactly what they wanted.</p>`;
+    } else if(role==='framer'){
+      icon='🎭';titleCls='saved';title='Framer caught!';
+      storyHTML=`<p class="dawn-story-text">The group voted out <em style="color:#f472b6">${esc(elimName)}</em>.</p><p class="dawn-story-text saved-name" style="margin-top:8px"><em>${esc(elimName)}</em> was the <strong style="color:#f472b6">FRAMER</strong>, working for the Mafia. Good call.</p>`;
     } else if(isMafia){
       icon='🎉';titleCls='saved';title='Mafia caught!';
       storyHTML=`<p class="dawn-story-text">The group voted out <em style="color:var(--spy)">${esc(elimName)}</em>.</p><p class="dawn-story-text saved-name" style="margin-top:8px"><em>${esc(elimName)}</em> was <strong>MAFIA</strong>. The civilians got one!</p>`;
@@ -7201,7 +7536,7 @@ function showMafiaEliminationReveal(game){
 
 async function mafiaStartNightFromElim(){
   if(!amHost||!gameCode||!localGame)return;
-  await updateGame(gameCode,{mafiaPhase:'night',mafiaKillVotes:{},mafiaSaveVote:null,mafiaDetectVote:null,mafiaGuardVote:null,mafiaKillDecisions:{},mafiaNightStart:Date.now()});
+  await updateGame(gameCode,{mafiaPhase:'night',mafiaKillVotes:{},mafiaSaveVote:null,mafiaDetectVote:null,mafiaGuardVote:null,mafiaFrameVote:null,mafiaKillDecisions:{},mafiaNightStart:Date.now()});
 }
 
 
@@ -7242,7 +7577,7 @@ function enterMafiaNight(game){
   if(amDead){showScreen('mafia-night-town');renderMafiaTownWait(game);return;}
   if(myRole==='mafia'){showScreen('mafia-night-mafia');renderMafiaNightMafia(game);return;}
   if(myRole==='doctor'){showScreen('mafia-night-doctor');renderMafiaNightDoctor(game);return;}
-  if(myRole==='detective'||myRole==='bodyguard'){mafiaRoleStageKey='';showScreen('mafia-night-role');renderMafiaNightRole(game);return;}
+  if(myRole==='detective'||myRole==='bodyguard'||myRole==='framer'){mafiaRoleStageKey='';showScreen('mafia-night-role');renderMafiaNightRole(game);return;}
   showScreen('mafia-night-town');renderMafiaTownWait(game);
 }
 
@@ -8498,6 +8833,13 @@ function mafiaRoleExtraHTML(game,role){
   }
   if(role==='jester')return `<div class="role-action-box jester">🃏 You win if the town votes you out. Act a bit suss, but not too suss.</div>`;
   if(role==='bodyguard')return `<div class="role-action-box bodyguard">🛡️ Each night you guard someone. If the Mafia come for them, you die instead.</div>`;
+  const players=game.players||{};
+  const names=ids=>ids.map(id=>esc((players[id]||{}).name||'?')).join(', ');
+  if(role==='framer')return `<div class="role-action-box framer">🎭 Each night you frame someone so the Detective thinks they left the house. You win with the Mafia: <b>${names(game.mafiaIds||[])}</b></div>`;
+  if(role==='mafia'){
+    const framers=Object.keys(game.mafiaRoles||{}).filter(id=>game.mafiaRoles[id]==='framer');
+    if(framers.length)return `<div class="role-action-box framer">🎭 Your Framer is <b>${names(framers)}</b>. They frame people for the Detective.</div>`;
+  }
   return '';
 }
 // Who left the house tonight (host, at dawn).
@@ -8505,10 +8847,13 @@ function mafiaLeftHouseCount(game,ids){
   const roles=game.mafiaRoles||{},elim=game.mafiaEliminated||{},kill=game.mafiaKillVotes||{};
   return ids.filter(id=>{
     if(elim[id])return false;
+    // Framed: looks like they went out, whatever they really did
+    if(game.mafiaFrameVote===id)return true;
     const r=roles[id];
     if(r==='mafia')return !!kill[id];
     if(r==='doctor')return !!game.mafiaSaveVote&&game.mafiaSaveVote!==id;
     if(r==='bodyguard')return !!game.mafiaGuardVote;
+    if(r==='framer')return !!game.mafiaFrameVote;
     return false;
   }).length;
 }
@@ -8526,16 +8871,16 @@ function mafiaDetectiveDawnHTML(game){
 function renderMafiaNightRole(game){
   startMafiaNightDecisionTimer(game);
   const role=(game.mafiaRoles||{})[myId];
-  const isDet=role==='detective';
+  const isDet=role==='detective',isFramer=role==='framer';
   const players=game.players||{};
   const elim=game.mafiaEliminated||{};
   const day=game.mafiaDay||1;
-  const raw=isDet?game.mafiaDetectVote:game.mafiaGuardVote;
+  const raw=isDet?game.mafiaDetectVote:isFramer?game.mafiaFrameVote:game.mafiaGuardVote;
   const chosen=isDet?(Array.isArray(raw)&&raw.length?raw:null):raw;
   const p=id=>players[id]||{id,name:'?'};
-  document.getElementById('mrWrap').className='mr-wrap mr-'+(isDet?'detective':'bodyguard');
-  document.getElementById('mrEyebrow').textContent=(isDet?'🔍 Detective':'🛡️ Bodyguard')+' · Night '+day;
-  document.getElementById('mrTitle').innerHTML=chosen?(isDet?'Eyes on<br>the street':'You are on<br>guard duty'):(isDet?'Pick two<br>to watch':'Who will you<br>protect?');
+  document.getElementById('mrWrap').className='mr-wrap mr-'+(isDet?'detective':isFramer?'framer':'bodyguard');
+  document.getElementById('mrEyebrow').textContent=(isDet?'🔍 Detective':isFramer?'🎭 Framer':'🛡️ Bodyguard')+' · Night '+day;
+  document.getElementById('mrTitle').innerHTML=chosen?(isDet?'Eyes on<br>the street':isFramer?'The trap<br>is set':'You are on<br>guard duty'):(isDet?'Pick two<br>to watch':isFramer?'Who will you<br>frame?':'Who will you<br>protect?');
   const key=`${day}|${role}|${chosen?[].concat(chosen).join(','):''}`;
   if(key===mafiaRoleStageKey)return;
   mafiaRoleStageKey=key;
@@ -8543,17 +8888,21 @@ function renderMafiaNightRole(game){
   if(chosen){
     if(isDet){
       stage.innerHTML=`<div class="mr-panel"><div class="mr-result"><div class="mr-result-card rest"><div class="mr-pair">${chosen.map(id=>`<div>${playerAvatar(p(id))}<span>${playerNameHtml(p(id))}</span></div>`).join('<b>+</b>')}</div><div class="mr-result-verdict">WATCHING</div><div class="mr-result-sub">Your report arrives at dawn:<br>did either of them leave the house?</div></div></div>${mafiaDetectiveNotesHTML(game)}</div>`;
+    } else if(isFramer){
+      stage.innerHTML=`<div class="mr-panel"><div class="mr-result"><div class="mr-result-card framed">${playerAvatar(p(chosen))}<div style="font-size:15px;font-weight:700">${playerNameHtml(p(chosen))}</div><div class="mr-result-verdict">FRAMED</div><div class="mr-result-sub">If the Detective watches them,<br>they'll look like they left the house.</div></div></div></div>`;
     } else {
       stage.innerHTML=`<div class="mr-panel"><div class="mr-result"><div class="mr-result-card guard">${playerAvatar(p(chosen))}<div style="font-size:15px;font-weight:700">${playerNameHtml(p(chosen))}</div><div class="mr-result-verdict">GUARDED</div><div class="mr-result-sub">If the Mafia come for them,<br>you take the hit.</div></div></div></div>`;
     }
     return;
   }
   mafiaRolePick=[];
-  const targets=Object.values(players).filter(x=>!elim[x.id]&&x.id!==myId).sort((a,b)=>a.joinedAt-b.joinedAt);
+  const mafiaIds=game.mafiaIds||[];
+  const targets=Object.values(players).filter(x=>!elim[x.id]&&x.id!==myId&&!(isFramer&&mafiaIds.includes(x.id))).sort((a,b)=>a.joinedAt-b.joinedAt);
   stage.innerHTML=`<div class="mr-panel">
     ${isDet?'<div class="mr-hint" id="mrHint">Tap two players. At dawn you\'ll find out how many of them left the house tonight.</div>':''}
+    ${isFramer?'<div class="mr-hint" id="mrHint" style="color:#f9a8d4">If the Detective watches them tonight, they\'ll look like they left the house.</div>':''}
     <div class="mv-grid" style="margin-top:0">${targets.map(x=>`<button class="mv-pick" data-id="${x.id}" onclick="pickMafiaRoleTarget('${x.id}')">${playerAvatar(x)}<span class="mv-pick-name">${playerNameHtml(x)}</span><span class="mv-pick-check">✓</span></button>`).join('')}</div>
-    <button class="btn mr-confirm" id="mrConfirmBtn" onclick="confirmMafiaRoleTarget()" disabled>${isDet?'Watch them (0/2)':'Guard them'}</button>
+    <button class="btn mr-confirm" id="mrConfirmBtn" onclick="confirmMafiaRoleTarget()" disabled>${isDet?'Watch them (0/2)':isFramer?'Frame them':'Guard them'}</button>
     ${isDet?mafiaDetectiveNotesHTML(game):''}
   </div>`;
 }
@@ -8580,6 +8929,8 @@ async function confirmMafiaRoleTarget(){
       await updateGame(gameCode,{mafiaDetectVote:picks});
     } else if(role==='bodyguard'){
       await updateGame(gameCode,{mafiaGuardVote:picks[0]});
+    } else if(role==='framer'){
+      await updateGame(gameCode,{mafiaFrameVote:picks[0]});
     }
   } finally {mafiaRoleSubmitting=false;}
 }
@@ -8650,7 +9001,8 @@ function renderMafiaGhost(game,slotId){
   // Who I'm watching and what they're doing
   let card;
   if(watching){
-    card=`<div class="ghost-watch"><div class="ghost-watch-top">${playerAvatar(p(watching))}<div class="ghost-watch-who"><div class="ghost-watch-eyebrow">👁 Spectating</div><div class="ghost-watch-name">${playerNameHtml(p(watching))}</div></div>${mafiaRoleTagHTML(game,watching)}</div>${mafiaGhostDoingHTML(game,watching)}<button class="ghost-stop" onclick="mafiaSpectate(null)">Stop spectating</button></div>`;
+    const haunt=`<div class="ghost-sub-label">Haunt them</div><div class="ghost-haunts">${MAFIA_HAUNTS.map(e=>`<button class="ghost-haunt-btn" onclick="mafiaHaunt('${e}',this)">${e}</button>`).join('')}</div>`;
+    card=`<div class="ghost-watch"><div class="ghost-watch-top">${playerAvatar(p(watching))}<div class="ghost-watch-who"><div class="ghost-watch-eyebrow">👁 Spectating</div><div class="ghost-watch-name">${playerNameHtml(p(watching))}</div></div>${mafiaRoleTagHTML(game,watching)}</div>${mafiaGhostDoingHTML(game,watching)}${haunt}<button class="ghost-stop" onclick="mafiaSpectate(null)">Stop spectating</button></div>`;
   } else if(watchId&&players[watchId]){
     card=`<div class="ghost-watch empty">💀 ${esc(p(watchId).name)} died. Pick someone else.</div>`;
   } else {
@@ -8708,6 +9060,9 @@ function mafiaGhostDoingHTML(game,t){
     } else if(role==='bodyguard'){
       const g=game.mafiaGuardVote;
       line=g?`🛡️ Guarding ${who(g)}`:'🛡️ Choosing who to guard...';
+    } else if(role==='framer'){
+      const f=game.mafiaFrameVote;
+      line=f?`🎭 Framing ${who(f)}`:'🎭 Choosing who to frame...';
     } else line='🌙 Waiting for dawn';
   } else if(phase==='day'){
     const sub=game.mafiaDaySub,v=(game.mafiaVotes||{})[t];
@@ -8749,6 +9104,49 @@ async function sendMafiaDeadChat(){
   const msg={uid:myId,name,text,ts:Date.now()};
   if(gameCode==='DEV0'){g.mafiaDeadChat={...(g.mafiaDeadChat||{}),['m'+msg.ts]:msg};renderMafiaGhost(g,(document.getElementById('mafiaGhostPanel').parentNode||{}).id);return;}
   await gameRefFor(gameCode).child('mafiaDeadChat').push().set(msg);
+}
+// Haunting: a ghost throws a spooky emoji onto the screen of the player they spectate.
+// game.mafiaHaunts = {ghostId: {to, emoji, ts}} — one slot per ghost, overwritten each time.
+const MAFIA_HAUNTS=['👻','💀','🕷️','👁️','🦇','🩸','🔪','🤡'];
+const MAFIA_HAUNT_COOLDOWN=5000;
+let mafiaHauntLastSent=0,mafiaHauntSeen={};
+async function mafiaHaunt(emoji,btn){
+  const g=localGame;if(!g||!gameCode)return;
+  const elim=g.mafiaEliminated||{};
+  const to=(g.mafiaSpectate||{})[myId];
+  if(!elim[myId]||!to||elim[to])return;
+  const now=Date.now();
+  if(now-mafiaHauntLastSent<MAFIA_HAUNT_COOLDOWN){if(btn){btn.classList.remove('nope');void btn.offsetWidth;btn.classList.add('nope');}return;}
+  mafiaHauntLastSent=now;
+  document.querySelectorAll('.ghost-haunt-btn').forEach(b=>{b.disabled=true;});
+  if(btn)btn.classList.add('sent');
+  setTimeout(()=>document.querySelectorAll('.ghost-haunt-btn').forEach(b=>{b.disabled=false;b.classList.remove('sent');}),MAFIA_HAUNT_COOLDOWN);
+  if(gameCode==='DEV0')return;
+  await gameRefFor(gameCode).child('mafiaHaunts/'+myId).set({to,emoji,ts:now});
+}
+// Living player: play any new haunt aimed at me
+function checkMafiaHaunts(game){
+  const elim=game.mafiaEliminated||{};
+  if(game.mode!=='mafia'||game.status!=='playing'||elim[myId])return;
+  const players=game.players||{};
+  Object.entries(game.mafiaHaunts||{}).forEach(([gid,h])=>{
+    if(!h||h.to!==myId||!elim[gid]||!players[gid])return;
+    const seen=mafiaHauntSeen[gid];
+    mafiaHauntSeen[gid]=Math.max(seen||0,h.ts);
+    // First sight of this ghost: only play it if it's fresh
+    if(seen===undefined?h.ts>Date.now()-8000:h.ts>seen)showMafiaHaunt(players[gid],h.emoji);
+  });
+}
+function showMafiaHaunt(ghost,emoji){
+  if(!MAFIA_HAUNTS.includes(emoji))return;
+  const fx=document.createElement('div');
+  fx.className='haunt-fx';
+  const fromLeft=Math.random()<.5;
+  const bits=Array.from({length:7},(_,i)=>`<span class="haunt-bit" style="left:${8+Math.random()*84}%;animation-delay:${(0.15+i*0.12).toFixed(2)}s;font-size:${22+Math.random()*22|0}px">${emoji}</span>`).join('');
+  fx.innerHTML=`<div class="haunt-vignette"></div><span class="haunt-big ${fromLeft?'ltr':'rtl'}">${emoji}</span>${bits}<div class="haunt-who">${playerAvatar(ghost)}<span><b>${esc(ghost.name)}</b> haunted you</span></div>`;
+  document.body.appendChild(fx);
+  if(navigator.vibrate){try{navigator.vibrate([20,40,20,40,60]);}catch(e){}}
+  setTimeout(()=>fx.remove(),2800);
 }
 // Living players see who is spectating them, with their pictures
 function updateMafiaWatchBar(){
@@ -8855,11 +9253,24 @@ async function resolveMafiaDayVote(game){
     }
   }
 
+  // Tally: who voted for someone on the Mafia's side, and who got voted out
+  const team=mafiaTeamIds(game);
+  const tally=JSON.parse(JSON.stringify(game.mafiaTally||{}));
+  const deaths={...(game.mafiaDeaths||{})};
+  Object.entries(votes).forEach(([voter,target])=>{
+    if(!target||target==='none')return;
+    const k=team.includes(target)?'rightVotes':'wrongVotes';
+    tally[voter]=tally[voter]||{};tally[voter][k]=(tally[voter][k]||0)+1;
+  });
+  if(elimId)deaths[elimId]={how:'vote',day:game.mafiaDay||1,at:Date.now()};
+
   await updateGame(gameCode,{
     mafiaPhase:'eliminated',
     mafiaEliminated:eliminated,
     mafiaLog:log,
     mafiaVotes:{},
+    mafiaTally:tally,
+    mafiaDeaths:deaths,
     mafiaElimRevealId:elimId,
     mafiaElimRevealTie:isTie,
     mafiaElimRevealNoVote:noVoteWon,
@@ -9125,7 +9536,21 @@ async function mafiaAdvanceToDawn(){
   const watched=Array.isArray(game.mafiaDetectVote)?game.mafiaDetectVote:[];
   if(detId&&watched.length===2)detUpdate['mafiaDetectiveLog/n'+night]={targets:watched,left:mafiaLeftHouseCount(game,watched),night};
 
-  await updateGame(gameCode,{mafiaPhase:'dawn',mafiaEliminated:eliminated,mafiaLog:log,mafiaVotes:{},mafiaDawnEliminated:dawnEliminated,mafiaDawnSaved:dawnSaved,mafiaDawnGuarded:dawnGuarded,mafiaDawnStory:story,mafiaStoryUsed:storyUsed,...detUpdate});
+  // Running tally for Mafia stats and the night awards
+  const tally=JSON.parse(JSON.stringify(game.mafiaTally||{}));
+  const deaths={...(game.mafiaDeaths||{})};
+  const bump=(id,k)=>{if(!id)return;tally[id]=tally[id]||{};tally[id][k]=(tally[id][k]||0)+1;};
+  const wasDead=game.mafiaEliminated||{};
+  const roleId=r=>Object.keys(roles).find(id=>roles[id]===r&&!wasDead[id]);
+  if(dawnEliminated){
+    deaths[dawnEliminated]={how:'night',day:night,at:Date.now()};
+    (game.mafiaIds||[]).filter(id=>!wasDead[id]).forEach(id=>bump(id,'kills'));
+  }
+  if(dawnSaved)bump(roleId('doctor'),'saves');
+  if(dawnGuarded)bump(guardId,'blocks');
+  if(detId&&game.mafiaFrameVote&&watched.includes(game.mafiaFrameVote))bump(roleId('framer'),'frames');
+
+  await updateGame(gameCode,{mafiaPhase:'dawn',mafiaEliminated:eliminated,mafiaLog:log,mafiaVotes:{},mafiaDawnEliminated:dawnEliminated,mafiaDawnSaved:dawnSaved,mafiaDawnGuarded:dawnGuarded,mafiaDawnStory:story,mafiaStoryUsed:storyUsed,mafiaTally:tally,mafiaDeaths:deaths,...detUpdate});
 }
 async function mafiaAdvanceToDay(){
   const game=localGame;if(!game)return;
@@ -9481,10 +9906,13 @@ function checkMafiaWin(game){
   const players=Object.values(game.players||{});
   const alivePlayers=players.filter(p=>!eliminated[p.id]);
   const mafiaIds=game.mafiaIds||[];
+  const team=mafiaTeamIds(game);
   const aliveMafia=mafiaIds.filter(id=>!eliminated[id]);
-  const aliveTown=alivePlayers.filter(p=>!mafiaIds.includes(p.id));
+  const aliveTeam=team.filter(id=>!eliminated[id]);
+  const aliveTown=alivePlayers.filter(p=>!team.includes(p.id));
+  // The Framer can't kill, so the town wins once every killer is gone
   if(aliveMafia.length===0){endMafiaGame('town',game);}
-  else if(aliveMafia.length>=aliveTown.length){endMafiaGame('mafia',game);}
+  else if(aliveTeam.length>=aliveTown.length){endMafiaGame('mafia',game);}
 }
 async function endMafiaGame(winner,game){
   const log=[...(game.mafiaLog||[])];
@@ -9506,10 +9934,10 @@ function showMafiaResult(game){
   const r=game.mafiaResult||{};
   const winner=r.winner||'town';
   const mafiaIds=game.mafiaIds||[];
-  const mafiaPlayers=mafiaIds.map(id=>game.players&&game.players[id]).filter(Boolean);
+  const mafiaPlayers=mafiaTeamIds(game).map(id=>game.players&&game.players[id]).filter(Boolean);
   const bannerEl=document.getElementById('mafiaResultBanner');
   const players=Object.values(game.players||{}).sort((a,b)=>a.joinedAt-b.joinedAt);
-  const townPlayers=players.filter(p=>!mafiaIds.includes(p.id));
+  const townPlayers=players.filter(p=>!mafiaTeamIds(game).includes(p.id)&&(game.mafiaRoles||{})[p.id]!=='jester');
   if(winner==='jester'){
     const jesters=players.filter(p=>(game.mafiaRoles||{})[p.id]==='jester');
     bannerEl.innerHTML=`<div class="result-banner jester-wins">${resultAvatarGroupHtml(jesters,'🃏')}<h2>The Jester Wins!</h2><p>The town voted out the one person who wanted it.</p></div>`;
@@ -10256,7 +10684,7 @@ async function leaveGame(){
       }
     }catch(e){console.error(e);}
   }
-  gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localMafiaOG=false;localMafiaExtra={detective:false,jester:false,bodyguard:false};localFaWords=3;localFaRounds=0;localWitbChallenges=5;faCanvasCleanup();bsCleanup();hsCleanup();witbCleanup();resetLobbyEntrances();
+  gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localMafiaOG=false;localMafiaExtra={detective:false,jester:false,bodyguard:false,framer:false};localFaWords=3;localFaRounds=0;localWitbChallenges=5;faCanvasCleanup();bsCleanup();hsCleanup();witbCleanup();resetLobbyEntrances();
   showScreen('home');
 }
 
@@ -10402,6 +10830,7 @@ function devMafiaGhostTest(variant){
   } else {
     Object.assign(game,{mafiaPhase:'day',mafiaDaySub:'discuss',mafiaDayTimerStart:t,mafiaDayTimerDuration:MAFIA_DISCUSS_TIMER,mafiaEliminated:{dev_p5:true,dev_p6:true},mafiaKillDecisions:{},mafiaKillVotes:{},mafiaSpectate:{dev_p5:myId,dev_p6:myId}});
     localGame=game;showScreen('mafia-game');renderMafiaGame(game);updateMafiaWatchBar();devShowStatus('Mafia: two ghosts spectate you');
+    setTimeout(()=>showMafiaHaunt(mockPlayers.dev_p5,'👻'),1500);
   }
 }
 function devBsTest(variant){
@@ -10469,7 +10898,7 @@ function devGoScreen(screen){
   else if(screen==='result-spy'){const game=devMockGame({forceSpy:true});game.status='result';game.timerRunning=false;game.result={spyWins:true,description:'Time ran out — spy escaped!',reason:'timeout'};localGame=game;showResultScreen(game);}
   devShowStatus(`Jumped to: ${screen}`);
 }
-function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();cancelHostRescue();clearLastGame();faCanvasCleanup();bsCleanup();hsCleanup();gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localMafiaOG=false;localMafiaExtra={detective:false,jester:false,bodyguard:false};localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
+function devBackHome(){clearInterval(timerInterval);clearInterval(oooVoteTimerInterval);clearInterval(tieTimerInterval);clearInterval(mafiaTimerInterval);clearInterval(mafiaDecisionTimerInterval);mafiaDecisionTimerInterval=null;stopMafiaPrivateChat();stopListening();stopChat();cancelHostRescue();clearLastGame();faCanvasCleanup();bsCleanup();hsCleanup();gameCode=null;amHost=false;nonHostLobbyView=false;localGame=null;localSpyCount=1;localMultiSpyMode=false;localChaosMode=false;localGameMode='spyfall';localOOORounds=3;localMafiaCount=1;localDoctorEnabled=true;localMafiaOG=false;localMafiaExtra={detective:false,jester:false,bodyguard:false,framer:false};localFaWords=3;localFaRounds=0;localBsCategory=null;localBsDiscussMinutes=5;showScreen('home');}
 
 
 
