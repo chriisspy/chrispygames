@@ -6373,12 +6373,42 @@ async function cleanupOldGames(){
 // =====================================================
 // PRESENCE
 // =====================================================
+// A phone that swipes out of the app keeps its spot (and host) for HOST_AWAY_GRACE:
+// it marks itself "away" when hidden, so a dropped connection isn't treated as leaving.
+// Closing the tab/browser or pressing Leave still hands host over in about 10s.
+const HOST_AWAY_GRACE=5*60*1000;
+const HOST_GONE_WAIT=10000;
+let presenceConnRef=null;
 function setupPresence(){
   if(!gameCode)return;
-  const ref=gameRefFor(gameCode).child('players/'+myId+'/online');
-  ref.set(true);ref.onDisconnect().set(false);
-  gameRefFor(gameCode).child('players/'+myId).onDisconnect().update({online:false});
+  const me=gameRefFor(gameCode).child('players/'+myId);
+  me.update({online:true,away:null,awayAt:null});
+  me.onDisconnect().update({online:false});
+  if(!presenceConnRef){
+    // When the connection comes back (phone woke the app up), mark me online again
+    presenceConnRef=db.ref('.info/connected');
+    presenceConnRef.on('value',snap=>{
+      if(snap.val()!==true||!gameCode)return;
+      const ref=gameRefFor(gameCode).child('players/'+myId);
+      ref.onDisconnect().update({online:false});
+      ref.transaction(p=>p?{...p,online:true}:undefined).catch(()=>{});
+    });
+  }
 }
+function myPresenceRef(){
+  return gameCode&&localGame&&(localGame.players||{})[myId]?gameRefFor(gameCode).child('players/'+myId):null;
+}
+document.addEventListener('visibilitychange',()=>{
+  const me=myPresenceRef();if(!me)return;
+  if(document.visibilityState==='hidden')me.update({away:true,awayAt:serverTimestamp()}).catch(()=>{});
+  else me.update({away:null,awayAt:null,online:true}).catch(()=>{});
+});
+window.addEventListener('pagehide',e=>{
+  if(e.persisted)return; // just paused in the back/forward cache, not closed
+  const me=myPresenceRef();if(!me)return;
+  // Closing the tab or browser: gone, not away
+  try{me.update({away:null,awayAt:null,online:false});}catch(err){}
+});
 function watchPresence(game){
   if(!amHost)return;
   Object.values(game.players||{}).forEach(p=>{if(p.id!==myId&&p.online===false)handlePlayerLeft(p.id,game);});
@@ -6405,16 +6435,24 @@ async function handlePlayerLeft(leftId,game){
 // Host rescue: watchPresence only runs on the host's own client, so if the
 // host's phone dies mid-game nobody transfers hostId and every "Waiting for
 // host..." screen waits forever. Every client watches the host's presence;
-// after 10s offline, the earliest-joined online player (deterministic, so
-// only one client writes) promotes itself.
+// after 10s offline (or HOST_AWAY_GRACE if they only swiped out of the app),
+// the earliest-joined online player (deterministic, so only one client writes) promotes itself.
 let hostRescueTimer=null;
 function cancelHostRescue(){if(hostRescueTimer){clearTimeout(hostRescueTimer);hostRescueTimer=null;}}
+function hostRescueDelay(host){
+  if(!host||!host.away)return HOST_GONE_WAIT;
+  const since=typeof host.awayAt==='number'?host.awayAt:syncedNow();
+  return Math.max(HOST_GONE_WAIT,since+HOST_AWAY_GRACE-syncedNow());
+}
 function checkHostPresence(game){
   if(!gameCode||!game||!game.players)return;
   const host=game.hostId?game.players[game.hostId]:null;
   if(host&&host.online!==false){cancelHostRescue();return;}
   if(game.hostId===myId)return;
   if(hostRescueTimer)return;
+  scheduleHostRescue(hostRescueDelay(host));
+}
+function scheduleHostRescue(ms){
   hostRescueTimer=setTimeout(async()=>{
     hostRescueTimer=null;
     if(!gameCode)return;
@@ -6423,6 +6461,9 @@ function checkHostPresence(game){
       if(!fg||!fg.players)return;
       const curHost=fg.hostId?fg.players[fg.hostId]:null;
       if(curHost&&curHost.online!==false)return;
+      // Host only swiped out of the app: keep waiting until the grace runs out
+      const left=hostRescueDelay(curHost);
+      if(curHost&&curHost.away&&left>HOST_GONE_WAIT){scheduleHostRescue(left);return;}
       const online=Object.values(fg.players).filter(p=>p.online!==false&&!p.devBot).sort((a,b)=>a.joinedAt-b.joinedAt);
       if(!online.length||online[0].id!==myId)return;
       const updates={hostId:myId};
@@ -6430,7 +6471,7 @@ function checkHostPresence(game){
       if(fg.hostId&&fg.players[fg.hostId])updates['players/'+fg.hostId+'/isHost']=false;
       await gameRefFor(gameCode).update(updates);
     }catch(e){console.warn('Host rescue failed',e);}
-  },10000);
+  },ms);
 }
 
 // Session recovery: Safari evicts backgrounded tabs constantly. Remember the
@@ -7017,7 +7058,7 @@ function renderLobbyPlayerList(game){
       ${editableLobbyNameHtml(p)}
       ${p.isHost?'<div class="player-badge">host</div>':''}
       ${p.id===myId?'<div class="player-badge">you</div>':''}
-      ${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}
+      ${p.away?'<div class="player-badge">💤 away</div>':p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}
       ${safeLobbyMenuHtml(p)}
     </div>
   `).join('');
@@ -7046,7 +7087,7 @@ function renderWaitingPlayerList(game){
       ${editableLobbyNameHtml(p)}
       ${p.isHost?'<div class="player-badge">host</div>':''}
       ${p.id===myId?'<div class="player-badge">you</div>':''}
-      ${p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}
+      ${p.away?'<div class="player-badge">💤 away</div>':p.online===false?'<div class="player-badge" style="color:var(--spy)">offline</div>':''}
     </div>
   `).join('');
   applyEntranceAnimations(players,waitingPlayerList);
@@ -10677,7 +10718,7 @@ async function leaveGame(){
         if(game.status==='lobby'){
           await gameRefFor(gameCode).child('players/'+myId).remove();
           if(game.hostId===myId){const rem=Object.values(game.players||{}).filter(p=>p.id!==myId).sort((a,b)=>a.joinedAt-b.joinedAt);if(rem.length>0){const nh=rem[0];await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);await gameRefFor(gameCode).child('hostId').set(nh.id);}}
-        } else {await gameRefFor(gameCode).child('players/'+myId+'/online').set(false);}
+        } else {await gameRefFor(gameCode).child('players/'+myId).update({online:false,away:null,awayAt:null});}
       }
     }catch(e){console.error(e);}
   }
