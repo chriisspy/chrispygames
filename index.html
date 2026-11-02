@@ -6247,7 +6247,11 @@ function toggleMafiaRandomRoles(){
 function mafiaPickExtraRoles(){
   if(!localMafiaRandom)return MAFIA_EXTRA_ROLES.filter(r=>localMafiaExtra[r]);
   const n=Math.floor(Math.random()*(MAFIA_EXTRA_ROLES.length+1)); // 0 to all of them
-  return shuffle([...MAFIA_EXTRA_ROLES]).slice(0,n);
+  const picks=shuffle([...MAFIA_EXTRA_ROLES]).slice(0,n);
+  // The Framer only works against a Detective, so one always comes with it
+  if(picks.includes('framer')&&!picks.includes('detective'))picks.push('detective');
+  // Framer last: if a small game runs out of seats, the Framer is the one left out
+  return picks.sort((a,b)=>(a==='framer')-(b==='framer'));
 }
 function paintMafiaOGToggle(){
   const toggle=document.getElementById('mafiaOGToggle');

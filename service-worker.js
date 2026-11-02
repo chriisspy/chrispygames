@@ -1,7 +1,7 @@
 /* Chrispy Games Service Worker
    Change VERSION every time you update the site. */
 
-const VERSION = "chrispy-games-v2026-10-29-host-away-1";
+const VERSION = "chrispy-games-v2026-11-02-framer-needs-detective-1";
 const CACHE_NAME = VERSION;
 
 const CORE_ASSETS = [
