@@ -6334,10 +6334,21 @@ let serverTimeOffset=0;
 db.ref('.info/serverTimeOffset').on('value',snap=>{serverTimeOffset=snap.val()||0;});
 function syncedNow(){return Date.now()+serverTimeOffset;}
 function serverTimestamp(){return firebase.database.ServerValue.TIMESTAMP;}
+// A player entry with no id or name is junk: a stale "offline" write that landed after
+// someone left. It must never count as a player, so drop it; the host also deletes it.
+function isRealPlayer(p,key){return !!(p&&p.id===key&&p.name);}
+function dropBrokenPlayers(data){
+  const ps=data&&data.players;if(!ps)return;
+  Object.keys(ps).forEach(k=>{
+    if(isRealPlayer(ps[k],k))return;
+    delete ps[k];
+    if(amHost&&gameCode&&data.code===gameCode)gameRefFor(gameCode).child('players/'+k).remove().catch(()=>{});
+  });
+}
 function listenToGame(code,callback){
   if(gameListener&&gameRef)gameRef.off('value',gameListener);
   gameRef=gameRefFor(code);
-  gameListener=gameRef.on('value',snap=>{const data=snap.val();if(data){localGame=data;callback(data);}});
+  gameListener=gameRef.on('value',snap=>{const data=snap.val();if(data){dropBrokenPlayers(data);localGame=data;callback(data);}});
 }
 function stopListening(){if(gameListener&&gameRef){gameRef.off('value',gameListener);gameListener=null;}}
 function updateGame(code,updates){
@@ -6400,7 +6411,12 @@ function setupPresence(){
   }
 }
 function myPresenceRef(){
-  return gameCode&&localGame&&(localGame.players||{})[myId]?gameRefFor(gameCode).child('players/'+myId):null;
+  return gameCode&&localGame&&isRealPlayer((localGame.players||{})[myId],myId)?gameRefFor(gameCode).child('players/'+myId):null;
+}
+// Leaving or kicked: drop the queued "mark me offline" write for this room
+function cancelMyPresence(){
+  if(!gameCode)return;
+  try{gameRefFor(gameCode).child('players/'+myId).onDisconnect().cancel();}catch(e){}
 }
 document.addEventListener('visibilitychange',()=>{
   const me=myPresenceRef();if(!me)return;
@@ -6426,7 +6442,7 @@ async function handlePlayerLeft(leftId,game){
   // Only the explicit Kick Player button or Leave Game should remove a player from /players.
 
   if(fg.hostId===leftId){
-    const rem=Object.values(fg.players||{}).filter(p=>p.id!==leftId).sort((a,b)=>a.joinedAt-b.joinedAt);
+    const rem=Object.entries(fg.players||{}).filter(([k,p])=>k!==leftId&&isRealPlayer(p,k)).map(([,p])=>p).sort((a,b)=>a.joinedAt-b.joinedAt);
     if(rem.length>0){
       const nh=rem[0];
       await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);
@@ -6468,7 +6484,7 @@ function scheduleHostRescue(ms){
       // Host only swiped out of the app: keep waiting until the grace runs out
       const left=hostRescueDelay(curHost);
       if(curHost&&curHost.away&&left>HOST_GONE_WAIT){scheduleHostRescue(left);return;}
-      const online=Object.values(fg.players).filter(p=>p.online!==false&&!p.devBot).sort((a,b)=>a.joinedAt-b.joinedAt);
+      const online=Object.entries(fg.players).filter(([k,p])=>isRealPlayer(p,k)&&p.online!==false&&!p.devBot).map(([,p])=>p).sort((a,b)=>a.joinedAt-b.joinedAt);
       if(!online.length||online[0].id!==myId)return;
       const updates={hostId:myId};
       updates['players/'+myId+'/isHost']=true;
@@ -6492,7 +6508,8 @@ async function tryResumeSession(){
   if(gameCode)return false;
   try{
     const snap=await gameRefFor(saved.code).once('value');const game=snap.val();
-    if(!game||!game.players||!game.players[myId]){clearLastGame();return false;}
+    if(!game||!game.players||!isRealPlayer(game.players[myId],myId)){clearLastGame();return false;}
+    dropBrokenPlayers(game);
     gameCode=saved.code;amHost=game.hostId===myId;nonHostLobbyView=false;localGame=game;
     const codeEl=document.getElementById('gameCodeDisplay');if(codeEl)codeEl.textContent=saved.code;
     const waitEl=document.getElementById('waitingCodeDisplay');if(waitEl)waitEl.textContent=saved.code;
@@ -6548,11 +6565,12 @@ async function joinGame(){
   try{
     const snap=await gameRefFor(code).once('value');const game=snap.val();
     if(!game){setLoading('joinBtn',false,'Join');return showError('homeError','Game not found');}
-    const alreadyIn=game.players&&game.players[myId];
+    // A broken leftover entry (no id/name) doesn't count as being in the game: join fresh
+    const alreadyIn=isRealPlayer(game.players&&game.players[myId],myId);
     if(game.status!=='lobby'&&!alreadyIn){setLoading('joinBtn',false,'Join');return showError('homeError','Game already started');}
     gameCode=code;amHost=false;nonHostLobbyView=false;
     await saveProfileBasics(name);
-    const existing=game.players&&game.players[myId];
+    const existing=alreadyIn?game.players[myId]:null;
     if(!existing)await gameRefFor(code).child('players/'+myId).set(makePlayerData(name,false));
     else await gameRefFor(code).child('players/'+myId).update({online:true,name,avatar:myAvatar||null,profileWins:myProfile.wins||0,cosmetics:{equipped:myProfile.equipped||{}}});
     saveLastGame(code);
@@ -6572,6 +6590,7 @@ async function joinGame(){
 function onGameUpdate(game){
   const cur=(document.querySelector('.screen.active')||{}).id;
   if(game&&game.status==='lobby'&&game.players&&!game.players[myId]&&gameCode){
+    cancelMyPresence();
     alert('You were removed from the lobby.');
     devBackHome();
     return;
@@ -10720,8 +10739,9 @@ async function leaveGame(){
       const snap=await gameRefFor(gameCode).once('value');const game=snap.val();
       if(game){
         if(game.status==='lobby'){
+          cancelMyPresence(); // otherwise a later disconnect writes a broken "offline" entry back in
           await gameRefFor(gameCode).child('players/'+myId).remove();
-          if(game.hostId===myId){const rem=Object.values(game.players||{}).filter(p=>p.id!==myId).sort((a,b)=>a.joinedAt-b.joinedAt);if(rem.length>0){const nh=rem[0];await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);await gameRefFor(gameCode).child('hostId').set(nh.id);}}
+          if(game.hostId===myId){const rem=Object.entries(game.players||{}).filter(([k,p])=>k!==myId&&isRealPlayer(p,k)).map(([,p])=>p).sort((a,b)=>a.joinedAt-b.joinedAt);if(rem.length>0){const nh=rem[0];await gameRefFor(gameCode).child('players/'+nh.id+'/isHost').set(true);await gameRefFor(gameCode).child('hostId').set(nh.id);}}
         } else {await gameRefFor(gameCode).child('players/'+myId).update({online:false,away:null,awayAt:null});}
       }
     }catch(e){console.error(e);}
