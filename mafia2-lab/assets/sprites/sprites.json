@@ -1,0 +1,74 @@
+[
+ {
+  "name": "brownhair",
+  "w": 24,
+  "h": 30,
+  "px": 15
+ },
+ {
+  "name": "pinkbob",
+  "w": 25,
+  "h": 30,
+  "px": 15
+ },
+ {
+  "name": "beanie",
+  "w": 22,
+  "h": 31,
+  "px": 15
+ },
+ {
+  "name": "ponytail",
+  "w": 28,
+  "h": 32,
+  "px": 15
+ },
+ {
+  "name": "curly",
+  "w": 22,
+  "h": 34,
+  "px": 15
+ },
+ {
+  "name": "farmer",
+  "w": 27,
+  "h": 34,
+  "px": 15
+ },
+ {
+  "name": "raincoat",
+  "w": 23,
+  "h": 33,
+  "px": 15
+ },
+ {
+  "name": "redcap",
+  "w": 23,
+  "h": 33,
+  "px": 15
+ },
+ {
+  "name": "mafia",
+  "w": 25,
+  "h": 38,
+  "px": 15
+ },
+ {
+  "name": "doctor",
+  "w": 20,
+  "h": 33,
+  "px": 15
+ },
+ {
+  "name": "jester",
+  "w": 31,
+  "h": 35,
+  "px": 15
+ },
+ {
+  "name": "detective",
+  "w": 24,
+  "h": 37,
+  "px": 15
+ }
+]

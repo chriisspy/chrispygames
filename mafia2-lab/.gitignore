@@ -1,0 +1,4 @@
+# source material and rejected sheets stay local (hundreds of MB)
+assets/gen/
+assets/chars/
+assets/*.webp
