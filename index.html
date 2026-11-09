@@ -6340,7 +6340,8 @@ function isRealPlayer(p,key){return !!(p&&p.id===key&&p.name);}
 function dropBrokenPlayers(data){
   const ps=data&&data.players;if(!ps)return;
   Object.keys(ps).forEach(k=>{
-    if(isRealPlayer(ps[k],k))return;
+    // My own entry can look half-written for a moment while my writes are in flight. Never drop it.
+    if(k===myId||isRealPlayer(ps[k],k))return;
     delete ps[k];
     if(amHost&&gameCode&&data.code===gameCode)gameRefFor(gameCode).child('players/'+k).remove().catch(()=>{});
   });
@@ -6404,9 +6405,14 @@ function setupPresence(){
     presenceConnRef=db.ref('.info/connected');
     presenceConnRef.on('value',snap=>{
       if(snap.val()!==true||!gameCode)return;
-      const ref=gameRefFor(gameCode).child('players/'+myId);
+      const code=gameCode;
+      const ref=gameRefFor(code).child('players/'+myId);
       ref.onDisconnect().update({online:false});
-      ref.transaction(p=>p?{...p,online:true}:undefined).catch(()=>{});
+      // Read my full entry first. A transaction here only saw part of it (just "online")
+      // right after Create/Join and wrote that back, wiping my name and kicking me.
+      ref.once('value').then(s=>{
+        if(gameCode===code&&isRealPlayer(s.val(),myId))ref.update({online:true});
+      }).catch(()=>{});
     });
   }
 }
