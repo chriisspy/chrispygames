@@ -79,7 +79,9 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 .case .ico:after{content:"";position:absolute;left:13px;top:8px;width:6px;height:9px;background:var(--gold);border:2px solid #0f0b1e}
 .coin{width:14px;height:14px;background:var(--gold);border:2px solid #8a5a12;box-shadow:inset -3px -3px 0 #e0a92e;display:inline-block}
 /* vote */
-#voteHud .banner{top:calc(54px + env(safe-area-inset-top));font-size:26px;color:#fff}
+#voteHud .banner,#talkHud .banner{top:calc(54px + env(safe-area-inset-top));font-size:26px;color:#fff}
+#talkHud .banner small{display:block;font-size:13px;color:var(--gold);letter-spacing:2px}
+#talkHud .tclock{font-size:15px;margin-top:2px;display:flex;gap:6px;justify-content:center;align-items:center;color:#fff}
 #voteHud .banner small{display:block;font-size:13px;color:var(--gold);letter-spacing:2px}
 #voteMsg{font-size:19px;font-weight:700;text-align:center}
 #voteSub{text-align:center;margin-top:2px}
@@ -181,6 +183,10 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
   </div>
 
   <!-- VOTE -->
+  <div class="hud" id="talkHud">
+    <div class="title banner"><small>DAY 2</small>DISCUSSION<div class="tclock"><i data-ic="hourglass" data-c="solo"></i><span id="talkClock">1:30</span></div></div>
+    <div class="bottom"><div class="panel" style="padding:10px 12px;text-align:center"><b id="talkLine">Who do you think it was?</b><div class="small" id="talkSub">Talk it out. The vote comes next.</div></div></div>
+  </div>
   <div class="hud" id="voteHud">
     <div class="title banner"><small id="dayTag">DAY 2</small>THE VOTE</div>
     <div class="verdict" id="verdict"></div>
@@ -257,6 +263,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 
   <nav id="tabs">
     <button class="btn" data-s="lobby">Lobby</button>
+    <button class="btn" data-s="talk">Talk</button>
     <button class="btn" data-s="vote">Vote</button>
     <button class="btn" data-s="cabin">Cabin</button>
     <button class="btn" data-s="night">Night</button>
@@ -316,7 +323,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11101943'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11101945'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -437,7 +444,7 @@ function drawObj(o){if(o.base>0){lx.globalAlpha=.3;lx.drawImage(o.shadow,X(o.x)+
 function patchObj(name,r){const o=OBJ[name];lx.drawImage(o.img,r[0]-o.x,r[1]-o.y,r[2]-r[0],r[3]-r[1],X(r[0]),Y(r[1]),r[2]-r[0],r[3]-r[1]);}
 // a town post / lamp / string; while the night's wash is on, a copy washed the same way (only its own pixels)
 const DIMMED={};
-function drawProp(o){let im=IMG['prop/'+o.k];
+function drawProp(o){let im=dayMode?dayImg('prop/'+o.k):IMG['prop/'+o.k];
   if(patchDim){const id=o.k+patchDim;if(!DIMMED[id]){const c=mk(im.width,im.height),x=c.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-atop';x.fillStyle=patchDim;x.fillRect(0,0,c.width,c.height);DIMMED[id]=c;}im=DIMMED[id];}
   lx.drawImage(im,X(o.x),Y(o.y));}
 // draw people, objects and things that stand in front of them, back to front
@@ -1210,6 +1217,53 @@ function dawn(){const v=N.victim,key=N.variant||N.kind,list=(N.saved?DAWN_SAFE:D
   $('#dawnFace').src=face(looksLike(v));
   $('#dawnStory').textContent=list[Math.floor(Math.random()*list.length)].replace(/\{n\}/g,PEOPLE[v].n);
   go('dawn');}
+/* ---------- DAY: the discussion ---------- */
+// the town in daylight, made from the night art: blue night grass -> green, ponds -> bright blue, everything else lifted and warmed, bulbs unlit
+function dayOf(src){const c=mk(src.width,src.height),x=c.getContext('2d');x.drawImage(src,0,0);const id=x.getImageData(0,0,c.width,c.height),d=id.data;
+  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;const r=d[i],g=d[i+1],b=d[i+2];let R,G,B;
+    if(b>r+18&&b>g+8){if(r<28){R=.55*g+52;G=.62*b+62;B=.5*r+38;}else{R=r*.9+40;G=g*.95+70;B=b+60;}}
+    else if(r>232&&g>185&&b>120){R=216;G=218;B=208;}          // a bulb or lamp glass, switched off
+    else{R=r*1.28+22;G=g*1.25+18;B=b*1.12+10;}
+    d[i]=Math.min(255,R);d[i+1]=Math.min(255,G);d[i+2]=Math.min(255,B);}
+  x.putImageData(id,0,0);return c;}
+const DAYIMG={};const dayImg=k=>DAYIMG[k]||(DAYIMG[k]=dayOf(IMG[k]));
+let dayMode=false;
+const T={birds:[],next:2,clock:90,speak:null,st:0,bub:'...',clouds:[{x:120,y:300,r:70,v:7},{x:420,y:430,r:90,v:5}],leaves:[]};
+const TALK_LINES=['Who do you think it was?','Somebody saw something.','Keep your eyes on the quiet ones.','Careful who you trust.','It was awfully quiet last night…'];
+function bird(b,t){const f=Math.floor(t/140+b.s)%4,x=X(b.x),y=Y(b.y),d=b.v>0?1:-1;   // 2 wing beats, body 3px
+  lx.fillStyle='rgba(20,30,20,.16)';lx.fillRect(x-2,y+b.h,5,1);                       // its shadow on the ground
+  lx.fillStyle='#2b2f45';lx.fillRect(x-1,y,3,1);lx.fillStyle='#e9b25a';lx.fillRect(x+d*2,y,1,1);
+  lx.fillStyle='#3c4263';if(f<2){lx.fillRect(x-2,y-1,1,1);lx.fillRect(x+2,y-1,1,1);lx.fillRect(x-3,y-2,1,1);lx.fillRect(x+3,y-2,1,1);}else{lx.fillRect(x-2,y+1,1,1);lx.fillRect(x+2,y+1,1,1);}}
+function bubble(h,kind,t){const x=h.cx-6,y=h.top-tagLo()-13;lx.fillStyle='#1a1430';lx.fillRect(x+1,y,11,9);lx.fillRect(x,y+1,13,7);lx.fillRect(x+5,y+9,3,2);lx.fillRect(x+6,y+11,1,1);
+  lx.fillStyle='#fff8e6';lx.fillRect(x+1,y+1,11,7);lx.fillRect(x+6,y+8,1,2);
+  if(kind==='...'){for(let i=0;i<3;i++){lx.fillStyle=Math.floor(t/260)%3===i?'#1a1430':'#b9b2a0';lx.fillRect(x+3+i*3,y+4,1,2);}}
+  else{lx.fillStyle=kind==='!'?'#d6383c':'#3b6fd6';if(kind==='!'){lx.fillRect(x+6,y+2,1,3);lx.fillRect(x+6,y+6,1,1);}else{lx.fillRect(x+5,y+2,3,1);lx.fillRect(x+7,y+3,1,1);lx.fillRect(x+6,y+4,1,1);lx.fillRect(x+6,y+6,1,1);}}}
+scenes.talk={hud:'#talkHud',
+  enter(){document.documentElement.style.setProperty('--accent','#e9b25a');if(!V.ring.length)voteReset();V.ring.forEach(r=>{r.cx=r.x;r.cy=r.y;r.walk=false;r.lift=0;});
+    T.clock=90;T.birds=[];T.next=1.5;T.speak=null;T.st=0;$('#talkLine').textContent=TALK_LINES[0];},
+  frame(dt,t){dayMode=true;view(dayImg('town'),280,372,195);
+    // cloud shadows drifting over the square
+    for(const c of T.clouds){c.x+=c.v*dt;if(c.x>700)c.x=-140;lx.fillStyle='rgba(30,40,70,.07)';for(let yy=-c.r*.45;yy<c.r*.45;yy+=1){const hw=Math.round(c.r*Math.sqrt(1-(yy/(c.r*.45))**2));lx.fillRect(X(c.x)-hw,Y(c.y+yy),hw*2,1);}}
+    // sun glints on the ponds
+    for(let i=0;i<8;i++){const gx=[230,250,300,330,220,340,235,325][i]+Math.round(Math.sin(t*.0007+i*2)*5),gy=[250,258,246,255,262,264,528,535][i];if(Math.sin(t*.004+i*1.7)>.82){lx.fillStyle='rgba(255,255,255,.8)';lx.fillRect(X(gx),Y(gy),2,1);}}
+    // who is talking: one at a time, the rest turn to look at them
+    T.st-=dt;const alive=V.ring.filter(r=>!V.dead.has(r.i));
+    if(T.st<=0){T.speak=alive[Math.floor(Math.random()*alive.length)];T.st=1.6+Math.random()*1.6;T.bub=Math.random()<.2?'!':Math.random()<.25?'?':'...';
+      if(Math.random()<.35)$('#talkLine').textContent=TALK_LINES[Math.floor(Math.random()*TALK_LINES.length)];}
+    T.clock-=dt;if(T.clock<=0)T.clock=90;const s=Math.ceil(T.clock);$('#talkClock').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+    const sp=T.speak,people=alive.map(r=>({r,name:looksLike(r.i),dir:r===sp?dirFrom(280-r.x,372-r.y):sp?dirFrom(sp.x-r.x,sp.y-r.y):'front',x:r.x,y:r.y,t,phase:r.i*377,
+      lift:r===sp?Math.abs(Math.sin(t*.011))*2:0}));
+    const hits=drawScene(people,TOWN.occ,dayImg('town'));
+    // butterflies by the grass, and birds crossing now and then (alone or a little flock)
+    for(let i=0;i<4;i++){const bx=[176,388,210,352][i]+Math.sin(t*.0011+i*3)*16,by=[300,300,470,470][i]+Math.cos(t*.0017+i)*9;lx.fillStyle=['#ffd25e','#ff9bd0','#fff','#9fd8ff'][i];lx.fillRect(X(bx)+(Math.floor(t/120+i)%2?-1:0),Y(by),Math.floor(t/120+i)%2?3:1,1);}
+    T.next-=dt;if(T.next<=0){const n=Math.random()<.35?3:1,dir=Math.random()<.5?1:-1,y0=290+Math.random()*150;
+      for(let k=0;k<n;k++)T.birds.push({x:dir>0?150-k*9:410+k*9,y:y0+k*5*(k%2?1:-1),v:dir*(46+Math.random()*10),s:Math.random()*4,h:22+Math.random()*8});T.next=5+Math.random()*7;}
+    for(let i=T.birds.length-1;i>=0;i--){const b=T.birds[i];b.x+=b.v*dt;b.y+=Math.sin(t*.003+b.s)*.06;if(b.x<120||b.x>440){T.birds.splice(i,1);continue;}bird(b,t);}
+    if(sp&&hits.get(people.find(p=>p.r===sp)))bubble(hits.get(people.find(p=>p.r===sp)),T.bub,t);
+    lx.fillStyle='rgba(255,236,190,.06)';lx.fillRect(0,0,cam.lw,cam.lh);   // warm daylight
+    present();dayMode=false;
+    for(const p of people)nameTag(hits.get(p),PEOPLE[p.r.i].n,p.r.i===0?'#ffd25e':'#fff');
+  }};
 // test screen: every character in every pose, on the square
 scenes.poses={hud:null,frame(dt,t){view(IMG.town,280,372,124);
   const cast=Object.keys(SP).filter(n=>SP[n].poses&&SP[n].poses.walk_front_0);
