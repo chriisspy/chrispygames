@@ -25,7 +25,7 @@ body{font-family:"Pixelify Sans",system-ui,sans-serif;font-variant-ligatures:non
 #xfade.on{opacity:1}
 #loader{position:absolute;inset:0;z-index:40;background:#07060f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s}
 #loader.off{opacity:0;pointer-events:none}
-#loader canvas{width:176px;height:88px;image-rendering:pixelated}
+#loader canvas{width:124px;height:64px;image-rendering:pixelated}
 #loader span{font:600 14px "Pixelify Sans",monospace;letter-spacing:3px;color:#f6dfae}
 /* wood + parchment panel, the game's UI frame */
 .panel{background:var(--paper);color:var(--text);border:4px solid var(--wood);border-radius:6px;
@@ -154,7 +154,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 <div id="phone">
   <canvas id="c"></canvas>
   <div id="xfade"></div>
-  <div id="loader"><canvas id="loaderC" width="44" height="22"></canvas><span>LOADING</span></div>
+  <div id="loader"><canvas id="loaderC" width="31" height="16"></canvas><span>LOADING</span></div>
 
   <div id="top">
     <button class="btn dark" id="roleBtn"><i data-ic="eye"></i>Civilian</button>
@@ -278,14 +278,20 @@ document.addEventListener('dblclick',e=>e.preventDefault());
 const cv=$('#c'), ctx=cv.getContext('2d');
 // the loader: a pixel moustache whose curls wave, shown whenever the screen would otherwise be blank
 (function(){const c=document.getElementById('loaderC'),x=c.getContext('2d'),el=document.getElementById('loader');
+  const M=["X.......................X",   // a classic curled moustache; a wave runs through it from left to right
+           "XX.....................XX",
+           "XXX....XXXX...XXXX....XXX",
+           ".XXXXXXXXXXX.XXXXXXXXXXX.",
+           "..XXXXXXXXXXXXXXXXXXXXX..",
+           "...XXXXXXXXX.XXXXXXXXX...",
+           "....XXXXXX.....XXXXXX...."];
   function tick(t){if(el.classList.contains('off')&&getComputedStyle(el).opacity==='0')return setTimeout(()=>requestAnimationFrame(tick),300);
-    x.clearRect(0,0,44,22);
-    const col=i=>{const a=Math.abs(i),k=a/20,wave=Math.round(Math.sin(t*.006-a*.38)*2.2*k*k); // a handlebar: two fat lobes that droop, thin tips that curl up and wave
-      const yc=9+2.2*Math.sin(k*2.6)-5.5*Math.pow(Math.max(0,k-.62),1.3)*2.2;
-      let th=Math.max(k>.9?1:2,Math.round(1+5.5*Math.pow(Math.sin(Math.PI*Math.min(1,k*1.12+.08)),.9)*(1-.55*k)));if(a<1)th=2;
-      return[22+i,Math.round(yc)+wave,th];};
-    for(let i=-20;i<=20;i++){const[cx,y,th]=col(i);x.fillStyle='#1a1430';x.fillRect(cx-1,y-1,3,th+2);}
-    for(let i=-20;i<=20;i++){const[cx,y,th]=col(i);x.fillStyle='#f6dfae';x.fillRect(cx,y,1,th);if(th>1){x.fillStyle='#d9b877';x.fillRect(cx,y+th-1,1,1);}}
+    x.clearRect(0,0,c.width,c.height);
+    const off=i=>Math.round(Math.sin(t*.006-i*.26)*1.25); // one gentle wave across the whole width, so the shape stays a moustache
+    for(const pass of[0,1])for(let i=0;i<25;i++){const dy=4+off(i);
+      for(let j=0;j<7;j++){if(M[j][i]!=='X')continue;
+        if(!pass){x.fillStyle='#2a1a12';x.fillRect(2+i,dy+j-1,3,3);}
+        else{const top=j===0||M[j-1][i]!=='X',bot=j===6||M[j+1][i]!=='X';x.fillStyle=top?'#fff1cf':bot?'#c79a5a':'#f0cf8f';x.fillRect(3+i,dy+j,1,1);}}}
     requestAnimationFrame(tick);}
   requestAnimationFrame(tick);})();
 const loading=on=>document.getElementById('loader').classList.toggle('off',!on);
@@ -310,7 +316,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11101913'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11101943'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
