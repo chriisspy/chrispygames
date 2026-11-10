@@ -23,6 +23,10 @@ body{font-family:"Pixelify Sans",system-ui,sans-serif;font-variant-ligatures:non
 .hud .panel,.hud .btn,.hud .chip,.hud .sheet{pointer-events:auto}
 #xfade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .22s;z-index:30}
 #xfade.on{opacity:1}
+#loader{position:absolute;inset:0;z-index:40;background:#07060f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s}
+#loader.off{opacity:0;pointer-events:none}
+#loader canvas{width:176px;height:88px;image-rendering:pixelated}
+#loader span{font:600 14px "Pixelify Sans",monospace;letter-spacing:3px;color:#f6dfae}
 /* wood + parchment panel, the game's UI frame */
 .panel{background:var(--paper);color:var(--text);border:4px solid var(--wood);border-radius:6px;
   box-shadow:inset 0 0 0 3px var(--wood2),inset 0 -6px 0 var(--paper2),0 5px 0 #0008}
@@ -150,6 +154,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 <div id="phone">
   <canvas id="c"></canvas>
   <div id="xfade"></div>
+  <div id="loader"><canvas id="loaderC" width="44" height="22"></canvas><span>LOADING</span></div>
 
   <div id="top">
     <button class="btn dark" id="roleBtn"><i data-ic="eye"></i>Civilian</button>
@@ -271,6 +276,19 @@ document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault
 document.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault();},{passive:false});
 document.addEventListener('dblclick',e=>e.preventDefault());
 const cv=$('#c'), ctx=cv.getContext('2d');
+// the loader: a pixel moustache whose curls wave, shown whenever the screen would otherwise be blank
+(function(){const c=document.getElementById('loaderC'),x=c.getContext('2d'),el=document.getElementById('loader');
+  function tick(t){if(el.classList.contains('off')&&getComputedStyle(el).opacity==='0')return setTimeout(()=>requestAnimationFrame(tick),300);
+    x.clearRect(0,0,44,22);
+    const col=i=>{const a=Math.abs(i),k=a/20,wave=Math.round(Math.sin(t*.006-a*.38)*2.2*k*k); // a handlebar: two fat lobes that droop, thin tips that curl up and wave
+      const yc=9+2.2*Math.sin(k*2.6)-5.5*Math.pow(Math.max(0,k-.62),1.3)*2.2;
+      let th=Math.max(k>.9?1:2,Math.round(1+5.5*Math.pow(Math.sin(Math.PI*Math.min(1,k*1.12+.08)),.9)*(1-.55*k)));if(a<1)th=2;
+      return[22+i,Math.round(yc)+wave,th];};
+    for(let i=-20;i<=20;i++){const[cx,y,th]=col(i);x.fillStyle='#1a1430';x.fillRect(cx-1,y-1,3,th+2);}
+    for(let i=-20;i<=20;i++){const[cx,y,th]=col(i);x.fillStyle='#f6dfae';x.fillRect(cx,y,1,th);if(th>1){x.fillStyle='#d9b877';x.fillRect(cx,y+th-1,1,1);}}
+    requestAnimationFrame(tick);}
+  requestAnimationFrame(tick);})();
+const loading=on=>document.getElementById('loader').classList.toggle('off',!on);
 let W=0,H=0,DPR=1;
 function resize(){const r=cv.getBoundingClientRect();DPR=Math.min(3,window.devicePixelRatio||1);W=cv.width=Math.round(r.width*DPR);H=cv.height=Math.round(r.height*DPR);}
 addEventListener('resize',resize);
@@ -292,7 +310,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11101853'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11101913'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -302,7 +320,7 @@ const lo=mk(1,1), lx=lo.getContext('2d');
 const lc=mk(1,1), lcx=lc.getContext('2d'); // light layer (kept inside the room)
 let S=1;const cam={x:0,y:0,img:null,lw:1,lh:1,void:'#07060f'};
 function view(img,cx,cy,viewW,o={}){
-  S=Math.max(1,o.fit?Math.floor(W/viewW):Math.round(W/viewW));const lw=Math.ceil(W/S),lh=Math.ceil(H/S);
+  S=o.s||Math.max(1,o.fit?Math.floor(W/viewW):Math.round(W/viewW));const lw=Math.ceil(W/S),lh=Math.ceil(H/S); // o.s = an exact zoom (may be a fraction while it glides)
   if(lo.width!==lw||lo.height!==lh){lo.width=lw;lo.height=lh;lc.width=lw;lc.height=lh;}
   cam.img=img;cam.lw=lw;cam.lh=lh;cam.void=o.void||'#07060f';
   const iw=img.width,ih=img.height;
@@ -715,11 +733,17 @@ scenes.cabin={
   enter(){CAB.clock=30;$('#phone').style.background=ROOM_VOID;paintNight();},
   leave(){$('#phone').style.background='';},
   frame(dt,t){
-    view(IMG.room,97,121,218,{fit:true,topCss:80,void:ROOM_VOID}); // one zoom step smaller than full width, so the panel covers less of the room on a phone
+    // zoomed in (room as wide as the screen) while the night panel is folded; when it opens the room glides up
+    // and shrinks to sit above it, and glides back when it closes. Whole-number zoom at rest = clean pixels.
+    const sh=$('#sheet'),open=!sh.classList.contains('collapsed'),Sin=Math.max(1,Math.floor(W/186));
+    const topIn=80,topOut=62,avail=(sh.getBoundingClientRect().top-cv.getBoundingClientRect().top-topOut-6)*DPR;
+    const Sout=open?clamp(Math.floor(avail/242),1,Sin):Sin;if(open)CAB.sOut=Sout;
+    CAB.zk=CAB.zk??(open?1:0);CAB.zk+=((open?1:0)-CAB.zk)*Math.min(1,dt*7);if(Math.abs((open?1:0)-CAB.zk)<.012)CAB.zk=open?1:0;
+    view(IMG.room,97,121,186,{s:lerp(Sin,CAB.sOut??Sin,CAB.zk),topCss:lerp(topIn,topOut,CAB.zk),void:ROOM_VOID});
     rain(dt,ROOM.windows.map(w=>[X(w[0]),Y(w[1]),w[2],w[3]]));
     fireAcc+=dt;while(fireAcc>.06){stepFire();fireAcc-=.06;}
     // walking
-    if(CAB.state==='stand'&&CAB.tgt){const dx=CAB.tgt[0]-CAB.x,dy=CAB.tgt[1]-CAB.y,dd=Math.hypot(dx,dy),sp=48*dt;
+    if(CAB.state==='stand'&&CAB.tgt){const dx=CAB.tgt[0]-CAB.x,dy=CAB.tgt[1]-CAB.y,dd=Math.hypot(dx,dy),sp=62*dt;
       if(dd<=sp){CAB.x=CAB.tgt[0];CAB.y=CAB.tgt[1];CAB.tgt=(CAB.path&&CAB.path.shift())||null;
         if(!CAB.tgt){CAB.walk=false;const a=CAB.after;CAB.after=null;if(a)a();}}
       else{CAB.x+=dx/dd*sp;CAB.y+=dy/dd*sp;CAB.dir=dirFrom(dx,dy);CAB.walk=true;}}
@@ -1181,13 +1205,11 @@ function dawn(){const v=N.victim,key=N.variant||N.kind,list=(N.saved?DAWN_SAFE:D
   $('#dawnStory').textContent=list[Math.floor(Math.random()*list.length)].replace(/\{n\}/g,PEOPLE[v].n);
   go('dawn');}
 // test screen: every character in every pose, on the square
-scenes.poses={hud:null,frame(dt,t){view(IMG.town,280,372,120);
-  const n='beanie',people=[['sit','front',238,330],['sit','right',262,330],['sit','back',286,330],['sit','left',310,330],
-    ['water','right',240,372],['water','left',276,372],['logs','right',300,372],['logs','left',326,372],['dead','front',262,410],['logs','right',300,410,3]]
-    .map(([pose,dir,x,y,step])=>({name:n,pose,dir,x,y,t,step,blood:pose==='dead'?((t/1000)%9)/6:0}));
-  ['front','right','back','left'].forEach((dir,i)=>people.push({name:n,dir,walk:true,x:238+i*28,y:286,t})); // walking on the spot, each way
-  const k=(t/40)%160,gx=k<80?k:160-k;people.push({name:n,dir:k<80?'right':'left',walk:true,x:240+gx,y:440,t}); // and across the square
-  lx.drawImage(IMG.log,X(282),Y(408));
+scenes.poses={hud:null,frame(dt,t){view(IMG.town,280,372,124);
+  const cast=Object.keys(SP).filter(n=>SP[n].poses&&SP[n].poses.walk_front_0);
+  const P=[{walk:1,dir:'front'},{walk:1,dir:'right'},{walk:1,dir:'back'},{walk:1,dir:'left'},{pose:'sit',dir:'front'},{pose:'sit',dir:'right'},{pose:'sit',dir:'back'},
+    {pose:'water',dir:'right'},{pose:'logs',dir:'right'},{pose:'logs',dir:'left',step:3},{pose:'dead',dir:'front'}];
+  const k=Math.floor(t/2600)%P.length,q=P[k],people=cast.map((n,i)=>({name:n,...q,x:232+(i%4)*32,y:322+Math.floor(i/4)*36,t:t+i*97,blood:q.pose==='dead'?((t%2600)/2600):0}));
   drawScene(people,null,IMG.town);townLights(t);present();}};
 scenes.dawn={hud:'#dawnHud',frame(dt,t){view(IMG.town,280,372,195);lx.fillStyle='rgba(255,200,120,.12)';lx.fillRect(0,0,cam.lw,cam.lh);townLights(t,{dim:.3});present();}};
 $('#dawnGo').onclick=()=>{$('#dayTag').textContent='DAY 3';go('vote');};
@@ -1244,7 +1266,7 @@ let OBJ_META={};
     SP[n]={front:makeDir(cut(V[0])),back:makeDir(cut(V[1])),right:makeDir(cut(V[2])),left:makeDir(cut(V[3]))};}
   buildRoom();resetNight();
   let start='cabin';try{start=localStorage.getItem('m2lab_scene')||'cabin';}catch(e){}
-  go(scenes[start]&&start!=='watch'&&start!=='dawn'?start:'cabin');requestAnimationFrame(loop);
+  go(scenes[start]&&start!=='watch'&&start!=='dawn'?start:'cabin',()=>loading(false));requestAnimationFrame(loop);
 })();
 </script>
 </body>

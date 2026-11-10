@@ -70,13 +70,17 @@ def main():
             out[key] = (a[y0:y1, x0:x1], ax - x0, 0)
             m = a[:, ::-1]; out[key.replace('right', 'left')] = (m[y0:y1, a.shape[1] - x1:a.shape[1] - x0], (x1 - x0) - (ax - x0), 0) if 'right' in key else out[key]
         # --- sitting: the last frame of PixelLab's sit ---
-        for d, k, i in (('front', 'sit_south', 7), ('right', 'sit_east', 7), ('back', 'sit_north', 3)):
-            g, ax = base(F(k, 0)); save(f'sit_{d}', F(k, i), g, ax)
+        # (PixelLab sometimes draws a chair under them near the end: take the latest frame that is still just the character)
+        for d, k in (('front', 'sit_south'), ('right', 'sit_east'), ('back', 'sit_north')):
+            f0 = F(k, 0); g, ax = base(f0); n0 = (f0[..., 3] > 0).sum(); w0 = np.nonzero(f0[..., 3].any(0))[0]
+            ok = [i for i in range(2, 8) if (F(k, i)[..., 3] > 0).sum() <= n0 * 1.06 and np.ptp(np.nonzero(F(k, i)[..., 3].any(0))[0]) <= np.ptp(w0) + 4]
+            save(f'sit_{d}', F(k, max(ok) if ok else 3), g, ax)
         # --- watering: leaning frames + a tiny can in the hands + drops ---
         g, ax = base(F('water_east', 0))
         sleeve = None
         can = art(CAN, CANC)
-        for n, i in enumerate((2, 3, 4, 5)):
+        nw = len([f for f in os.listdir(src) if f.startswith('water_east_')])
+        for n, i in enumerate((2, 3, 4, 5) if nw >= 8 else (0, 1, 2, 3)):
             a = F('water_east', i).copy()
             hy = g - 7                                            # hand height: just above the legs, below the chin
             fx = max(front_at(a, y) for y in range(hy - 1, hy + 2))
@@ -104,6 +108,17 @@ def main():
                 a[ly + 1:ly + 3, lx + 2:lx + 4] = (*body, 255)    # the arm wrapped over the log
                 a[ly, lx + 2:lx + 4] = (*NAVY, 255); a[ly + 3, lx + 2:lx + 4] = (*NAVY, 255)
             save(f'logs_right_{n}', a, g, ax)
+        # --- walking: 8 frames each way, all cut with one shared box so the body never jitters ---
+        walk = {}
+        for v, k in (('front', 'walk_south'), ('right', 'walk_east'), ('back', 'walk_north')):
+            fr = [F(k, i) for i in range(8)]
+            al = np.any([a[..., 3] > 0 for a in fr], 0); ys, xs = np.nonzero(al)
+            x0, x1, y0, y1 = xs.min(), xs.max() + 1, ys.min(), ys.max() + 1
+            ax = (x1 - x0) / 2
+            for i, a in enumerate(fr):
+                c = a[y0:y1, x0:x1]; walk[f'walk_{v}_{i}'] = (c, ax, 0)
+                if v == 'right': walk[f'walk_left_{i}'] = (c[:, ::-1], (x1 - x0) - ax, 0)
+        out.update(walk)
         d = f'assets/final/{name}/poses/'; os.makedirs(d, exist_ok=True)
         meta = json.load(open(d + 'poses.json')) if os.path.exists(d + 'poses.json') else {}
         for k, (a, ax, _) in out.items():
