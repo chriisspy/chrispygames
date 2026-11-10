@@ -184,8 +184,8 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 
   <!-- VOTE -->
   <div class="hud" id="talkHud">
-    <div class="title banner"><small>DAY 2</small>DISCUSSION<div class="tclock"><i data-ic="hourglass" data-c="solo"></i><span id="talkClock">1:30</span></div></div>
-    <div class="bottom"><div class="panel" style="padding:10px 12px;text-align:center"><b id="talkLine">Who do you think it was?</b><div class="small" id="talkSub">Talk it out. The vote comes next.</div></div></div>
+    <div class="title banner"><small>DAY 2</small>DISCUSSION<div class="tclock"><i data-ic="hourglass" data-c="solo"></i><span id="talkClock">5:00</span></div></div>
+    <div class="bottom"><div class="panel" style="padding:10px 12px;text-align:center"><b id="talkLine">Who do you think it was?</b><div class="small" id="talkSub">5 minutes to talk. Then the vote.</div></div></div>
   </div>
   <div class="hud" id="voteHud">
     <div class="title banner"><small id="dayTag">DAY 2</small>THE VOTE</div>
@@ -323,7 +323,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11101945'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11101955'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -333,20 +333,20 @@ const lo=mk(1,1), lx=lo.getContext('2d');
 const lc=mk(1,1), lcx=lc.getContext('2d'); // light layer (kept inside the room)
 let S=1;const cam={x:0,y:0,img:null,lw:1,lh:1,void:'#07060f'};
 function view(img,cx,cy,viewW,o={}){
-  S=o.s||Math.max(1,o.fit?Math.floor(W/viewW):Math.round(W/viewW));const lw=Math.ceil(W/S),lh=Math.ceil(H/S); // o.s = an exact zoom (may be a fraction while it glides)
+  S=o.s||Math.max(1,o.fit?Math.floor(W/viewW):Math.round(W/viewW));const lw=Math.ceil(W/S)+1,lh=Math.ceil(H/S)+1; // o.s = an exact zoom (may be a fraction while it glides); +1 = room to slide by part of a pixel
   if(lo.width!==lw||lo.height!==lh){lo.width=lw;lo.height=lh;lc.width=lw;lc.height=lh;}
   cam.img=img;cam.lw=lw;cam.lh=lh;cam.void=o.void||'#07060f';
   const iw=img.width,ih=img.height;
   let x=iw<=lw?(iw-lw)/2:clamp(cx-lw/2,0,iw-lw);
   // loose: the camera may run a little past the bottom of the map, so the lowest cabins are not hidden under the subtitles
   let y=ih<=lh?(o.topCss!=null?-o.topCss*DPR/S:(ih-lh)/2):clamp(cy-lh/2,0,ih-lh*(o.loose?.74:1));
-  cam.x=Math.round(x);cam.y=Math.round(y);
+  cam.x=Math.floor(x);cam.y=Math.floor(y);cam.fx=x-cam.x;cam.fy=y-cam.y; // whole pixels for drawing; the leftover fraction is slid in present()
   lx.setTransform(1,0,0,1,0,0);lx.imageSmoothingEnabled=false;lx.globalAlpha=1;lx.globalCompositeOperation='source-over';
   lx.fillStyle=cam.void;lx.fillRect(0,0,lw,lh);lx.drawImage(img,-cam.x,-cam.y);
 }
 const X=wx=>Math.round(wx-cam.x), Y=wy=>Math.round(wy-cam.y);
 const SX=wx=>(wx-cam.x)*S, SY=wy=>(wy-cam.y)*S;
-function present(){ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;ctx.fillStyle=cam.void;ctx.fillRect(0,0,W,H);ctx.drawImage(lo,0,0,lo.width*S,lo.height*S);}
+function present(){ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;ctx.fillStyle=cam.void;ctx.fillRect(0,0,W,H);ctx.drawImage(lo,-Math.round((cam.fx||0)*S),-Math.round((cam.fy||0)*S),lo.width*S,lo.height*S);}
 const VOTE_WASH='rgba(6,14,72,.4)';
 let patchDim=null; // set to the night's wash while it is on, so a redrawn post is not brighter than the ground round it
 function patch(img,r){const w=r[2]-r[0],h=r[3]-r[1];lx.drawImage(img,r[0],r[1],w,h,X(r[0]),Y(r[1]),w,h);if(patchDim){lx.fillStyle=patchDim;lx.fillRect(X(r[0]),Y(r[1]),w,h);}} // redraw a bit of the art on top
@@ -454,7 +454,7 @@ function drawScene(people,occ,img,objs){
   for(const it of items){if(it.p)hits.set(it.p,drawChar(it.p));else if(it.o)drawProp(it.o);else drawObj(it.ob);}
   return hits;
 }
-function nameTag(hit,txt,col){if(hit)label(txt,hit.cx*S,hit.top*S-4*DPR,TAG*DPR,col);}
+function nameTag(hit,txt,col){if(hit)label(txt,(hit.cx-(cam.fx||0))*S,(hit.top-(cam.fy||0))*S-4*DPR,TAG*DPR,col);}
 function dirFrom(dx,dy){return Math.abs(dy)>Math.abs(dx)*1.1?(dy<0?'back':'front'):(dx<0?'left':'right');}
 // a face for the UI, cropped from the front sprite
 const FACES={};
@@ -533,20 +533,25 @@ const TOWN={
   occ:[{k:'post1',x:227,y:237,base:287},{k:'post2',x:322,y:237,base:287},{k:'lamp1',x:158,y:300,base:346},{k:'lamp3',x:393,y:300,base:346},{k:'post3',x:172,y:286,base:-1},{k:'post5',x:376,y:286,base:-1},{k:'chain3',x:175,y:315,base:1e9},{k:'chain5',x:379,y:315,base:1e9},{k:'post4',x:175,y:367,base:1e9},{k:'post6',x:379,y:367,base:1e9},{k:'lamp2',x:158,y:407,base:462},{k:'lamp4',x:391,y:407,base:462},{k:'post7',x:227,y:436,base:492},{k:'post8',x:322,y:436,base:492},
     {k:'strings',x:176,y:244,base:1e9}],
 };
-function townLights(t,o={}){
+function townLights(t,o={},part){ // part 'win' = only the cabin windows (draw before people), 'rest' = everything else, none = all
   const dim=o.dim??1,dark=o.dark??-1,darkK=o.darkK||[],red=o.red||0,tone=o.tone||'255,40,40',lampK=o.lampK??1;const L=[];
-  // the square is lit orange by its lights: a soft tint (not added brightness, which washes colour out),
-  // strongest by the ring of bulbs and fading away from it
-  lx.save();lx.globalCompositeOperation='soft-light';const wk=dim*lampK;
-  glowOn(lx,X(280),Y(365),175,'255,125,30',.4*wk);
-  TOWN.lamps.forEach(([x,y])=>glowOn(lx,X(x),Y(y)+14,44,'255,120,30',.5*wk));
-  TOWN.bulbs.forEach(([x,y])=>glowOn(lx,X(x),Y(y)+8,22,'255,120,30',.2*wk));
-  lx.restore();
-  TOWN.lamps.forEach(([x,y],i)=>{L.push([x,y,30,'255,130,45',.16*dim*lampK,i]);L.push([x,y,9,'255,170,80',.22*dim*lampK,i+9]);});
-  TOWN.bulbs.forEach(([x,y],i)=>L.push([x,y,6,'255,150,60',.2*dim*lampK,i*7+3]));
-  TOWN.cabins.forEach((c,ci)=>c.win.forEach(([x,y],i)=>{const k=ci===dark?(darkK[i]??1):1;L.push([x,y,13,'255,170,80',.42*dim*k,ci*3+i]);}));
-  if(red>0&&dark>=0)TOWN.cabins[dark].win.forEach(([x,y])=>L.push([x,y,26,tone,.9*red,0]));
+  if(part!=='win'){
+    // the square is lit orange by its lights: a soft tint (not added brightness, which washes colour out),
+    // strongest by the ring of bulbs and fading away from it
+    lx.save();lx.globalCompositeOperation='soft-light';const wk=dim*lampK;
+    glowOn(lx,X(280),Y(365),175,'255,125,30',.4*wk);
+    TOWN.lamps.forEach(([x,y])=>glowOn(lx,X(x),Y(y)+14,44,'255,120,30',.5*wk));
+    TOWN.bulbs.forEach(([x,y])=>glowOn(lx,X(x),Y(y)+8,22,'255,120,30',.2*wk));
+    lx.restore();
+    TOWN.lamps.forEach(([x,y],i)=>{L.push([x,y,30,'255,130,45',.16*dim*lampK,i]);L.push([x,y,9,'255,170,80',.22*dim*lampK,i+9]);});
+    TOWN.bulbs.forEach(([x,y],i)=>L.push([x,y,6,'255,150,60',.2*dim*lampK,i*7+3]));
+  }
+  if(part!=='rest'){
+    TOWN.cabins.forEach((c,ci)=>c.win.forEach(([x,y],i)=>{const k=ci===dark?(darkK[i]??1):1;L.push([x,y,13,'255,170,80',.42*dim*k,ci*3+i]);}));
+    if(red>0&&dark>=0)TOWN.cabins[dark].win.forEach(([x,y])=>L.push([x,y,26,tone,.9*red,0]));
+  }
   lights(L,t);
+  if(part==='rest')return;
   lx.save();lx.globalCompositeOperation='lighter';
   TOWN.cabins.forEach((c,ci)=>c.win.forEach(([x,y],i)=>{const k=ci===dark?(darkK[i]??1):1;if(k<=0)return;lx.fillStyle=`rgba(255,160,60,${.38*dim*k})`;lx.fillRect(X(x)-3,Y(y)-3,7,7);}));
   if(red>0&&dark>=0){lx.fillStyle=`rgba(${tone},${.8*red})`;TOWN.cabins[dark].win.forEach(([x,y])=>lx.fillRect(X(x)-3,Y(y)-3,7,7));}
@@ -613,8 +618,9 @@ scenes.lobby={
     fireflies(t,[220,60,120,90]);
     const name=peek?(ROLE_SPR[viewRole]||'mafia'):SKINS[skinIdx].id;
     const lockedSkin=!peek&&!OWNED.has(name);
+    townLights(t,{},'win');
     const hit=drawChar({name,x:280,y:118,t,tint:lockedSkin?'#06040e|0.85':'#2a2f7a|0.12'}); // locked: a dark shadow of it
-    townLights(t);lights([[280,98,40,'255,200,130',.22,1]],t);
+    townLights(t,{},'rest');lights([[280,98,40,'255,200,130',.22,1]],t);
     drawPuffs(dt);rain(dt);present();nameTag(hit,'You','#ffd25e');
   }
 };
@@ -937,8 +943,9 @@ scenes.watch={
       if(T>T1+3.6){WATCH.results.push({i:pi,left:false});this.next();return;}
       var darkK=k;
     }
+    townLights(t,{dim:.9,dark:darkK?ci:-1,darkK},'win');
     patchDim='rgba(6,8,30,.38)';const hits=drawScene(people,TOWN.occ,IMG.town);patchDim=null;
-    townLights(t,{dim:.9,dark:darkK?ci:-1,darkK});
+    townLights(t,{dim:.9,dark:darkK?ci:-1,darkK},'rest');
     drawDust(dt);rain(dt);
     binoculars(t,sway);
     present();
@@ -958,7 +965,7 @@ const VN=()=>PEOPLE[N.victim].n;
 const PLAN={},PLAY={};
 // four stories, each with a bad ending and a good one. You see all eight before any comes round again,
 // and never the same story twice in a row.
-const STORY_KINDS=['home','walk','chore','porch'];
+const STORY_KINDS=['home','walk','chore','porch','cat','stars','mail'];
 function nextStory(){
   if(!N.bag.length)for(const kind of STORY_KINDS)for(const saved of[false,true])N.bag.push({kind,saved});
   const fresh=N.bag.filter(s=>s.kind!==N.last),pool=fresh.length?fresh:N.bag;
@@ -1092,24 +1099,26 @@ function planOut(variant){
   N.maf=[0,1].map(k=>{const pts=[];for(let d=(N.saved?126:92)+k*16;d>(porch?36:18);d-=6){const q=c.route.at(d);pts.push([q.x,q.y]);}
     pts.push(porch?[feet[0]+(k?18:-18),feet[1]+24+k*2]:[N.spot[0]+(k?13:-13),N.spot[1]+(k?6:4)]);return{path:new Poly(pts),lbl:k?'Leo':'You'};});
   N.shots=[[.5,'Night 2.'],[1.6,'The town is asleep…'],
-    [2.9,{garden:`${n} can't sleep. The garden needs watering.`,wood:`${n}'s fire is dying. More wood.`,porch:N.wet?`${n} is out on the porch, watching the rain.`:`${n} is out on the porch, counting stars.`}[variant]],
+    [2.9,{garden:`${n} can't sleep. The garden needs watering.`,wood:`${n}'s fire is dying. More wood.`,porch:N.wet?`${n} is out on the porch, watching the rain.`:`${n} is out on the porch, counting stars.`,
+      cat:`${n} hears a stray cat. A saucer of milk.`,stars:N.wet?`${n} can't sleep. Out to listen to the rain.`:`${n} can't sleep. Out to watch the stars.`,mail:`${n} forgot to check the mailbox.`}[variant]],
     [tS+.3,porch?'Two shadows come up the path.':'Two shadows cross the grass.']];
   if(N.saved){
     N.tLeave=tS+1.8;N.tDoor=N.tLeave+(porch?1.4:trip);N.tArr=N.tDoor+1.7;
-    N.shots.push([N.tLeave,{garden:'All done. Back inside.',wood:'Arms full. Back inside.',porch:'A yawn. Time for bed.'}[variant]],
+    N.shots.push([N.tLeave,{garden:'All done. Back inside.',wood:'Arms full. Back inside.',porch:'A yawn. Time for bed.',cat:'The cat is fed. Back inside.',stars:'Getting cold. Back inside.',mail:'Only bills. Back inside.'}[variant]],
       [N.tDoor+.5,'The door shuts. The lock clicks.','good'],[N.tArr+.7,'Too late.','good'],[N.tArr+2.5,`${n} lives to see the morning.`,'good']);
     N.end=N.tArr+5.3;
   }else{
     N.tArr=tS+2.6;
-    N.shots.push([N.tArr+.3,SCREAM(),'bad'],[N.tArr+2.6,{garden:'The watering can is still there.',wood:'The logs are still on the grass.',porch:'The door is still open.'}[variant]],[N.tArr+4.6,`${n} won't see the morning.`,'bad']);
+    N.shots.push([N.tArr+.3,SCREAM(),'bad'],[N.tArr+2.6,{garden:'The watering can is still there.',wood:'The logs are still on the grass.',porch:'The door is still open.',cat:'The saucer is still full.',stars:'The blanket is still on the grass.',mail:'A letter lies in the grass.'}[variant]],[N.tArr+4.6,`${n} won't see the morning.`,'bad']);
     N.end=N.tArr+7.4;
   }
 }
 PLAN.chore=()=>planOut(N.wet?'wood':'garden');
 PLAN.porch=()=>planOut('porch');
-PLAY.chore=PLAY.porch=(T,dt,t)=>{
+PLAN.cat=()=>planOut('cat');PLAN.stars=()=>planOut('stars');PLAN.mail=()=>planOut('mail');
+PLAY.chore=PLAY.porch=PLAY.cat=PLAY.stars=PLAY.mail=(T,dt,t)=>{
   const{vic:c,side,spot,path,variant,TW,tSpot,tS,tArr,saved}=N,porch=variant==='porch';const P=[];let v=null,busy=false,carry=false;
-  const face=porch?'front':side>0?'right':'left';
+  const face=porch||variant==='stars'?'front':side>0?'right':'left';
   if(T>=2.9&&T<TW)v=stepOut(c,T,2.9);
   else if(T>=TW&&T<tSpot){const a=path.at((T-TW)*34);v={x:a.x,y:a.y,dir:dirFrom(a.dx,a.dy),walk:true,al:1};}
   else if(T>=tSpot){
@@ -1121,7 +1130,7 @@ PLAY.chore=PLAY.porch=(T,dt,t)=>{
       const seen=!saved&&T>tArr-.6;busy=!seen&&T>tSpot+.2;
       const dead=!saved&&T>tArr+.3;
       v={x:spot[0],y:spot[1],dir:seen?'front':face,walk:false,al:1,
-        pose:dead?'dead':busy?{garden:'water',wood:'logs',porch:'sit'}[variant]:porch&&T>tSpot+.2?'sit':null,blood:dead?ramp(T,tArr+.5,tArr+6.5):0};
+        pose:dead?'dead':busy?{garden:'water',wood:'logs',porch:'sit',cat:'logs',stars:'sit'}[variant]:porch&&T>tSpot+.2?'sit':null,step:variant==='cat'?1:undefined,blood:dead?ramp(T,tArr+.5,tArr+6.5):0};
     }
   }
   if(v)P.push({kind:'vic',...v});
@@ -1145,6 +1154,17 @@ PLAY.chore=PLAY.porch=(T,dt,t)=>{
     if(variant==='garden'){ // a row of flowers beside them, and the can if it got dropped
       ['#c66a8a','#d9bf6a','#aeb9e6','#c66a8a','#d9bf6a'].forEach((col,i)=>{const fx=spot[0]+side*(14+i*4),fy=spot[1]+1+(i%2);px(fx,fy-3,1,3,'#2f6b52');px(fx-1,fy-5,3,2,col);px(fx,fy-5,1,1,'#f3e7b0');});
       if(gone&&false){const gx=spot[0]+side*5,gy=spot[1]+2;px(gx-3,gy-3,6,3,'#6f8199');px(gx-3,gy-3,6,1,'#9fb0c6');px(gx+side*4,gy-2,2,1,'#6f8199');px(gx+side*6-1,gy-1,4,1,'rgba(150,180,255,.45)');}
+    }else if(variant==='cat'){ // a saucer, and a stray cat that bolts when the shadows come
+      const sx=spot[0]+side*11,sy=spot[1]+1,run=saved?Math.max(0,T-N.tLeave)*60:Math.max(0,T-(tArr-.6))*90,cx=sx+side*(6+run),cy=sy-1;
+      px(sx-2,sy,5,1,'#cfd6e6');px(sx-1,sy-1,3,1,'#f4f7ff');
+      if(run<70){const hop=run>0&&Math.floor(T*10)%2?1:0,f=side<0?1:0;px(cx-3,cy-3-hop,6,3,'#3a3f52');px(cx+side*3-f,cy-5-hop,2,3,'#3a3f52');px(cx+side*3-f,cy-6-hop,1,1,'#3a3f52');px(cx+side*4-f,cy-6-hop,1,1,'#3a3f52');
+        px(cx-side*4-(1-f),cy-4-hop,1,2,'#3a3f52');px(cx-3,cy-hop,1,1,'#2a2e3d');px(cx+2,cy-hop,1,1,'#2a2e3d');px(cx+side*4-f,cy-4-hop,1,1,'#ffd25e');}
+    }else if(variant==='stars'){ // a blanket on the grass, and a few stars winking overhead
+      px(spot[0]-8,spot[1]-2,17,5,'#8a2f3a');for(let i=0;i<4;i++)px(spot[0]-8+i*5,spot[1]-2,2,5,'#c9505c');px(spot[0]-8,spot[1],17,1,'#5e1e28');
+      if(!N.wet&&!gone)for(let i=0;i<5;i++){const a=Math.sin(t*.003+i*2.1);if(a>.2)px(spot[0]-30+i*15,spot[1]-52-(i%2)*9,1,1,`rgba(255,244,200,${a})`);}
+    }else if(variant==='mail'){ // a mailbox on a post
+      const mx=spot[0]+side*10,my=spot[1]+1;px(mx,my-9,1,9,'#5a3a26');px(mx-3,my-13,7,5,'#1a1430');px(mx-2,my-12,5,3,'#5f7fa6');px(mx-2,my-12,5,1,'#8fb0d6');px(mx+side*3,my-14,1,3,'#d6383c');
+      if(gone){px(spot[0]+side*4,spot[1]+2,4,3,'#1a1430');px(spot[0]+side*4,spot[1]+2,3,2,'#fff8e6');}
     }else if(variant==='wood'){
       const wx=spot[0]+side*17,wy=spot[1]+1,L=IMG.log; // the wood pile: the same little log, stacked
       [[-8,-3],[0,-3],[-4,-6],[-10,0],[-2,0],[5,-1]].forEach(([dx,dy])=>lx.drawImage(L,X(wx+dx),Y(wy+dy)-1));
@@ -1184,12 +1204,13 @@ scenes.night={
     const mine=viewRole==='mafia';
     const people=f.people.filter(p=>p.al>0).map(p=>({p,name:p.kind==='maf'?'mafia':looksLike(N.victim),dir:p.dir,x:p.x,y:p.y,t,walk:p.walk,pose:p.pose,step:p.step,blood:p.blood,tint:p.kind==='maf'&&!mine?SHADOW_TINT:NIGHT_TINT,alpha:p.al}));
     for(const q of people)if(q.walk&&q.alpha>.5&&Math.random()<dt*5)kickDust(q.x,q.y);
+    townLights(t,{dim:.85,...f.lights},'win');
     patchDim='rgba(6,8,30,.38)';const hits=drawScene(people,TOWN.occ,IMG.town);patchDim=null;
     if(!mine)for(const q of people){const h=hits.get(q);if(q.p.kind==='maf'&&h&&q.dir!=='back'&&q.alpha>.5){const ey=h.top+Math.round(SP.mafia.front.eyeBot-PAD)-1;lx.fillStyle='#ff3c3c';
       if(q.dir==='front'){lx.fillRect(h.cx-4,ey,2,2);lx.fillRect(h.cx+2,ey,2,2);}else lx.fillRect(h.cx+(q.dir==='right'?2:-4),ey,2,2);}}
     if(f.over)f.over();
     drawDust(dt);
-    townLights(t,{dim:.85,...f.lights});
+    townLights(t,{dim:.85,...f.lights},'rest');
     if(f.dark>0){lx.fillStyle=`rgba(3,3,12,${f.dark*.74})`;lx.fillRect(0,0,cam.lw,cam.lh);}
     if(f.flash&&f.flash[1]>0){lx.fillStyle=`rgba(${f.flash[0]},${f.flash[1]})`;lx.fillRect(0,0,cam.lw,cam.lh);}
     rain(dt);vignette(.7);
@@ -1204,13 +1225,19 @@ const DAWN_DEAD={
   walk:['{n} went out for a walk last night. Only one boot came back.','They found {n}\'s scarf under the lamp post. Nothing else.'],
   garden:['The watering can was still lying in {n}\'s flower bed this morning.','{n}\'s flowers got their water. {n} never made it back inside.'],
   wood:['A pile of dropped logs outside {n}\'s cabin. The fire inside had gone cold.','{n} went out for firewood. The logs are still on the grass.'],
-  porch:['{n}\'s front door was wide open this morning. The porch was empty.','{n}\'s chair was still rocking on the porch. Nobody in it.']};
+  porch:['{n}\'s front door was wide open this morning. The porch was empty.','{n}\'s chair was still rocking on the porch. Nobody in it.'],
+  cat:['A full saucer of milk outside {n}\'s cabin. The cat hasn\'t come back either.','{n} went out to feed a stray. Only the saucer was found.'],
+  stars:['A blanket lay on the grass outside {n}\'s cabin, soaked with dew.','{n} went out to look at the sky. The blanket is still there.'],
+  mail:['{n}\'s mailbox was hanging open. A letter lay in the grass.','{n} went out for the post last night. Nobody has seen them since.']};
 const DAWN_SAFE={
   home:['The Mafia came for {n} last night. The Doctor was already there.','Somebody knocked on {n}\'s door last night. The Doctor answered it.'],
   walk:['{n} went for a walk last night and came home a lot faster than they left.','{n} is out of breath, and very much alive.'],
   garden:['{n} watered the garden and locked the door just in time.','Strange footprints in {n}\'s flower bed. {n} slept right through.'],
   wood:['{n} got the firewood in and bolted the door. Someone was out there.','Footprints by {n}\'s woodpile. They stop at the locked door.'],
-  porch:['{n} went to bed early. Lucky.','Somebody crept up to {n}\'s porch last night. The door was already locked.']};
+  porch:['{n} went to bed early. Lucky.','Somebody crept up to {n}\'s porch last night. The door was already locked.'],
+  cat:['{n} fed the stray and bolted the door. The cat was hissing at something.','Paw prints and boot prints outside {n}\'s cabin. {n} is fine.'],
+  stars:['{n} came in from the cold just in time.','Flattened grass by {n}\'s blanket. Somebody else stood there too.'],
+  mail:['{n} fetched the post and locked up. Somebody was watching.','Boot prints by {n}\'s mailbox. They stop at the locked door.']};
 function dawn(){const v=N.victim,key=N.variant||N.kind,list=(N.saved?DAWN_SAFE:DAWN_DEAD)[key],h=$('#dawnTitle');
   if(N.saved){h.innerHTML=ic('heart',3)+'NOBODY DIED';h.classList.add('safe');}
   else{V.dead.add(v);h.innerHTML=ic('skull',3)+`${PEOPLE[v].n.toUpperCase()} IS DEAD`;h.classList.remove('safe');}
@@ -1240,19 +1267,18 @@ function bubble(h,kind,t){const x=h.cx-6,y=h.top-tagLo()-13;lx.fillStyle='#1a143
   else{lx.fillStyle=kind==='!'?'#d6383c':'#3b6fd6';if(kind==='!'){lx.fillRect(x+6,y+2,1,3);lx.fillRect(x+6,y+6,1,1);}else{lx.fillRect(x+5,y+2,3,1);lx.fillRect(x+7,y+3,1,1);lx.fillRect(x+6,y+4,1,1);lx.fillRect(x+6,y+6,1,1);}}}
 scenes.talk={hud:'#talkHud',
   enter(){document.documentElement.style.setProperty('--accent','#e9b25a');if(!V.ring.length)voteReset();V.ring.forEach(r=>{r.cx=r.x;r.cy=r.y;r.walk=false;r.lift=0;});
-    T.clock=90;T.birds=[];T.next=1.5;T.speak=null;T.st=0;$('#talkLine').textContent=TALK_LINES[0];},
+    T.clock=300;T.birds=[];T.next=1.5;T.speak=null;T.st=0;$('#talkLine').textContent=TALK_LINES[0];},
   frame(dt,t){dayMode=true;view(dayImg('town'),280,372,195);
     // cloud shadows drifting over the square
     for(const c of T.clouds){c.x+=c.v*dt;if(c.x>700)c.x=-140;lx.fillStyle='rgba(30,40,70,.07)';for(let yy=-c.r*.45;yy<c.r*.45;yy+=1){const hw=Math.round(c.r*Math.sqrt(1-(yy/(c.r*.45))**2));lx.fillRect(X(c.x)-hw,Y(c.y+yy),hw*2,1);}}
     // sun glints on the ponds
     for(let i=0;i<8;i++){const gx=[230,250,300,330,220,340,235,325][i]+Math.round(Math.sin(t*.0007+i*2)*5),gy=[250,258,246,255,262,264,528,535][i];if(Math.sin(t*.004+i*1.7)>.82){lx.fillStyle='rgba(255,255,255,.8)';lx.fillRect(X(gx),Y(gy),2,1);}}
-    // who is talking: one at a time, the rest turn to look at them
-    T.st-=dt;const alive=V.ring.filter(r=>!V.dead.has(r.i));
-    if(T.st<=0){T.speak=alive[Math.floor(Math.random()*alive.length)];T.st=1.6+Math.random()*1.6;T.bub=Math.random()<.2?'!':Math.random()<.25?'?':'...';
-      if(Math.random()<.35)$('#talkLine').textContent=TALK_LINES[Math.floor(Math.random()*TALK_LINES.length)];}
-    T.clock-=dt;if(T.clock<=0)T.clock=90;const s=Math.ceil(T.clock);$('#talkClock').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
-    const sp=T.speak,people=alive.map(r=>({r,name:looksLike(r.i),dir:r===sp?dirFrom(280-r.x,372-r.y):sp?dirFrom(sp.x-r.x,sp.y-r.y):'front',x:r.x,y:r.y,t,phase:r.i*377,
-      lift:r===sp?Math.abs(Math.sin(t*.011))*2:0}));
+    // same rules as the original Mafia: everyone talks freely for 5 minutes, then the vote.
+    // (speech bubbles are kept for later: they will show who is on the mic or typing when it is online)
+    T.st-=dt;if(T.st<=0){T.st=9+Math.random()*6;$('#talkLine').textContent=TALK_LINES[Math.floor(Math.random()*TALK_LINES.length)];}
+    const alive=V.ring.filter(r=>!V.dead.has(r.i));
+    T.clock-=dt;if(T.clock<=0){T.clock=300;go('vote');}const s=Math.ceil(T.clock);$('#talkClock').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+    const sp=null,people=alive.map(r=>({r,name:looksLike(r.i),dir:dirFrom(280-r.x,372-r.y),x:r.x,y:r.y,t,phase:r.i*377}));
     const hits=drawScene(people,TOWN.occ,dayImg('town'));
     // butterflies by the grass, and birds crossing now and then (alone or a little flock)
     for(let i=0;i<4;i++){const bx=[176,388,210,352][i]+Math.sin(t*.0011+i*3)*16,by=[300,300,470,470][i]+Math.cos(t*.0017+i)*9;lx.fillStyle=['#ffd25e','#ff9bd0','#fff','#9fd8ff'][i];lx.fillRect(X(bx)+(Math.floor(t/120+i)%2?-1:0),Y(by),Math.floor(t/120+i)%2?3:1,1);}

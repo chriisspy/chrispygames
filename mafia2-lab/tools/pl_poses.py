@@ -114,7 +114,8 @@ def main():
             fr = [F(k, i) for i in range(8)]
             al = np.any([a[..., 3] > 0 for a in fr], 0); ys, xs = np.nonzero(al)
             x0, x1, y0, y1 = xs.min(), xs.max() + 1, ys.min(), ys.max() + 1
-            ax = (x1 - x0) / 2
+            b0 = np.nonzero(fr[0][..., 3].any(0))[0]                 # frame 0 = standing: its middle is the anchor,
+            ax = (b0.min() + b0.max() + 1) / 2 - x0                    # the same middle the idle sprite is drawn from
             for i, a in enumerate(fr):
                 c = a[y0:y1, x0:x1]; walk[f'walk_{v}_{i}'] = (c, ax, 0)
                 if v == 'right': walk[f'walk_left_{i}'] = (c[:, ::-1], (x1 - x0) - ax, 0)
