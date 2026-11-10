@@ -400,7 +400,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11102057'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11102104'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -553,6 +553,10 @@ function rain(dt,clip){
   if(!raining){flash=0;return;}
   // a drop slides right by a quarter of how far it falls, so they have to start that far off to the left
   const lw=cam.lw,lh=cam.lh,drift=lh*.25+6,span=lw+drift;const want=Math.round(span*lh/90);const rx=()=>Math.random()*span-drift;
+  // a new scene has a different view size: spread every drop over the new view straight away, or the ones left
+  // outside it all restart at the top together (a clump at the top, then a gap in the rain)
+  // (only on a real jump in size, not while the cabin view is gliding in or out)
+  if(!rain.lw||Math.abs(lw-rain.lw)>rain.lw*.15||Math.abs(lh-rain.lh)>rain.lh*.15){for(const d of drops){d.x=rx();d.y=Math.random()*lh;}}rain.lw=lw;rain.lh=lh;
   while(drops.length<want)drops.push({x:rx(),y:Math.random()*lh,l:3+Math.random()*4|0,v:150+Math.random()*90,a:.25+Math.random()*.3});
   drops.length=Math.min(drops.length,want);
   lx.save();if(clip){lx.beginPath();for(const r of clip)lx.rect(...r);lx.clip();}
