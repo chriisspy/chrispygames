@@ -400,7 +400,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11102053'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11102057'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -1661,7 +1661,7 @@ scenes.ghost={hud:'#ghostHud',
     const dx=G.tx-G.x,dy=G.ty-G.y,dd=Math.hypot(dx,dy),sp=95*dt;
     if(dd>sp){G.x+=dx/dd*sp;G.y+=dy/dd*sp;G.dir=dirFrom(dx,dy);}else{G.x=G.tx;G.y=G.ty;G.dir='front';if(G.goCab>=0){const ci=G.goCab;G.goCab=-1;ghostDoor(ci);}}
     const f=PLAY[N.kind](N.t,dt,t);
-    if(G.watch>0){const sp=ghostSpots(f).find(q=>q.i===G.watch);
+    if(G.watch>0&&!G.fading){const sp=ghostSpots(f).find(q=>q.i===G.watch);
       if(sp&&sp.st==='home'&&!ghostAway(G.watch)){ghostWatch(G.watch);return;}                 // they went back in: follow them inside
       if(sp){G.x=G.tx=sp.x+12;G.y=G.ty=sp.y+20;G.fxAt=[sp.x,sp.y];}}
     view(IMG.town,G.x,G.y-14,175,{loose:true});
@@ -1702,7 +1702,10 @@ $('#mini').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagati
   else if(ci>=0){const c=TOWN.cabins[ci];G.x=G.tx=c.cx;G.y=G.ty=c.top+30;G.watch=-1;ghostDoor(ci);return;} // a cabin: jump to its door and step inside
   else{G.x=G.tx=clamp(mx,20,540);G.y=G.ty=clamp(my,40,740);}
   ghostHud();});
-function ghostRoom(dt,t){const ci=G.inCab,i=CABIN_OF.indexOf(ci),home=i>=0&&!ghostAway(i),act=home?G.acts[i]:null,nm=home?looksLike(i):null;
+function ghostRoom(dt,t){
+  // following someone: when they walk out of their cabin, you go out after them (and back in when they come home)
+  if(G.watch>0&&!G.fading&&CABIN_OF[G.watch]===G.inCab&&ghostAway(G.watch)){ghostDoor(-1);}
+  const ci=G.inCab,i=CABIN_OF.indexOf(ci),home=i>=0&&!ghostAway(i),act=home?G.acts[i]:null,nm=home?looksLike(i):null;
   view(IMG.room,97,121,186,{fit:true,topCss:80,void:ROOM_VOID});
   rain(dt,ROOM.windows.map(w=>[X(w[0]),Y(w[1]),w[2],w[3]]));fireAcc+=dt;while(fireAcc>.06){stepFire();fireAcc-=.06;}
   const people=[];let cover=null,head=false;
@@ -1715,7 +1718,7 @@ function ghostRoom(dt,t){const ci=G.inCab,i=CABIN_OF.indexOf(ci),home=i>=0&&!gho
   const kk=i===N.victim&&N.kind==='home'?N.t-(N.tCut-6):-1;
   if(kk>0){people.length=0;cover=null;head=false;people.push(...killRoom(looksLike(i),kk,N.heal,t));}
   {const dx=G.rtx-G.rx,dy=G.rty-G.ry,dd=Math.hypot(dx,dy),sp=80*dt;
-    if(dd>sp){G.rx+=dx/dd*sp;G.ry+=dy/dd*sp;G.dir=dirFrom(dx,dy);}else{G.rx=G.rtx;G.ry=G.rty;if(G.ry>=214&&!G.fading)ghostDoor(-1);}}
+    if(dd>sp){G.rx+=dx/dd*sp;G.ry+=dy/dd*sp;G.dir=dirFrom(dx,dy);}else{G.rx=G.rtx;G.ry=G.rty;if(G.ry>=214&&!G.fading){G.watch=-1;ghostDoor(-1);}}}   // you chose to leave: stop following
   const gme=ghostMe(G.rx,G.ry,t);people.push(gme);
   const hits=drawScene(people,null,IMG.room,ROOM_OBJS);
   if(head){const d=SP[nm].front,crop=Math.min(d.h,d.eyeBot+10),hx=X(ROOM.bed.head[0])-Math.floor(d.w/2),hy=Y(BED_LINE)-(d.eyeBot+3);lx.drawImage(d.frames[0][1],0,0,d.w,crop,hx,hy,d.w,crop);drawQuilt(1);}
