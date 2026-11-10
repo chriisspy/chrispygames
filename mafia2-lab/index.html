@@ -23,6 +23,7 @@ body{font-family:"Pixelify Sans",system-ui,sans-serif;font-variant-ligatures:non
 .hud .panel,.hud .btn,.hud .chip,.hud .sheet{pointer-events:auto}
 #xfade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .22s;z-index:30}
 #xfade.on{opacity:1}
+#buildTag{position:absolute;left:6px;top:calc(4px + env(safe-area-inset-top));font:500 9px "Pixelify Sans",monospace;color:#fff;opacity:.4;z-index:8;pointer-events:none;letter-spacing:1px}
 #fxL{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;image-rendering:pixelated;opacity:0;transition:opacity 1.2s ease;z-index:2}
 #fxL.on{opacity:1}
 #bigMsg{position:absolute;left:0;right:0;top:33%;text-align:center;display:none;z-index:7}
@@ -204,6 +205,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 <div id="phone">
   <canvas id="c"></canvas>
   <canvas id="fxL"></canvas>
+  <div id="buildTag"></div>
   <div id="xfade"></div>
   <div id="hauntFx"></div>
   <div id="clk">
@@ -400,7 +402,8 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11102104'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11102107'; // changes every push, so phones never show an old picture from their cache
+document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
