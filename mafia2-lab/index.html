@@ -23,6 +23,13 @@ body{font-family:"Pixelify Sans",system-ui,sans-serif;font-variant-ligatures:non
 .hud .panel,.hud .btn,.hud .chip,.hud .sheet{pointer-events:auto}
 #xfade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .22s;z-index:30}
 #xfade.on{opacity:1}
+#clk{position:absolute;inset:0;z-index:20;background:#07060f;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#f6dfae;padding:12px}
+#clk.on{display:flex}
+#clk .clkTop{display:flex;align-items:center;gap:12px;font-size:18px;letter-spacing:1px}#clk .clkTop .btn{font-size:13px;padding:4px 10px}
+#clk .clkStats{font-size:13px;letter-spacing:2px}#clk .clkStats i{font-style:normal;color:#ffd25e;font-size:17px}
+#clk .clkStage{position:relative;height:62%;aspect-ratio:132/200;border:4px solid #1a1430;border-radius:6px;overflow:hidden;box-shadow:0 0 0 3px #3b2b19;touch-action:manipulation}
+#clk canvas{width:100%;height:100%;image-rendering:pixelated;display:block}
+#clkMsg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:18px;font-weight:700;color:#fff;text-shadow:0 2px 0 #1a1430;pointer-events:none;white-space:pre-line;line-height:1.5}
 #loader{position:absolute;inset:0;z-index:40;background:#07060f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .3s}
 #loader.off{opacity:0;pointer-events:none}
 #loader canvas{width:124px;height:64px;image-rendering:pixelated}
@@ -156,6 +163,12 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 <div id="phone">
   <canvas id="c"></canvas>
   <div id="xfade"></div>
+  <div id="clk">
+    <div class="clkTop"><b>CHRISPY CLICKER</b><button class="btn" id="clkX">Close</button></div>
+    <div class="clkStats">SCORE <i id="clkScore">0</i> &nbsp; BEST <i id="clkBest">0</i></div>
+    <div class="clkStage"><canvas id="clkC" width="132" height="200"></canvas><div id="clkMsg"></div></div>
+    <div class="small" id="clkSub">Tap to flap · dodge the gaps</div>
+  </div>
   <div id="loader"><canvas id="loaderC" width="31" height="16"></canvas><span>LOADING</span></div>
 
   <div id="top">
@@ -323,7 +336,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11101955'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11102000'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -749,8 +762,8 @@ function bedIn(){const d=SP[looksLike(0)].front;return[ROOM.bed.head[0],BED_LINE
 function animTo(from,to,dur,o){CAB.state='anim';CAB.anim={from,to,dur,t:0,...o};}
 scenes.cabin={
   hud:'#cabinHud',
-  enter(){CAB.clock=30;$('#phone').style.background=ROOM_VOID;paintNight();},
-  leave(){$('#phone').style.background='';},
+  enter(){CAB.clock=45;$('#phone').style.background=ROOM_VOID;paintNight();},
+  leave(){$('#phone').style.background='';ckClose();},
   frame(dt,t){
     // zoomed in (room as wide as the screen) while the night panel is folded; when it opens the room glides up
     // and shrinks to sit above it, and glides back when it closes. Whole-number zoom at rest = clean pixels.
@@ -796,7 +809,7 @@ scenes.cabin={
     lx.save();lx.globalCompositeOperation='lighter';for(let i=0;i<14;i++){const px=X(40+((i*37+t*.004*(1+i%3))%120)),py=Y(90+((i*29+t*.006)%90));lx.fillStyle=`rgba(255,200,140,${.18+.18*Math.sin(t*.002+i)})`;lx.fillRect(px,py,1,1);}lx.restore();
     if(CAB.pc>0&&CAB.state!=='chair')CAB.pc=Math.max(0,CAB.pc-dt);
     present();
-    CAB.clock-=dt;if(CAB.clock<0)CAB.clock=30;$('#nightClock').textContent='0:'+String(Math.ceil(CAB.clock)).padStart(2,'0');
+    CAB.clock-=dt;if(CAB.clock<0)CAB.clock=45;$('#nightClock').textContent='0:'+String(Math.ceil(CAB.clock)).padStart(2,'0');
   }
 };
 // path-finding over a 3px walk grid, so you walk round the furniture
@@ -841,7 +854,7 @@ cv.addEventListener('pointerdown',e=>{
   if(inR(ROOM.door.hit,x,y)){goTo(ROOM.door.stand,()=>toast(raining?'You peek outside. It\'s pouring.':'You peek outside. All quiet…'));return;}
   goTo([clamp(x,17,179),clamp(y,77,231)]);
 });
-$('#pcYes').onclick=()=>{$('#pcModal').classList.remove('on');toast('Booting Chrispy Clicker…');};
+$('#pcYes').onclick=()=>{$('#pcModal').classList.remove('on');ckOpen();};
 $('#pcNo').onclick=()=>{$('#pcModal').classList.remove('on');};
 $('#notesOk').onclick=()=>{$('#notesModal').classList.remove('on');};
 
@@ -976,10 +989,15 @@ function planNight(){
   if(!alive.length){V.dead.clear();alive=PEOPLE.map((_,i)=>i).filter(i=>i!==0&&PEOPLE[i].role!=='mafia');}
   const st=nextStory();
   N.victim=viewRole==='mafia'&&NIGHT.picks.length&&alive.includes(NIGHT.picks[0])?NIGHT.picks[0]:alive[Math.floor(Math.random()*alive.length)];
-  N.kind=st.kind;N.saved=st.saved;N.variant=null;
-  if(viewRole==='doctor'&&NIGHT.picks.includes(N.victim))N.saved=true; // you saved them yourself
+  // N.heal = the Doctor saves them. The story itself is always planned as the kill (N.saved=false), so nobody can
+  // tell which night it is until the very end: either the Doctor comes running, or nobody does.
+  N.kind=st.kind;N.heal=st.saved;N.saved=false;N.variant=null;
+  if(viewRole==='doctor'&&NIGHT.picks.includes(N.victim))N.heal=true; // you saved them yourself
   N.vci=CABIN_OF[N.victim];N.vic=TOWN.cabins[N.vci];N.wet=raining;N.shots=[];
-  PLAN[N.kind]();N.shots.sort((a,b)=>a[0]-b[0]);
+  PLAN[N.kind]();
+  if(N.heal){const i=N.shots.findIndex(s=>/won't see the morning/.test(s[1])),tD=(i>=0?N.shots[i][0]:N.end-3)-.3;if(i>=0)N.shots.splice(i,1);
+    N.tDoc=tD;N.shots.push([tD+.3,'Footsteps. Someone is running.'],[tD+3.2,'The Doctor. Just in time.','good'],[tD+5.8,`${VN()} lives to see the morning.`,'good']);N.end=tD+8.6;}
+  N.shots.sort((a,b)=>a[0]-b[0]);
 }
 const SCREAM=()=>N.wet?'A scream, lost in the rain.':'One scream. Then nothing.';
 const stepOut=(cab,T,t0)=>{const e=ramp(T,t0,t0+.6);return{x:cab.feet[0],y:lerp(cab.feet[1]-8,cab.feet[1],e),al:e,walk:e<1,dir:'front'};};
@@ -1185,7 +1203,7 @@ PLAY.chore=PLAY.porch=PLAY.cat=PLAY.stars=PLAY.mail=(T,dt,t)=>{
 
 scenes.night={
   hud:'#nightHud',
-  enter(){N.t=0;N.capI=0;N.kicks={};N.shake=0;dust.length=0;planNight();$('#barT').classList.add('on');$('#barB').classList.add('on');$('#fade').classList.remove('on');$('#cap').textContent='';
+  enter(){N.t=0;N.capI=0;N.kicks={};N.shake=0;dust.length=0;planNight();$('#fade').classList.remove('on');$('#cap').textContent='';
     $('#nightTag').innerHTML=ic('rec')+(viewRole==='mafia'?'NIGHT 2 · YOUR TEAM':'NIGHT 2');},
   leave(){$('#barT').classList.remove('on');$('#barB').classList.remove('on');$('#fade').classList.remove('on');clearInterval(capTimer);},
   frame(dt,t){
@@ -1194,6 +1212,12 @@ scenes.night={
     if(T>N.end-1.2)$('#fade').classList.add('on');
     if(T>N.end){dawn();return;}
     const f=PLAY[N.kind](T,dt,t);
+    if(N.heal&&T>N.tDoc){ // the Doctor runs up the cabin's path, kneels by them, and they get back up
+      const k=T-N.tDoc,c=N.vic,vic=f.people.find(p=>p.kind==='vic'),tx=vic?vic.x:c.feet[0],ty=vic?vic.y:c.feet[1],from=c.route.at(86);
+      const e=ease(ramp(k,.2,2.4)),gx=tx+(from.x>=tx?11:-11),dx=lerp(from.x,gx,e),dy=lerp(from.y,ty+1,e),kneel=e>=1&&k<4.4;
+      f.people.push({kind:'doc',x:dx,y:dy,dir:kneel?(gx>tx?'left':'right'):dirFrom(gx-from.x,ty-from.y),walk:e>0&&e<1,al:ramp(k,.2,.7),pose:kneel?'logs':null,step:1});
+      if(vic){vic.al=1;if(k>4.4){vic.pose=null;vic.dir='front';vic.walk=false;vic.blood=0;}else if(k>2.6)vic.blood=(vic.blood??1)*(1-ramp(k,2.6,4.4));}
+      f.flash=null;f.dark=0;}
     let cx=f.cx,cy=f.cy;
     if(N.shake>0){cx+=(Math.random()-.5)*N.shake;cy+=(Math.random()-.5)*N.shake;N.shake=Math.max(0,N.shake-dt*20);}
     view(IMG.town,cx,cy,f.vw||150,{loose:true});
@@ -1202,7 +1226,7 @@ scenes.night={
     if(f.under)f.under();
     // the Mafia are only shadows with red eyes, unless you are one of them
     const mine=viewRole==='mafia';
-    const people=f.people.filter(p=>p.al>0).map(p=>({p,name:p.kind==='maf'?'mafia':looksLike(N.victim),dir:p.dir,x:p.x,y:p.y,t,walk:p.walk,pose:p.pose,step:p.step,blood:p.blood,tint:p.kind==='maf'&&!mine?SHADOW_TINT:NIGHT_TINT,alpha:p.al}));
+    const people=f.people.filter(p=>p.al>0).map(p=>({p,name:p.kind==='maf'?'mafia':p.kind==='doc'?'doctor':looksLike(N.victim),dir:p.dir,x:p.x,y:p.y,t,walk:p.walk,pose:p.pose,step:p.step,blood:p.blood,tint:p.kind==='maf'&&!mine?SHADOW_TINT:NIGHT_TINT,alpha:p.al}));
     for(const q of people)if(q.walk&&q.alpha>.5&&Math.random()<dt*5)kickDust(q.x,q.y);
     townLights(t,{dim:.85,...f.lights},'win');
     patchDim='rgba(6,8,30,.38)';const hits=drawScene(people,TOWN.occ,IMG.town);patchDim=null;
@@ -1215,7 +1239,7 @@ scenes.night={
     if(f.flash&&f.flash[1]>0){lx.fillStyle=`rgba(${f.flash[0]},${f.flash[1]})`;lx.fillRect(0,0,cam.lw,cam.lh);}
     rain(dt);vignette(.7);
     present();
-    for(const q of people){if(q.alpha<=.8)continue;if(q.p.kind==='maf'){if(mine)nameTag(hits.get(q),q.p.lbl,'#ff8a8a');}else nameTag(hits.get(q),VN(),'#fff');}
+    for(const q of people){if(q.alpha<=.8)continue;if(q.p.kind==='maf'){if(mine)nameTag(hits.get(q),q.p.lbl,'#ff8a8a');}else if(q.p.kind==='doc')nameTag(hits.get(q),'Doctor','#9fe8b0');else nameTag(hits.get(q),VN(),'#fff');}
     for(const[txt,wx,wy]of f.texts||[])label(txt,SX(wx),SY(wy),11*DPR,'#f6dfae');
   }
 };
@@ -1238,12 +1262,61 @@ const DAWN_SAFE={
   cat:['{n} fed the stray and bolted the door. The cat was hissing at something.','Paw prints and boot prints outside {n}\'s cabin. {n} is fine.'],
   stars:['{n} came in from the cold just in time.','Flattened grass by {n}\'s blanket. Somebody else stood there too.'],
   mail:['{n} fetched the post and locked up. Somebody was watching.','Boot prints by {n}\'s mailbox. They stop at the locked door.']};
-function dawn(){const v=N.victim,key=N.variant||N.kind,list=(N.saved?DAWN_SAFE:DAWN_DEAD)[key],h=$('#dawnTitle');
-  if(N.saved){h.innerHTML=ic('heart',3)+'NOBODY DIED';h.classList.add('safe');}
+const DAWN_DOC=['The Mafia got to {n} last night. The Doctor got there second.','{n} was found on the ground, breathing. Someone had patched them up.','{n} has a bandage and a story. The Doctor isn\'t saying a word.'];
+function dawn(){const v=N.victim,key=N.variant||N.kind,list=N.heal?DAWN_DOC:DAWN_DEAD[key],h=$('#dawnTitle');
+  if(N.heal){h.innerHTML=ic('heart',3)+'NOBODY DIED';h.classList.add('safe');}
   else{V.dead.add(v);h.innerHTML=ic('skull',3)+`${PEOPLE[v].n.toUpperCase()} IS DEAD`;h.classList.remove('safe');}
   $('#dawnFace').src=face(looksLike(v));
   $('#dawnStory').textContent=list[Math.floor(Math.random()*list.length)].replace(/\{n\}/g,PEOPLE[v].n);
   go('dawn');}
+/* ---------- CHRISPY CLICKER: the night mini game, on the cabin's computer ----------
+   Same game as the original app (tap to flap, dodge the gaps, gaps speed up and start moving after 10, same
+   medals, same saved best score 'cg_clicker_best'), drawn in this game's pixels with your own character. */
+const CK={raf:0,best:0};
+const CK_MEDALS=[[100,'PLATINUM'],[50,'GOLD'],[25,'SILVER'],[10,'BRONZE']];
+function ckReset(){Object.assign(CK,{y:90,v:0,pipes:[],score:0,state:'ready',t:0,fx:[],scroll:0});$('#clkScore').textContent=0;$('#clkMsg').textContent='TAP TO START';$('#clkSub').textContent='Tap to flap · dodge the gaps';}
+function ckOpen(){ckReset();try{CK.best=+(localStorage.getItem('cg_clicker_best')||0);}catch(e){}$('#clkBest').textContent=CK.best;$('#clk').classList.add('on');CK.last=performance.now();cancelAnimationFrame(CK.raf);CK.raf=requestAnimationFrame(ckLoop);}
+function ckClose(){$('#clk').classList.remove('on');cancelAnimationFrame(CK.raf);}
+function ckDie(){if(CK.state==='dead')return;CK.state='dead';CK.deadAt=performance.now();CK.v=-120;
+  const m=CK_MEDALS.find(([s])=>CK.score>=s),nb=CK.score>CK.best;if(nb){CK.best=CK.score;try{localStorage.setItem('cg_clicker_best',CK.best);}catch(e){}$('#clkBest').textContent=CK.best;}
+  $('#clkMsg').textContent=(nb?'NEW BEST!\n':'GAME OVER\n')+CK.score+(m?'  ·  '+m[1]:'')+'\ntap to retry';}
+function ckTap(){if(CK.state==='dead'){if(performance.now()-CK.deadAt>450)ckReset();return;}
+  if(CK.state==='ready'){CK.state='play';$('#clkMsg').textContent='';}
+  CK.v=-205;for(let i=0;i<3;i++)CK.fx.push({x:30,y:CK.y+7,vx:-25-Math.random()*25,vy:15+Math.random()*30,l:.3});}
+function ckLoop(now){CK.raf=requestAnimationFrame(ckLoop);const dt=Math.min(.033,(now-CK.last)/1000);CK.last=now;CK.t+=dt;
+  const c=$('#clkC'),x=c.getContext('2d'),Wc=132,Hc=200,GR=184,PX=36,k=Math.min(CK.score,70);
+  const speed=76*(1+k*.011),gap=Math.max(50,66-k*.8),spacing=Math.max(92,112-k*.3);
+  if(CK.state==='play'){CK.v+=640*dt;CK.y+=CK.v*dt;CK.scroll+=speed*dt;
+    if(!CK.pipes.length||CK.pipes[CK.pipes.length-1].x<Wc-spacing)CK.pipes.push({x:Wc+8,top:22+Math.random()*(GR-gap-44),gap,mv:CK.score>=10&&Math.random()<Math.min(.65,(CK.score-8)*.03)?Math.random()*6.28:null,done:false});
+    for(const p of CK.pipes){p.x-=speed*dt;if(p.mv!=null)p.mv+=dt*2;p.ty=clamp(p.top+(p.mv!=null?Math.sin(p.mv)*Math.min(24,6+k*.3):0),10,GR-p.gap-10);
+      if(!p.done&&p.x+16<PX-6){p.done=true;CK.score++;$('#clkScore').textContent=CK.score;const off=Math.abs(CK.y-(p.ty+p.gap/2))/(p.gap/2);
+        $('#clkSub').textContent=off<.22?'PERFECT!':off>.78?'Close one!':CK.score%10===0?'LEVEL '+(1+CK.score/10)+(CK.score===10?' · the gaps start moving':' · faster'):'Tap to flap · dodge the gaps';}
+      if(p.x<PX+5&&p.x+16>PX-5&&(CK.y-7<p.ty||CK.y+7>p.ty+p.gap))ckDie();}
+    CK.pipes=CK.pipes.filter(p=>p.x>-22);
+    if(CK.y>GR-7||CK.y<-24)ckDie();}
+  else if(CK.state==='ready')CK.y=92+Math.sin(CK.t*4)*3;
+  else{CK.v+=640*dt;CK.y=Math.min(GR-7,CK.y+CK.v*dt);}
+  // --- draw: a night sky, far cabins, lamp-post gaps, your character ---
+  x.imageSmoothingEnabled=false;
+  ['#0a0f2e','#0e1740','#132055','#1a2a66'].forEach((col,i)=>{x.fillStyle=col;x.fillRect(0,i*46,Wc,46);});
+  for(let i=0;i<22;i++){const sx=(i*53+7)%Wc,sy=(i*37+11)%120;if(Math.sin(CK.t*2+i)>-.3){x.fillStyle=i%5?'#8fa3d8':'#fff';x.fillRect(sx,sy,1,1);}}
+  x.fillStyle='#f6e7b0';x.fillRect(100,18,9,9);x.fillStyle='#0e1740';x.fillRect(103,16,8,8);                     // moon
+  for(let i=0;i<5;i++){const bx=((i*44-CK.scroll*.25)%220+220)%220-30;x.fillStyle='#0b1238';x.fillRect(bx,GR-34,26,34);x.beginPath();x.moveTo(bx-3,GR-34);x.lineTo(bx+13,GR-48);x.lineTo(bx+29,GR-34);x.fill();
+    x.fillStyle='#e9a04a';x.fillRect(bx+5,GR-24,4,4);x.fillRect(bx+17,GR-24,4,4);}
+  for(const p of CK.pipes){const px=Math.round(p.x),ty=Math.round(p.ty),by=ty+Math.round(p.gap);
+    for(const[y0,y1,cap]of[[0,ty,ty-5],[by,GR,by]]){x.fillStyle='#3a1a10';x.fillRect(px+2,y0,12,y1-y0);x.fillStyle='#9a5226';x.fillRect(px+3,y0,10,y1-y0);x.fillStyle='#c0703a';x.fillRect(px+4,y0,2,y1-y0);x.fillStyle='#6e3418';x.fillRect(px+11,y0,2,y1-y0);
+      x.fillStyle='#3a1a10';x.fillRect(px,cap,16,5);x.fillStyle='#b5622f';x.fillRect(px+1,cap+1,14,3);}
+    x.fillStyle='#ffe6a8';x.fillRect(px+6,ty-9,4,3);x.fillRect(px+6,by+6,4,3);}                                    // a lit bulb on each post
+  x.fillStyle='#2a2440';x.fillRect(0,GR,Wc,Hc-GR);x.fillStyle='#57506a';x.fillRect(0,GR,Wc,2);
+  for(let i=0;i<12;i++){const gx=((i*14-CK.scroll)%168+168)%168-14;x.fillStyle='#3d3654';x.fillRect(gx,GR+4+(i%2)*5,9,3);}
+  for(let i=CK.fx.length-1;i>=0;i--){const f=CK.fx[i];f.l-=dt;if(f.l<=0){CK.fx.splice(i,1);continue;}f.x+=f.vx*dt;f.y+=f.vy*dt;x.fillStyle=`rgba(255,255,255,${f.l*2})`;x.fillRect(f.x,f.y,2,2);}
+  const set=SP[looksLike(0)],pz=set.poses&&set.poses['walk_right_'+(CK.state==='dead'?0:Math.floor(CK.t*10)%8)],im=pz?pz.img:set.right.frames[0][0];
+  const w=Math.round(im.width*.55),h=Math.round(im.height*.55);x.save();x.translate(PX,Math.round(CK.y));x.rotate(clamp(CK.v/520,-.5,1.1));x.drawImage(im,-w/2,-h/2,w,h);x.restore();
+}
+$('#clkX').onclick=e=>{e.stopPropagation();ckClose();};
+$('#clk').addEventListener('pointerdown',e=>{if(e.target.id!=='clkX'){e.preventDefault();ckTap();}});
+addEventListener('keydown',e=>{if($('#clk').classList.contains('on')&&(e.code==='Space'||e.code==='ArrowUp')){e.preventDefault();ckTap();}});
+
 /* ---------- DAY: the discussion ---------- */
 // the town in daylight, made from the night art: blue night grass -> green, ponds -> bright blue, everything else lifted and warmed, bulbs unlit
 function dayOf(src){const c=mk(src.width,src.height),x=c.getContext('2d');x.drawImage(src,0,0);const id=x.getImageData(0,0,c.width,c.height),d=id.data;
