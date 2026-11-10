@@ -391,7 +391,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11102036'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11102042'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -1378,10 +1378,12 @@ function fxHeal(){const{c,x:ctx,W,H}=fxSetup();c.style.opacity='';c.classList.ad
 /* ---------- a kill inside a cabin: who is where, k seconds after the door opens ----------
    hit at 3.2 s; the Mafia are gone by about 7; if the Doctor saves them: in at 7.4, kneels, and they stand at 11 */
 function killRoom(nm,k,heal,t){const P=[],hit=3.2,dead=k>=hit&&!(heal&&k>11);
-  P.push({name:nm,dir:'front',x:98,y:dead?120:lerp(150,116,ease(ramp(k,.2,hit-.3))),t,walk:k>.2&&k<hit-.3,pose:dead?'dead':null,blood:dead?ramp(k,hit+.3,hit+5)*(heal?1-ramp(k,9.6,11):1):0,vic:true});
+  // they back away from the door until the foot of the bed stops them (the bed ends at y 129), and are pinned there
+  const pin=136,shake=k>hit-1.2&&k<hit?Math.round(Math.sin(k*40)):0;
+  P.push({name:nm,dir:'front',x:98+shake,y:dead?pin+4:lerp(168,pin,ease(ramp(k,.2,hit-1.2))),t,walk:k>.2&&k<hit-1.2,pose:dead?'dead':null,blood:dead?ramp(k,hit+.3,hit+5)*(heal?1-ramp(k,9.6,11):1):0,vic:true});
   for(const j of[0,1]){const a=ramp(k,.1+j*.3,hit-.2),b=ramp(k,hit+1.1+j*.2,hit+3.6);if(b>=1||k<.1+j*.3)continue;
-    P.push({name:'mafia',dir:b>0?'front':'back',x:98+(j?11:-11),y:b>0?lerp(134,236,b):lerp(236,134,ease(a)),t,walk:(a>0&&a<1)||b>0,tint:SHADOW_TINT,alpha:b>0?1-ramp(b,.6,1):ramp(k,.1+j*.3,.5+j*.3),phase:j*300});}
-  if(heal&&k>7.4){const a=ease(ramp(k,7.4,9.4)),kn=a>=1&&k<11;P.push({name:'doctor',dir:kn?'left':'back',x:lerp(98,113,a),y:lerp(236,122,a),t,walk:a<1,pose:kn?'logs':null,step:1,alpha:ramp(k,7.4,7.9),doc:true});}
+    P.push({name:'mafia',dir:b>0?'front':'back',x:98+(j?12:-12),y:b>0?lerp(156,236,b):lerp(236,156,ease(a)),t,walk:(a>0&&a<1)||b>0,tint:SHADOW_TINT,alpha:b>0?1-ramp(b,.6,1):ramp(k,.1+j*.3,.5+j*.3),phase:j*300});}
+  if(heal&&k>7.4){const a=ease(ramp(k,7.4,9.4)),kn=a>=1&&k<11;P.push({name:'doctor',dir:kn?'left':'back',x:lerp(98,116,a),y:lerp(236,144,a),t,walk:a<1,pose:kn?'logs':null,step:1,alpha:ramp(k,7.4,7.9),doc:true});}
   return P;}
 
 /* ---------- when it is YOU: the same night, at the same moment, seen from inside your own cabin ----------
@@ -1403,7 +1405,7 @@ scenes.mydeath={hud:'#nightHud',
     const sh=N.shake>0?(Math.random()-.5)*N.shake:0;N.shake=Math.max(0,N.shake-dt*14);
     view(IMG.room,97+sh,121+sh*.6,186,{fit:true,topCss:80,void:ROOM_VOID});
     rain(dt,ROOM.windows.map(w=>[X(w[0]),Y(w[1]),w[2],w[3]]));fireAcc+=dt;while(fireAcc>.06){stepFire();fireAcc-=.06;}
-    const people=k>0?killRoom(me,k,N.heal,t):[{name:me,dir:T>3.4?'front':'back',x:98,y:150,t,vic:true}];
+    const people=k>0?killRoom(me,k,N.heal,t):[{name:me,dir:T>3.4?'front':'back',x:98,y:168,t,vic:true}];
     const hits=drawScene(people,null,IMG.room,ROOM_OBJS);
     const dk=k>0?(N.heal&&k>11?1-ramp(k,11,12):ramp(k,0,1.2))*.42:0,fl=.5+.5*noise(t*1.7,2);   // the room darkens while they are inside
     lights([[33,81,70,'255,130,40',(.24+.1*fl)*(1-dk),1],[61,64,26,'255,210,140',.3*(1-dk*1.6),2],[133,64,26,'255,210,140',.3*(1-dk*1.6),3],[151,58,22,'170,255,170',.16,4]],t,ROOM_MASK);
@@ -1673,7 +1675,7 @@ function ghostRoom(dt,t){const ci=G.inCab,i=CABIN_OF.indexOf(ci),home=i>=0&&!gho
   const fl=.5+.5*noise(t*1.7,2),L=[[33,81,70,'255,130,40',.24+.1*fl,1],[61,64,26,'255,210,140',.3,2],[133,64,26,'255,210,140',.3,3],[151,58,22,'170,255,170',.16,4]];
   if(act==='pc')L.push([159,138,26,'120,220,255',.35,5]);
   lights(L,t,ROOM_MASK);
-  G.fxAt=kk>0?[98,112]:act==='bed'?[98,80]:act==='pc'?[157,168]:act==='arm'?[36,172]:act==='fire'?[38,96]:people.length>1?[people[0].x,people[0].y-10]:[98,150];ghostFx(dt);present();
+  G.fxAt=kk>0?[98,130]:act==='bed'?[98,80]:act==='pc'?[157,168]:act==='arm'?[36,172]:act==='fire'?[38,96]:people.length>1?[people[0].x,people[0].y-10]:[98,150];ghostFx(dt);present();
   for(const[q,h]of hits){if(q===gme)nameTag(h,'You','#9fd8ff');else if(q.doc&&(q.alpha??1)>.8)nameTag(h,'Doctor','#9fe8b0');else if(q.name!=='mafia'&&i>=0&&!q.doc)nameTag(h,PEOPLE[i].n,'#fff');}
   drawMini(PLAY[N.kind](N.t,0,t),t);ghostHud();}
 cv.addEventListener('pointerdown',e=>{if(scene!==scenes.ghost||G.inCab>=0)return;
