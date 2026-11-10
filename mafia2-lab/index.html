@@ -292,7 +292,8 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src;});
+const BUILD='11101833'; // changes every push, so phones never show an old picture from their cache
+const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
    Everything is drawn into a small canvas at the art's own pixel size,
@@ -1220,14 +1221,14 @@ let OBJ_META={};
   // FINAL hand-finished characters (his style): front/back/left/right, trimmed, feet on the bottom row
   const FINAL=Object.fromEntries(['beanie','brownhair','ponytail','curly','farmer','raincoat','redcap','mafia','doctor','jester','detective','batman'].map(n=>[n,'assets/final/'+n]));
   const names=[...SKINS.map(s=>s.id),'mafia','doctor','jester','detective'].filter(n=>!PL[n]&&!FINAL[n]);
-  OBJ_META=await (await fetch('assets/room-objects/objects.json')).json();
+  OBJ_META=await (await fetch('assets/room-objects/objects.json?v='+BUILD)).json();
   const jobs=[load('townBase','assets/town3/town-base-night-1x.png'),load('room','assets/room-objects/room-empty.png'),load('quilt','assets/room-objects/bed-quilt.png'),load('chairback','assets/room-objects/chair-backing.png'),load('log','assets/final/log.png')];
   for(const n of Object.keys(OBJ_META))jobs.push(load('obj/'+n,`assets/room-objects/${n}.png`));
   for(const n of names)for(const d of['','back/','side/'])jobs.push(load(d+n,`assets/sprites/${d}${n}.png`));
   for(const[n,dir]of Object.entries(PL))for(const v of['south','north','east','west'])jobs.push(load(`pl/${n}/${v}`,`${dir}/${v}.png`));
   for(const[n,dir]of Object.entries(FINAL))for(const v of['front','back','left','right'])jobs.push(load(`fin/${n}/${v}`,`${dir}/${v}.png`));
   const POSES={};
-  await Promise.all(Object.entries(FINAL).map(async([n,dir])=>{try{const m=await (await fetch(`${dir}/poses/poses.json`)).json();POSES[n]=m;
+  await Promise.all(Object.entries(FINAL).map(async([n,dir])=>{try{const m=await (await fetch(`${dir}/poses/poses.json?v=${BUILD}`)).json();POSES[n]=m;
     for(const k of Object.keys(m))jobs.push(load(`pose/${n}/${k}`,`${dir}/poses/${k}.png`));}catch(e){}}));
   await Promise.all(jobs);
   await loadCabins();await loadProps();buildTown();
