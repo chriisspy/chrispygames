@@ -23,6 +23,13 @@ body{font-family:"Pixelify Sans",system-ui,sans-serif;font-variant-ligatures:non
 .hud .panel,.hud .btn,.hud .chip,.hud .sheet{pointer-events:auto}
 #xfade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .22s;z-index:30}
 #xfade.on{opacity:1}
+#fxL{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;image-rendering:pixelated;opacity:0;transition:opacity 1.2s ease;z-index:2}
+#fxL.on{opacity:1}
+#bigMsg{position:absolute;left:0;right:0;top:34%;text-align:center;font-weight:700;letter-spacing:2px;line-height:1.05;display:none;z-index:7;text-shadow:0 4px 0 #0b0714,3px 0 0 #0b0714,-3px 0 0 #0b0714,0 -3px 0 #0b0714}
+#bigMsg.on{display:block;animation:bigPop .5s cubic-bezier(.2,1.6,.4,1)}
+#bigMsg.bad{color:#ff4a55;font-size:54px}#bigMsg.good{color:#7df0a0;font-size:34px}
+#bigMsg small{display:block;font-size:15px;letter-spacing:1px;color:#fff;margin-top:8px}
+@keyframes bigPop{0%{transform:scale(2.2)}100%{transform:scale(1)}} /* size only: the words are never invisible, even if the animation stalls */
 #clk{position:absolute;inset:0;z-index:20;background:#07060f;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#f6dfae;padding:12px}
 #clk.on{display:flex}
 #clk .clkTop{display:flex;align-items:center;gap:12px;font-size:18px;letter-spacing:1px}#clk .clkTop .btn{font-size:13px;padding:4px 10px}
@@ -49,7 +56,8 @@ body{font-family:"Pixelify Sans",system-ui,sans-serif;font-variant-ligatures:non
 .btn,.chip,input{font-variant-ligatures:none;font-feature-settings:"liga" 0}
 #tabs{position:absolute;left:0;right:0;bottom:0;display:flex;gap:6px;padding:8px 10px calc(10px + env(safe-area-inset-bottom));
   background:linear-gradient(#0000,#05040cee 40%);z-index:20}
-#tabs .btn{flex:1;font-size:14px;padding:8px 4px}
+#tabs .btn{flex:1 0 auto;font-size:14px;padding:8px 7px}
+#tabs{overflow-x:auto;scrollbar-width:none}#tabs::-webkit-scrollbar{display:none}
 #tabs .btn.sel{background:var(--gold);box-shadow:inset 0 -4px 0 #d39b2a,0 3px 0 #0009}
 #top{position:absolute;top:calc(10px + env(safe-area-inset-top));right:10px;display:flex;gap:6px;z-index:21}
 #top .btn{font-size:13px;padding:6px 8px}
@@ -169,8 +177,10 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 .fade{position:absolute;inset:0;background:#000;opacity:0;transition:opacity 1.2s;pointer-events:none;z-index:7}
 .fade.on{opacity:1}
 /* dawn card */
-#dawnHud .panel{position:absolute;left:14px;right:14px;top:50%;transform:translateY(-55%);padding:16px;text-align:center}
-#dawnHud h2{font-size:30px;color:var(--red);letter-spacing:1px;line-height:1}
+#dawnHud .panel{position:absolute;left:14px;right:14px;top:50%;transform:translateY(-55%);padding:16px;text-align:center;z-index:3}
+#dawnHud h2{font-size:28px;color:var(--red);letter-spacing:1px;line-height:1.02;text-shadow:0 3px 0 rgba(0,0,0,.18)}
+#dawnHud h2 b{display:block;font-size:50px;letter-spacing:2px;margin:4px 0 2px;animation:bigPop .55s cubic-bezier(.2,1.6,.4,1)}
+#dawnHud h2 img{display:block;margin:0 auto 4px}
 #dawnHud .sun{font-size:13px;letter-spacing:3px;color:#8a6a2a;margin-bottom:6px}
 #dawnHud .story{font-size:15px;line-height:1.35;margin:10px 0 4px}
 #dawnNote{display:none;margin:8px 4px 2px;padding:8px 10px;background:#fff8e6;color:#3a2a14;border:3px solid #1a1430;border-radius:3px;font-size:14px;line-height:1.3;text-align:left;transform:rotate(-1deg);box-shadow:3px 3px 0 rgba(0,0,0,.35)}
@@ -184,6 +194,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 <body>
 <div id="phone">
   <canvas id="c"></canvas>
+  <canvas id="fxL"></canvas>
   <div id="xfade"></div>
   <div id="hauntFx"></div>
   <div id="clk">
@@ -297,6 +308,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 
   <!-- NIGHT CUTAWAY -->
   <div class="hud" id="nightHud">
+    <div id="bigMsg"></div>
     <div class="bar t" id="barT"></div><div class="bar b" id="barB"></div>
     <div class="tag" id="nightTag"><i data-ic="rec"></i>NIGHT 2</div>
     <div class="cap" id="cap"></div>
@@ -321,6 +333,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
     <button class="btn" data-s="vote">Vote</button>
     <button class="btn" data-s="cabin">Cabin</button>
     <button class="btn" data-s="night">Night</button>
+    <button class="btn" data-s="mydeath">Die</button>
     <button class="btn" data-s="ghost">Ghost</button>
     <button class="btn" data-s="poses">Poses</button>
   </nav>
@@ -378,7 +391,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11102025'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11102036'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -1032,11 +1045,11 @@ function nextStory(){
   const fresh=N.bag.filter(s=>s.kind!==N.last),pool=fresh.length?fresh:N.bag;
   const s=pool[Math.floor(Math.random()*pool.length)];N.bag.splice(N.bag.indexOf(s),1);N.last=s.kind;return s;
 }
-function planNight(){
+function planNight(force){
   let alive=PEOPLE.map((_,i)=>i).filter(i=>i!==0&&PEOPLE[i].role!=='mafia'&&!V.dead.has(i));
   if(!alive.length){V.dead.clear();alive=PEOPLE.map((_,i)=>i).filter(i=>i!==0&&PEOPLE[i].role!=='mafia');}
-  const st=nextStory();
-  N.victim=viewRole==='mafia'&&NIGHT.picks.length&&alive.includes(NIGHT.picks[0])?NIGHT.picks[0]:alive[Math.floor(Math.random()*alive.length)];
+  const st=nextStory();if(force===0)st.kind='home';   // you are indoors, so the town's cutscene is the knock on your door
+  N.victim=force!=null?force:viewRole==='mafia'&&NIGHT.picks.length&&alive.includes(NIGHT.picks[0])?NIGHT.picks[0]:alive[Math.floor(Math.random()*alive.length)];
   // N.heal = the Doctor saves them. The story itself is always planned as the kill (N.saved=false), so nobody can
   // tell which night it is until the very end: either the Doctor comes running, or nobody does.
   N.kind=st.kind;N.heal=st.saved;N.saved=false;N.variant=null;
@@ -1316,14 +1329,90 @@ const DAWN_SAFE={
   mail:['{n} fetched the post and locked up. Somebody was watching.','Boot prints by {n}\'s mailbox. They stop at the locked door.']};
 const DAWN_DOC=['The Mafia got to {n} last night. The Doctor got there second.','{n} was found on the ground, breathing. Someone had patched them up.','{n} has a bandage and a story. The Doctor isn\'t saying a word.'];
 function dawn(){const v=N.victim,key=N.variant||N.kind,list=N.heal?DAWN_DOC:DAWN_DEAD[key],h=$('#dawnTitle');
-  if(N.heal){h.innerHTML=ic('heart',3)+'NOBODY DIED';h.classList.add('safe');}
-  else{V.dead.add(v);h.innerHTML=ic('skull',3)+`${PEOPLE[v].n.toUpperCase()} IS DEAD`;h.classList.remove('safe');}
+  if(N.heal){h.innerHTML=ic('heart',4)+(v===0?'THE DOCTOR SAVED<b>YOU</b>':'<b>NOBODY</b>DIED');h.classList.add('safe');}
+  else{if(v!==0)V.dead.add(v);h.innerHTML=ic('skull',4)+(v===0?'<b>YOU</b>ARE DEAD':`<b>${esc(PEOPLE[v].n.toUpperCase())}</b>IS DEAD`);h.classList.remove('safe');}
+  $('#dawnGo').textContent=v===0&&!N.heal?'Rise as a ghost':'To the square';N.meDead=v===0&&!N.heal;
+  setTimeout(()=>{if(scene===scenes.dawn){if(N.heal)fxHeal();else fxBleed(.5);}},350);
   $('#dawnFace').src=face(looksLike(v));
   $('#dawnStory').textContent=list[Math.floor(Math.random()*list.length)].replace(/\{n\}/g,PEOPLE[v].n);
   // the note they left (only shown if they really died): yours if it was you, else whatever that player wrote
   const nt=N.heal?'':v===0?NOTE.mine:(NOTE.of[v]??(NOTE.of[v]=Math.random()<.65?NPC_NOTES[Math.floor(Math.random()*NPC_NOTES.length)]:''));
   const dn=$('#dawnNote');dn.style.display=nt?'block':'none';dn.innerHTML=nt?`<b>${esc(PEOPLE[v].n.toUpperCase())} LEFT A NOTE</b>${esc(nt)}`:'';
   go('dawn');}
+/* ---------- full-screen effects on their own layer ----------
+   fxBleed is the original app's blood, line for line (a wavy band along the top, drips that flare where they
+   leave it, wobble, thin to a neck and end in a teardrop), only drawn at a third of the size so it comes out in pixels.
+   fxHeal = a green pulse and little plus signs rising, for when the Doctor saves someone. */
+let fxRaf=0;
+function fxStop(){cancelAnimationFrame(fxRaf);const c=$('#fxL');c.classList.remove('on');c.style.opacity='';c.getContext('2d').clearRect(0,0,c.width,c.height);}
+function fxSetup(){const c=$('#fxL'),r=c.getBoundingClientRect(),Z=3;c.width=Math.max(2,Math.round(r.width/Z));c.height=Math.max(2,Math.round(r.height/Z));const x=c.getContext('2d');x.setTransform(1/Z,0,0,1/Z,0,0);x.imageSmoothingEnabled=false;cancelAnimationFrame(fxRaf);return{c,x,W:r.width,H:r.height};}
+function fxBleed(al){const{c,x:ctx,W,H}=fxSetup();c.style.opacity='';c.classList.add('on');c.style.setProperty('opacity',al);
+  const n=Math.max(7,Math.round(W/44));
+  const drips=Array.from({length:n},(_,i)=>{const stub=Math.random()<.35;return{x:(i+.5)/n*W+(Math.random()-.5)*(W/n)*.6,w:stub?4+Math.random()*3:5+Math.random()*5,len:stub?H*(.015+Math.random()*.03):H*(.1+Math.random()*.42),dur:stub?1.4+Math.random():5+Math.random()*7,delay:Math.random()*1.6,ph:Math.random()*6,fq:.018+Math.random()*.03,wob:.5+Math.random()*1.5};});
+  const p1=Math.random()*6,p2=Math.random()*6,bandH=Math.max(12,H*.03),ez=p=>1-Math.pow(1-p,3);
+  const edge=(x,k)=>{let y=bandH*k+Math.sin(x*.017+p1)*3*k+Math.sin(x*.043+p2)*1.8*k;for(const d of drips){const dx=(x-d.x)/(d.w*2.2);y+=d.w*.8*k*Math.exp(-dx*dx);}return y;};
+  const t0=performance.now();
+  function frame(now){const t=(now-t0)/1000,k=ez(Math.min(1,t/1.1));ctx.clearRect(0,0,W,H);ctx.fillStyle='#76080c';
+    ctx.beginPath();ctx.moveTo(0,0);for(let x=0;x<=W+4;x+=4)ctx.lineTo(x,edge(x,k));ctx.lineTo(W,0);ctx.closePath();ctx.fill();let busy=t<1.1;
+    drips.forEach(d=>{const p=Math.max(0,Math.min(1,(t-d.delay)/d.dur));if(p<1)busy=true;const l=d.len*ez(p);if(l<1.5)return;
+      const top=edge(d.x,k)-2,hw0=d.w/2,rb=d.w*.8,tearH=rb*3,cx=y=>d.x+Math.sin(y*d.fq+d.ph)*d.wob*Math.min(1,y/30),hw=y=>hw0*(1+1.3*Math.exp(-y/(d.w*1.1)))*(1-.06*y/Math.max(l,1));
+      const yc=Math.max(0,l-rb),end=Math.max(0,yc-rb*.9),left=[],right=[];
+      for(let y=0;y<end;y+=3){left.push([cx(y)-hw(y),top+y]);right.push([cx(y)+hw(y),top+y]);}left.push([cx(end)-hw(end),top+end]);right.push([cx(end)+hw(end),top+end]);
+      ctx.fillStyle='#76080c';ctx.beginPath();ctx.moveTo(left[0][0],left[0][1]);left.forEach(q=>ctx.lineTo(q[0],q[1]));right.reverse().forEach(q=>ctx.lineTo(q[0],q[1]));ctx.closePath();ctx.fill();
+      const bx=cx(yc),by=top+yc;ctx.beginPath();ctx.moveTo(bx,by-tearH);ctx.bezierCurveTo(bx-rb*.3,by-tearH*.5,bx-rb,by-rb*.75,bx-rb,by);ctx.arc(bx,by,rb,Math.PI,0,true);ctx.bezierCurveTo(bx+rb,by-rb*.75,bx+rb*.3,by-tearH*.5,bx,by-tearH);ctx.closePath();ctx.fill();
+      ctx.fillStyle='rgba(255,150,150,.5)';ctx.fillRect(bx-rb*.5,by-rb*.5,3,3);if(end>d.w*3)ctx.fillRect(cx(end*.4)-hw(end*.4)*.5,top+d.w*2,3,Math.max(3,end*.35));});
+    if(busy&&c.classList.contains('on'))fxRaf=requestAnimationFrame(frame);}
+  fxRaf=requestAnimationFrame(frame);}
+function fxHeal(){const{c,x:ctx,W,H}=fxSetup();c.style.opacity='';c.classList.add('on');
+  const ps=Array.from({length:26},()=>({x:Math.random()*W,y:H*(.3+Math.random()*.8),r:Math.random()<.35?9:6,sp:26+Math.random()*44,sw:Math.random()*6,a:.5+Math.random()*.5}));
+  const t0=performance.now();let last=t0;
+  function frame(now){const t=(now-t0)/1000,dt=Math.min(.05,(now-last)/1000);last=now;ctx.clearRect(0,0,W,H);
+    const beat=Math.pow(Math.max(0,Math.sin(t*Math.PI*1.2)),8),fade=Math.min(1,t/1.2);
+    for(let i=6;i>=1;i--){ctx.fillStyle=`rgba(74,222,128,${((.035+beat*.04)*fade).toFixed(3)})`;const rr=Math.max(W,H)*.1*i;ctx.beginPath();ctx.arc(W/2,H*.55,rr,0,7);ctx.fill();}   // the pulse, in rings
+    for(const m of ps){m.y-=m.sp*dt;m.x+=Math.sin(t*1.3+m.sw)*.4;if(m.y<-20){m.y=H+20;m.x=Math.random()*W;}
+      const a=m.a*fade*Math.min(1,(H-m.y)/(H*.2));ctx.fillStyle=`rgba(20,80,40,${(a*.9).toFixed(2)})`;ctx.fillRect(m.x-m.r-3,m.y-m.r/3-3,m.r*2+6,m.r*2/3+6);ctx.fillRect(m.x-m.r/3-3,m.y-m.r-3,m.r*2/3+6,m.r*2+6);
+      ctx.fillStyle=`rgba(134,239,172,${a.toFixed(2)})`;ctx.fillRect(m.x-m.r,m.y-m.r/3,m.r*2,m.r*2/3);ctx.fillRect(m.x-m.r/3,m.y-m.r,m.r*2/3,m.r*2);}
+    if(c.classList.contains('on'))fxRaf=requestAnimationFrame(frame);}
+  fxRaf=requestAnimationFrame(frame);}
+
+/* ---------- a kill inside a cabin: who is where, k seconds after the door opens ----------
+   hit at 3.2 s; the Mafia are gone by about 7; if the Doctor saves them: in at 7.4, kneels, and they stand at 11 */
+function killRoom(nm,k,heal,t){const P=[],hit=3.2,dead=k>=hit&&!(heal&&k>11);
+  P.push({name:nm,dir:'front',x:98,y:dead?120:lerp(150,116,ease(ramp(k,.2,hit-.3))),t,walk:k>.2&&k<hit-.3,pose:dead?'dead':null,blood:dead?ramp(k,hit+.3,hit+5)*(heal?1-ramp(k,9.6,11):1):0,vic:true});
+  for(const j of[0,1]){const a=ramp(k,.1+j*.3,hit-.2),b=ramp(k,hit+1.1+j*.2,hit+3.6);if(b>=1||k<.1+j*.3)continue;
+    P.push({name:'mafia',dir:b>0?'front':'back',x:98+(j?11:-11),y:b>0?lerp(134,236,b):lerp(236,134,ease(a)),t,walk:(a>0&&a<1)||b>0,tint:SHADOW_TINT,alpha:b>0?1-ramp(b,.6,1):ramp(k,.1+j*.3,.5+j*.3),phase:j*300});}
+  if(heal&&k>7.4){const a=ease(ramp(k,7.4,9.4)),kn=a>=1&&k<11;P.push({name:'doctor',dir:kn?'left':'back',x:lerp(98,113,a),y:lerp(236,122,a),t,walk:a<1,pose:kn?'logs':null,step:1,alpha:ramp(k,7.4,7.9),doc:true});}
+  return P;}
+
+/* ---------- when it is YOU: the same night, at the same moment, seen from inside your own cabin ----------
+   It runs exactly as long as the town's cutscene and nobody learns anything early. Blood runs down the screen if you
+   die; green pluses rise if the Doctor saves you; then everyone lands on the morning screen together. */
+const MD={t:0};
+scenes.mydeath={hud:'#nightHud',
+  enter(){N.kicks={};N.shake=0;planNight(0);MD.t=0;MD.i=0;MD.tIn=5;MD.end=N.heal?MD.tIn+14.6:MD.tIn+10.6;
+    MD.shots=[[.5,'Night 2.'],[1.9,'Your cabin is quiet.'],[3.4,'A knock at the door.'],[MD.tIn,'The door opens. Two shadows.','bad'],[MD.tIn+3.3,'You never even screamed.','bad']];
+    if(N.heal)MD.shots.push([MD.tIn+7.5,'Footsteps. Someone is running.'],[MD.tIn+10.2,'The Doctor. Just in time.','good']);
+    $('#phone').style.background=ROOM_VOID;$('#fade').classList.remove('on');$('#cap').textContent='';$('#bigMsg').className='';$('#nightTag').innerHTML=ic('rec')+'NIGHT 2 · YOUR CABIN';fxStop();},
+  leave(){$('#phone').style.background='';$('#fade').classList.remove('on');$('#bigMsg').className='';clearInterval(capTimer);fxStop();},
+  frame(dt,t){MD.t+=dt;const T=MD.t,k=T-MD.tIn,me=looksLike(0);
+    while(MD.i<MD.shots.length&&T>MD.shots[MD.i][0]){const s=MD.shots[MD.i++];caption($('#cap'),s[1],s[2]);}
+    if(T>3.4)once('knock',()=>N.shake=3);if(k>3.2)once('hit',()=>{N.shake=7;MD.red=1;fxBleed(.9);});
+    if(k>5.6&&!N.heal)once('big',()=>{const b=$('#bigMsg');b.innerHTML='YOU DIED<small>The town finds out in the morning.</small>';b.className='on bad';});
+    if(N.heal&&k>11)once('up',()=>{fxStop();fxHeal();const b=$('#bigMsg');b.innerHTML='THE DOCTOR<br>SAVED YOU';b.className='on good';});
+    if(T>MD.end-1.2)$('#fade').classList.add('on');if(T>MD.end){dawn();return;}
+    const sh=N.shake>0?(Math.random()-.5)*N.shake:0;N.shake=Math.max(0,N.shake-dt*14);
+    view(IMG.room,97+sh,121+sh*.6,186,{fit:true,topCss:80,void:ROOM_VOID});
+    rain(dt,ROOM.windows.map(w=>[X(w[0]),Y(w[1]),w[2],w[3]]));fireAcc+=dt;while(fireAcc>.06){stepFire();fireAcc-=.06;}
+    const people=k>0?killRoom(me,k,N.heal,t):[{name:me,dir:T>3.4?'front':'back',x:98,y:150,t,vic:true}];
+    const hits=drawScene(people,null,IMG.room,ROOM_OBJS);
+    const dk=k>0?(N.heal&&k>11?1-ramp(k,11,12):ramp(k,0,1.2))*.42:0,fl=.5+.5*noise(t*1.7,2);   // the room darkens while they are inside
+    lights([[33,81,70,'255,130,40',(.24+.1*fl)*(1-dk),1],[61,64,26,'255,210,140',.3*(1-dk*1.6),2],[133,64,26,'255,210,140',.3*(1-dk*1.6),3],[151,58,22,'170,255,170',.16,4]],t,ROOM_MASK);
+    if(dk>0){lx.fillStyle=`rgba(4,3,14,${dk})`;lx.fillRect(0,0,cam.lw,cam.lh);}
+    if(MD.red>0){lx.fillStyle=`rgba(190,10,20,${MD.red*.55})`;lx.fillRect(0,0,cam.lw,cam.lh);MD.red=Math.max(0,MD.red-dt*1.6);}
+    present();
+    for(const[q,h]of hits){if(q.vic&&!q.pose)nameTag(h,'You','#ffd25e');else if(q.doc&&(q.alpha??1)>.8)nameTag(h,'Doctor','#9fe8b0');}
+  }};
+
 /* ---------- a note left behind: anyone can write one during the night; it is read out at dawn if they die ---------- */
 const NOTE={mine:'',of:{}};
 const NPC_NOTES=['If I\'m gone, look at who was quiet today.','I heard two sets of boots outside my window.','It wasn\'t me. Check who voted last.','Tell my cat I love her.','I think I know who it is. I was going to say tomorrow.','Don\'t trust the one who talks the most.'];
@@ -1508,7 +1597,8 @@ function ghostHaunt(h){const i=G.watch;if(i<0||performance.now()<(G.cool||0))ret
   $('#ghostSub').textContent=`You haunted ${PEOPLE[i].n}. They see it fly across their screen.`;G.subHold=performance.now()+2200;}
 function ghostHud(){const ci=G.inCab,i=CABIN_OF.indexOf(ci);$('#haunts').classList.toggle('on',G.watch>0&&!V.dead.has(G.watch));
   if(G.watch>0&&ci<0){const w=G.watch;$('#ghostLine').textContent=`Following ${PEOPLE[w].n}, out in the dark.`;if(performance.now()>(G.subHold||0))$('#ghostSub').textContent=`${PEOPLE[w].n} sees "You are spectating" on their screen.`;$('#ghostLeave').style.display='';return;}
-  if(ci>=0&&i>=0&&!ghostAway(i)&&performance.now()>(G.subHold||0)){$('#ghostLine').textContent=`Watching ${PEOPLE[i].n}: ${G_ACTS[G.acts[i]]}.`;$('#ghostSub').textContent=`Earlier tonight: ${G.log[i]}.`;$('#ghostLeave').style.display='';return;}
+  if(ci>=0&&i>=0&&!ghostAway(i)&&performance.now()>(G.subHold||0)){const kk=i===N.victim&&N.kind==='home'?N.t-(N.tCut-6):-1;
+    $('#ghostLine').textContent=kk>3.2?(N.heal&&kk>11?`${PEOPLE[i].n} is alive. The Doctor made it.`:`${PEOPLE[i].n} has been attacked.`):kk>0?`Someone is in ${PEOPLE[i].n}'s cabin…`:`Watching ${PEOPLE[i].n}: ${G_ACTS[G.acts[i]]}.`;$('#ghostSub').textContent=`Earlier tonight: ${G.log[i]}.`;$('#ghostLeave').style.display='';return;}
   if(performance.now()<(G.subHold||0))return;
   $('#ghostLine').textContent=ci<0?'You are a ghost. Fly anywhere.':i<0?'An empty cabin.':ghostAway(i)?`${PEOPLE[i].n}'s cabin. Nobody home.`:`Watching ${PEOPLE[i].n}: ${G_ACTS[G.acts[i]]}.`;
   $('#ghostSub').textContent=ci<0?'Tap the map to fly. Tap a cabin to look inside.':'This is what they are doing right now.';$('#ghostLeave').style.display=ci<0?'none':'';}
@@ -1573,15 +1663,18 @@ function ghostRoom(dt,t){const ci=G.inCab,i=CABIN_OF.indexOf(ci),home=i>=0&&!gho
   else if(act==='arm'){people.push({name:nm,dir:'right',pose:'sit',x:ROOM.arm.sit[0],y:ROOM.arm.sit[1],sortY:195,t,noShadow:true});cover='arm';}
   else if(act==='fire')people.push({name:nm,dir:'back',x:38,y:106,t});
   else if(act==='pace'){const k=(t/1000*26)%120,gx=k<60?k:120-k;people.push({name:nm,dir:k<60?'right':'left',x:62+gx,y:150,t,walk:true});}
-  people.push(ghostMe(98,176,t));
+  // a kill that happens indoors (the knock on the door): from inside, a ghost watches it happen
+  const kk=i===N.victim&&N.kind==='home'?N.t-(N.tCut-6):-1;
+  if(kk>0){people.length=0;cover=null;head=false;people.push(...killRoom(looksLike(i),kk,N.heal,t));}
+  const gme=ghostMe(98,176,t);people.push(gme);
   const hits=drawScene(people,null,IMG.room,ROOM_OBJS);
   if(head){const d=SP[nm].front,crop=Math.min(d.h,d.eyeBot+10),hx=X(ROOM.bed.head[0])-Math.floor(d.w/2),hy=Y(BED_LINE)-(d.eyeBot+3);lx.drawImage(d.frames[0][1],0,0,d.w,crop,hx,hy,d.w,crop);drawQuilt(1);}
   if(cover==='chairback')lx.drawImage(IMG.chairback,X(OBJ.chair.x),Y(OBJ.chair.y));else if(cover==='arm')patchObj('armchair',ROOM.arm.front);
   const fl=.5+.5*noise(t*1.7,2),L=[[33,81,70,'255,130,40',.24+.1*fl,1],[61,64,26,'255,210,140',.3,2],[133,64,26,'255,210,140',.3,3],[151,58,22,'170,255,170',.16,4]];
   if(act==='pc')L.push([159,138,26,'120,220,255',.35,5]);
   lights(L,t,ROOM_MASK);
-  G.fxAt=act==='bed'?[98,80]:act==='pc'?[157,168]:act==='arm'?[36,172]:act==='fire'?[38,96]:people.length>1?[people[0].x,people[0].y-10]:[98,150];ghostFx(dt);present();
-  for(const[q,h]of hits)nameTag(h,q.name===nm&&home&&q.alpha==null?PEOPLE[i].n:'You',q.alpha==null?'#fff':'#9fd8ff');
+  G.fxAt=kk>0?[98,112]:act==='bed'?[98,80]:act==='pc'?[157,168]:act==='arm'?[36,172]:act==='fire'?[38,96]:people.length>1?[people[0].x,people[0].y-10]:[98,150];ghostFx(dt);present();
+  for(const[q,h]of hits){if(q===gme)nameTag(h,'You','#9fd8ff');else if(q.doc&&(q.alpha??1)>.8)nameTag(h,'Doctor','#9fe8b0');else if(q.name!=='mafia'&&i>=0&&!q.doc)nameTag(h,PEOPLE[i].n,'#fff');}
   drawMini(PLAY[N.kind](N.t,0,t),t);ghostHud();}
 cv.addEventListener('pointerdown',e=>{if(scene!==scenes.ghost||G.inCab>=0)return;
   const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*DPR/S+cam.x+(cam.fx||0),y=(e.clientY-r.top)*DPR/S+cam.y+(cam.fy||0);
@@ -1642,8 +1735,8 @@ scenes.poses={hud:null,frame(dt,t){view(IMG.town,280,372,124);
     {pose:'water',dir:'right'},{pose:'logs',dir:'right'},{pose:'logs',dir:'left',step:3},{pose:'dead',dir:'front'}];
   const k=Math.floor(t/2600)%P.length,q=P[k],people=cast.map((n,i)=>({name:n,...q,x:232+(i%4)*32,y:322+Math.floor(i/4)*36,t:t+i*97,blood:q.pose==='dead'?((t%2600)/2600):0}));
   drawScene(people,null,IMG.town);townLights(t);present();}};
-scenes.dawn={hud:'#dawnHud',frame(dt,t){view(IMG.town,280,372,195);lx.fillStyle='rgba(255,200,120,.12)';lx.fillRect(0,0,cam.lw,cam.lh);townLights(t,{dim:.3});present();}};
-$('#dawnGo').onclick=()=>{$('#dayTag').textContent='DAY 3';go('vote');};
+scenes.dawn={hud:'#dawnHud',leave(){fxStop();},frame(dt,t){view(IMG.town,280,372,195);lx.fillStyle='rgba(255,200,120,.12)';lx.fillRect(0,0,cam.lw,cam.lh);townLights(t,{dim:.3});present();}};
+$('#dawnGo').onclick=()=>{$('#dayTag').textContent='DAY 3';go(N.meDead?'ghost':'vote');};
 
 /* ---------- shell ---------- */
 function go(name,after){
