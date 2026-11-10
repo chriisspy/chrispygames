@@ -400,7 +400,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11102045'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11102048'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -1417,7 +1417,7 @@ function killRoom(nm,k,heal,t){const P=[],hit=3.2,dead=k>=hit&&!(heal&&k>11);
    die; green pluses rise if the Doctor saves you; then everyone lands on the morning screen together. */
 const MD={t:0};
 function mdBig(kind){const b=$('#bigMsg');b.className='';void b.offsetWidth;
-  b.innerHTML=kind==='bad'?pxWord('YOU DIED',9,'bad')+'<div class="pxsub">'+pxWord('THE TOWN FINDS OUT IN THE MORNING',2,'sub')+'</div>':pxWord('THE DOCTOR',6,'good')+pxWord('SAVED YOU',6,'good',.55);
+  b.innerHTML=kind==='bad'?pxWord('YOU DIED',9,'bad'):pxWord('THE DOCTOR',6,'good')+pxWord('SAVED YOU',6,'good',.55);
   b.className='on '+kind;}
 scenes.mydeath={hud:'#nightHud',
   enter(){N.kicks={};N.shake=0;dust.length=0;planNight(0);MD.t=0;MD.i=0;MD.town=N.kind!=='home';fxStop();
