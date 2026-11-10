@@ -246,7 +246,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
     <div class="bottom"><div class="panel" style="padding:10px 12px;text-align:center"><b id="ghostLine">You are a ghost. Fly anywhere.</b><div class="small" id="ghostSub">Tap the map to fly. Tap a cabin to look inside.</div>
       <div class="haunts" id="haunts"></div>
       <div class="gcards" id="ghostCards"></div>
-      <button class="btn go" id="ghostLeave" style="margin-top:8px;display:none">Fly back outside</button></div></div>
+      </div></div>
   </div>
   <div class="hud" id="talkHud">
     <div class="title banner"><small>DAY 2</small>DISCUSSION<div class="tclock"><i data-ic="hourglass" data-c="solo"></i><span id="talkClock">5:00</span></div></div>
@@ -400,7 +400,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11102048'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11102053'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -1630,30 +1630,36 @@ function ghostCards(){$('#ghostCards').innerHTML=PEOPLE.map((p,i)=>i?`<div class
   document.querySelectorAll('#ghostCards .gc').forEach(c=>c.onclick=()=>ghostWatch(+c.dataset.i));
   $('#haunts').innerHTML=HAUNTS.map(h=>`<button data-h="${h}">${ic(h,2,'solo')}</button>`).join('');
   document.querySelectorAll('#haunts button').forEach(b=>b.onclick=()=>ghostHaunt(b.dataset.h));}
+// into a cabin (ci >= 0) or back outside (-1): the screen fades to black, the place changes, and it fades back in
+function ghostDoor(ci){if(G.fading||G.inCab===ci)return;G.fading=true;const xf=$('#xfade');xf.classList.add('on');
+  setTimeout(()=>{const was=G.inCab;G.inCab=ci;G.goCab=-1;
+    if(ci>=0){G.rx=G.rtx=98;G.ry=G.rty=206;G.dir='back';$('#phone').style.background=ROOM_VOID;}   // you arrive just inside the door
+    else{const c=TOWN.cabins[was];if(c){G.x=G.tx=c.cx;G.y=G.ty=c.top+44;}G.dir='front';$('#phone').style.background='';}
+    ghostCards();ghostHud();xf.classList.remove('on');setTimeout(()=>G.fading=false,230);},240);}
 function ghostWatch(i){if(V.dead.has(i)){G.watch=-1;$('#ghostLine').textContent=`${PEOPLE[i].n} is dead too.`;return;}
   G.watch=i;G.goCab=-1;const c=TOWN.cabins[CABIN_OF[i]];
   if(ghostAway(i)){G.inCab=-1;$('#phone').style.background='';}                        // out on the map: fly with them
-  else{G.x=G.tx=c.cx;G.y=G.ty=c.top+30;G.inCab=CABIN_OF[i];$('#phone').style.background=ROOM_VOID;} // at home: straight into their cabin
+  else{G.x=G.tx=c.cx;G.y=G.ty=c.top+30;if(G.inCab>=0&&G.inCab!==CABIN_OF[i]){G.inCab=-1;}ghostDoor(CABIN_OF[i]);} // at home: into their cabin
   ghostCards();ghostHud();}
 function ghostHaunt(h){const i=G.watch;if(i<0||performance.now()<(G.cool||0))return;G.cool=performance.now()+900;G.fx.push({h,t:0});
   $('#ghostSub').textContent=`You haunted ${PEOPLE[i].n}. They see it fly across their screen.`;G.subHold=performance.now()+2200;}
 function ghostHud(){const ci=G.inCab,i=CABIN_OF.indexOf(ci);$('#haunts').classList.toggle('on',G.watch>0&&!V.dead.has(G.watch));
-  if(G.watch>0&&ci<0){const w=G.watch;$('#ghostLine').textContent=`Following ${PEOPLE[w].n}, out in the dark.`;if(performance.now()>(G.subHold||0))$('#ghostSub').textContent=`${PEOPLE[w].n} sees "You are spectating" on their screen.`;$('#ghostLeave').style.display='';return;}
+  if(G.watch>0&&ci<0){const w=G.watch;$('#ghostLine').textContent=`Following ${PEOPLE[w].n}, out in the dark.`;if(performance.now()>(G.subHold||0))$('#ghostSub').textContent=`Tap the map to stop following ${PEOPLE[w].n}.`;return;}
   if(ci>=0&&i>=0&&!ghostAway(i)&&performance.now()>(G.subHold||0)){const kk=i===N.victim&&N.kind==='home'?N.t-(N.tCut-6):-1;
-    $('#ghostLine').textContent=kk>3.2?(N.heal&&kk>11?`${PEOPLE[i].n} is alive. The Doctor made it.`:`${PEOPLE[i].n} has been attacked.`):kk>0?`Someone is in ${PEOPLE[i].n}'s cabin…`:`Watching ${PEOPLE[i].n}: ${G_ACTS[G.acts[i]]}.`;$('#ghostSub').textContent=`Earlier tonight: ${G.log[i]}.`;$('#ghostLeave').style.display='';return;}
+    $('#ghostLine').textContent=kk>3.2?(N.heal&&kk>11?`${PEOPLE[i].n} is alive. The Doctor made it.`:`${PEOPLE[i].n} has been attacked.`):kk>0?`Someone is in ${PEOPLE[i].n}'s cabin…`:`Watching ${PEOPLE[i].n}: ${G_ACTS[G.acts[i]]}.`;$('#ghostSub').textContent=`Earlier: ${G.log[i]}. Fly to the door to leave.`;return;}
   if(performance.now()<(G.subHold||0))return;
   $('#ghostLine').textContent=ci<0?'You are a ghost. Fly anywhere.':i<0?'An empty cabin.':ghostAway(i)?`${PEOPLE[i].n}'s cabin. Nobody home.`:`Watching ${PEOPLE[i].n}: ${G_ACTS[G.acts[i]]}.`;
-  $('#ghostSub').textContent=ci<0?'Tap the map to fly. Tap a cabin to look inside.':'This is what they are doing right now.';$('#ghostLeave').style.display=ci<0?'none':'';}
+  $('#ghostSub').textContent=ci<0?'Tap the map to fly. Tap a cabin to look inside.':'Tap to fly round the room. Fly to the door to leave.';}
 const ghostMe=(x,y,t)=>({name:looksLike(0),dir:G.dir,x,y,t,lift:13+Math.sin(t*.004)*2.5,alpha:.6,tint:'#bfe6ff|0.5',noShadow:true,sortY:1e7});
 scenes.ghost={hud:'#ghostHud',
-  enter(){document.documentElement.style.setProperty('--accent','#9fd8ff');G.inCab=-1;G.goCab=-1;G.watch=-1;G.fx=[];G.x=G.tx=280;G.y=G.ty=372;ghostNight();ghostCards();ghostHud();},
+  enter(){document.documentElement.style.setProperty('--accent','#9fd8ff');G.inCab=-1;G.goCab=-1;G.watch=-1;G.fading=false;G.fx=[];G.x=G.tx=280;G.y=G.ty=372;ghostNight();ghostCards();ghostHud();},
   leave(){$('#phone').style.background='';},
   frame(dt,t){
     // the night plays out live, the same one everybody will be shown afterwards; the body stays where it falls
     const stop=N.end-1.4;N.t=Math.min(N.t+dt,stop);if(N.t>=stop){G.hold+=dt;if(G.hold>12)ghostNight();}
     if(G.inCab>=0){ghostRoom(dt,t);return;}
     const dx=G.tx-G.x,dy=G.ty-G.y,dd=Math.hypot(dx,dy),sp=95*dt;
-    if(dd>sp){G.x+=dx/dd*sp;G.y+=dy/dd*sp;G.dir=dirFrom(dx,dy);}else{G.x=G.tx;G.y=G.ty;G.dir='front';if(G.goCab>=0){G.inCab=G.goCab;G.goCab=-1;$('#phone').style.background=ROOM_VOID;ghostHud();return;}}
+    if(dd>sp){G.x+=dx/dd*sp;G.y+=dy/dd*sp;G.dir=dirFrom(dx,dy);}else{G.x=G.tx;G.y=G.ty;G.dir='front';if(G.goCab>=0){const ci=G.goCab;G.goCab=-1;ghostDoor(ci);}}
     const f=PLAY[N.kind](N.t,dt,t);
     if(G.watch>0){const sp=ghostSpots(f).find(q=>q.i===G.watch);
       if(sp&&sp.st==='home'&&!ghostAway(G.watch)){ghostWatch(G.watch);return;}                 // they went back in: follow them inside
@@ -1691,9 +1697,9 @@ function drawMini(f,t){const c=$('#mini'),x=c.getContext('2d'),k=.2;x.imageSmoot
 $('#mini').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();const r=e.currentTarget.getBoundingClientRect(),mx=(e.clientX-r.left)/r.width*560,my=(e.clientY-r.top)/r.height*750;
   let best=null,bd=40;for(const s of G.spots||[]){const d=Math.hypot(s.x-mx,s.y-my);if(d<bd){bd=d;best=s;}}
   const ci=TOWN.cabins.findIndex(c=>Math.abs(mx-c.cx)<46&&my>c.top-70&&my<c.top+36);
-  G.inCab=-1;G.goCab=-1;$('#phone').style.background='';
+  G.watch=-1;if(G.inCab>=0&&!(best&&best.st!=='home')&&ci<0){ghostDoor(-1);return;}G.inCab=-1;G.goCab=-1;$('#phone').style.background='';
   if(best&&best.st!=='home'){G.x=G.tx=best.x+10;G.y=G.ty=best.y+16;}             // a head out on the map (or a body): jump beside it
-  else if(ci>=0){const c=TOWN.cabins[ci];G.x=G.tx=c.cx;G.y=G.ty=c.top+30;G.goCab=ci;} // a cabin: jump to its door and step inside
+  else if(ci>=0){const c=TOWN.cabins[ci];G.x=G.tx=c.cx;G.y=G.ty=c.top+30;G.watch=-1;ghostDoor(ci);return;} // a cabin: jump to its door and step inside
   else{G.x=G.tx=clamp(mx,20,540);G.y=G.ty=clamp(my,40,740);}
   ghostHud();});
 function ghostRoom(dt,t){const ci=G.inCab,i=CABIN_OF.indexOf(ci),home=i>=0&&!ghostAway(i),act=home?G.acts[i]:null,nm=home?looksLike(i):null;
@@ -1708,7 +1714,9 @@ function ghostRoom(dt,t){const ci=G.inCab,i=CABIN_OF.indexOf(ci),home=i>=0&&!gho
   // a kill that happens indoors (the knock on the door): from inside, a ghost watches it happen
   const kk=i===N.victim&&N.kind==='home'?N.t-(N.tCut-6):-1;
   if(kk>0){people.length=0;cover=null;head=false;people.push(...killRoom(looksLike(i),kk,N.heal,t));}
-  const gme=ghostMe(98,176,t);people.push(gme);
+  {const dx=G.rtx-G.rx,dy=G.rty-G.ry,dd=Math.hypot(dx,dy),sp=80*dt;
+    if(dd>sp){G.rx+=dx/dd*sp;G.ry+=dy/dd*sp;G.dir=dirFrom(dx,dy);}else{G.rx=G.rtx;G.ry=G.rty;if(G.ry>=214&&!G.fading)ghostDoor(-1);}}
+  const gme=ghostMe(G.rx,G.ry,t);people.push(gme);
   const hits=drawScene(people,null,IMG.room,ROOM_OBJS);
   if(head){const d=SP[nm].front,crop=Math.min(d.h,d.eyeBot+10),hx=X(ROOM.bed.head[0])-Math.floor(d.w/2),hy=Y(BED_LINE)-(d.eyeBot+3);lx.drawImage(d.frames[0][1],0,0,d.w,crop,hx,hy,d.w,crop);drawQuilt(1);}
   if(cover==='chairback')lx.drawImage(IMG.chairback,X(OBJ.chair.x),Y(OBJ.chair.y));else if(cover==='arm')patchObj('armchair',ROOM.arm.front);
@@ -1718,8 +1726,11 @@ function ghostRoom(dt,t){const ci=G.inCab,i=CABIN_OF.indexOf(ci),home=i>=0&&!gho
   G.fxAt=kk>0?[98,130]:act==='bed'?[98,80]:act==='pc'?[157,168]:act==='arm'?[36,172]:act==='fire'?[38,96]:people.length>1?[people[0].x,people[0].y-10]:[98,150];ghostFx(dt);present();
   for(const[q,h]of hits){if(q===gme)nameTag(h,'You','#9fd8ff');else if(q.doc&&(q.alpha??1)>.8)nameTag(h,'Doctor','#9fe8b0');else if(q.name!=='mafia'&&i>=0&&!q.doc)nameTag(h,PEOPLE[i].n,'#fff');}
   drawMini(PLAY[N.kind](N.t,0,t),t);ghostHud();}
-cv.addEventListener('pointerdown',e=>{if(scene!==scenes.ghost||G.inCab>=0)return;
+cv.addEventListener('pointerdown',e=>{if(scene!==scenes.ghost||G.fading)return;
   const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*DPR/S+cam.x+(cam.fx||0),y=(e.clientY-r.top)*DPR/S+cam.y+(cam.fy||0);
+  if(G.inCab>=0){ // in a cabin: fly anywhere in the room (ghosts go over the furniture); the doorway at the bottom leads out
+    if(y>196){G.rtx=98;G.rty=222;}else{G.rtx=clamp(x,20,176);G.rty=clamp(y+12,74,196);}return;}
+  G.watch=-1;
   const ci=TOWN.cabins.findIndex(c=>Math.abs(x-c.cx)<44&&y>c.top-70&&y<c.top+34);
   if(ci>=0){const c=TOWN.cabins[ci];G.tx=c.cx;G.ty=c.top+30;G.goCab=ci;}else{G.tx=clamp(x,20,540);G.ty=clamp(y+12,40,740);G.goCab=-1;}});
 
@@ -1769,7 +1780,6 @@ scenes.talk={hud:'#talkHud',
     present();dayMode=false;
     for(const p of people)nameTag(hits.get(p),PEOPLE[p.r.i].n,p.r.i===0?'#ffd25e':'#fff');
   }};
-$('#ghostLeave').onclick=()=>{G.inCab=-1;G.watch=-1;$('#phone').style.background='';ghostCards();ghostHud();};
 // test screen: every character in every pose, on the square
 scenes.poses={hud:null,frame(dt,t){view(IMG.town,280,372,124);
   const cast=Object.keys(SP).filter(n=>SP[n].poses&&SP[n].poses.walk_front_0);
