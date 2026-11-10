@@ -3577,6 +3577,7 @@ async function loadMyProfile(){
     myProfile=normaliseProfile(saved);
     if(myProfile.avatar&&!myAvatar){myAvatar=myProfile.avatar;localStorage.setItem('sf_avatar',myAvatar);}
     saveLocalProfile();
+    claimLabClickerCoins();
     renderShop();updateAvatarBtns();prefillNameInput();
   }catch(e){console.warn('Profile cloud load failed; using local profile',e);renderShop();updateAvatarBtns();prefillNameInput();}
 }
@@ -8128,6 +8129,24 @@ function clickerPayCoins(){
   saveLocalProfile();
   try{userRef().update({coins:myProfile.coins,clickerCoinDay:myProfile.clickerCoinDay,savedAt:Date.now()});}catch(e){}
   return pay;
+}
+// Coins picked up in the MAFIA 2 pixel clicker wait in a little pot (localStorage) and are paid in here,
+// once the profile has loaded, under the same daily cap as this clicker.
+function claimLabClickerCoins(){
+  try{
+    const pend=Math.floor(+localStorage.getItem('cg_clicker_pending')||0);
+    if(!(pend>0))return;
+    localStorage.removeItem('cg_clicker_pending');
+    const pay=Math.min(pend,clickerCoinsLeftToday());
+    if(!pay)return;
+    const cd=myProfile.clickerCoinDay;
+    const used=cd&&cd.d===clickerToday()?cd.n||0:0;
+    myProfile.coins=(myProfile.coins||0)+pay;
+    myProfile.clickerCoinDay={d:clickerToday(),n:used+pay};
+    saveLocalProfile();
+    try{userRef().update({coins:myProfile.coins,clickerCoinDay:myProfile.clickerCoinDay,savedAt:Date.now()});}catch(e){}
+    try{renderShop();}catch(e){}
+  }catch(e){console.warn('Clicker coin claim failed',e);}
 }
 function clickerTakeOrb(o,s,d){
   const c=clicker;

@@ -1,7 +1,7 @@
 /* Chrispy Games Service Worker
    Change VERSION every time you update the site. */
 
-const VERSION = "chrispy-games-v2026-11-09-create-kick-fix-1";
+const VERSION = "chrispy-games-v2026-11-11-clicker-coins-1";
 const CACHE_NAME = VERSION;
 // Firebase SDK + Google Fonts. Their URLs never change, so this cache survives version bumps.
 const VENDOR_CACHE = "chrispy-games-vendor-v1";
