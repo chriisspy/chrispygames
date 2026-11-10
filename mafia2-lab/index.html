@@ -86,7 +86,8 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 .case .ico:after{content:"";position:absolute;left:13px;top:8px;width:6px;height:9px;background:var(--gold);border:2px solid #0f0b1e}
 .coin{width:14px;height:14px;background:var(--gold);border:2px solid #8a5a12;box-shadow:inset -3px -3px 0 #e0a92e;display:inline-block}
 /* vote */
-#voteHud .banner,#talkHud .banner{top:calc(54px + env(safe-area-inset-top));font-size:26px;color:#fff}
+#voteHud .banner,#talkHud .banner,#ghostHud .banner{top:calc(54px + env(safe-area-inset-top));font-size:26px;color:#fff}
+#ghostHud .banner small{display:block;font-size:13px;color:#9fd8ff;letter-spacing:2px}
 #talkHud .banner small{display:block;font-size:13px;color:var(--gold);letter-spacing:2px}
 #talkHud .tclock{font-size:15px;margin-top:2px;display:flex;gap:6px;justify-content:center;align-items:center;color:#fff}
 #voteHud .banner small{display:block;font-size:13px;color:var(--gold);letter-spacing:2px}
@@ -154,6 +155,9 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 #dawnHud h2{font-size:30px;color:var(--red);letter-spacing:1px;line-height:1}
 #dawnHud .sun{font-size:13px;letter-spacing:3px;color:#8a6a2a;margin-bottom:6px}
 #dawnHud .story{font-size:15px;line-height:1.35;margin:10px 0 4px}
+#dawnNote{display:none;margin:8px 4px 2px;padding:8px 10px;background:#fff8e6;color:#3a2a14;border:3px solid #1a1430;border-radius:3px;font-size:14px;line-height:1.3;text-align:left;transform:rotate(-1deg);box-shadow:3px 3px 0 rgba(0,0,0,.35)}
+#dawnNote b{display:block;font-size:11px;letter-spacing:1px;color:#8a6a3a;margin-bottom:2px}
+#noteIn{width:100%;margin:8px 0;padding:8px;font:500 15px "Pixelify Sans",monospace;background:#fff8e6;color:#3a2a14;border:3px solid #1a1430;border-radius:4px;resize:none;box-sizing:border-box}
 #dawnHud .row{justify-content:center;margin-top:12px}
 #dawnHud h2.safe{color:#2f7a3f}
 #dawnHud img.big{width:72px;height:72px;image-rendering:pixelated;margin:6px auto 0;display:block}
@@ -196,6 +200,11 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
   </div>
 
   <!-- VOTE -->
+  <div class="hud" id="ghostHud">
+    <div class="title banner"><small>YOU ARE DEAD</small>SPECTATING</div>
+    <div class="bottom"><div class="panel" style="padding:10px 12px;text-align:center"><b id="ghostLine">You are a ghost. Fly anywhere.</b><div class="small" id="ghostSub">Tap the map to fly. Tap a cabin to look inside.</div>
+      <button class="btn go" id="ghostLeave" style="margin-top:8px;display:none">Fly back outside</button></div></div>
+  </div>
   <div class="hud" id="talkHud">
     <div class="title banner"><small>DAY 2</small>DISCUSSION<div class="tclock"><i data-ic="hourglass" data-c="solo"></i><span id="talkClock">5:00</span></div></div>
     <div class="bottom"><div class="panel" style="padding:10px 12px;text-align:center"><b id="talkLine">Who do you think it was?</b><div class="small" id="talkSub">5 minutes to talk. Then the vote.</div></div></div>
@@ -224,6 +233,12 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
       <div class="small">Kill some time while the night plays out.</div>
       <div class="row"><button class="btn red" id="pcYes">Play</button><button class="btn" id="pcNo">Not now</button></div>
     </div>
+    <div class="modal panel" id="noteModal">
+      <h3><i data-ic="notes" data-s="3"></i>Leave a note</h3>
+      <div class="small">If you die tonight, the town finds this in the morning.</div>
+      <textarea id="noteIn" maxlength="120" rows="3" placeholder="Write what you know…"></textarea>
+      <div class="row"><button class="btn go" id="noteSave">Save note</button><button class="btn" id="noteCancel">Cancel</button></div>
+    </div>
     <div class="modal panel" id="notesModal">
       <h3><i data-ic="detective" data-s="3"></i>Your notes</h3>
       <div class="notes" id="notesList"></div>
@@ -233,7 +248,8 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
       <div class="head">
         <img class="portrait" id="portrait" alt="">
         <div><div class="rname" id="rname">MAFIA</div><div class="rline" id="rline">Pick tonight's target.</div></div>
-        <button class="btn fold" id="fold"><i data-ic="down" data-c="solo"></i></button>
+        <button class="btn fold" id="noteBtn" title="Leave a note"><i data-ic="notes" data-c="solo"></i></button>
+        <button class="btn fold" id="fold" style="margin-left:6px"><i data-ic="down" data-c="solo"></i></button>
       </div>
       <div class="body">
         <div class="subtabs" id="subtabs"><button class="btn sel" data-p="pick" id="tabPick"><i data-ic="knife"></i>Target</button><button class="btn" data-p="chat" id="tabChat"><i data-ic="chat"></i>Mafia chat <span class="badge" id="chatBadge">1</span></button></div>
@@ -270,6 +286,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
       <h2 id="dawnTitle">TOM IS DEAD</h2>
       <img class="big" id="dawnFace" alt="">
       <div class="story" id="dawnStory"></div>
+      <div class="lastnote" id="dawnNote"></div>
       <div class="row"><button class="btn red" id="dawnGo">To the square</button></div>
     </div>
   </div>
@@ -280,6 +297,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
     <button class="btn" data-s="vote">Vote</button>
     <button class="btn" data-s="cabin">Cabin</button>
     <button class="btn" data-s="night">Night</button>
+    <button class="btn" data-s="ghost">Ghost</button>
     <button class="btn" data-s="poses">Poses</button>
   </nav>
 </div>
@@ -336,7 +354,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11102000'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11102007'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -762,7 +780,7 @@ function bedIn(){const d=SP[looksLike(0)].front;return[ROOM.bed.head[0],BED_LINE
 function animTo(from,to,dur,o){CAB.state='anim';CAB.anim={from,to,dur,t:0,...o};}
 scenes.cabin={
   hud:'#cabinHud',
-  enter(){CAB.clock=45;$('#phone').style.background=ROOM_VOID;paintNight();},
+  enter(){if(!CAB.keep)CAB.clock=45;CAB.keep=false;$('#phone').style.background=ROOM_VOID;paintNight();},
   leave(){$('#phone').style.background='';ckClose();},
   frame(dt,t){
     // zoomed in (room as wide as the screen) while the night panel is folded; when it opens the room glides up
@@ -895,7 +913,8 @@ function resetNight(){clearTimeout(NIGHT.mateTimer);Object.assign(NIGHT,{picks:[
 function leoSays(){NIGHT.chat.push({who:'Leo',text:LEO_LINES[leoI++%LEO_LINES.length]});if(!NIGHT.chatOpen)NIGHT.unread++;paintNight();}
 $('#lockBtn').onclick=()=>{if(NIGHT.notes){$('#notesModal').classList.add('on');return;}if(!NIGHT.picks.length)return;NIGHT.locked=true;paintNight();
   if(R().watch){go('watch');return;}
-  toast(ic('lock')+`${R().lock}: ${NIGHT.picks.map(i=>PEOPLE[i].n).join(' & ')}`);setTimeout(()=>{$('#sheet').classList.add('collapsed');setFold(1);},600);};
+  toast(ic('lock')+`${R().lock}: ${NIGHT.picks.map(i=>PEOPLE[i].n).join(' & ')}`);setTimeout(()=>{$('#sheet').classList.add('collapsed');setFold(1);},600);
+  if(viewRole==='mafia'&&CAB.clock>=10&&NIGHT.picks.length)setTimeout(()=>{if(scene===scenes.cabin)go('stalk');},1100);};
 $('#fold').onclick=()=>{$('#sheet').classList.toggle('collapsed');setFold($('#sheet').classList.contains('collapsed'));};
 $('#tabPick').onclick=()=>{NIGHT.chatOpen=false;paintNight();};
 $('#tabChat').onclick=()=>{NIGHT.chatOpen=true;NIGHT.unread=0;paintNight();};
@@ -1268,10 +1287,20 @@ function dawn(){const v=N.victim,key=N.variant||N.kind,list=N.heal?DAWN_DOC:DAWN
   else{V.dead.add(v);h.innerHTML=ic('skull',3)+`${PEOPLE[v].n.toUpperCase()} IS DEAD`;h.classList.remove('safe');}
   $('#dawnFace').src=face(looksLike(v));
   $('#dawnStory').textContent=list[Math.floor(Math.random()*list.length)].replace(/\{n\}/g,PEOPLE[v].n);
+  // the note they left (only shown if they really died): yours if it was you, else whatever that player wrote
+  const nt=N.heal?'':v===0?NOTE.mine:(NOTE.of[v]??(NOTE.of[v]=Math.random()<.65?NPC_NOTES[Math.floor(Math.random()*NPC_NOTES.length)]:''));
+  const dn=$('#dawnNote');dn.style.display=nt?'block':'none';dn.innerHTML=nt?`<b>${esc(PEOPLE[v].n.toUpperCase())} LEFT A NOTE</b>${esc(nt)}`:'';
   go('dawn');}
+/* ---------- a note left behind: anyone can write one during the night; it is read out at dawn if they die ---------- */
+const NOTE={mine:'',of:{}};
+const NPC_NOTES=['If I\'m gone, look at who was quiet today.','I heard two sets of boots outside my window.','It wasn\'t me. Check who voted last.','Tell my cat I love her.','I think I know who it is. I was going to say tomorrow.','Don\'t trust the one who talks the most.'];
+$('#noteBtn').onclick=()=>{$('#noteIn').value=NOTE.mine;$('#noteModal').classList.add('on');setTimeout(()=>$('#noteIn').focus(),50);};
+$('#noteCancel').onclick=()=>$('#noteModal').classList.remove('on');
+$('#noteSave').onclick=()=>{NOTE.mine=$('#noteIn').value.trim().slice(0,120);$('#noteModal').classList.remove('on');toast(ic('notes')+(NOTE.mine?'Note saved. The town finds it if you die.':'Note cleared.'));};
+
 /* ---------- CHRISPY CLICKER: the night mini game, on the cabin's computer ----------
    Same game as the original app (tap to flap, dodge the gaps, gaps speed up and start moving after 10, same
-   medals, same saved best score 'cg_clicker_best'), drawn in this game's pixels with your own character. */
+   medals, same saved best score 'cg_clicker_best'), drawn in this game's pixels with the same Chrispy ball. */
 const CK={raf:0,best:0};
 const CK_MEDALS=[[100,'PLATINUM'],[50,'GOLD'],[25,'SILVER'],[10,'BRONZE']];
 function ckReset(){Object.assign(CK,{y:90,v:0,pipes:[],score:0,state:'ready',t:0,fx:[],scroll:0});$('#clkScore').textContent=0;$('#clkMsg').textContent='TAP TO START';$('#clkSub').textContent='Tap to flap · dodge the gaps';}
@@ -1310,12 +1339,91 @@ function ckLoop(now){CK.raf=requestAnimationFrame(ckLoop);const dt=Math.min(.033
   x.fillStyle='#2a2440';x.fillRect(0,GR,Wc,Hc-GR);x.fillStyle='#57506a';x.fillRect(0,GR,Wc,2);
   for(let i=0;i<12;i++){const gx=((i*14-CK.scroll)%168+168)%168-14;x.fillStyle='#3d3654';x.fillRect(gx,GR+4+(i%2)*5,9,3);}
   for(let i=CK.fx.length-1;i>=0;i--){const f=CK.fx[i];f.l-=dt;if(f.l<=0){CK.fx.splice(i,1);continue;}f.x+=f.vx*dt;f.y+=f.vy*dt;x.fillStyle=`rgba(255,255,255,${f.l*2})`;x.fillRect(f.x,f.y,2,2);}
-  const set=SP[looksLike(0)],pz=set.poses&&set.poses['walk_right_'+(CK.state==='dead'?0:Math.floor(CK.t*10)%8)],im=pz?pz.img:set.right.frames[0][0];
-  const w=Math.round(im.width*.55),h=Math.round(im.height*.55);x.save();x.translate(PX,Math.round(CK.y));x.rotate(clamp(CK.v/520,-.5,1.1));x.drawImage(im,-w/2,-h/2,w,h);x.restore();
+  // Chrispy: the same lime ball with one eye as the original clicker, drawn as pixels (squashes a little when it flaps)
+  const B=["....NNNNN....","..NNLLLLLNN..",".NLHHLLLLLLN.",".NHHLLLLWWLN.","NLHLLLLWWWWLN","NLLLLLLWWPPLN","NLLLLLLWWPPLN","NLLLLLLLWWLLN","NLLLLLLLLLLSN",".NLLLLLLLLSN.",".NSLLLLLSSSN.","..NNSSSSSNN..","....NNNNN...."];
+  const BC={N:'#1f2a08',L:'#d3f34b',H:'#f4ffb0',S:'#a3c428',W:'#ffffff',P:CK.state==='dead'?'#d6383c':'#14141c'},by=Math.round(CK.y)-6,sq=CK.v<-120?1:0;
+  x.fillStyle='rgba(211,243,75,.16)';x.fillRect(PX-9,by-2,17,17);x.fillRect(PX-8,by-3,15,19);
+  for(let j=0;j<13;j++)for(let i=0;i<13;i++){const ch=B[j][i];if(ch==='.')continue;x.fillStyle=BC[ch];x.fillRect(PX-6+i,by+j+(sq&&j<6?1:0),1,1);}
 }
 $('#clkX').onclick=e=>{e.stopPropagation();ckClose();};
 $('#clk').addEventListener('pointerdown',e=>{if(e.target.id!=='clkX'){e.preventDefault();ckTap();}});
 addEventListener('keydown',e=>{if($('#clk').classList.contains('on')&&(e.code==='Space'||e.code==='ArrowUp')){e.preventDefault();ckTap();}});
+
+/* ---------- the Mafia's cutscene: decided with time to spare, they set off for the cabin ---------- */
+const STK={t:0};
+scenes.stalk={hud:'#nightHud',
+  enter(){STK.t=0;STK.v=NIGHT.picks[0];STK.cab=TOWN.cabins[CABIN_OF[STK.v]??1]||TOWN.cabins[1];STK.step=0;$('#fade').classList.remove('on');$('#cap').textContent='';
+    $('#nightTag').innerHTML=ic('rec')+'NIGHT 2 · YOUR TEAM';},
+  leave(){clearInterval(capTimer);},
+  frame(dt,t){STK.t+=dt;const T=STK.t,c=STK.cab,n=PEOPLE[STK.v].n;CAB.clock=Math.max(0,CAB.clock-dt);
+    if(STK.step<1&&T>.3){STK.step=1;caption($('#cap'),`Target chosen. You head for ${n}'s cabin.`);}
+    if(STK.step<2&&T>4.6){STK.step=2;caption($('#cap'),'You wait in the dark for the night to end…','bad');}
+    if(T>7.4){CAB.keep=true;go('cabin');return;}
+    const people=[0,1].map(k=>{const d=lerp(150+k*16,24+k*14,ease(ramp(T,.2+k*.25,5+k*.25))),a=c.route.at(d),e=ramp(T,.2+k*.25,5+k*.25);
+      return{name:'mafia',dir:e<1?dirFrom(-a.dx,-a.dy):'back',x:a.x,y:a.y,t,walk:e>0&&e<1,tint:NIGHT_TINT,alpha:ramp(T,0,.6),lbl:k?'Leo':'You',phase:k*300};});
+    for(const q of people)if(q.walk&&Math.random()<dt*5)kickDust(q.x,q.y);
+    view(IMG.town,people[0].x,people[0].y-16,150,{loose:true});
+    lx.fillStyle='rgba(6,8,30,.38)';lx.fillRect(0,0,cam.lw,cam.lh);
+    townLights(t,{dim:.85},'win');
+    patchDim='rgba(6,8,30,.38)';const hits=drawScene(people,TOWN.occ,IMG.town);patchDim=null;
+    drawDust(dt);townLights(t,{dim:.85},'rest');rain(dt);vignette(.45);present();
+    for(const q of people)nameTag(hits.get(q),q.lbl,'#ff8a8a');}};
+
+/* ---------- SPECTATING: the dead fly round the town as ghosts, live, and can look inside any cabin ---------- */
+const G={x:280,y:372,tx:280,ty:372,dir:'front',inCab:-1,goCab:-1,acts:{},hold:0};
+const G_ACTS={bed:'fast asleep',pc:'on the computer',arm:'in the armchair',fire:'warming up by the fire',pace:'pacing up and down'};
+function ghostNight(){N.t=0;N.capI=0;N.kicks={};N.shake=0;dust.length=0;planNight();G.hold=0;
+  PEOPLE.forEach((p,i)=>{G.acts[i]=Object.keys(G_ACTS)[Math.floor(Math.random()*5)];});}
+function ghostAway(i){ // is this player out of their cabin right now?
+  if(PEOPLE[i].role==='mafia')return N.t>2.5;if(i===N.victim)return N.kind!=='home'&&N.t>2.9;return false;}
+function ghostHud(){const ci=G.inCab,i=CABIN_OF.indexOf(ci);
+  $('#ghostLine').textContent=ci<0?'You are a ghost. Fly anywhere.':i<0?'An empty cabin.':ghostAway(i)?`${PEOPLE[i].n}'s cabin. Nobody home.`:`Watching ${PEOPLE[i].n}: ${G_ACTS[G.acts[i]]}.`;
+  $('#ghostSub').textContent=ci<0?'Tap the map to fly. Tap a cabin to look inside.':'This is what they are doing right now.';$('#ghostLeave').style.display=ci<0?'none':'';}
+const ghostMe=(x,y,t)=>({name:looksLike(0),dir:G.dir,x,y,t,lift:13+Math.sin(t*.004)*2.5,alpha:.6,tint:'#bfe6ff|0.5',noShadow:true,sortY:1e7});
+scenes.ghost={hud:'#ghostHud',
+  enter(){document.documentElement.style.setProperty('--accent','#9fd8ff');G.inCab=-1;G.goCab=-1;G.x=G.tx=280;G.y=G.ty=372;ghostNight();ghostHud();},
+  leave(){$('#phone').style.background='';},
+  frame(dt,t){
+    // the night plays out live, the same one everybody will be shown afterwards; the body stays where it falls
+    const stop=N.end-1.4;N.t=Math.min(N.t+dt,stop);if(N.t>=stop){G.hold+=dt;if(G.hold>12)ghostNight();}
+    if(G.inCab>=0){ghostRoom(dt,t);return;}
+    const dx=G.tx-G.x,dy=G.ty-G.y,dd=Math.hypot(dx,dy),sp=95*dt;
+    if(dd>sp){G.x+=dx/dd*sp;G.y+=dy/dd*sp;G.dir=dirFrom(dx,dy);}else{G.x=G.tx;G.y=G.ty;G.dir='front';if(G.goCab>=0){G.inCab=G.goCab;G.goCab=-1;$('#phone').style.background=ROOM_VOID;ghostHud();return;}}
+    const f=PLAY[N.kind](N.t,dt,t);
+    view(IMG.town,G.x,G.y-14,175,{loose:true});
+    lx.fillStyle='rgba(6,8,30,.38)';lx.fillRect(0,0,cam.lw,cam.lh);
+    for(const[ci,a]of f.doors||[])doorOpen(ci,a);
+    if(f.under)f.under();
+    const people=f.people.filter(p=>p.al>0).map(p=>({p,name:p.kind==='maf'?'mafia':p.kind==='doc'?'doctor':looksLike(N.victim),dir:p.dir,x:p.x,y:p.y,t,walk:p.walk,pose:p.pose,step:p.step,blood:p.blood,tint:p.kind==='maf'?SHADOW_TINT:NIGHT_TINT,alpha:p.al}));
+    const me=ghostMe(G.x,G.y,t);people.push(me);
+    townLights(t,{dim:.85,...f.lights},'win');
+    patchDim='rgba(6,8,30,.38)';const hits=drawScene(people,TOWN.occ,IMG.town);patchDim=null;
+    if(f.over)f.over();
+    drawDust(dt);townLights(t,{dim:.85,...f.lights},'rest');rain(dt);present();
+    for(const q of people){if(q===me)nameTag(hits.get(q),'You','#9fd8ff');else if(q.p.kind==='vic'&&q.alpha>.8)nameTag(hits.get(q),VN(),'#fff');}
+  }};
+function ghostRoom(dt,t){const ci=G.inCab,i=CABIN_OF.indexOf(ci),home=i>=0&&!ghostAway(i),act=home?G.acts[i]:null,nm=home?looksLike(i):null;
+  view(IMG.room,97,121,186,{fit:true,topCss:80,void:ROOM_VOID});
+  rain(dt,ROOM.windows.map(w=>[X(w[0]),Y(w[1]),w[2],w[3]]));fireAcc+=dt;while(fireAcc>.06){stepFire();fireAcc-=.06;}
+  const people=[];let cover=null,head=false;
+  if(act==='bed')head=true;
+  else if(act==='pc'){people.push({name:nm,dir:'back',pose:'sit',x:ROOM.chair.sit[0],y:ROOM.chair.sit[1],t,noShadow:true});cover='chairback';}
+  else if(act==='arm'){people.push({name:nm,dir:'right',pose:'sit',x:ROOM.arm.sit[0],y:ROOM.arm.sit[1],sortY:195,t,noShadow:true});cover='arm';}
+  else if(act==='fire')people.push({name:nm,dir:'back',x:38,y:106,t});
+  else if(act==='pace'){const k=(t/1000*26)%120,gx=k<60?k:120-k;people.push({name:nm,dir:k<60?'right':'left',x:62+gx,y:150,t,walk:true});}
+  people.push(ghostMe(98,176,t));
+  const hits=drawScene(people,null,IMG.room,ROOM_OBJS);
+  if(head){const d=SP[nm].front,crop=Math.min(d.h,d.eyeBot+10),hx=X(ROOM.bed.head[0])-Math.floor(d.w/2),hy=Y(BED_LINE)-(d.eyeBot+3);lx.drawImage(d.frames[0][1],0,0,d.w,crop,hx,hy,d.w,crop);drawQuilt(1);}
+  if(cover==='chairback')lx.drawImage(IMG.chairback,X(OBJ.chair.x),Y(OBJ.chair.y));else if(cover==='arm')patchObj('armchair',ROOM.arm.front);
+  const fl=.5+.5*noise(t*1.7,2),L=[[33,81,70,'255,130,40',.24+.1*fl,1],[61,64,26,'255,210,140',.3,2],[133,64,26,'255,210,140',.3,3],[151,58,22,'170,255,170',.16,4]];
+  if(act==='pc')L.push([159,138,26,'120,220,255',.35,5]);
+  lights(L,t,ROOM_MASK);present();
+  for(const[q,h]of hits)nameTag(h,q.name===nm&&home&&q.alpha==null?PEOPLE[i].n:'You',q.alpha==null?'#fff':'#9fd8ff');
+  ghostHud();}
+cv.addEventListener('pointerdown',e=>{if(scene!==scenes.ghost||G.inCab>=0)return;
+  const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*DPR/S+cam.x+(cam.fx||0),y=(e.clientY-r.top)*DPR/S+cam.y+(cam.fy||0);
+  const ci=TOWN.cabins.findIndex(c=>Math.abs(x-c.cx)<44&&y>c.top-70&&y<c.top+34);
+  if(ci>=0){const c=TOWN.cabins[ci];G.tx=c.cx;G.ty=c.top+30;G.goCab=ci;}else{G.tx=clamp(x,20,540);G.ty=clamp(y+12,40,740);G.goCab=-1;}});
 
 /* ---------- DAY: the discussion ---------- */
 // the town in daylight, made from the night art: blue night grass -> green, ponds -> bright blue, everything else lifted and warmed, bulbs unlit
@@ -1363,6 +1471,7 @@ scenes.talk={hud:'#talkHud',
     present();dayMode=false;
     for(const p of people)nameTag(hits.get(p),PEOPLE[p.r.i].n,p.r.i===0?'#ffd25e':'#fff');
   }};
+$('#ghostLeave').onclick=()=>{G.inCab=-1;$('#phone').style.background='';ghostHud();};
 // test screen: every character in every pose, on the square
 scenes.poses={hud:null,frame(dt,t){view(IMG.town,280,372,124);
   const cast=Object.keys(SP).filter(n=>SP[n].poses&&SP[n].poses.walk_front_0);
