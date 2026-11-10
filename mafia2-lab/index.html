@@ -292,7 +292,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11101833'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11101853'; // changes every push, so phones never show an old picture from their cache
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
 /* ---------- THE PIXEL GRID ----------
@@ -715,7 +715,7 @@ scenes.cabin={
   enter(){CAB.clock=30;$('#phone').style.background=ROOM_VOID;paintNight();},
   leave(){$('#phone').style.background='';},
   frame(dt,t){
-    view(IMG.room,97,121,182,{fit:true,topCss:80,void:ROOM_VOID});
+    view(IMG.room,97,121,218,{fit:true,topCss:80,void:ROOM_VOID}); // one zoom step smaller than full width, so the panel covers less of the room on a phone
     rain(dt,ROOM.windows.map(w=>[X(w[0]),Y(w[1]),w[2],w[3]]));
     fireAcc+=dt;while(fireAcc>.06){stepFire();fireAcc-=.06;}
     // walking
