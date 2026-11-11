@@ -576,7 +576,7 @@ SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11120937'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11120952'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -843,12 +843,28 @@ function cabinTheme(ci){const p=CABIN_OF.indexOf(ci),id=p>=0?PEOPLE[p].cabinThem
 const cabinKey=ci=>`cab/${cabinTheme(ci)}/${ci}`;
 function loadCabins(){return Promise.all(TOWN.cabins.map((c,ci)=>IMG[cabinKey(ci)]?null:load(cabinKey(ci),CABIN_THEMES[cabinTheme(ci)].art(ci))));}
 function loadProps(){return Promise.all(TOWN.occ.map(o=>IMG['prop/'+o.k]?null:load('prop/'+o.k,`assets/town3/props/${o.k}.png`)));}
+// THE PAVING (12 Nov, his call: "a different stone texture"): the paths and the square are cut out of one big sheet of
+// flagstones (assets/town3/stone.png: a 36 px tile made with Nano Banana, no sharpening (his call) that repeats with no seams) by path-mask.png,
+// with a kerb drawn round the edge. Made once for the day; the night copy is the same stones in cold blue-grey.
+let STONE=null;
+function stoneLayers(){if(STONE)return STONE;const W=560,H=750,src=IMG.stone;
+    const m=mk(W,H),mx=m.getContext('2d');mx.drawImage(IMG.pathMask,0,0);const md=mx.getImageData(0,0,W,H).data,on=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&md[(y*W+x)*4]>127;
+  const c=mk(W,H),x=c.getContext('2d');x.fillStyle=x.createPattern(src,'repeat');x.fillRect(0,0,W,H);
+  const id=x.getImageData(0,0,W,H),d=id.data;
+  for(let y=0;y<H;y++)for(let xx=0;xx<W;xx++){const i=(y*W+xx)*4;if(!on(xx,y)){d[i+3]=0;continue;}
+    if(!on(xx-1,y)||!on(xx+1,y)||!on(xx,y-1)||!on(xx,y+1)){d[i]=96;d[i+1]=82;d[i+2]=72;}                                   // the kerb: a dark line round the paving
+    else if(!on(xx-2,y)||!on(xx+2,y)||!on(xx,y-2)||!on(xx,y+2)){d[i]=226;d[i+1]=214;d[i+2]=192;}}                          // and a pale stone edge just inside it
+  x.putImageData(id,0,0);
+  const n=mk(W,H),nx=n.getContext('2d');nx.drawImage(c,0,0);const nd=nx.getImageData(0,0,W,H),q=nd.data;
+  for(let i=0;i<q.length;i+=4){if(!q[i+3])continue;const px=(i>>2)%W,py=((i>>2)/W)|0,k=.62*clamp(1.15-Math.hypot((px-280)/200,(py-365)/175),0,1);   // k: how much of the lamps' warm light reaches this stone
+    q[i]=lerp(q[i]*.5,q[i]*.86,k);q[i+1]=lerp(q[i+1]*.56,q[i+1]*.7,k);q[i+2]=lerp(q[i+2]*.74+14,q[i+2]*.56,k);}nx.putImageData(nd,0,0);
+  return STONE={day:c,night:n};}
 // a little wooden board with the owner's name, hung on two hooks just above the door
 function cabinSign(x,ci){const p=CABIN_OF.indexOf(ci);if(p<0)return;const c=TOWN.cabins[ci],s=PEOPLE[p].n.toUpperCase().slice(0,8),w=s.length*4+5,x0=c.cx-Math.floor(w/2),y0=c.top-9;
   x.fillStyle='#1a1430';x.fillRect(x0,y0,w,9);x.fillRect(x0+2,y0-2,1,2);x.fillRect(x0+w-3,y0-2,1,2);
   x.fillStyle='#b9793f';x.fillRect(x0+1,y0+1,w-2,7);x.fillStyle='#d79a57';x.fillRect(x0+1,y0+1,w-2,1);x.fillStyle='#8a5a2c';x.fillRect(x0+1,y0+7,w-2,1);
   x.fillStyle='#2a1608';pxText(x,s,x0+3,y0+2);}
-function buildTown(){const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext('2d');x.drawImage(b,0,0);
+function buildTown(){const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext('2d');x.drawImage(b,0,0);x.drawImage(stoneLayers().night,0,0);
   TOWN.cabins.forEach((cb,ci)=>x.drawImage(IMG[cabinKey(ci)],cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
   TOWN.cabins.forEach((cb,ci)=>cabinSign(x,ci));
   TOWN.occ.forEach(o=>x.drawImage(IMG['prop/'+o.k],o.x,o.y));
@@ -2158,13 +2174,16 @@ function dayOf(src,mode,wet){const w=src.width,c=mk(w,src.height),x=c.getContext
     if(mode==='ground'&&b>185&&g>60&&r<60){                    // a puddle
       if(wet){R=r*.9+40;G=g*.95+70;B=b+60;}
       else{const px=(i>>2)%w,py=((i>>2)/w)|0,q=DRY_GRASS[(((px>>2)*374761393+(py>>2)*668265263)>>>0)%4];r=q[0];g=q[1];b=q[2];grass=true;}}
-    else if(mode==='ground'&&r<60&&b>r+40&&b>g+8)grass=true;  // night grass (and the trees and bushes on it)
-    else if(r>225&&g>165&&b>100&&b<215){const k=g>210?70:52;R=k;G=k;B=k+8;}   // a bulb or lamp glass, switched off
+    else if(mode==='ground'&&g>b-12&&g>70&&r<90){const L=(r+g+b)/3;R=38+L*.5;G=88+L*.9;B=26+L*.25;}   // the lit leaves of trees and bushes: a rich green, not a pale teal
+    else if(mode==='ground'&&r<75&&r>g*1.5&&r>b){R=r*1.6+42;G=g*1.6+30;B=b*.9+16;}                  // tree trunks: warm brown
+    else if(mode==='ground'&&r<60&&b>r+40&&b>g+8)grass=true;  // night grass (and the shaded side of trees and bushes)
+    else if(mode==='prop'&&r>198&&g>122&&r-b>55){const k=g>=205?52:86;R=k;G=k;B=k+8;}   // a bulb or lamp glass, switched off: dark, with its outer ring a little lighter (never on cabins: cream walls are not bulbs)
+    else if(mode==='plain'){R=r*1.1+10;G=g*1.08+9;B=b*1.02+6;}   // cabins are painted in daylight colours already: only a touch brighter
     else{R=r*1.28+22;G=g*1.25+18;B=b*1.12+10;}
     if(grass){R=.55*g+52;G=.62*b+62;B=.5*r+38;}
     d[i]=Math.min(255,R);d[i+1]=Math.min(255,G);d[i+2]=Math.min(255,B);}
   x.putImageData(id,0,0);return c;}
-function dayTown(wet){const c=dayOf(IMG.townBase,'ground',wet),x=c.getContext('2d');
+function dayTown(wet){const c=dayOf(IMG.townBase,'ground',wet),x=c.getContext('2d');x.drawImage(stoneLayers().day,0,0);
   TOWN.cabins.forEach((cb,ci)=>x.drawImage(dayOf(IMG[cabinKey(ci)],'plain'),cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
   TOWN.cabins.forEach((cb,ci)=>cabinSign(x,ci));
   TOWN.occ.forEach(o=>x.drawImage(dayImg('prop/'+o.k),o.x,o.y));return c;}
@@ -2469,7 +2488,7 @@ let OBJ_META={};
   const FINAL=Object.fromEntries(['beanie','brownhair','ponytail','curly','farmer','raincoat','redcap','mafia','doctor','jester','detective','batman','alfa','golf','ferrari','bape','fisher','sheik'].map(n=>[n,'assets/final/'+n]));
   const names=[...SKINS.map(s=>s.id),'mafia','doctor','jester','detective'].filter(n=>!PL[n]&&!FINAL[n]);
   OBJ_META=await (await fetch('assets/room-objects/objects.json?v='+BUILD)).json();
-  const jobs=[load('townBase','assets/town3/town-base-night-1x.png'),load('room','assets/room-objects/room-empty.png'),load('quilt','assets/room-objects/bed-quilt.png'),load('chairback','assets/room-objects/chair-backing.png'),load('log','assets/final/log.png'),load('caseSheet','assets/case/open.png')];
+  const jobs=[load('townBase','assets/town3/town-base-night-1x.png'),load('room','assets/room-objects/room-empty.png'),load('quilt','assets/room-objects/bed-quilt.png'),load('chairback','assets/room-objects/chair-backing.png'),load('log','assets/final/log.png'),load('caseSheet','assets/case/open.png'),load('stone','assets/town3/stone.png'),load('pathMask','assets/town3/path-mask.png')];
   for(const n of Object.keys(OBJ_META))jobs.push(load('obj/'+n,`assets/room-objects/${n}.png`));
   for(const n of names)for(const d of['','back/','side/'])jobs.push(load(d+n,`assets/sprites/${d}${n}.png`));
   for(const[n,dir]of Object.entries(PL))for(const v of['south','north','east','west'])jobs.push(load(`pl/${n}/${v}`,`${dir}/${v}.png`));
