@@ -399,7 +399,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11111340'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11111348'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -1191,8 +1191,10 @@ function planOut(variant){
   N.path=porch?null:new Poly([feet,[c.cx,c.top+56],N.spot]);
   const TW=N.TW=3.6,trip=N.trip=porch?0:N.path.len/34;N.tSpot=TW+trip;
   const tS=N.tS=N.tSpot+1.7;
-  // the Mafia come up the cabin's own path from the square, then step across the grass
-  N.maf=[0,1].map(k=>{const pts=[];for(let d=(N.saved?126:92)+k*16;d>(porch?36:18);d-=6){const q=c.route.at(d);pts.push([q.x,q.y]);}
+  // the Mafia come up the cabin's own path from the square and turn off across the grass where the path passes closest
+  // to their target: they only go up to the door when the target is on the porch
+  let near=18;if(!porch){let best=1e9;for(let d=18;d<=92;d+=2){const q=c.route.at(d),dd=Math.hypot(q.x-N.spot[0],q.y-N.spot[1]);if(dd<best){best=dd;near=d;}}}
+  N.maf=[0,1].map(k=>{const pts=[],d0=Math.max((N.saved?126:92)+k*16,near+40);for(let d=d0;d>(porch?36:near);d-=6){const q=c.route.at(d);pts.push([q.x,q.y]);}
     pts.push(porch?[feet[0]+(k?18:-18),feet[1]+24+k*2]:[N.spot[0]+(k?13:-13),N.spot[1]+(k?6:4)]);return{path:new Poly(pts),lbl:k?'Leo':'You'};});
   N.shots=[[.5,'Night 2.'],[1.6,'The town is asleep…'],
     [2.9,{garden:`${n} can't sleep. The garden needs watering.`,wood:`${n}'s fire is dying. More wood.`,porch:N.wet?`${n} is out on the porch, watching the rain.`:`${n} is out on the porch, counting stars.`,
