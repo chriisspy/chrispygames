@@ -308,6 +308,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
       <div class="mhead"><b>COLLECTION</b><span class="small" id="collCount"></span><button class="btn" id="collX"><i data-ic="cross" data-c="solo"></i></button></div>
       <div class="small" style="margin-bottom:8px">Tap an outfit to wear it. Locked ones come from the Mafia Case.</div>
       <div class="ogrid" id="collGrid"></div>
+      <div class="row" style="justify-content:center;margin-top:12px"><button class="btn" id="collAll">Unlock all (test)</button></div>
     </div>
     <div class="modal big panel" id="shopModal">
       <div class="mhead"><b>SHOP</b><span class="wal"><i data-ic="coin" data-c="solo"></i><span class="coinN">0</span></span><button class="btn" id="shopX"><i data-ic="cross" data-c="solo"></i></button></div>
@@ -493,7 +494,7 @@ SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11111533'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11111558'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -821,7 +822,7 @@ function paintCoins(){document.querySelectorAll('.coinN').forEach(e=>e.textConte
 function wear(id){if(!OWNED.has(id))return;PEOPLE[0].skin=id;skinIdx=SKINS.findIndex(s=>s.id===id);paintSkin();puffAt(280,104);saveInv();}
 function openColl(){const g=$('#collGrid');
   g.innerHTML=SKINS.map(s=>{const own=OWNED.has(s.id);return`<div class="ocard${own?'':' lock'}${own&&PEOPLE[0].skin===s.id?' sel':''}" data-id="${s.id}" style="--rc:${RAR_COL[s.rar]}"><img src="${face(s.id)}" alt=""><span>${own?s.name:'? ? ?'}</span><em>${own?s.rar.toUpperCase():ic('lock',2)}</em></div>`;}).join('');
-  $('#collCount').textContent=`${SKINS.filter(s=>OWNED.has(s.id)).length} / ${SKINS.length}`;
+  $('#collCount').textContent=`${SKINS.filter(s=>OWNED.has(s.id)).length} / ${SKINS.length}`;$('#collAll').textContent=SKINS.every(s=>OWNED.has(s.id))?'Lock again (test)':'Unlock all (test)';
   g.querySelectorAll('.ocard').forEach(c=>c.onclick=()=>{if(!OWNED.has(c.dataset.id)){c.classList.remove('no');void c.offsetWidth;c.classList.add('no');return;}wear(c.dataset.id);openColl();});
   $('#shopModal').classList.remove('on');$('#collModal').classList.add('on');}
 function paintShop(){paintCoins();
@@ -881,6 +882,10 @@ $('#winFx').onclick=closeWin;
 $('#winEquip').onclick=e=>{e.stopPropagation();wear(WIN.item.id);closeWin();$('#caseResult').innerHTML=`You are wearing ${esc(WIN.item.name)}.`;};
 $('#winAgain').onclick=e=>{e.stopPropagation();closeWin();openCase();};
 $('#shopBtn').onclick=openShop;$('#collBtn').onclick=openColl;$('#shopX').onclick=()=>$('#shopModal').classList.remove('on');$('#collX').onclick=()=>$('#collModal').classList.remove('on');
+// test only: unlock every outfit on this phone, or lock them again (back to the four common ones)
+$('#collAll').onclick=()=>{const all=SKINS.every(s=>OWNED.has(s.id));
+  if(all){OWNED.clear();SKINS.filter(s=>s.rar==='common').forEach(s=>OWNED.add(s.id));if(!OWNED.has(PEOPLE[0].skin))wear(SKINS[0].id);}else SKINS.forEach(s=>OWNED.add(s.id));
+  saveInv();paintSkin();openColl();};
 $('#caseOpen').onclick=openCase;$('#coinTest').onclick=()=>{coins+=500;saveInv();paintShop();};
 const pk=$('#peekBtn');
 pk.addEventListener('pointerdown',e=>{e.preventDefault();if(!peek){peek=true;puffAt(280,104);}});
