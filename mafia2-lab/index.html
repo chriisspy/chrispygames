@@ -397,12 +397,13 @@ const SKINS=[
   {id:'beanie',name:'Blue Beanie',rar:'common'},{id:'ponytail',name:'Sunny Ponytail',rar:'rare'},
   {id:'curly',name:'Cosy Jumper',rar:'common'},{id:'farmer',name:'Straw Farmer',rar:'rare'},
   {id:'raincoat',name:'Cat Raincoat',rar:'epic'},{id:'redcap',name:'Red Cap',rar:'common'},
+  {id:'alfa',name:'Alfa Marcus',rar:'rare'},{id:'golf',name:'Golf Chrispy',rar:'rare'},
   // very rare: only from the Mafia case (his call, 10 Nov)
   {id:'batman',name:'Batman',rar:'legendary',locked:true,from:'Mafia Case'}];
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11102107'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11111228'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -1827,7 +1828,7 @@ let OBJ_META={};
   // PixelLab characters: 4 views on one canvas, cropped to the box they share so the feet stay on one line
   const PL={};
   // FINAL hand-finished characters (his style): front/back/left/right, trimmed, feet on the bottom row
-  const FINAL=Object.fromEntries(['beanie','brownhair','ponytail','curly','farmer','raincoat','redcap','mafia','doctor','jester','detective','batman'].map(n=>[n,'assets/final/'+n]));
+  const FINAL=Object.fromEntries(['beanie','brownhair','ponytail','curly','farmer','raincoat','redcap','mafia','doctor','jester','detective','batman','alfa','golf'].map(n=>[n,'assets/final/'+n]));
   const names=[...SKINS.map(s=>s.id),'mafia','doctor','jester','detective'].filter(n=>!PL[n]&&!FINAL[n]);
   OBJ_META=await (await fetch('assets/room-objects/objects.json?v='+BUILD)).json();
   const jobs=[load('townBase','assets/town3/town-base-night-1x.png'),load('room','assets/room-objects/room-empty.png'),load('quilt','assets/room-objects/bed-quilt.png'),load('chairback','assets/room-objects/chair-backing.png'),load('log','assets/final/log.png')];
