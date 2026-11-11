@@ -122,17 +122,14 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 .odds{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}.odds .rar{font-size:10px;padding:1px 4px}
 #caseItems{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
 #caseItems img{width:36px;height:36px;image-rendering:pixelated;border:2px solid var(--rc);border-radius:4px;background:#fff6df}#caseItems img.lock{filter:brightness(.3)}
-#reelBox{display:none;position:absolute;left:12px;right:12px;top:21%;overflow:hidden;height:86px;border:3px solid var(--ink);border-radius:5px;background:#1a1430;z-index:3;box-shadow:0 0 0 3px #ffd25e,0 0 46px 12px rgba(255,205,90,.5)}
+#reelBox{display:none;position:absolute;left:12px;right:12px;top:21%;overflow:hidden;height:86px;border:3px solid var(--ink);border-radius:5px;background:#1a1430;z-index:3;box-shadow:0 0 0 3px #ffd25e,0 0 0 6px #1a1430,0 8px 0 6px #0b0918}
 #reelBox.on{animation:cfReel .5s cubic-bezier(.2,.9,.3,1)}
-@keyframes cfReel{0%{opacity:0;transform:translateY(90px) scaleX(.15)}100%{opacity:1;transform:none}}
-#caseFx{position:absolute;inset:0;z-index:29;display:none;overflow:hidden;background:#05040c;cursor:pointer}
+@keyframes cfReel{0%{transform:translateY(70px) scale(.2)}70%{transform:translateY(-6px) scale(1.04)}100%{transform:none}}
+#caseFx{position:fixed;inset:0;z-index:29;display:none;overflow:hidden;background:#3a3270;cursor:pointer}
 #caseFx.on{display:block;animation:cfIn .3s ease-out}
 @keyframes cfIn{0%{opacity:0}100%{opacity:1}}
-#caseCv{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;transform-origin:50% 62%}
-#caseFx .cbar{position:absolute;left:0;right:0;height:9%;background:#000;z-index:2}
-#caseFx .cbar.t{top:0;animation:cbT .6s cubic-bezier(.6,0,.2,1)}#caseFx .cbar.b{bottom:0;animation:cbB .6s cubic-bezier(.6,0,.2,1)}
-@keyframes cbT{0%{transform:translateY(-100%)}100%{transform:none}}@keyframes cbB{0%{transform:translateY(100%)}100%{transform:none}}
-#caseFx .cskip{position:absolute;left:0;right:0;bottom:11%;text-align:center;color:#fff;opacity:.45;z-index:3}
+#caseCv{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;transform-origin:50% 55%}
+#caseFx .cskip{position:absolute;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom));text-align:center;color:#fff;opacity:.45;z-index:3}
 #reelBox.on{display:block}#reel{display:flex;gap:6px;padding:7px 0;width:max-content;will-change:transform}
 #reel .rc{flex:none;width:64px;height:66px;box-sizing:border-box;border:3px solid var(--rc);border-radius:5px;background:#fff6df;overflow:hidden}
 #reel .rc img{width:48px;height:48px;image-rendering:pixelated;display:block;margin:2px auto 0}
@@ -508,7 +505,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
       <div class="small wtap">Tap anywhere to close</div></div></div>
 
   <!-- OPENING A CASE: the case drops in, the lid pops, light pours out, the reel comes down out of the light. Tap to skip ahead. -->
-  <div id="caseFx"><canvas id="caseCv"></canvas><i class="cbar t"></i><i class="cbar b"></i>
+  <div id="caseFx"><canvas id="caseCv"></canvas>
     <div id="reelBox"><div id="reel"></div><i class="mark"></i></div><div class="small cskip" id="caseSkip">Tap to skip</div></div>
 
   <nav id="tabs">
@@ -579,7 +576,7 @@ SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11120923'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11120934'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -943,61 +940,69 @@ function openCase(){if(CASE.busy||coins<CASE.price)return;coins-=CASE.price;CASE
       else{OWNED.add(win.id);$('#caseResult').innerHTML=`NEW! ${esc(win.name)} <span class="rar ${win.rar==='common'?'':win.rar}">${win.rar.toUpperCase()}</span>`;}
       saveInv();paintSkin();setTimeout(()=>{CASE.busy=false;paintShop();caseFilmEnd();showWin(win,dupe,back);},380);}},16);});}
 /* ---------- OPENING A CASE: a little film ----------
-   The case (drawn and animated in PixelLab: assets/case/open.png, 13 frames of 96 px) drops in from above, lands with a
-   thud, the latch works loose, the lid pops and light pours out; then the reel of outfits comes down out of the light.
+   The case (drawn and animated in PixelLab, facing the camera: assets/case/open.png, 13 frames of 96 px) drops in from
+   above, lands with a thud, the latch works loose, the lid pops and light pours out; then the reel of outfits pops in.
    Drawn on its own small canvas so every pixel stays chunky. Runs off a timer, not the game loop. Tap to skip ahead. */
 const CF={on:false,t:0,tick:null,parts:[],reel:false};
-const CF_T={fall:.6,land:1.12,latch:1.7,pop:2.5,reel:3.5};
+const CF_T={fall:.45,land:.95,latch:1.5,pop:2.3,reel:3.2};
+// the case art: which frame the lid starts to lift on, the row its feet stand on, the row of its open mouth, half the mouth's width
+const CASE_ART={pop:7,foot:85,mouth:47,half:37};
 function caseFilmEnd(){CF.on=false;clearInterval(CF.tick);$('#caseFx').classList.remove('on');$('#reelBox').classList.remove('on');}
 $('#caseFx').onclick=()=>{if(CF.on&&CF.t<CF_T.reel-.1)CF.t=CF_T.reel-.1;};
-function caseFilm(startReel){const el=$('#caseFx'),c=$('#caseCv'),x=c.getContext('2d'),im=IMG.caseSheet;
+// HIS RULES (12 Nov): solid, chunky pixel shapes only (no see-through lines, cones or soft rays), the light comes out of the
+// case IN FRONT of the lid, the case faces the camera, and the scene fills the whole screen.
+function caseFilm(startReel){const el=$('#caseFx'),c=$('#caseCv'),x=c.getContext('2d'),im=IMG.caseSheet,A=CASE_ART;
   el.classList.add('on');$('#reelBox').classList.remove('on');$('#caseSkip').style.display='';
   const LW=180,LH=Math.max(200,Math.round(LW*el.clientHeight/el.clientWidth));c.width=LW;c.height=LH;x.imageSmoothingEnabled=false;
-  const NF=Math.round(im.width/96),fy=Math.round(LH*.66),cx=LW/2,my=fy-50;   // fy = the floor under the case, my = the mouth of the open case
-  Object.assign(CF,{on:true,t:0,parts:[],reel:false});let last=performance.now(),hit=false,popped=false,flash=0,fcol='255,255,255';
-  const P=(o)=>CF.parts.push(o);
+  const NF=Math.round(im.width/96),cx=LW/2,fy0=Math.round(LH*.6);
+  Object.assign(CF,{on:true,t:0,parts:[],reel:false});let last=performance.now(),hit=false,popped=false,flash=0;
+  const P=o=>CF.parts.push(o),rnd=(a,b)=>a+Math.random()*(b-a),CONF=['#7bc96f','#6fb5ff','#c58bff','#ffcf4a','#f07ab0','#ffffff'];
+  const R=(col,rx,ry,w,h)=>{x.fillStyle=col;x.fillRect(Math.round(rx),Math.round(ry),Math.round(w),Math.round(h));};
+  const star=(sx,sy,r,col)=>{sx=Math.round(sx);sy=Math.round(sy);x.fillStyle=col;x.fillRect(sx-r,sy,2*r+1,1);x.fillRect(sx,sy-r,1,2*r+1);if(r>=2)x.fillRect(sx-1,sy-1,3,3);};
+  const blob=(col,bx,by,r)=>{if(r<1)return;R(col,bx-r,by-r/2,2*r,r);R(col,bx-r/2,by-r,r,2*r);};   // a chunky round puff
   clearInterval(CF.tick);CF.tick=setInterval(()=>{const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;CF.t+=dt;const t=CF.t,T=CF_T;
+    const fy=fy0+Math.round(LH*.11*ease(clamp((t-T.reel+.3)/.6,0,1))),my=fy-(A.foot-A.mouth);   // the floor slides down to make room for the reel
     let cy=fy,sx=1,sy=1,frame=0,jx=0,shake=0;
-    if(t<T.fall)cy=-300;
-    else if(t<T.land){const k=(t-T.fall)/(T.land-T.fall);cy=lerp(-60,fy,k*k);sy=1.1;sx=.93;}
+    if(t<T.fall)cy=-400;
+    else if(t<T.land){const k=(t-T.fall)/(T.land-T.fall);cy=lerp(-40,fy,k*k);sy=1.12;sx=.9;}
     else{const k=t-T.land;
-      if(!hit){hit=true;flash=.55;fcol='255,255,255';for(let i=0;i<34;i++){const d=i%2?1:-1;P({k:'dust',x:cx+d*(20+Math.random()*26),y:fy-2-Math.random()*4,vx:d*(30+Math.random()*90),vy:-10-Math.random()*40,t:0,l:.5+Math.random()*.5});}}
-      if(k<.08){sy=.7;sx=1.22;}else if(k<.4){const b=(k-.08)/.32;cy=fy-Math.sin(b*Math.PI)*13;sy=1+.07*Math.sin(b*Math.PI);sx=1-.04*Math.sin(b*Math.PI);}else if(k<.47){sy=.9;sx=1.07;}
-      shake=Math.max(0,.32-k)*16;}
-    if(t>=T.latch&&t<T.pop){const k=(t-T.latch)/(T.pop-T.latch);frame=Math.min(6,Math.floor(k*7));jx=Math.round(Math.sin(t*64)*(.5+k*2.4));
-      if(Math.random()<dt*(6+k*30))P({k:'spark',x:cx+(Math.random()-.5)*60,y:my+8+Math.random()*6,vx:(Math.random()-.5)*30,vy:-20-Math.random()*40,t:0,l:.35+Math.random()*.3});}
+      if(!hit){hit=true;for(let i=0;i<10;i++){const d=i%2?1:-1;P({k:'puff',x:cx+d*rnd(26,40),y:fy-2,vx:d*rnd(50,130),vy:rnd(-34,-6),r:rnd(4,7),t:0,l:rnd(.35,.6)});}
+        for(const d of[-1,1])P({k:'star',x:cx+d*rnd(52,62),y:fy-rnd(16,34),r:3,t:0,l:.32,col:'#ffd95e'});}
+      if(k<.08){sy=.68;sx=1.24;}else if(k<.4){const b=(k-.08)/.32;cy=fy-Math.sin(b*Math.PI)*14;sy=1+.08*Math.sin(b*Math.PI);sx=1-.05*Math.sin(b*Math.PI);}else if(k<.47){sy=.88;sx=1.08;}
+      shake=k<.25?4:0;}
+    const latch=t>=T.latch&&t<T.pop;
+    if(latch){const k=(t-T.latch)/(T.pop-T.latch);frame=Math.min(A.pop-1,Math.floor(k*A.pop));jx=Math.round(Math.sin(t*64)*(.6+k*2.6));sy=1+.03*Math.sin(t*40)*k;}
     const open=t>=T.pop?t-T.pop:-1;
-    if(open>=0){frame=Math.min(NF-1,7+Math.floor(open*17));
-      if(!popped){popped=true;flash=.95;fcol='255,244,200';shake=7;for(let i=0;i<70;i++){const a=-Math.PI/2+(Math.random()-.5)*2.4,v=60+Math.random()*190;P({k:'spark',x:cx+(Math.random()-.5)*40,y:my,vx:Math.cos(a)*v,vy:Math.sin(a)*v,t:0,l:.6+Math.random()*.9,g:120});}}
-      if(Math.random()<dt*46)P({k:'spark',x:cx+(Math.random()-.5)*56,y:my+Math.random()*6,vx:(Math.random()-.5)*26,vy:-30-Math.random()*70,t:0,l:.8+Math.random()*1.1});
-      if(open<.5)shake=Math.max(shake,(.5-open)*10);}
-    // the camera: a slow push in while the latch works loose, a kick on the pop, then it settles lower to make room for the reel
-    const push=t<T.land?1:t<T.pop?1+.16*ease(clamp((t-T.land)/(T.pop-T.land),0,1)):1.16+.1*Math.max(0,1-open/.35)-.2*ease(clamp((t-T.reel+.3)/.6,0,1));
-    c.style.transform=`translateY(${(10*ease(clamp((t-T.reel+.3)/.6,0,1))).toFixed(2)}%) scale(${push.toFixed(3)})`;
-    x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-over';x.globalAlpha=1;x.clearRect(0,0,LW,LH);
+    if(open>=0){frame=Math.min(NF-1,A.pop+Math.floor(open*16));
+      if(!popped){popped=true;flash=2;shake=6;
+        for(let i=0;i<64;i++)P({k:'conf',x:cx+rnd(-A.half,A.half)*.7,y:my-2,vx:rnd(-130,130),vy:rnd(-360,-150),g:430,col:CONF[i%CONF.length],w:i%3?2:3,t:0,l:rnd(1.3,2.4)});
+        for(let i=0;i<8;i++)P({k:'star',x:cx+rnd(-74,74),y:my-rnd(20,120),r:2+i%3,t:-i*.04,l:.4,col:i%2?'#ffffff':'#ffd95e'});}
+      if(Math.random()<dt*13)P({k:'star',x:cx+rnd(-80,80),y:my-rnd(8,LH*.5),r:1+Math.floor(rnd(0,3)),t:0,l:rnd(.3,.5),col:Math.random()<.5?'#ffffff':'#fff2a8'});
+      if(Math.random()<dt*9)P({k:'conf',x:cx+rnd(-A.half,A.half)*.6,y:my-2,vx:rnd(-70,70),vy:rnd(-260,-140),g:430,col:CONF[Math.floor(rnd(0,CONF.length))],w:2,t:0,l:rnd(1.2,2)});
+      if(open<.3)shake=Math.max(shake,3);else if(open<.36)sy=.94;}
+    // the camera pushes in while the latch works loose, kicks on the pop, and eases back for the reel
+    const push=t<T.land?1:t<T.pop?1+.14*ease(clamp((t-T.land)/(T.pop-T.land),0,1)):1.14+.08*Math.max(0,1-open/.3)-.14*ease(clamp((t-T.reel+.3)/.6,0,1));
+    c.style.transform=`scale(${push.toFixed(3)})`;
+    x.setTransform(1,0,0,1,0,0);R('#3a3270',-8,-8,LW+16,LH+16);   // a plain purple stage, light enough that the dark case stands out
     if(shake>0)x.translate(Math.round((Math.random()-.5)*shake),Math.round((Math.random()-.5)*shake));
-    // a spotlight from above, and the floor it lands on
-    const lit=clamp(t/.5,0,1);x.fillStyle=`rgba(255,226,170,${.05*lit})`;x.beginPath();x.moveTo(cx-16,-4);x.lineTo(cx+16,-4);x.lineTo(cx+78,fy+6);x.lineTo(cx-78,fy+6);x.fill();
-    x.fillStyle=`rgba(255,226,170,${.09*lit})`;x.beginPath();x.ellipse(cx,fy+2,80,13,0,0,7);x.fill();
-    if(open>=0){const g=clamp(open/.5,0,1),sw=1+.08*Math.sin(t*5);x.globalCompositeOperation='lighter';
-      // light pouring out: turning rays, a column going up, a ball of glow at the mouth
-      const L=(60+260*ease(g))*sw;for(let i=0;i<14;i++){const a=i/14*Math.PI*2+t*.35,w=.085+.03*Math.sin(i*2.7);x.fillStyle=`rgba(255,${190+(i%3)*18},90,${(.1+.05*(i%2))*g})`;
-        x.beginPath();x.moveTo(cx,my);x.lineTo(cx+Math.cos(a-w)*L,my+Math.sin(a-w)*L);x.lineTo(cx+Math.cos(a+w)*L,my+Math.sin(a+w)*L);x.fill();}
-      const cw=(16+26*g)*sw,gr=x.createLinearGradient(0,my,0,my-LH*.75);gr.addColorStop(0,`rgba(255,236,160,${.5*g})`);gr.addColorStop(1,'rgba(255,220,120,0)');x.fillStyle=gr;
-      x.beginPath();x.moveTo(cx-cw,my);x.lineTo(cx+cw,my);x.lineTo(cx+cw*2.6,my-LH*.75);x.lineTo(cx-cw*2.6,my-LH*.75);x.fill();
-      const R=(26+70*ease(g))*sw,rg=x.createRadialGradient(cx,my,0,cx,my,R);rg.addColorStop(0,`rgba(255,250,215,${.85*g})`);rg.addColorStop(.4,`rgba(255,205,90,${.42*g})`);rg.addColorStop(1,'rgba(255,170,40,0)');x.fillStyle=rg;x.fillRect(cx-R,my-R,2*R,2*R);
-      x.globalCompositeOperation='source-over';}
-    // its shadow, tighter and darker as it comes down
-    {const h=clamp((fy-cy)/260,0,1);x.fillStyle=`rgba(0,0,0,${.5*(1-h)*lit})`;x.beginPath();x.ellipse(cx,fy-1,44*(1-h*.6),7*(1-h*.5),0,0,7);x.fill();}
-    if(t>=T.fall&&t<T.land)for(let i=0;i<5;i++){x.fillStyle=`rgba(255,255,255,${.1+.05*i})`;x.fillRect(Math.round(cx-34+i*17),Math.round(cy-96-18-i%2*10),1,14);}   // speed lines
-    const dw=Math.round(96*sx),dh=Math.round(96*sy);x.drawImage(im,frame*96,0,96,96,Math.round(cx-dw/2)+jx,Math.round(cy-89*sy),dw,dh);
-    for(let i=CF.parts.length-1;i>=0;i--){const q=CF.parts[i];q.t+=dt;if(q.t>q.l){CF.parts.splice(i,1);continue;}const k=q.t/q.l;
-      if(q.k==='dust'){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.93;q.vy+=60*dt;x.fillStyle=`rgba(214,200,180,${.7*(1-k)})`;const s=k<.5?3:2;x.fillRect(Math.round(q.x),Math.round(q.y),s,s);}
-      else{q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=(q.g||0)*dt;q.vx*=.985;x.fillStyle=k<.3?'#ffffff':k<.7?'#ffe68a':'#ffb347';x.globalAlpha=1-k*k;const s=k<.6?2:1;x.fillRect(Math.round(q.x),Math.round(q.y),s,s);x.globalAlpha=1;}}
-    // the light swells until it fills the screen, and the reel comes out of it
-    const wo=clamp((t-(T.reel-.45))/.45,0,1)*(1-clamp((t-T.reel)/.5,0,1));
-    if(wo>0){x.setTransform(1,0,0,1,0,0);x.fillStyle=`rgba(255,240,190,${.9*wo})`;x.fillRect(0,0,LW,LH);}
-    if(flash>0){x.setTransform(1,0,0,1,0,0);x.fillStyle=`rgba(${fcol},${flash})`;x.fillRect(0,0,LW,LH);flash=Math.max(0,flash-dt*3.2);}
+    if(open>=0){   // behind the case: a two-colour sunburst that grows out from it and slowly turns
+      const g=ease(clamp(open/.5,0,1)),L=g*(LW+LH),rot=t*.22;x.fillStyle='#4a4096';x.beginPath();x.arc(cx,my,L,0,7);x.fill();x.fillStyle='#5d52b4';
+      for(let i=0;i<9;i++){const a=i/9*Math.PI*2+rot,w=Math.PI/18;x.beginPath();x.moveTo(cx,my);x.lineTo(cx+Math.cos(a-w)*L,my+Math.sin(a-w)*L);x.lineTo(cx+Math.cos(a+w)*L,my+Math.sin(a+w)*L);x.fill();}}
+    R('#2b2558',-8,fy-12,LW+16,LH);R('#221d48',-8,fy-12,LW+16,2);   // the floor
+    {const h=clamp((fy-cy)/300,0,1),rx=Math.round(46*(1-h*.55));R('#17132e',cx-rx,fy-3,2*rx,7);R('#17132e',cx-rx+5,fy-5,2*rx-10,11);}   // its shadow on the floor
+    const dw=Math.round(96*sx),dh=Math.round(96*sy);x.drawImage(im,frame*96,0,96,96,Math.round(cx-dw/2)+jx,Math.round(cy-A.foot*sy),dw,dh);
+    if(latch&&Math.floor(t/.09)%2){   // comic shake marks either side while the latch works loose
+      for(const d of[-1,1]){R('#ffffff',cx+d*56-(d<0?6:0),my-6,6,2);R('#ffffff',cx+d*60-(d<0?8:0),my+8,8,2);R('#ffffff',cx+d*56-(d<0?5:0),my+22,5,2);}}
+    if(open>=0){   // THE LIGHT: three solid bands pouring up out of the mouth, drawn after the case so it is in front of the lid
+      const h=ease(clamp(open/.25,0,1)),top=my-(my+12)*h,wob=[0,2,-1,1,-2,1][Math.floor(t/.07)%6],pulse=Math.round(Math.sin(t*7)*2);
+      for(const[col,f]of[['#ff9f3a',1],['#ffd24a',.72],['#fff3b8',.4]])for(let y=my;y>top;y-=4){const d=my-y,hw=((A.half-8)+d*.2+(d>8?wob+pulse:0))*f;R(col,cx-hw,y-4,2*hw,4);}
+      R('#fff3b8',cx-A.half+2,my-2,2*A.half-4,3);R('#ffffff',cx-A.half*.5,my-3,A.half,3);}
+    for(let i=CF.parts.length-1;i>=0;i--){const q=CF.parts[i];q.t+=dt;if(q.t<0)continue;if(q.t>q.l){CF.parts.splice(i,1);continue;}const k=q.t/q.l;
+      if(q.k==='puff'){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.9;blob('#e9dcc0',q.x,q.y,Math.round(q.r*(1-k)));}
+      else if(q.k==='star')star(q.x,q.y,Math.round(q.r*Math.sin(Math.PI*k)),q.col);
+      else{q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=q.g*dt;q.vx*=.99;if(q.y>fy+8&&q.vy>0){q.y=fy+8;q.vy*=-.35;q.vx*=.6;}
+        if(k<.85||Math.floor(q.t/.06)%2)R(q.col,q.x,q.y,Math.floor(q.t/.1+q.w)%2?q.w:1,q.w);}}
+    if(flash>0){x.setTransform(1,0,0,1,0,0);R('#fff3b8',0,0,LW,LH);flash--;}
     if(t>=T.reel&&!CF.reel){CF.reel=true;$('#caseSkip').style.display='none';startReel();}
   },16);}
 /* ---------- the win pop-up ----------
