@@ -55,7 +55,7 @@ def front_at(a, y):
     xs = np.nonzero(a[y, :, 3])[0]
     return int(xs.max()) if len(xs) else None
 
-HEAD_LOCK = {'bape'}; LEGS = 5      # rows of legs + shoes at the bottom of a front view
+HEAD_LOCK = {'bape'}; HEADROWS = 21      # characters whose front head gets pinned, and how many rows of front.png are head
 
 def blob(a):
     """drop crumbs PixelLab leaves floating off the sprite: keep the biggest 4-connected blob"""
@@ -80,16 +80,15 @@ def main():
             a = F0(k, i)
             # PixelLab turned this character's head sideways on some front-walk frames (it flickered left and right):
             # keep the standing frame's whole upper body on every frame and let only the legs move
-            if name in HEAD_LOCK and k == 'walk_south':
-                # the upper body is HIS front sprite (PixelLab's own standing frame lost the cap brim), lined up on the standing frame
-                s0 = F0(k, 0); g = np.nonzero(s0[..., 3].any(1))[0].max(); fr = np.asarray(Image.open(f'assets/final/{name}/front.png').convert('RGBA'))
-                fh, fw = fr.shape[:2]; best = None
-                for x in range(0, s0.shape[1] - fw + 1):
-                    ov = int(((s0[g - fh + 1:g + 1, x:x + fw, 3] > 0) & (fr[..., 3] > 0)).sum())
-                    if best is None or ov > best[0]: best = (ov, x)
-                b = np.zeros_like(s0); b[g - fh + 1:g + 1, best[1]:best[1] + fw] = fr
-                if i > 0: b[g - LEGS + 1:] = a[g - LEGS + 1:]
-                a = b
+            if name in HEAD_LOCK and k in ('walk_south', 'sit_south'):
+                # PixelLab redraws this character's head on some front frames (the cap brim comes and goes): put HIS drawn
+                # head back on every frame, wherever the head is, and keep PixelLab's body, arms and legs under it
+                fr = np.asarray(Image.open(f'assets/final/{name}/front.png').convert('RGBA'))[:HEADROWS]; fh, fw = fr.shape[:2]; best = None
+                for y in range(0, a.shape[0] - fh + 1):
+                    for x in range(0, a.shape[1] - fw + 1):
+                        w = a[y:y + fh, x:x + fw]; sc = int(((w[..., :3] == fr[..., :3]).all(-1) & (fr[..., 3] > 0) & (w[..., 3] > 0)).sum())
+                        if best is None or sc > best[0]: best = (sc, x, y)
+                _, x, y = best; a = a.copy(); a[:y + fh] = 0; m = fr[..., 3] > 0; a[y:y + fh, x:x + fw][m] = fr[m]
             return a
         out = {}
         def base(a):                       # ground line + feet middle from a standing frame
