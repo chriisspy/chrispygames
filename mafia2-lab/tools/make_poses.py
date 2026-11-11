@@ -155,6 +155,18 @@ def dead(a, navy):
             for g in groups:
                 if abs(g['c'] - c) < 3: g['px'] += [(x, y) for x in range(x0, x1)]; break
             else: groups.append({'c': c, 'px': [(x, y) for x in range(x0, x1)]})
+        # only the two real eyes get an X: an ear or a bit of beard can look like an eye to the finder, so keep the
+        # pair that matches best (same size, same height, a few pixels apart) and drop the rest
+        if len(groups) > 2:
+            best = None
+            for i in range(len(groups)):
+                for j in range(i + 1, len(groups)):
+                    g1, g2 = groups[i], groups[j]; dx = abs(g1['c'] - g2['c'])
+                    if not 4 <= dx <= 10: continue
+                    t1 = min(q[1] for q in g1['px']); t2 = min(q[1] for q in g2['px'])
+                    score = abs(len(g1['px']) - len(g2['px'])) + 2 * abs(t1 - t2) - .1 * (len(g1['px']) + len(g2['px']))
+                    if best is None or score < best[0]: best = (score, g1, g2)
+            if best: groups = [best[1], best[2]]
         for g in groups:
             px = g['px']; skin = None
             x0 = min(p[0] for p in px); y0 = min(p[1] for p in px)
