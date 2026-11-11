@@ -122,7 +122,17 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 .odds{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}.odds .rar{font-size:10px;padding:1px 4px}
 #caseItems{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
 #caseItems img{width:36px;height:36px;image-rendering:pixelated;border:2px solid var(--rc);border-radius:4px;background:#fff6df}#caseItems img.lock{filter:brightness(.3)}
-#reelBox{display:none;position:relative;overflow:hidden;height:86px;margin-top:10px;border:3px solid var(--ink);border-radius:5px;background:#1a1430}
+#reelBox{display:none;position:absolute;left:12px;right:12px;top:21%;overflow:hidden;height:86px;border:3px solid var(--ink);border-radius:5px;background:#1a1430;z-index:3;box-shadow:0 0 0 3px #ffd25e,0 0 46px 12px rgba(255,205,90,.5)}
+#reelBox.on{animation:cfReel .5s cubic-bezier(.2,.9,.3,1)}
+@keyframes cfReel{0%{opacity:0;transform:translateY(90px) scaleX(.15)}100%{opacity:1;transform:none}}
+#caseFx{position:absolute;inset:0;z-index:29;display:none;overflow:hidden;background:#05040c;cursor:pointer}
+#caseFx.on{display:block;animation:cfIn .3s ease-out}
+@keyframes cfIn{0%{opacity:0}100%{opacity:1}}
+#caseCv{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;transform-origin:50% 62%}
+#caseFx .cbar{position:absolute;left:0;right:0;height:9%;background:#000;z-index:2}
+#caseFx .cbar.t{top:0;animation:cbT .6s cubic-bezier(.6,0,.2,1)}#caseFx .cbar.b{bottom:0;animation:cbB .6s cubic-bezier(.6,0,.2,1)}
+@keyframes cbT{0%{transform:translateY(-100%)}100%{transform:none}}@keyframes cbB{0%{transform:translateY(100%)}100%{transform:none}}
+#caseFx .cskip{position:absolute;left:0;right:0;bottom:11%;text-align:center;color:#fff;opacity:.45;z-index:3}
 #reelBox.on{display:block}#reel{display:flex;gap:6px;padding:7px 0;width:max-content;will-change:transform}
 #reel .rc{flex:none;width:64px;height:66px;box-sizing:border-box;border:3px solid var(--rc);border-radius:5px;background:#fff6df;overflow:hidden}
 #reel .rc img{width:48px;height:48px;image-rendering:pixelated;display:block;margin:2px auto 0}
@@ -205,7 +215,17 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 #townHud .tcount{font-size:14px;font-weight:600;margin:4px auto 0;width:max-content;background:rgba(26,20,48,.88);border:3px solid #0f0b1e;border-radius:6px;padding:1px 10px 3px;text-shadow:none;color:#fff}
 #townMenu{position:absolute;display:none;gap:5px;transform:translate(-50%,-100%);z-index:5}
 #townMenu.on{display:flex;animation:tmPop .16s cubic-bezier(.2,1.5,.4,1)}
-#townMenu .btn{width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center}
+#townMenu{gap:8px}#townMenu .btn{width:50px;height:50px;padding:0 0 3px;display:flex;align-items:center;justify-content:center;background:#2a2346;border-color:#0f0b1e;box-shadow:inset 0 -5px 0 #1b1532,0 3px 0 #0009}
+#townMenu .btn:active{transform:translateY(2px)}
+.thead{display:flex;align-items:center;gap:10px}.thead .tt{flex:1;min-width:0}.thead b{font-size:19px;line-height:1.1;display:block}.thead .wal{font-size:20px}
+.tbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:9px;font:700 20px "Pixelify Sans";color:#fff;border:3px solid #0f0b1e;border-radius:6px;padding:8px 6px 12px;cursor:pointer;pointer-events:auto;text-shadow:0 2px 0 #0007;letter-spacing:.5px}
+.tbtn.dance{background:#4a7bd0;box-shadow:inset 0 -6px 0 #2b4a8a,inset 0 3px 0 #7fa6e8,0 4px 0 #0009}
+.tbtn.wave{background:#f07ab0;box-shadow:inset 0 -6px 0 #b8457e,inset 0 3px 0 #ffb0d2,0 4px 0 #0009}
+.tbtn:active{transform:translateY(3px)}
+#townToast{position:absolute;left:50%;top:calc(132px + env(safe-area-inset-top));transform:translateX(-50%);max-width:92%;white-space:nowrap;font-size:22px;font-weight:700;color:#fff;background:#0b0918f0;border:3px solid #f6dfae;border-radius:6px;box-shadow:0 0 0 3px #0b0918,0 5px 0 #0009;padding:6px 14px 8px;display:none;z-index:6}
+#townToast.on{display:block;animation:wrPop .2s ease-out}#townToast.bad{border-color:#e4544f;color:#ffd9d6}#townToast.good{border-color:#6fd08a;color:#dcffe6}
+#wheelPop{position:absolute;transform:translate(-50%,-100%);display:none;align-items:center;gap:8px;white-space:nowrap;background:#0b0918f0;color:#fff;border:3px solid #ffd25e;border-radius:6px;box-shadow:0 0 0 3px #0b0918,0 5px 0 #0009;padding:5px 12px 6px 6px;z-index:4;font-size:18px;font-weight:700;line-height:1.1}
+#wheelPop.on{display:flex}#wheelPop img.f{width:36px;height:36px;image-rendering:pixelated}#wheelPop small{display:block;font-size:11px;font-weight:600;letter-spacing:1px;color:#ffe9a8}#wheelPop b{display:flex;align-items:center;gap:5px}
 #wheelModal{text-align:center}#wheelModal .mhead{text-align:left}
 #wheelCv{display:block;width:min(303px,78%);margin:8px auto 2px;image-rendering:pixelated}
 #wheelRes{min-height:30px;font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
@@ -344,7 +364,6 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
       <div class="mhead"><b>SHOP</b><span class="wal"><i data-ic="coin" data-c="solo"></i><span class="coinN">0</span></span><button class="btn" id="shopX"><i data-ic="cross" data-c="solo"></i></button></div>
       <div class="casecard"><i data-ic="case" data-s="5" data-c="solo"></i><div style="flex:1"><b>Mafia Case</b><div class="small">One random outfit. A double pays some coins back.</div><div class="odds" id="caseOdds"></div></div></div>
       <div id="caseItems"></div>
-      <div id="reelBox"><div id="reel"></div><i class="mark"></i></div>
       <div id="caseResult"></div>
       <div class="row" style="justify-content:center;margin-top:10px"><button class="btn red" id="caseOpen">Open</button><button class="btn" id="coinTest">+500 test coins</button></div>
     </div>
@@ -353,13 +372,14 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
   <!-- WAITING LOBBY: the town, before the game starts -->
   <div class="hud" id="townHud">
     <div class="title banner"><small>WAITING LOBBY · CODE K7QF</small>THE TOWN<div class="tcount" id="townCount"></div></div>
-    <div id="townMenu"><button class="btn" data-a="punch" title="Punch"><i data-ic="fist" data-c="solo"></i></button><button class="btn" data-a="five" title="High five"><i data-ic="hand" data-c="solo"></i></button></div>
-    <div class="bottom"><div class="panel" style="padding:10px 12px">
-      <div style="text-align:center"><b id="townLine">Welcome to town.</b><div class="small" id="townSub"></div></div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn dark lob" id="townDance"><i data-ic="note" data-c="solo"></i>Dance</button>
-        <button class="btn dark lob" id="townWave"><i data-ic="heart" data-c="solo"></i>Wave</button>
-        <span class="wal"><i data-ic="coin" data-c="solo"></i><span class="coinN">0</span></span>
+    <div id="townMenu"><button class="btn" data-a="punch" title="Punch"><i data-ic="fist" data-s="3" data-c="solo"></i></button><button class="btn" data-a="five" title="High five"><i data-ic="hand" data-s="3" data-c="solo"></i></button></div>
+    <div id="townToast"></div>
+    <div id="wheelPop"></div>
+    <div class="bottom"><div class="panel" style="padding:10px 12px 12px">
+      <div class="thead"><div class="tt"><b id="townLine">Waiting for the host</b><div class="small" id="townSub"></div></div><span class="wal"><i data-ic="coin" data-s="3" data-c="solo"></i><span class="coinN">0</span></span></div>
+      <div class="row" style="margin-top:10px;gap:10px">
+        <button class="tbtn dance" id="townDance"><i data-ic="note" data-s="3" data-c="solo"></i>Dance</button>
+        <button class="tbtn wave" id="townWave"><i data-ic="heart" data-s="3" data-c="solo"></i>Wave</button>
       </div>
     </div></div>
     <div class="modal big panel" id="wheelModal">
@@ -487,6 +507,10 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
       <div class="row wbtns"><button class="btn go" id="winEquip">Equip</button><button class="btn red" id="winAgain">Open case</button></div>
       <div class="small wtap">Tap anywhere to close</div></div></div>
 
+  <!-- OPENING A CASE: the case drops in, the lid pops, light pours out, the reel comes down out of the light. Tap to skip ahead. -->
+  <div id="caseFx"><canvas id="caseCv"></canvas><i class="cbar t"></i><i class="cbar b"></i>
+    <div id="reelBox"><div id="reel"></div><i class="mark"></i></div><div class="small cskip" id="caseSkip">Tap to skip</div></div>
+
   <nav id="tabs">
     <button class="btn" data-s="lobby">Lobby</button>
     <button class="btn" data-s="town">Town</button>
@@ -500,7 +524,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
   </nav>
 </div>
 
-<script src="icons.js?v=11120903"></script>
+<script src="icons.js?v=11120920"></script>
 <script>
 'use strict';
 const $=s=>document.querySelector(s);
@@ -555,7 +579,7 @@ SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11120909'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11120923'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -822,8 +846,14 @@ function cabinTheme(ci){const p=CABIN_OF.indexOf(ci),id=p>=0?PEOPLE[p].cabinThem
 const cabinKey=ci=>`cab/${cabinTheme(ci)}/${ci}`;
 function loadCabins(){return Promise.all(TOWN.cabins.map((c,ci)=>IMG[cabinKey(ci)]?null:load(cabinKey(ci),CABIN_THEMES[cabinTheme(ci)].art(ci))));}
 function loadProps(){return Promise.all(TOWN.occ.map(o=>IMG['prop/'+o.k]?null:load('prop/'+o.k,`assets/town3/props/${o.k}.png`)));}
+// a little wooden board with the owner's name, hung on two hooks just above the door
+function cabinSign(x,ci){const p=CABIN_OF.indexOf(ci);if(p<0)return;const c=TOWN.cabins[ci],s=PEOPLE[p].n.toUpperCase().slice(0,8),w=s.length*4+5,x0=c.cx-Math.floor(w/2),y0=c.top-9;
+  x.fillStyle='#1a1430';x.fillRect(x0,y0,w,9);x.fillRect(x0+2,y0-2,1,2);x.fillRect(x0+w-3,y0-2,1,2);
+  x.fillStyle='#b9793f';x.fillRect(x0+1,y0+1,w-2,7);x.fillStyle='#d79a57';x.fillRect(x0+1,y0+1,w-2,1);x.fillStyle='#8a5a2c';x.fillRect(x0+1,y0+7,w-2,1);
+  x.fillStyle='#2a1608';pxText(x,s,x0+3,y0+2);}
 function buildTown(){const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext('2d');x.drawImage(b,0,0);
   TOWN.cabins.forEach((cb,ci)=>x.drawImage(IMG[cabinKey(ci)],cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
+  TOWN.cabins.forEach((cb,ci)=>cabinSign(x,ci));
   TOWN.occ.forEach(o=>x.drawImage(IMG['prop/'+o.k],o.x,o.y));
   IMG.town=c;}
 // change someone's cabin (from an unlock), then rebuild the town picture
@@ -903,14 +933,73 @@ function rollCase(){let r=Math.random(),rar='common';for(const[k,q]of Object.ent
 function openCase(){if(CASE.busy||coins<CASE.price)return;coins-=CASE.price;CASE.busy=true;saveInv();paintShop();
   const win=rollCase(),WIN=30,strip=[];for(let i=0;i<36;i++)strip.push(i===WIN?win:rollCase());
   const reel=$('#reel'),box=$('#reelBox');$('#caseResult').innerHTML='';
-  reel.innerHTML=strip.map(s=>`<div class="rc" style="--rc:${RAR_COL[s.rar]}"><img src="${face(s.id)}" alt=""><i></i></div>`).join('');reel.style.transform='translateX(0)';box.classList.add('on');
+  reel.innerHTML=strip.map(s=>`<div class="rc" style="--rc:${RAR_COL[s.rar]}"><img src="${face(s.id)}" alt=""><i></i></div>`).join('');reel.style.transform='translateX(0)';
+  caseFilm(()=>{box.classList.add('on');
   const el=reel.children[WIN],end=el.offsetLeft+el.offsetWidth/2-box.clientWidth/2+(Math.random()-.5)*36,t0=performance.now(),D=5200;
   // a steady crawl to a stop (ease-out quad): a steeper curve leaves the reel looking frozen before it lands
   const tick=setInterval(()=>{const k=Math.min(1,(performance.now()-t0)/D),e=1-(1-k)*(1-k);reel.style.transform=`translateX(${-Math.round(end*e)}px)`;
     if(k>=1){clearInterval(tick);const dupe=OWNED.has(win.id),back=Math.round(CASE.price*CASE.dupe);
       if(dupe){coins+=back;$('#caseResult').innerHTML=`${esc(win.name)} again. ${ic('coin',2)} +${back} back`;}
       else{OWNED.add(win.id);$('#caseResult').innerHTML=`NEW! ${esc(win.name)} <span class="rar ${win.rar==='common'?'':win.rar}">${win.rar.toUpperCase()}</span>`;}
-      saveInv();paintSkin();setTimeout(()=>{CASE.busy=false;paintShop();showWin(win,dupe,back);},380);}},16);}
+      saveInv();paintSkin();setTimeout(()=>{CASE.busy=false;paintShop();caseFilmEnd();showWin(win,dupe,back);},380);}},16);});}
+/* ---------- OPENING A CASE: a little film ----------
+   The case (drawn and animated in PixelLab: assets/case/open.png, 13 frames of 96 px) drops in from above, lands with a
+   thud, the latch works loose, the lid pops and light pours out; then the reel of outfits comes down out of the light.
+   Drawn on its own small canvas so every pixel stays chunky. Runs off a timer, not the game loop. Tap to skip ahead. */
+const CF={on:false,t:0,tick:null,parts:[],reel:false};
+const CF_T={fall:.6,land:1.12,latch:1.7,pop:2.5,reel:3.5};
+function caseFilmEnd(){CF.on=false;clearInterval(CF.tick);$('#caseFx').classList.remove('on');$('#reelBox').classList.remove('on');}
+$('#caseFx').onclick=()=>{if(CF.on&&CF.t<CF_T.reel-.1)CF.t=CF_T.reel-.1;};
+function caseFilm(startReel){const el=$('#caseFx'),c=$('#caseCv'),x=c.getContext('2d'),im=IMG.caseSheet;
+  el.classList.add('on');$('#reelBox').classList.remove('on');$('#caseSkip').style.display='';
+  const LW=180,LH=Math.max(200,Math.round(LW*el.clientHeight/el.clientWidth));c.width=LW;c.height=LH;x.imageSmoothingEnabled=false;
+  const NF=Math.round(im.width/96),fy=Math.round(LH*.66),cx=LW/2,my=fy-50;   // fy = the floor under the case, my = the mouth of the open case
+  Object.assign(CF,{on:true,t:0,parts:[],reel:false});let last=performance.now(),hit=false,popped=false,flash=0,fcol='255,255,255';
+  const P=(o)=>CF.parts.push(o);
+  clearInterval(CF.tick);CF.tick=setInterval(()=>{const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;CF.t+=dt;const t=CF.t,T=CF_T;
+    let cy=fy,sx=1,sy=1,frame=0,jx=0,shake=0;
+    if(t<T.fall)cy=-300;
+    else if(t<T.land){const k=(t-T.fall)/(T.land-T.fall);cy=lerp(-60,fy,k*k);sy=1.1;sx=.93;}
+    else{const k=t-T.land;
+      if(!hit){hit=true;flash=.55;fcol='255,255,255';for(let i=0;i<34;i++){const d=i%2?1:-1;P({k:'dust',x:cx+d*(20+Math.random()*26),y:fy-2-Math.random()*4,vx:d*(30+Math.random()*90),vy:-10-Math.random()*40,t:0,l:.5+Math.random()*.5});}}
+      if(k<.08){sy=.7;sx=1.22;}else if(k<.4){const b=(k-.08)/.32;cy=fy-Math.sin(b*Math.PI)*13;sy=1+.07*Math.sin(b*Math.PI);sx=1-.04*Math.sin(b*Math.PI);}else if(k<.47){sy=.9;sx=1.07;}
+      shake=Math.max(0,.32-k)*16;}
+    if(t>=T.latch&&t<T.pop){const k=(t-T.latch)/(T.pop-T.latch);frame=Math.min(6,Math.floor(k*7));jx=Math.round(Math.sin(t*64)*(.5+k*2.4));
+      if(Math.random()<dt*(6+k*30))P({k:'spark',x:cx+(Math.random()-.5)*60,y:my+8+Math.random()*6,vx:(Math.random()-.5)*30,vy:-20-Math.random()*40,t:0,l:.35+Math.random()*.3});}
+    const open=t>=T.pop?t-T.pop:-1;
+    if(open>=0){frame=Math.min(NF-1,7+Math.floor(open*17));
+      if(!popped){popped=true;flash=.95;fcol='255,244,200';shake=7;for(let i=0;i<70;i++){const a=-Math.PI/2+(Math.random()-.5)*2.4,v=60+Math.random()*190;P({k:'spark',x:cx+(Math.random()-.5)*40,y:my,vx:Math.cos(a)*v,vy:Math.sin(a)*v,t:0,l:.6+Math.random()*.9,g:120});}}
+      if(Math.random()<dt*46)P({k:'spark',x:cx+(Math.random()-.5)*56,y:my+Math.random()*6,vx:(Math.random()-.5)*26,vy:-30-Math.random()*70,t:0,l:.8+Math.random()*1.1});
+      if(open<.5)shake=Math.max(shake,(.5-open)*10);}
+    // the camera: a slow push in while the latch works loose, a kick on the pop, then it settles lower to make room for the reel
+    const push=t<T.land?1:t<T.pop?1+.16*ease(clamp((t-T.land)/(T.pop-T.land),0,1)):1.16+.1*Math.max(0,1-open/.35)-.2*ease(clamp((t-T.reel+.3)/.6,0,1));
+    c.style.transform=`translateY(${(10*ease(clamp((t-T.reel+.3)/.6,0,1))).toFixed(2)}%) scale(${push.toFixed(3)})`;
+    x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-over';x.globalAlpha=1;x.clearRect(0,0,LW,LH);
+    if(shake>0)x.translate(Math.round((Math.random()-.5)*shake),Math.round((Math.random()-.5)*shake));
+    // a spotlight from above, and the floor it lands on
+    const lit=clamp(t/.5,0,1);x.fillStyle=`rgba(255,226,170,${.05*lit})`;x.beginPath();x.moveTo(cx-16,-4);x.lineTo(cx+16,-4);x.lineTo(cx+78,fy+6);x.lineTo(cx-78,fy+6);x.fill();
+    x.fillStyle=`rgba(255,226,170,${.09*lit})`;x.beginPath();x.ellipse(cx,fy+2,80,13,0,0,7);x.fill();
+    if(open>=0){const g=clamp(open/.5,0,1),sw=1+.08*Math.sin(t*5);x.globalCompositeOperation='lighter';
+      // light pouring out: turning rays, a column going up, a ball of glow at the mouth
+      const L=(60+260*ease(g))*sw;for(let i=0;i<14;i++){const a=i/14*Math.PI*2+t*.35,w=.085+.03*Math.sin(i*2.7);x.fillStyle=`rgba(255,${190+(i%3)*18},90,${(.1+.05*(i%2))*g})`;
+        x.beginPath();x.moveTo(cx,my);x.lineTo(cx+Math.cos(a-w)*L,my+Math.sin(a-w)*L);x.lineTo(cx+Math.cos(a+w)*L,my+Math.sin(a+w)*L);x.fill();}
+      const cw=(16+26*g)*sw,gr=x.createLinearGradient(0,my,0,my-LH*.75);gr.addColorStop(0,`rgba(255,236,160,${.5*g})`);gr.addColorStop(1,'rgba(255,220,120,0)');x.fillStyle=gr;
+      x.beginPath();x.moveTo(cx-cw,my);x.lineTo(cx+cw,my);x.lineTo(cx+cw*2.6,my-LH*.75);x.lineTo(cx-cw*2.6,my-LH*.75);x.fill();
+      const R=(26+70*ease(g))*sw,rg=x.createRadialGradient(cx,my,0,cx,my,R);rg.addColorStop(0,`rgba(255,250,215,${.85*g})`);rg.addColorStop(.4,`rgba(255,205,90,${.42*g})`);rg.addColorStop(1,'rgba(255,170,40,0)');x.fillStyle=rg;x.fillRect(cx-R,my-R,2*R,2*R);
+      x.globalCompositeOperation='source-over';}
+    // its shadow, tighter and darker as it comes down
+    {const h=clamp((fy-cy)/260,0,1);x.fillStyle=`rgba(0,0,0,${.5*(1-h)*lit})`;x.beginPath();x.ellipse(cx,fy-1,44*(1-h*.6),7*(1-h*.5),0,0,7);x.fill();}
+    if(t>=T.fall&&t<T.land)for(let i=0;i<5;i++){x.fillStyle=`rgba(255,255,255,${.1+.05*i})`;x.fillRect(Math.round(cx-34+i*17),Math.round(cy-96-18-i%2*10),1,14);}   // speed lines
+    const dw=Math.round(96*sx),dh=Math.round(96*sy);x.drawImage(im,frame*96,0,96,96,Math.round(cx-dw/2)+jx,Math.round(cy-89*sy),dw,dh);
+    for(let i=CF.parts.length-1;i>=0;i--){const q=CF.parts[i];q.t+=dt;if(q.t>q.l){CF.parts.splice(i,1);continue;}const k=q.t/q.l;
+      if(q.k==='dust'){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.93;q.vy+=60*dt;x.fillStyle=`rgba(214,200,180,${.7*(1-k)})`;const s=k<.5?3:2;x.fillRect(Math.round(q.x),Math.round(q.y),s,s);}
+      else{q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=(q.g||0)*dt;q.vx*=.985;x.fillStyle=k<.3?'#ffffff':k<.7?'#ffe68a':'#ffb347';x.globalAlpha=1-k*k;const s=k<.6?2:1;x.fillRect(Math.round(q.x),Math.round(q.y),s,s);x.globalAlpha=1;}}
+    // the light swells until it fills the screen, and the reel comes out of it
+    const wo=clamp((t-(T.reel-.45))/.45,0,1)*(1-clamp((t-T.reel)/.5,0,1));
+    if(wo>0){x.setTransform(1,0,0,1,0,0);x.fillStyle=`rgba(255,240,190,${.9*wo})`;x.fillRect(0,0,LW,LH);}
+    if(flash>0){x.setTransform(1,0,0,1,0,0);x.fillStyle=`rgba(${fcol},${flash})`;x.fillRect(0,0,LW,LH);flash=Math.max(0,flash-dt*3.2);}
+    if(t>=T.reel&&!CF.reel){CF.reel=true;$('#caseSkip').style.display='none';startReel();}
+  },16);}
 /* ---------- the win pop-up ----------
    One card, slowly turning. WIN_FX sets how big the show is for each rarity: rays behind the card, a flash, a shake,
    a burst of pixel confetti, confetti falling after, a shine sweeping over the card, and a wait before the reveal. */
@@ -2166,7 +2255,9 @@ const wlEnt=(i,x,y)=>({i,x,y,dir:'front',path:[],walk:false,loc:-1,act:null,ko:n
 const wlAll=()=>[WL.me,...WL.bots];
 const wlName=(e,obj)=>e.i===0?(obj?'you':'You'):PEOPLE[e.i].n;
 const wlOk=(loc,x,y)=>loc<0?townOk(x,y):canStand(x,y);
-function wlSay(a,b){if(a){WL.feed.unshift(a);WL.feed.length=Math.min(WL.feed.length,2);}$('#townLine').textContent=WL.feed[0]||'Welcome to town.';$('#townSub').textContent=b||WL.feed[1]||'Waiting for the host to start…';}
+// a toast for something that happens to YOU (what the bots do to each other is their business); the bar itself says where you are
+function wlSay(a,tone){const e=$('#townToast');e.textContent=a;e.className='';void e.offsetWidth;e.className='on'+(tone?' '+tone:'');clearTimeout(wlSay.t);wlSay.t=setTimeout(()=>e.classList.remove('on'),2600);}
+function wlHead(a,b){$('#townLine').textContent=a||'Waiting for the host';$('#townSub').textContent=b||'Tap a player, a cabin or the wheel';}
 // walk somewhere, then do something when you get there
 function wlGo(e,x,y,todo){if(e.ko)return;if(e.act&&e.act.k!=='punch')e.act=null;
   const p=e.loc<0?gridPath(TOWNG,TGW,TGH,TG,e.x,e.y,x,y):findPath(e.x,e.y,x,y);
@@ -2179,18 +2270,18 @@ function wlAct(e,kind,tg){if(tg.loc!==e.loc||tg.ko)return;const d=Math.hypot(tg.
   e.dir=dirFrom(tg.x-e.x,tg.y-e.y);const dd=d||1;
   if(kind==='punch')e.act={k:'punch',t:0,tg,dx:(tg.x-e.x)/dd,dy:(tg.y-e.y)/dd};
   else{e.act={k:'five',t:0,tg};if(!tg.act){tg.path=[];tg.todo=null;tg.walk=false;tg.dir=dirFrom(e.x-tg.x,e.y-tg.y);tg.act={k:'five',t:0,tg:e,slave:true};}
-    if(e.loc===WL.me.loc)wlSay(`${wlName(e)} high-fived ${wlName(tg,1)}.`);}}
+    if(e.i===0||tg.i===0)wlSay(`${wlName(e)} high-fived ${wlName(tg,1)}!`,'good');}}
 function wlHit(e,a){const tg=a.tg;if(tg.loc!==e.loc||tg.ko||Math.hypot(tg.x-e.x,tg.y-e.y)>32){if(e.i===0)wlSay('You missed.');return;}
   tg.ko={t:0,vx:a.dx*100,vy:a.dy*100};tg.act=null;tg.path=[];tg.todo=null;tg.walk=false;tg.grudge=e;
   WL.fx.push({k:'pow',x:tg.x-a.dx*4,y:tg.y-16,t:0,loc:e.loc});
   if(tg.i===0){WL.shake=.35;WL.sel=null;wlMenu();}else if(e.i===0)WL.shake=.12;
-  if(e.loc===WL.me.loc)wlSay(`${wlName(e)} punched ${wlName(tg,1)}!`,tg.i===0?'Get up and get them back.':null);}
+  if(e.i===0||tg.i===0)wlSay(`${wlName(e)} punched ${wlName(tg,1)}!`,tg.i===0?'bad':null);}
 // in and out of a cabin. You: the screen fades through black. Bots just come and go.
 function wlDoor(ci){if(WL.fading)return;WL.fading=true;const xf=$('#xfade');xf.classList.add('on');
   setTimeout(()=>{const m=WL.me,was=m.loc;m.loc=ci;m.path=[];m.todo=null;m.walk=false;WL.sel=null;wlMenu();
-    if(ci>=0){m.x=98;m.y=214;m.dir='back';$('#phone').style.background=ROOM_VOID;const o=CABIN_OF.indexOf(ci),n=WL.bots.filter(b=>b.loc===ci).length;
-      wlSay(o===0?'Your cabin.':o>0?`${PEOPLE[o].n}'s cabin.`:'An empty cabin.',n?'You are not alone in here.':'Walk to the door to leave.');}
-    else{const c=TOWN.cabins[was];m.x=c.cx;m.y=c.top+38;m.dir='front';$('#phone').style.background='';wlSay('Back outside.');}
+    if(ci>=0){m.x=98;m.y=214;m.dir='back';$('#phone').style.background=ROOM_VOID;const o=CABIN_OF.indexOf(ci);
+      wlHead(o===0?'Your cabin':o>0?`${PEOPLE[o].n}'s cabin`:'An empty cabin','Walk to the door to leave');}
+    else{const c=TOWN.cabins[was];m.x=c.cx;m.y=c.top+38;m.dir='front';$('#phone').style.background='';wlHead();}
     $('#townCount').style.display=ci>=0?'none':'';xf.classList.remove('on');setTimeout(()=>WL.fading=false,230);},240);}
 function wlBotDoor(b,ci){const was=b.loc;b.path=[];b.todo=null;b.walk=false;
   if(ci>=0){b.loc=ci;b.x=98;b.y=212;b.dir='back';b.stay=2+Math.floor(Math.random()*3);if(WL.me.loc===ci)wlSay(`${wlName(b)} came in.`);}
@@ -2270,12 +2361,15 @@ function wheelSpin(who){const W=WL.wheel;if(W.busy)return false;let r=Math.rando
 function wheelTick(dt){const W=WL.wheel;if(!W.busy){W.a+=dt*.12;return;}
   W.t0=(W.t0??0)+dt;const k=Math.min(1,W.t0/W.dur);W.a=W.from+(W.to-W.from)*(1-(1-k)*(1-k));
   if(k>=1){W.busy=false;W.a%=Math.PI*2;wheelPrize(W.by,WSEG[W.res]);}}
-function wheelPrize(who,g){const what=g.kind==='c'?`${g.v} coins`:(g.v==='epic'?'an ':'a ')+g.v[0].toUpperCase()+g.v.slice(1)+' outfit';
-  if(who.i!==0){if(WL.me.loc<0)wlSay(`${wlName(who)} spun the wheel: ${what}.`);return;}
-  if(g.kind==='c'){coins+=g.v;saveInv();paintCoins();$('#wheelRes').innerHTML=`${ic('coin',3)} +${g.v} coins`;wlSay(`You won ${g.v} coins on the wheel.`);}
-  else{const pool=SKINS.filter(s=>s.rar===g.v),win=pool[Math.floor(Math.random()*pool.length)],dupe=OWNED.has(win.id),back=Math.round(CASE.price*CASE.dupe);
+function wheelPrize(who,g){
+  const pool=g.kind==='o'?SKINS.filter(s=>s.rar===g.v):null,win=pool&&pool[Math.floor(Math.random()*pool.length)];
+  $('#wheelPop').innerHTML=`<img class="f" src="${face(win?win.id:PEOPLE[who.i].skin)}" alt=""><div><small>${esc(wlName(who).toUpperCase())} WON</small><b${win?` style="color:${RAR_COL[win.rar]}"`:''}>${win?esc(win.name):ic('coin',2)+' '+g.v+' coins'}</b></div>`;
+  $('#wheelPop').style.borderColor=win?RAR_COL[win.rar]:'#ffd25e';WL.pop=3.4;
+  if(who.i!==0)return;
+  if(g.kind==='c'){coins+=g.v;saveInv();paintCoins();$('#wheelRes').innerHTML=`${ic('coin',3)} +${g.v} coins`;}
+  else{const dupe=OWNED.has(win.id),back=Math.round(CASE.price*CASE.dupe);
     if(dupe)coins+=back;else OWNED.add(win.id);saveInv();paintSkin();paintCoins();
-    $('#wheelRes').innerHTML=dupe?`${esc(win.name)} again. ${ic('coin',2)} +${back} back`:`NEW! ${esc(win.name)}`;wlSay(`You won ${esc(win.name)} on the wheel!`);
+    $('#wheelRes').innerHTML=dupe?`${esc(win.name)} again. ${ic('coin',2)} +${back} back`:`NEW! ${esc(win.name)}`;
     showWin(win,dupe,back);$('#winAgain').style.display='none';}
   const r=$('#wheelRes');r.classList.remove('pop');void r.offsetWidth;r.classList.add('pop');wheelUI();}
 function wheelUI(){paintCoins();const b=$('#wheelSpin'),W=WL.wheel;const other=W.busy&&W.by&&W.by.i!==0;b.innerHTML=other?esc(wlName(W.by))+' is spinning…':ic('coin',2)+' Spin · '+SPIN_PRICE;b.disabled=W.busy||coins<SPIN_PRICE;
@@ -2289,7 +2383,7 @@ scenes.town={hud:'#townHud',
   enter(){document.documentElement.style.setProperty('--accent','#e9b25a');if(!TOWNG)buildTownGrid();
     WL.me=wlEnt(0,280,436);WL.bots=PEOPLE.slice(1).map((p,k)=>{const s=wlSpot();return wlEnt(k+1,s[0],s[1]);});
     WL.fx=[];WL.sel=null;WL.feed=[];WL.fading=false;WL.shake=0;wlMenu();paintCoins();$('#townCount').style.display='';$('#townCount').textContent=`${PEOPLE.length} of 10 players here`;
-    wlSay('Welcome to town.','Tap or hold to walk. Tap a player, a cabin or the wheel.');},
+    wlHead();$('#townToast').className='';$('#wheelPop').className='';WL.pop=0;},
   leave(){$('#phone').style.background='';WL.sel=null;wlMenu();},
   frame(dt,t){const m=WL.me;wheelTick(dt);
     for(const e of wlAll()){wlStep(e,dt);if(e!==m&&!e.ko&&!e.act&&!e.path.length){e.wait-=dt;if(e.wait<=0)wlThink(e);}}
@@ -2308,6 +2402,8 @@ scenes.town={hud:'#townHud',
     present();dayMode=false;
     WL.pos.clear();for(const p of people){const h=hits.get(p);if(!h)continue;WL.pos.set(p.e,{x:(h.cx-(cam.fx||0))*S/DPR,y:(h.top-(cam.fy||0))*S/DPR});nameTag(h,wlName(p.e),p.e===m?'#ffd25e':'#fff');}
     if(WL.sel){const q=WL.pos.get(WL.sel);if(!q||WL.sel.ko){WL.sel=null;wlMenu();}else{const mn=$('#townMenu');mn.style.left=clamp(q.x,50,cv.clientWidth-50)+'px';mn.style.top=(q.y-TAG-10)+'px';}}
+    {const wp=$('#wheelPop');WL.pop=Math.max(0,(WL.pop||0)-dt);const on=WL.pop>0&&m.loc<0;if(wp.classList.contains('on')!==on)wp.classList.toggle('on',on);
+      if(on){wp.style.left=clamp((WHEEL_AT[0]-cam.x-(cam.fx||0))*S/DPR,90,cv.clientWidth-90)+'px';wp.style.top=((WHEEL_AT[1]-58-cam.y-(cam.fy||0))*S/DPR)+'px';}}
     // the big wheel in its window
     if($('#wheelModal').classList.contains('on')){const wc=$('#wheelCv').getContext('2d');wc.clearRect(0,0,101,110);wc.drawImage(wheelPaint(48,WL.wheel.a,true),2,11);
       wc.fillStyle='#1a1430';for(let r=0;r<7;r++)wc.fillRect(50-6+r,2+r,13-2*r,1);wc.fillStyle='#e4544f';for(let r=0;r<5;r++)wc.fillRect(50-4+r,3+r,9-2*r,1);
@@ -2355,7 +2451,7 @@ let OBJ_META={};
   const FINAL=Object.fromEntries(['beanie','brownhair','ponytail','curly','farmer','raincoat','redcap','mafia','doctor','jester','detective','batman','alfa','golf','ferrari','bape','fisher','sheik'].map(n=>[n,'assets/final/'+n]));
   const names=[...SKINS.map(s=>s.id),'mafia','doctor','jester','detective'].filter(n=>!PL[n]&&!FINAL[n]);
   OBJ_META=await (await fetch('assets/room-objects/objects.json?v='+BUILD)).json();
-  const jobs=[load('townBase','assets/town3/town-base-night-1x.png'),load('room','assets/room-objects/room-empty.png'),load('quilt','assets/room-objects/bed-quilt.png'),load('chairback','assets/room-objects/chair-backing.png'),load('log','assets/final/log.png')];
+  const jobs=[load('townBase','assets/town3/town-base-night-1x.png'),load('room','assets/room-objects/room-empty.png'),load('quilt','assets/room-objects/bed-quilt.png'),load('chairback','assets/room-objects/chair-backing.png'),load('log','assets/final/log.png'),load('caseSheet','assets/case/open.png')];
   for(const n of Object.keys(OBJ_META))jobs.push(load('obj/'+n,`assets/room-objects/${n}.png`));
   for(const n of names)for(const d of['','back/','side/'])jobs.push(load(d+n,`assets/sprites/${d}${n}.png`));
   for(const[n,dir]of Object.entries(PL))for(const v of['south','north','east','west'])jobs.push(load(`pl/${n}/${v}`,`${dir}/${v}.png`));
