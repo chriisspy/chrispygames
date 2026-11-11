@@ -28,17 +28,13 @@ body{font-family:"Pixelify Sans",system-ui,sans-serif;font-variant-ligatures:non
 #fxL.on{opacity:1}
 #bigMsg{position:absolute;left:0;right:0;top:33%;text-align:center;display:none;z-index:7}
 #bigMsg.on{display:block}
-#bigMsg.bad.on{animation:pxQuake .55s steps(6) .5s 1}
 .pxw{position:relative;display:flex;justify-content:center;align-items:flex-end;margin:0 auto 6px;width:max-content;max-width:100%}
 .pxw img{image-rendering:pixelated;display:block}.pxw i{display:block}
-.pxw .pxl{margin:0 -1px;animation:pxSlam .42s cubic-bezier(.3,0,.5,1) backwards;transform-origin:50% 100%}
+.pxw .pxl{margin:0 -1px;animation:pxSlam .26s cubic-bezier(.2,.8,.3,1) backwards;transform-origin:50% 100%}
 .pxw .pxs{animation:pxType .12s steps(1) backwards}
 .pxsub{margin-top:14px}
-.pxdrip{position:absolute;top:calc(100% - 4px);height:0;background:#8f0d18;border-bottom:3px solid #e4242f;animation:pxDrip 2.6s steps(14) forwards}
-@keyframes pxSlam{0%{transform:translateY(-70vh) scaleY(1.5)}70%{transform:translateY(0) scaleY(1)}82%{transform:translateY(0) scale(1.18,.72)}100%{transform:none}}
+@keyframes pxSlam{0%{transform:translateY(-14px) scale(0)}60%{transform:translateY(2px) scale(1)}100%{transform:none}}
 @keyframes pxType{0%{transform:scale(0)}100%{transform:none}}
-@keyframes pxDrip{0%{height:0}100%{height:var(--len)}}
-@keyframes pxQuake{0%,100%{transform:none}20%{transform:translate(-6px,4px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,-4px)}80%{transform:translate(3px,3px)}}
 @keyframes bigPop{0%{transform:scale(2.2)}100%{transform:scale(1)}} /* size only: the words are never invisible, even if the animation stalls */
 #clk{position:absolute;inset:0;z-index:20;background:#07060f;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#f6dfae;padding:12px}
 #clk.on{display:flex}
@@ -403,7 +399,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11111332'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11111337'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -1365,12 +1361,11 @@ const PX_PAL={bad:['#1a0408','#ff7078','#e4242f','#8f0d18'],good:['#052012','#b6
 const PX_CACHE={};
 function pxGlyph(ch,pal){const k=ch+pal;if(PX_CACHE[k])return PX_CACHE[k];const g=CK_FONT[ch];if(!g)return'';const c=mk(5,7),x=c.getContext('2d'),P=PX_PAL[pal];
   x.fillStyle=P[0];for(let r=0;r<5;r++)for(let q=0;q<3;q++)if(g[r]&(4>>q))x.fillRect(q,r,3,3);                  // outline: every block grown by one pixel
-  for(let r=0;r<5;r++)for(let q=0;q<3;q++)if(g[r]&(4>>q)){const top=r===0||!(g[r-1]&(4>>q)),bot=r===4||!(g[r+1]&(4>>q));x.fillStyle=top?P[1]:bot?P[3]:P[2];x.fillRect(q+1,r+1,1,1);}
+  for(let r=0;r<5;r++)for(let q=0;q<3;q++)if(g[r]&(4>>q)){x.fillStyle=P[2];x.fillRect(q+1,r+1,1,1);}
   return PX_CACHE[k]=c.toDataURL();}
 function pxWord(str,px,pal,delay0){let h='<div class="pxw">',i=0;for(const ch of String(str).toUpperCase()){
     if(ch===' '){h+=`<i style="width:${px*2}px"></i>`;continue;}const u=pxGlyph(ch,pal);if(!u){continue;}
-    h+=`<img src="${u}" style="width:${px*5}px;height:${px*7}px;animation-delay:${((delay0||0)+i*(pal==='sub'?.012:.07)).toFixed(3)}s" class="${pal==='sub'?'pxs':'pxl'}" alt="">`;i++;}
-  if(pal==='bad')for(let d=0;d<5;d++)h+=`<b class="pxdrip" style="left:${12+d*19+Math.round(Math.random()*6)}%;width:${px}px;animation-delay:${(.75+Math.random()*.6).toFixed(2)}s;--len:${Math.round(px*(3+Math.random()*7))}px"></b>`;
+    h+=`<img src="${u}" style="width:${px*5}px;height:${px*7}px;animation-delay:${((delay0||0)+i*(pal==='sub'?.012:.045)).toFixed(3)}s" class="${pal==='sub'?'pxs':'pxl'}" alt="">`;i++;}
   return h+'</div>';}
 
 /* ---------- full-screen effects on their own layer ----------

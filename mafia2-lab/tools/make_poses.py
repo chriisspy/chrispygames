@@ -142,9 +142,29 @@ def find_eyes(a):
         elif first >= 0: break
     return eyes
 
-def dead(a, navy):
+# Faces the eye finder gets wrong, so the eyes are written down by hand (front.png pixels).
+#   'eye':  (x, y, w, h) of each dark eye -> wiped to skin, then a navy X
+#   'shades': sunglasses hide the eyes, so the face is left exactly as he drew it
+EYES = {
+    'raincoat': ('eye', [(9, 13, 2, 3), (15, 13, 2, 3)]),     # the hood's inner edge looked like an eye
+    'mafia':    ('eye', [(11, 17, 2, 3), (17, 17, 2, 3)]),    # the sideburn looked like an eye
+    'alfa':     ('shades', []),
+    'golf':     ('shades', []),
+}
+X5 = ((-1, -1), (1, -1), (0, 0), (-1, 1), (1, 1))
+
+def dead(a, navy, name=''):
     """lying on its back: the front view laid down (head to the left), eyes turned into little X's"""
     a = a.copy()
+    if name in EYES:
+        kind, spots = EYES[name]
+        for s in spots:
+            if kind == 'eye':
+                x, y, w, h = s; skin = a[y, x - 1].copy()
+                a[y:y + h, x:x + w] = skin
+                cx, cy, col = x, y + h // 2, (*navy, 255)
+            for dx, dy in X5: a[cy + dy, cx + dx] = col
+        return trim(np.rot90(a, 1).copy())
     eyes = find_eyes(a)
     if eyes:
         # group runs into the two eyes by x
@@ -236,7 +256,7 @@ def main():
         sr = sit_side(R, nR, navy)
         out['sit_right'] = (sr, feet_mid(R[:-nR]) if False else None)
         out['sit_left'] = (mirror(sr), None)
-        out['dead'] = (dead(F, navy), None)
+        out['dead'] = (dead(F, navy, name), None)
         for k in range(4):
             a, ox = water(R, navy, k); out[f'water_right_{k}'] = (a, ox + feet_mid(R))
             out[f'water_left_{k}'] = (mirror(a), a.shape[1] - (ox + feet_mid(R)))

@@ -1,0 +1,1 @@
+{"detail":"failed: Generation failed: [500] Height mismatch: 232 != 224. This object_id is gone; next: create_map_object(description=<...>) to try again."}

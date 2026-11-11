@@ -1,0 +1,164 @@
+<title>Mafia 2 Icons</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: the game's own night. Each icon is a specimen card, shown on both surfaces it has to live on:
+   parchment (panels, buttons) and night (dark buttons, the town). Real sizes sit beside the enlarged one. */
+:root{
+  color-scheme:dark;
+  --night:#0d0b1c; --night2:#191531; --ink:#1a1430; --dark-btn:#2a2346;
+  --wood:#5a3420; --wood2:#c58a4a; --paper:#f6dfae; --paper2:#e9c88a; --text:#4a2a14;
+  --gold:#ffd25e; --red:#e4544f; --soft:#b9b3d6; --line:#352e5a;
+  --display:"Pixelify Sans",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--night);color:#fff;font-family:var(--display);font-variant-ligatures:none;font-size:16px;line-height:1.35;
+  padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:34px}
+header{display:flex;flex-direction:column;gap:6px}
+h1{font-size:40px;line-height:1;margin:0;color:var(--gold);letter-spacing:1px;text-shadow:0 4px 0 var(--ink)}
+h1 small{display:block;font-size:14px;font-weight:500;color:#fff;letter-spacing:3px;margin-top:8px;text-shadow:none}
+.lede{color:var(--soft);max-width:60ch;margin:6px 0 0;font-size:16px}
+section{display:flex;flex-direction:column;gap:14px}
+h2{font-size:22px;margin:0;letter-spacing:2px;color:#fff;display:flex;align-items:baseline;gap:10px}
+h2 span{font-size:14px;color:var(--soft);letter-spacing:1px;font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{background:var(--night2);border:2px solid var(--line);border-radius:6px;padding:8px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tile{border-radius:4px;padding:10px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.tile.paper{background:var(--paper);box-shadow:inset 0 -4px 0 var(--paper2)}
+.tile.dark{background:var(--dark-btn);box-shadow:inset 0 -4px 0 #1b1532}
+.tile .real{display:flex;align-items:flex-end;gap:6px;height:30px}
+img.px{image-rendering:pixelated;display:block}
+.name{font-size:16px;font-weight:600;line-height:1.1}
+.was{font-size:13px;color:var(--soft);line-height:1.2}
+/* the game's own controls, copied from the lab, to show the icons in place */
+.uses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.uses{grid-template-columns:minmax(0,1fr)}}
+.use{background:var(--night2);border:2px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.use .label{font-size:13px;color:var(--soft);letter-spacing:1px}
+.rowx{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.btn{font:600 16px var(--display);color:var(--text);background:var(--paper);border:3px solid var(--wood);border-radius:5px;
+  box-shadow:inset 0 -4px 0 var(--paper2),0 3px 0 #0009;padding:8px 12px;display:inline-flex;align-items:center;gap:7px}
+.btn.dark{background:var(--dark-btn);color:var(--paper);border-color:#0f0b1e;box-shadow:inset 0 -4px 0 #1b1532,0 3px 0 #0009;font-size:13px;padding:6px 8px}
+.btn.go{background:#3a8fd6;color:#fff;border-color:var(--ink);box-shadow:inset 0 -4px 0 #0003,0 3px 0 #0009}
+.btn.red{background:var(--red);color:#fff;border-color:#6b1416;box-shadow:inset 0 -4px 0 #a92b2c,0 3px 0 #0009}
+.panel{background:var(--paper);color:var(--text);border:4px solid var(--wood);border-radius:6px;padding:12px;
+  box-shadow:inset 0 0 0 3px var(--wood2),inset 0 -6px 0 var(--paper2),0 5px 0 #0008}
+.panel h3{margin:0;font-size:22px;display:flex;align-items:center;gap:8px}
+.tagline{display:flex;align-items:center;gap:6px;font-size:13px;letter-spacing:3px;color:#8a6a2a}
+.nighttag{display:flex;align-items:center;gap:6px;font-size:12px;letter-spacing:2px;color:#ff8a8a}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 8px}
+.role{display:flex;align-items:center;gap:8px;font-size:16px;min-width:0;font-weight:700;line-height:1}
+.note{color:var(--soft);font-size:14px;margin:0;max-width:62ch}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>MAFIA 2<small>ICON SHEET FOR REVIEW</small></h1>
+    <p class="lede">32 pixel icons to replace every emoji and symbol in Mafia 2. They are drawn on a 10 by 10 grid, so at button size each icon pixel is 2px, the same as the game's own pixels. Each one is shown big, then at heading size (30px) and button size (20px), on parchment and on a dark button.</p>
+  </header>
+
+  <section>
+    <h2>Roles <span>7</span></h2>
+    <div class="grid seven" id="roles"></div>
+  </section>
+
+  <section>
+    <h2>Interface <span>25</span></h2>
+    <div class="grid" id="ui"></div>
+  </section>
+
+  <section>
+    <h2>In place</h2>
+    <div class="uses">
+      <div class="use"><div class="label">TOP BUTTONS</div>
+        <div class="rowx"><span class="btn dark"><i data-i="eye" data-s="2"></i>Civilian</span><span class="btn dark"><i data-i="rain" data-s="2"></i>Rain</span><span class="btn dark"><i data-i="moon" data-s="2"></i>Clear</span></div>
+        <div class="nighttag"><i data-i="rec" data-s="2"></i>NIGHT 2 &middot; YOUR TEAM</div></div>
+      <div class="use"><div class="label">LOBBY</div>
+        <div class="rowx"><span class="btn"><i data-i="left" data-s="2"></i></span><span style="font-size:22px;font-weight:700">Messy Hair</span><span class="btn"><i data-i="right" data-s="2"></i></span></div>
+        <div class="rowx"><span class="btn"><i data-i="case" data-s="2"></i>Mafia Case</span><span class="btn"><i data-i="coin" data-s="2"></i>300</span></div></div>
+      <div class="use"><div class="label">NIGHT SHEET</div>
+        <div class="rowx"><span class="btn go"><i data-i="binoculars" data-s="2"></i>Lock in: Watch Tom</span></div>
+        <div class="rowx"><span class="btn go"><i data-i="lock" data-s="2"></i>Kill: Tom</span><span class="btn go"><i data-i="notes" data-s="2"></i>See my notes</span></div>
+        <div class="rowx"><span class="btn"><i data-i="chat" data-s="2"></i>Mafia chat</span><span class="btn"><i data-i="sleep" data-s="2"></i>Go to bed</span><span class="btn dark">Skip<i data-i="skip" data-s="2"></i></span></div></div>
+      <div class="use"><div class="label">NOTES AND DAWN</div>
+        <div class="panel"><h3><i data-i="detective" data-s="3"></i>Your notes</h3></div>
+        <div class="panel" style="text-align:center"><div class="tagline" style="justify-content:center"><i data-i="sun" data-s="2"></i>DAWN &middot; DAY 3</div>
+          <h3 style="justify-content:center;color:#d6383c;font-size:26px;margin-top:6px"><i data-i="skull" data-s="3"></i>TOM IS DEAD</h3></div></div>
+      <div class="use" style="grid-column:1/-1"><div class="label">ROLE NAMES</div>
+        <div class="panel"><div class="roles" id="rolenames"></div></div></div>
+    </div>
+    <p class="note">These mock-ups use the lab's real button and panel styles. Nothing in the game has been changed yet. Tell me which icons to redraw and I'll put the approved set in.</p>
+  </section>
+</div>
+
+<script>
+const PAL={K:'#1a1430',W:'#ffffff',P:'#f6dfae',p:'#e9c88a',R:'#e4544f',r:'#a92b2c',G:'#ffd25e',g:'#d39b2a',Y:'#fff2a8',
+  B:'#4a7bd0',b:'#2b4a8a',L:'#9fd0ff',E:'#5fc46f',e:'#2f7a3f',S:'#b8c2d4',s:'#6f7b92',H:'#5a5290',h:'#3b3468',
+  O:'#c58a4a',o:'#7a4a2a',V:'#9a48ad',v:'#5e2a86',M:'#f07ab0',m:'#b8457e'};
+// Drawn on a 10 by 10 grid. At button size one icon pixel is 2px, the same as the game's own pixels.
+const GRID=10,E='..........';
+const ICONS={
+mafia:[E,E,'...KKKK...','..KHHHHK..','..KHHHhK..','..KRRRrK..','.KKhhhhKK.','KHHHHHHHhK','.KKKKKKKK.',E],
+doctor:[E,'...KKKK...','...KEEK...','.KKKEEKKK.','.KEEEEEeK.','.KEEEEEeK.','.KKKEeKKK.','...KEeK...','...KKKK...',E],
+civilian:['....KK....','...KRRK...','..KRRRRK..','.KRRRRRrK.','KKKKKKKKKK','.KPPPPPPK.','.KPooPGPK.','.KPooPPPK.','.KKKKKKKK.',E],
+detective:['..KKKK....','.KLLLLK...','KLWLLLLK..','KLLLLLLK..','KLLLLLLK..','KLLLLLLK..','.KLLLLKK..','..KKKKOOK.','.......KOK','........KK'],
+jester:['..KK..KK..','.KVVKKEEK.','KVVVVEEEEK','KVVVVEEEEK','KVKvvEeKEK','KVKKKKKKEK','KVK....KEK','.K......K.','KGK....KGK','.K......K.'],
+bodyguard:[E,'.KKKKKKKK.','.KGGGgggK.','.KGWGgggK.','.KGGGgggK.','.KGGGgggK.','..KGGggK..','...KGgK...','....KK....',E],
+framer:[E,'.KKKKKKKK.','KMMMMMMMMK','KMKKMMKKMK','KMKKMMKKMK','KMMMMMMMMK','KMKMMMMKMK','.KMKKKKMK.','..KmmmmK..','...KKKK...'],
+eye:[E,E,'..KKKKKK..','.KWWWWWWK.','KWWBKKBWWK','KWWBKKBWWK','.KWWWWWWK.','..KKKKKK..',E,E],
+rain:[E,'...KKK....','.KKWWWKK..','KWWWWWWWK.','KSSSSSSSK.','.KKKKKKK..',E,'.B..B..B..','B..B..B...',E],
+moon:['...KKKK...','..KGGGK...','.KGGGK....','.KGGK...g.','.KGGK..ggg','.KGGK...g.','.KGGGK....','..KGGGK...','...KKKK...',E],
+sun:['....gg....','.g......g.','...KKKK...','..KGGGGK..','g.KGYGGK.g','g.KGGGGK.g','..KGGGgK..','...KKKK...','.g......g.','....gg....'],
+notes:[E,'.KKKKKKKK.','.KWWWWWWK.','.KWsssWWK.','.KWWWWWWK.','.KWssssWK.','.KWWWWWWK.','.KWsssWWK.','.KKKKKKKK.',E],
+lock:['...KKKK...','..KSSSSK..','..KSKKSK..','.KKKKKKKK.','.KGGGGGGK.','.KGGKKGGK.','.KGGKKGGK.','.KggggggK.','.KKKKKKKK.',E],
+binoculars:[E,'.KKK..KKK.','KSSSKKSSSK','KSSSKKSSSK','KSSSSSSSSK','KKKKKKKKKK','KLLLKKLLLK','KLWLKKLWLK','.KKK..KKK.',E],
+skull:['..KKKKKK..','.KWWWWWWK.','KWWWWWWWWK','KWKKWWKKWK','KWKKWWKKWK','KWWWKKWWWK','.KWWWWWWK.','..KWKKWK..','..KKKKKK..',E],
+heart:[E,'.KKK..KKK.','KRRRKKRRRK','KRWRRRRRRK','KRRRRRRRrK','.KRRRRRrK.','..KRRRrK..','...KRrK...','....KK....',E],
+coin:[E,'..KKKKKK..','.KGGGGGGK.','KGYGGGGGgK','KGYGggGGgK','KGGGggGGgK','KGGGGGGggK','.KGGggggK.','..KKKKKK..',E],
+chat:[E,'.KKKKKKKK.','KWWWWWWWWK','KWKWKWKWWK','KWWWWWWWWK','.KKKWWKKK.','...KWK....','...KK.....',E,E],
+vote:['...KKKK...','...KWWK...','...KRWK...','KKKKWWKKKK','KOOKKKKOOK','KOOOOOOOOK','KOOOOOOOOK','KooooooooK','KKKKKKKKKK',E],
+knife:['....KK....','...KSWK...','...KSWK...','...KSWK...','...KSWK...','.KKKSWKKK.','.KggggggK.','.KKKooKKK.','...KooK...','...KKKK...'],
+door:['.KKKKKKKK.','.KOOOOOOK.','.KOKKKKOK.','.KOKooKOK.','.KOKKKKOK.','.KOOOOGOK.','.KOKKKKOK.','.KOKooKOK.','.KOKKKKOK.','.KKKKKKKK.'],
+right:[E,'..KK......','..KgKK....','..KgggKK..','..KgggggK.','..KgggggK.','..KgggKK..','..KgKK....','..KK......',E],
+check:[E,'........KK','.......KEK','......KEEK','.KK..KEEK.','KEEKKEEK..','KEEEEEK...','.KEEEK....','..KKK.....',E],
+cross:[E,'.KK....KK.','KRRK..KRRK','.KRRKKRRK.','..KRRRRK..','..KRRRRK..','.KRRKKRRK.','KRRK..KRRK','.KK....KK.',E],
+skip:[E,E,'KK...KK...','KgKK.KgKK.','KgggKKgggK','KgggKKgggK','KgKK.KgKK.','KK...KK...',E,E],
+sleep:['....BBBBBB','........BB','.......BB.','......BB..','.....BB...','....BBBBBB','BBBB......','..BB......','.BB.......','BBBB......'],
+hourglass:['KKKKKKKKKK','.KWWWWWWK.','.KWGGGGWK.','..KWGGWK..','...KWWK...','...KWGK...','..KWWGWK..','.KWGGGGWK.','.KWGGGGWK.','KKKKKKKKKK'],
+case:[E,'...KKKK...','...K..K...','KKKKKKKKKK','KOOOOOOOOK','KKKKGGKKKK','KoooGGoooK','KooooooooK','KKKKKKKKKK',E],
+rec:[E,E,'...KKKK...','..KRRRRK..','..KRWRRK..','..KRRRRK..','..KRRRrK..','...KKKK...',E,E],
+};
+// the other three arrows are the right arrow, turned
+ICONS.left=ICONS.right.map(r=>[...r].reverse().join(''));
+ICONS.down=ICONS.right.map((_,y)=>ICONS.right.map(r=>r[y]).join(''));
+ICONS.up=[...ICONS.down].reverse();
+
+const URLS={};
+function url(name){
+  if(URLS[name])return URLS[name];
+  const g=ICONS[name],c=document.createElement('canvas');c.width=c.height=GRID;const x=c.getContext('2d');
+  g.forEach((row,y)=>{if(row.length!==GRID)console.warn(name,'row',y,'is',row.length);[...row].forEach((ch,i)=>{if(ch==='.')return;x.fillStyle=PAL[ch]||'#f0f';x.fillRect(i,y,1,1);});});
+  return URLS[name]=c.toDataURL();
+}
+const img=(name,scale)=>`<img class="px" src="${url(name)}" width="${GRID*scale}" height="${GRID*scale}" alt="${name}">`;
+
+const ROLES=[['mafia','Mafia','#d6383c','the red dot'],['doctor','Doctor','#2f8f4a','the green heart'],['civilian','Civilian','#4a7bd0','the white square'],
+  ['detective','Detective','#2f77b8','the magnifying glass'],['jester','Jester','#8a3fa0','the joker card'],['bodyguard','Bodyguard','#a86f1c','the shield'],['framer','Framer','#c9457f','the masks']];
+const UI=[['eye','View as','the eye on the role button'],['rain','Rain','the rain cloud'],['moon','Clear night','the sparkles'],['sun','Dawn','the sun'],
+  ['rec','Night tag','the dot before NIGHT 2'],['notes','Notes','the memo'],['lock','Locked in','the padlock'],['binoculars','Watching','the telescope'],
+  ['knife','Target','new, for the Mafia pick'],['vote','Vote','new, for the vote'],['chat','Mafia chat','new, for the chat tab'],['door','Knock','new, for the knock'],
+  ['skull','Dead','new, for the dawn card'],['heart','Saved','new, for a safe night'],['sleep','Go to bed','new, for the bed button'],['hourglass','Timer','new, for the night clock'],
+  ['coin','Coins','the drawn coin'],['case','Mafia Case','the drawn case'],['check','Agreed','the tick beside Leo'],['cross','No vote','new, for skipping a vote'],
+  ['left','Previous','the left arrow'],['right','Next','the right arrow'],['up','Open','the up arrow'],['down','Fold','the down arrow'],['skip','Skip','the skip arrow']];
+
+function card(id,name,was){return `<div class="card"><div class="tiles">
+  <div class="tile paper">${img(id,5)}<div class="real">${img(id,3)}${img(id,2)}</div></div>
+  <div class="tile dark">${img(id,5)}<div class="real">${img(id,3)}${img(id,2)}</div></div></div>
+  <div><div class="name">${name}</div><div class="was">${was}</div></div></div>`;}
+document.getElementById('roles').innerHTML=ROLES.map(r=>card(r[0],r[1],'Replaces '+r[3])).join('');
+document.getElementById('ui').innerHTML=UI.map(r=>card(r[0],r[1],r[2].startsWith('new')?r[2][0].toUpperCase()+r[2].slice(1):'Replaces '+r[2])).join('');
+document.getElementById('rolenames').innerHTML=ROLES.map(r=>`<div class="role" style="color:${r[2]}">${img(r[0],2)}${r[1].toUpperCase()}</div>`).join('');
+document.querySelectorAll('i[data-i]').forEach(e=>{e.outerHTML=img(e.dataset.i,+e.dataset.s);});
+</script>

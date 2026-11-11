@@ -1,0 +1,57 @@
+{
+ "rug": {
+  "file": "rug.png",
+  "x": 104,
+  "y": 130
+ },
+ "bed": {
+  "file": "bed.png",
+  "x": 106,
+  "y": 56
+ },
+ "nightL": {
+  "file": "v2/nightstand-with-lamp-left.png",
+  "x": 83,
+  "y": 58
+ },
+ "nightR": {
+  "file": "v2/nightstand-with-lamp-right.png",
+  "x": 152,
+  "y": 58
+ },
+ "plantL": {
+  "file": "v2/potted-plant-left.png",
+  "x": 49,
+  "y": 52
+ },
+ "plantR": {
+  "file": "v2/potted-plant-right.png",
+  "x": 181,
+  "y": 52
+ },
+ "floorlamp": {
+  "file": "floorlamp_mint.png",
+  "x": 172,
+  "y": 50
+ },
+ "fireplace": {
+  "file": "fireplace.png",
+  "x": 48,
+  "y": 106
+ },
+ "armchair": {
+  "file": "v2/leather-armchair.png",
+  "x": 52,
+  "y": 186
+ },
+ "desk": {
+  "file": "v2/desk-with-computer.png",
+  "x": 182,
+  "y": 154
+ },
+ "chair": {
+  "file": "v2/wooden-chair.png",
+  "x": 163,
+  "y": 164
+ }
+}
