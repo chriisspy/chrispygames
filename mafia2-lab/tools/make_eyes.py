@@ -22,7 +22,6 @@ FIX = {
     'batman': {'front': [], 'right': [], 'left': []},      # white mask eyes
     'mafia':     {'front': [[11, 17, 2, 3], [17, 17, 2, 3]]},                       # the eyes touch his moustache
     'detective': {'front': [[11, 15, 2, 3], [17, 15, 2, 3]], 'right': [[17, 16, 2, 3]], 'left': [[5, 16, 2, 3]]},   # the eye touches the hat brim
-    'sheik':     {'front': [[11, 10, 2, 3], [16, 10, 2, 3]], 'right': [[17, 10, 2, 3]], 'left': [[10, 10, 2, 3]]},   # set in make_carpet.py (+1: the extra navy stroke)
     'ferrari':   {'right': [[17, 12, 1, 3]], 'left': [[6, 12, 1, 3]]},
     'redcap':    {'right': [[15, 13, 2, 3]], 'left': [[7, 13, 2, 3]]},
 }

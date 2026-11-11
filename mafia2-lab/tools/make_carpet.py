@@ -22,16 +22,7 @@ GREEN = (0x01, 0x59, 0x57, 255); TAN = (0xbc, 0x9a, 0x7c, 255)
 VIEW = {'front': dict(ct=18, b0=7, b1=19, edge=29), 'back': dict(ct=18, b0=7, b1=19, edge=30),
         'right': dict(ct=19, b0=8, b1=18, edge=29), 'left': dict(ct=19, b0=8, b1=18, edge=29)}
 
-# His drawing as cut from the sheet lives in raw/. He asked for 1 px more navy all round (he looked thinner than the cast),
-# so everything saved (the four views and every pose) gets stroke() on top. Coordinates in this file are raw/ pixels.
-EYES = {'front': [[10, 9, 2, 3], [15, 9, 2, 3]], 'right': [[16, 9, 2, 3]], 'left': [[9, 9, 2, 3]]}
-def load(v): return np.asarray(Image.open(f'{ROOT}{NAME}/raw/{v}.png').convert('RGBA')).copy()
-
-def stroke(a, navy):
-    """1 px of navy round the whole shape (up, down, left, right of every pixel); the picture grows 1 px each side"""
-    h, w = a.shape[:2]; p = np.zeros((h + 2, w + 2, 4), np.uint8); p[1:-1, 1:-1] = a
-    al = p[..., 3] > 0; d = al.copy(); d[1:] |= al[:-1]; d[:-1] |= al[1:]; d[:, 1:] |= al[:, :-1]; d[:, :-1] |= al[:, 1:]
-    p[d & ~al] = (*navy, 255); return p
+def load(v): return np.asarray(Image.open(f'{ROOT}{NAME}/{v}.png').convert('RGBA')).copy()
 
 def ripple(a, v, f):
     """frame f of 8: the carpet's two free ends flap (whole columns slide up and down), and its front edge ripples under him"""
@@ -104,27 +95,26 @@ def dead(F, eyes, navy):
     c = c[rows]
     ch, cw = c.shape[:2]; bh, bw = body.shape[:2]
     out, (ox, oy) = MP.paste(c, body, (cw - bw) // 2, ch - 7 - bh)
-    return MP.trim(stroke(out, navy))
+    return MP.trim(out)
 
 def main():
-    eyes = EYES
+    eyes = json.load(open(ROOT + 'eyes.json'))[NAME]
     F, B, R, L = (load(v) for v in ('front', 'back', 'right', 'left'))
     navy = MP.navy_of(F); out = {}
     for v, a in (('front', F), ('back', B), ('right', R), ('left', L)):
-        ax = a.shape[1] / 2 + 1
-        Image.fromarray(stroke(a, navy)).save(f'{ROOT}{NAME}/{v}.png')
+        ax = a.shape[1] / 2
         for f in range(8):
-            out[f'walk_{v}_{f}'] = (tidy(stroke(ripple(grow(a), v, f), navy), HOVER), ax)
-            if v != 'back': out[f'walkb_{v}_{f}'] = (tidy(stroke(ripple(grow(shut_eyes(a, eyes[v])), v, f), navy), HOVER), ax)
-        out[f'sit_{v}'] = (hover(stroke(a, navy)), ax)
+            out[f'walk_{v}_{f}'] = (tidy(ripple(grow(a), v, f), HOVER), ax)
+            if v != 'back': out[f'walkb_{v}_{f}'] = (tidy(ripple(grow(shut_eyes(a, eyes[v])), v, f), HOVER), ax)
+        out[f'sit_{v}'] = (hover(a), ax)
     can = MP.art(MP.CAN, MP.CAN_COL, navy); logs = MP.art(MP.LOGS, MP.LOG_COL, navy); lh, lw = logs.shape[:2]
-    w = R.shape[1] + 2; ax = w / 2
+    w = R.shape[1]; ax = w / 2
     def both(key, a, ox):
         out[key.replace('*', 'right')] = (a, ax + ox); out[key.replace('*', 'left')] = (MP.mirror(a), a.shape[1] - (ax + ox))
     for k in range(4):
         # watering: the can held out over the front of the carpet, it dips and the water falls to the ground
-        base = tidy(stroke(ripple(grow(R), 'right', k * 2), navy), HOVER)
-        cx, cy = 17, 13 + (1 if k in (1, 2) else 0)
+        base = tidy(ripple(grow(R), 'right', k * 2), HOVER)
+        cx, cy = 16, 12 + (1 if k in (1, 2) else 0)
         a, (ox, oy) = MP.paste(base, can, cx, cy)
         sx, sy = cx + ox + MP.SPOUT[0], cy + oy + MP.SPOUT[1]
         if k:
@@ -132,11 +122,11 @@ def main():
                 if not a[sy + d, sx, 3]: a[sy + d, sx] = (*MP.DROP, 255)
         both(f'water_*_{k}', a, ox)
         # logs: 0 on the ground ahead, 1 the carpet comes down to them, 2 on the front of the carpet, 3 on his lap
-        lift = (HOVER, 1, 2, HOVER)[k]; base = hover(stroke(R, navy), lift); H = base.shape[0]
-        lx, ly = ((w, H - lh), (w - 2, H - lh), (w - lw - 2, H - lift - 10 - lh), (12, 15))[k]
+        lift = (HOVER, 1, 2, HOVER)[k]; base = hover(R, lift); H = base.shape[0]
+        lx, ly = ((w, H - lh), (w - 2, H - lh), (w - lw - 1, H - lift - 9 - lh), (11, 14))[k]
         a, (ox, oy) = MP.paste(base, logs, lx, ly)
         both(f'logs_*_{k}', a, ox)
-    both('bend_*', hover(stroke(R, navy), 1), 0)
+    both('bend_*', hover(R, 1), 0)
     out['dead'] = (dead(F, eyes['front'], navy), None)
     d = f'{ROOT}{NAME}/poses/'; os.makedirs(d, exist_ok=True); meta = {}
     for k, (a, x) in out.items():
