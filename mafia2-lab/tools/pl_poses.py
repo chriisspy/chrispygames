@@ -55,7 +55,8 @@ def front_at(a, y):
     xs = np.nonzero(a[y, :, 3])[0]
     return int(xs.max()) if len(xs) else None
 
-HEAD_LOCK = {'bape'}; HEADROWS = 21      # characters whose front head gets pinned, and how many rows of front.png are head
+HEAD_LOCK = {'bape': 21, 'fisher': 19}   # characters whose front head gets pinned: how many rows of front.png are head
+SIDE_LOCK = {'fisher': 19}               # same for the leaning side poses (watering, picking up): PixelLab smears a cap + glasses when the head tilts
 
 def blob(a):
     """drop crumbs PixelLab leaves floating off the sprite: keep the biggest 4-connected blob"""
@@ -83,12 +84,31 @@ def main():
             if name in HEAD_LOCK and k in ('walk_south', 'sit_south'):
                 # PixelLab redraws this character's head on some front frames (the cap brim comes and goes): put HIS drawn
                 # head back on every frame, wherever the head is, and keep PixelLab's body, arms and legs under it
-                fr = np.asarray(Image.open(f'assets/final/{name}/front.png').convert('RGBA'))[:HEADROWS]; fh, fw = fr.shape[:2]; best = None
+                fr = np.asarray(Image.open(f'assets/final/{name}/front.png').convert('RGBA'))[:HEAD_LOCK[name]]; fh, fw = fr.shape[:2]; best = None
                 for y in range(0, a.shape[0] - fh + 1):
                     for x in range(0, a.shape[1] - fw + 1):
                         w = a[y:y + fh, x:x + fw]; sc = int(((w[..., :3] == fr[..., :3]).all(-1) & (fr[..., 3] > 0) & (w[..., 3] > 0)).sum())
                         if best is None or sc > best[0]: best = (sc, x, y)
                 _, x, y = best; a = a.copy(); a[:y + fh] = 0; m = fr[..., 3] > 0; a[y:y + fh, x:x + fw][m] = fr[m]
+            if name in SIDE_LOCK and k in ('water_east', 'pickup_east') and a[..., 3].any():
+                # his own side head, upright, set where PixelLab's tilted head is (cap brim tip to brim tip); the body under it is kept
+                hr = np.asarray(Image.open(f'assets/final/{name}/right.png').convert('RGBA'))[:SIDE_LOCK[name]]; fh, fw = hr.shape[:2]
+                # line it up on the most face-like spot: where the frame has the most of his head's own bright colours
+                # (glasses, skin) under the same pixels; then wipe PixelLab's head (everything above, and under his outline)
+                m = hr[..., 3] > 0; lum = hr[..., 0] * .3 + hr[..., 1] * .59 + hr[..., 2] * .11
+                face = m & (hr[..., 0].astype(int) - hr[..., 2] > 60)                       # warm pixels: red glasses + skin
+                cols = {tuple(c) for c in hr[face][:, :3]}
+                warm = np.zeros(a.shape[:2], bool)
+                for c in cols: warm |= (a[..., :3] == c).all(-1) & (a[..., 3] > 0)
+                ys, xs = np.nonzero(warm); fy, fx = np.nonzero(face)
+                if len(ys):
+                    top = int(round(np.median(ys[ys <= ys.min() + 9]) - np.median(fy))); x0 = int(round(np.median(xs[ys <= ys.min() + 9]) - np.median(fx)))
+                    top = max(0, min(top, a.shape[0] - fh)); x0 = max(0, min(x0, a.shape[1] - fw)); a = a.copy()
+                    a[:top] = 0
+                    for r in range(fh):
+                        q = np.nonzero(m[r])[0]
+                        if len(q): a[top + r, x0 + q.min():] = 0
+                    a[top:top + fh, x0:x0 + fw][m] = hr[m]
             return a
         out = {}
         def base(a):                       # ground line + feet middle from a standing frame
