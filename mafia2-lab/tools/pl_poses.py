@@ -108,6 +108,7 @@ def main():
                 a[ly + 1:ly + 3, lx + 2:lx + 4] = (*body, 255)    # the arm wrapped over the log
                 a[ly, lx + 2:lx + 4] = (*NAVY, 255); a[ly + 3, lx + 2:lx + 4] = (*NAVY, 255)
             save(f'logs_right_{n}', a, g, ax)
+        save('bend_right', F('pickup_east', 3).copy(), g, ax)   # bending down with empty hands (feeding the cat)
         # --- walking: 8 frames each way, all cut with one shared box so the body never jitters ---
         walk = {}
         for v, k in (('front', 'walk_south'), ('right', 'walk_east'), ('back', 'walk_north')):

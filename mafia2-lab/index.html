@@ -399,7 +399,7 @@ const SKINS=[
 const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11111337'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11111340'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -481,6 +481,7 @@ const NIGHT_TINT='#1c2266|0.3', SHADOW_TINT='#06040e|0.9';
 function poseKey(c){const d=['left','right','back'].includes(c.dir)?c.dir:'front',sd=d==='left'?'left':'right';
   if(c.pose==='sit')return'sit_'+d;if(c.pose==='dead')return'dead';
   if(c.pose==='water')return`water_${sd}_${c.step??1+Math.floor(c.t/220)%3}`;
+  if(c.pose==='bend')return'bend_'+sd;
   if(c.pose==='logs')return`logs_${sd}_${c.step??[0,1,2,1][Math.floor(c.t/380)%4]}`;
   if(c.pose==='walk')return`walk_${d}_${Math.floor((c.t+(c.phase||0))/95)%8}`;return null;}
 function drawPose(c,set){const p=set.poses&&set.poses[poseKey(c)];if(!p)return null;let im=p.img;
@@ -1218,14 +1219,14 @@ PLAY.chore=PLAY.porch=PLAY.cat=PLAY.stars=PLAY.mail=(T,dt,t)=>{
   else if(T>=TW&&T<tSpot){const a=path.at((T-TW)*34);v={x:a.x,y:a.y,dir:dirFrom(a.dx,a.dy),walk:true,al:1};}
   else if(T>=tSpot){
     if(saved&&T>=N.tLeave){
-      if(T<N.tDoor&&path){const a=path.at(path.len-(T-N.tLeave)*34),d=dirFrom(-a.dx,-a.dy),sd=d==='left'||d==='right';v={x:a.x,y:a.y,dir:d,walk:true,al:1,pose:sd?(variant==='wood'?'logs':'water'):null,step:variant==='wood'?3:0};carry=!sd;}
+      if(T<N.tDoor&&path){const a=path.at(path.len-(T-N.tLeave)*34),d=dirFrom(-a.dx,-a.dy),sd=d==='left'||d==='right';v={x:a.x,y:a.y,dir:d,walk:true,al:1,pose:sd?({wood:'logs',garden:'water'}[variant]||null):null,step:variant==='wood'?3:0};carry=!sd;}   // only the wood and garden stories carry something home
       else if(T<N.tDoor)v={x:spot[0],y:spot[1],dir:'back',walk:false,al:1};
       else if(T<N.tDoor+.5)v=stepIn(c,T,N.tDoor);
     }else{
       const seen=!saved&&T>tArr-.6;busy=!seen&&T>tSpot+.2;
       const dead=!saved&&T>tArr+.3;
       v={x:spot[0],y:spot[1],dir:seen?'front':face,walk:false,al:1,
-        pose:dead?'dead':busy?{garden:'water',wood:'logs',porch:'sit',cat:'logs',stars:'sit'}[variant]:porch&&T>tSpot+.2?'sit':null,step:variant==='cat'?1:undefined,blood:dead?ramp(T,tArr+.5,tArr+6.5):0};
+        pose:dead?'dead':busy?{garden:'water',wood:'logs',porch:'sit',cat:'bend',stars:'sit'}[variant]:porch&&T>tSpot+.2?'sit':null,blood:dead?ramp(T,tArr+.5,tArr+6.5):0};
     }
   }
   if(v)P.push({kind:'vic',...v});
