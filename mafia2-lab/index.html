@@ -219,7 +219,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 .tbtn.dance{background:#4a7bd0;box-shadow:inset 0 -6px 0 #2b4a8a,inset 0 3px 0 #7fa6e8,0 4px 0 #0009}
 .tbtn.wave{background:#f07ab0;box-shadow:inset 0 -6px 0 #b8457e,inset 0 3px 0 #ffb0d2,0 4px 0 #0009}
 .tbtn:active{transform:translateY(3px)}
-#townToast{position:absolute;left:50%;top:calc(132px + env(safe-area-inset-top));transform:translateX(-50%);max-width:92%;white-space:nowrap;font-size:22px;font-weight:700;color:#fff;background:#0b0918f0;border:3px solid #f6dfae;border-radius:6px;box-shadow:0 0 0 3px #0b0918,0 5px 0 #0009;padding:6px 14px 8px;display:none;z-index:6}
+#townToast{position:absolute;left:50%;top:calc(182px + env(safe-area-inset-top));transform:translateX(-50%);max-width:92%;white-space:nowrap;font-size:18px;font-weight:700;color:#fff;background:#0b0918f0;border:3px solid #f6dfae;border-radius:6px;box-shadow:0 0 0 3px #0b0918,0 5px 0 #0009;padding:4px 12px 6px;display:none;z-index:6}
 #townToast.on{display:block;animation:wrPop .2s ease-out}#townToast.bad{border-color:#e4544f;color:#ffd9d6}#townToast.good{border-color:#6fd08a;color:#dcffe6}
 #wheelPop{position:absolute;transform:translate(-50%,-100%);display:none;align-items:center;gap:8px;white-space:nowrap;background:#0b0918f0;color:#fff;border:3px solid #ffd25e;border-radius:6px;box-shadow:0 0 0 3px #0b0918,0 5px 0 #0009;padding:5px 12px 6px 6px;z-index:4;font-size:18px;font-weight:700;line-height:1.1}
 #wheelPop.on{display:flex}#wheelPop img.f{width:36px;height:36px;image-rendering:pixelated}#wheelPop small{display:block;font-size:11px;font-weight:600;letter-spacing:1px;color:#ffe9a8}#wheelPop b{display:flex;align-items:center;gap:5px}
@@ -576,7 +576,7 @@ SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11120934'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11120937'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -852,7 +852,7 @@ function buildTown(){const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext(
   TOWN.cabins.forEach((cb,ci)=>x.drawImage(IMG[cabinKey(ci)],cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
   TOWN.cabins.forEach((cb,ci)=>cabinSign(x,ci));
   TOWN.occ.forEach(o=>x.drawImage(IMG['prop/'+o.k],o.x,o.y));
-  IMG.town=c;}
+  IMG.town=c;if(typeof DAYIMG!=='undefined'){delete DAYIMG.town;delete DAYIMG['town|wet'];}}
 // change someone's cabin (from an unlock), then rebuild the town picture
 async function setCabinTheme(person,id){if(!CABIN_THEMES[id])return false;PEOPLE[person].cabinTheme=id;await loadCabins();buildTown();return true;}
 function doorOpen(ci,a){if(a<=0)return;const r=TOWN.cabins[ci].door;lx.fillStyle=`rgba(8,5,14,${a})`;lx.fillRect(X(r[0]),Y(r[1]),r[2]-r[0],r[3]-r[1]);}
@@ -994,9 +994,9 @@ function caseFilm(startReel){const el=$('#caseFx'),c=$('#caseCv'),x=c.getContext
     if(latch&&Math.floor(t/.09)%2){   // comic shake marks either side while the latch works loose
       for(const d of[-1,1]){R('#ffffff',cx+d*56-(d<0?6:0),my-6,6,2);R('#ffffff',cx+d*60-(d<0?8:0),my+8,8,2);R('#ffffff',cx+d*56-(d<0?5:0),my+22,5,2);}}
     if(open>=0){   // THE LIGHT: three solid bands pouring up out of the mouth, drawn after the case so it is in front of the lid
-      const h=ease(clamp(open/.25,0,1)),top=my-(my+12)*h,wob=[0,2,-1,1,-2,1][Math.floor(t/.07)%6],pulse=Math.round(Math.sin(t*7)*2);
-      for(const[col,f]of[['#ff9f3a',1],['#ffd24a',.72],['#fff3b8',.4]])for(let y=my;y>top;y-=4){const d=my-y,hw=((A.half-8)+d*.2+(d>8?wob+pulse:0))*f;R(col,cx-hw,y-4,2*hw,4);}
-      R('#fff3b8',cx-A.half+2,my-2,2*A.half-4,3);R('#ffffff',cx-A.half*.5,my-3,A.half,3);}
+      const h=ease(clamp(open/.25,0,1)),top=my-(my+12)*h,pulse=Math.sin(t*7)*2;
+      for(const[col,f]of[['#ff9f3a',1],['#ffd24a',.72],['#fff3b8',.4]])for(let y=my;y>top;y-=4){const d=my-y,hw=((A.half-8)+d*.2+pulse+Math.round(Math.sin(d*.19-t*11)*2.6))*f;R(col,cx-hw,y-4,2*hw,4);}
+      const cw=A.half*.5+Math.round(Math.sin(t*13)*4);R('#fff3b8',cx-A.half+2,my-2,2*A.half-4,3);R('#ffffff',cx-cw,my-3,2*cw,3);}
     for(let i=CF.parts.length-1;i>=0;i--){const q=CF.parts[i];q.t+=dt;if(q.t<0)continue;if(q.t>q.l){CF.parts.splice(i,1);continue;}const k=q.t/q.l;
       if(q.k==='puff'){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.9;blob('#e9dcc0',q.x,q.y,Math.round(q.r*(1-k)));}
       else if(q.k==='star')star(q.x,q.y,Math.round(q.r*Math.sin(Math.PI*k)),q.col);
@@ -2147,15 +2147,29 @@ cv.addEventListener('pointerdown',e=>{if(scene!==scenes.ghost||G.fading||documen
   if(ci>=0){const c=TOWN.cabins[ci];G.tx=c.cx;G.ty=c.top+30;G.goCab=ci;}else{G.tx=clamp(x,20,540);G.ty=clamp(y+12,40,740);G.goCab=-1;}});
 
 /* ---------- DAY: the discussion ---------- */
-// the town in daylight, made from the night art: blue night grass -> green, ponds -> bright blue, everything else lifted and warmed, bulbs unlit
-function dayOf(src){const c=mk(src.width,src.height),x=c.getContext('2d');x.drawImage(src,0,0);const id=x.getImageData(0,0,c.width,c.height),d=id.data;
-  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;const r=d[i],g=d[i+1],b=d[i+2];let R,G,B;
-    if(b>r+18&&b>g+8){if(r<28){R=.55*g+52;G=.62*b+62;B=.5*r+38;}else{R=r*.9+40;G=g*.95+70;B=b+60;}}
-    else if(r>232&&g>185&&b>120){R=216;G=218;B=208;}          // a bulb or lamp glass, switched off
+// The town in daylight, made from the night art, one layer at a time:
+//   'ground' (the base picture): blue night grass -> green. The little ponds are PUDDLES: bright blue only if it rained
+//            the night before (wet), otherwise they are grass like everything round them (his call, 12 Nov).
+//   'plain'  (cabins): only lifted and warmed.   'prop' (posts, lamps, bulb strings): the same.
+// Every layer: a bulb or lamp glass is switched off, so it is dark grey, not glowing (his call, 12 Nov).
+const DRY_GRASS=[[33,93,158],[45,99,165],[30,92,151],[10,77,161]];
+function dayOf(src,mode,wet){const w=src.width,c=mk(w,src.height),x=c.getContext('2d');x.drawImage(src,0,0);const id=x.getImageData(0,0,w,c.height),d=id.data;
+  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;let r=d[i],g=d[i+1],b=d[i+2],R,G,B,grass=false;
+    if(mode==='ground'&&b>185&&g>60&&r<60){                    // a puddle
+      if(wet){R=r*.9+40;G=g*.95+70;B=b+60;}
+      else{const px=(i>>2)%w,py=((i>>2)/w)|0,q=DRY_GRASS[(((px>>2)*374761393+(py>>2)*668265263)>>>0)%4];r=q[0];g=q[1];b=q[2];grass=true;}}
+    else if(mode==='ground'&&r<60&&b>r+40&&b>g+8)grass=true;  // night grass (and the trees and bushes on it)
+    else if(r>225&&g>165&&b>100&&b<215){const k=g>210?70:52;R=k;G=k;B=k+8;}   // a bulb or lamp glass, switched off
     else{R=r*1.28+22;G=g*1.25+18;B=b*1.12+10;}
+    if(grass){R=.55*g+52;G=.62*b+62;B=.5*r+38;}
     d[i]=Math.min(255,R);d[i+1]=Math.min(255,G);d[i+2]=Math.min(255,B);}
   x.putImageData(id,0,0);return c;}
-const DAYIMG={};const dayImg=k=>DAYIMG[k]||(DAYIMG[k]=dayOf(IMG[k]));
+function dayTown(wet){const c=dayOf(IMG.townBase,'ground',wet),x=c.getContext('2d');
+  TOWN.cabins.forEach((cb,ci)=>x.drawImage(dayOf(IMG[cabinKey(ci)],'plain'),cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
+  TOWN.cabins.forEach((cb,ci)=>cabinSign(x,ci));
+  TOWN.occ.forEach(o=>x.drawImage(dayImg('prop/'+o.k),o.x,o.y));return c;}
+const DAYIMG={};
+const dayImg=k=>{const key=k==='town'&&raining?'town|wet':k;return DAYIMG[key]||(DAYIMG[key]=k==='town'?dayTown(raining):dayOf(IMG[k],'prop'));};
 let dayMode=false;
 const T={sel:-1,pos:{},muted:new Set(),notes:{},birds:[],next:2,clock:90,speak:null,st:0,bub:'...',clouds:[{x:120,y:300,r:70,v:7},{x:420,y:430,r:90,v:5}],leaves:[]};
 const TALK_LINES=['Who do you think it was?','Somebody saw something.','Keep your eyes on the quiet ones.','Careful who you trust.','It was awfully quiet last night…'];
@@ -2175,7 +2189,7 @@ scenes.talk={hud:'#talkHud',
     // cloud shadows drifting over the square
     for(const c of T.clouds){c.x+=c.v*dt;if(c.x>700)c.x=-140;lx.fillStyle='rgba(30,40,70,.07)';for(let yy=-c.r*.45;yy<c.r*.45;yy+=1){const hw=Math.round(c.r*Math.sqrt(1-(yy/(c.r*.45))**2));lx.fillRect(X(c.x)-hw,Y(c.y+yy),hw*2,1);}}
     // sun glints on the ponds
-    for(let i=0;i<8;i++){const gx=[230,250,300,330,220,340,235,325][i]+Math.round(Math.sin(t*.0007+i*2)*5),gy=[250,258,246,255,262,264,528,535][i];if(Math.sin(t*.004+i*1.7)>.82){lx.fillStyle='rgba(255,255,255,.8)';lx.fillRect(X(gx),Y(gy),2,1);}}
+    if(raining)for(let i=0;i<8;i++){const gx=[230,250,300,330,220,340,235,325][i]+Math.round(Math.sin(t*.0007+i*2)*5),gy=[250,258,246,255,262,264,528,535][i];if(Math.sin(t*.004+i*1.7)>.82){lx.fillStyle='rgba(255,255,255,.8)';lx.fillRect(X(gx),Y(gy),2,1);}}
     // same rules as the original Mafia: everyone talks freely for 5 minutes, then the vote.
     // (speech bubbles are kept for later: they will show who is on the mic or typing when it is online)
     T.st-=dt;if(T.st<=0){T.st=9+Math.random()*6;$('#talkLine').textContent=TALK_LINES[Math.floor(Math.random()*TALK_LINES.length)];}
@@ -2229,9 +2243,8 @@ $('#dawnGo').onclick=()=>{$('#dayTag').textContent='DAY 3';go(N.meDead?'ghost':'
 const TG=6,TGW=94,TGH=125;let TOWNG=null;
 const WHEEL_AT=[280,364];   // where the wheel's stand meets the stage
 const DIR8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
-function buildTownGrid(){TOWNG=new Uint8Array(TGW*TGH);const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext('2d');x.drawImage(b,0,0);const d=x.getImageData(0,0,b.width,b.height).data;
+function buildTownGrid(){TOWNG=new Uint8Array(TGW*TGH);   // you can walk anywhere but through a cabin or the wheel (puddles are fine)
   for(let gy=0;gy<TGH;gy++)for(let gx=0;gx<TGW;gx++){const px=gx*TG+3,py=gy*TG+3;let ok=px>18&&px<542&&py>58&&py<736;
-    if(ok){const j=(Math.min(b.height-1,py)*b.width+Math.min(b.width-1,px))*4;if(d[j+2]>185&&d[j]<70)ok=false;}        // a pond
     if(ok&&TOWN.cabins.some(cb=>px>cb.cx-50&&px<cb.cx+50&&py>cb.top-86&&py<cb.top+31))ok=false;                      // a cabin
     if(ok&&((px-WHEEL_AT[0])/14)**2+((py-WHEEL_AT[1])/8)**2<1)ok=false;                                              // the wheel's stand
     TOWNG[gy*TGW+gx]=ok?1:0;}}
