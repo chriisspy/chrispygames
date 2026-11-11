@@ -14,6 +14,11 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input{-webkit-user-select:text;user-select:text}
 html,body{height:100%;background:#05040c;overflow:hidden;touch-action:manipulation;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+/* the font's own 5 looks like an S: these four tiny fonts hold only a proper 5 (tools/make_five.py) and win for that one character */
+@font-face{font-family:"Pixelify Sans";font-weight:400;font-display:block;src:url(assets/fonts/five-400.ttf) format("truetype");unicode-range:U+35}
+@font-face{font-family:"Pixelify Sans";font-weight:500;font-display:block;src:url(assets/fonts/five-500.ttf) format("truetype");unicode-range:U+35}
+@font-face{font-family:"Pixelify Sans";font-weight:600;font-display:block;src:url(assets/fonts/five-600.ttf) format("truetype");unicode-range:U+35}
+@font-face{font-family:"Pixelify Sans";font-weight:700;font-display:block;src:url(assets/fonts/five-700.ttf) format("truetype");unicode-range:U+35}
 body{font-family:"Pixelify Sans",system-ui,sans-serif;font-variant-ligatures:none;font-feature-settings:"liga" 0,"clig" 0;color:#fff;display:flex;align-items:center;justify-content:center}
 #phone{position:relative;width:100vw;height:100dvh;overflow:hidden;background:#07060f;user-select:none}
 @media (min-width:520px){#phone{width:390px;height:844px;border-radius:36px;box-shadow:0 0 0 10px #191626,0 30px 80px #000}}
@@ -158,14 +163,27 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 #winFx .wtap{color:#fff;opacity:.55;margin-top:12px}
 .coin{width:14px;height:14px;background:var(--gold);border:2px solid #8a5a12;box-shadow:inset -3px -3px 0 #e0a92e;display:inline-block}
 /* vote */
-#voteHud .banner,#talkHud .banner,#ghostHud .banner{top:calc(54px + env(safe-area-inset-top));font-size:26px;color:#fff}
+#voteHud .banner,#talkHud .banner,#ghostHud .banner,#townHud .banner{top:calc(54px + env(safe-area-inset-top));font-size:26px;color:#fff}
 #mini{position:absolute;right:8px;top:calc(100px + env(safe-area-inset-top));width:112px;height:150px;image-rendering:pixelated;border:3px solid #1a1430;border-radius:5px;box-shadow:0 3px 0 rgba(0,0,0,.4);pointer-events:auto;touch-action:none;background:#0b1030}
 .gcards::-webkit-scrollbar{display:none}
 .gcards{scrollbar-width:none;display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:2px}
-.gcards .gc{flex:none;width:46px;padding:3px 2px;border:3px solid var(--ink);border-radius:5px;background:#2a2346;color:#f6dfae;font-size:10px;line-height:1.1;cursor:pointer}
+.gcards .gc{position:relative;text-align:center;flex:none;width:52px;padding:4px 2px 3px;border:3px solid var(--ink);border-radius:5px;background:#2a2346;color:#f6dfae;font-size:10px;line-height:1.1;cursor:pointer}
 .gcards .gc img{width:32px;height:32px;image-rendering:pixelated;display:block;margin:0 auto 1px}
-.gcards .gc.sel{border-color:#9fd8ff;background:#3b4a7a}.gcards .gc.dead{opacity:.45}
+.gcards .gc.sel{border-color:#9fd8ff;background:#3b4a7a}.gcards .gc.dead{background:#3a1a24;color:#e9a0a0}
 .haunts{display:none;gap:5px;justify-content:center;margin-top:8px}.haunts.on{display:flex}
+/* spectating: a dark, ghostly panel; who you are watching at the top, what they chose under it */
+#ghostHud .panel{background:#1d1936;color:#f1e9ff;border-color:#0f0b1e;padding:10px 12px;box-shadow:0 4px 0 #0009}
+.gtop{display:flex;align-items:center;gap:10px;text-align:left}.gtop .gt{flex:1;min-width:0}.gtop b{font-size:16px;line-height:1.15;display:block}
+#ghostFace{width:40px;height:40px;image-rendering:pixelated;border:3px solid #0f0b1e;border-radius:5px;background:#2a2346;flex:none;object-fit:contain}
+#ghostFree{padding:5px 8px;display:none}#ghostFree.on{display:block}
+.gdid{display:none;margin-top:8px;gap:6px}.gdid.on{display:flex}
+.gdid div{flex:1;min-width:0;background:#2a2346;border:3px solid #0f0b1e;border-radius:5px;padding:5px 8px 6px;font-size:14px;font-weight:600;text-align:left;line-height:1.2}
+.gdid small,.gl small{display:block;font-size:10px;font-weight:500;letter-spacing:1px;color:#9fd8ff}.gdid .wait{opacity:.6}
+.gbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:8px}.gbar .btn{font-size:13px;padding:5px 9px;white-space:nowrap}
+.gcards{padding-top:6px}.gcards .gc img.rk{position:absolute;right:-5px;top:-7px;width:20px;height:20px;margin:0}
+#ghostList .gl{display:flex;align-items:center;gap:8px;padding:7px 2px;border-bottom:2px solid #0006;font-size:14px;font-weight:600;line-height:1.2}
+#ghostList .gl img.f{width:34px;height:34px;image-rendering:pixelated;flex:none}#ghostList .gl.dead{opacity:.45}
+#ghostList .who{width:82px;flex:none}#ghostList .col{flex:1;min-width:0}
 .haunts button{width:30px;height:30px;padding:0;border:3px solid var(--ink);border-radius:5px;background:#3a2a5e;cursor:pointer}.haunts button:active{transform:scale(.88)}
 .haunts button img{display:block;margin:auto}
 #specChip{position:absolute;left:50%;transform:translateX(-50%);top:calc(98px + env(safe-area-inset-top));padding:4px 10px;background:#3a2a5e;color:#e9dcff;border:3px solid var(--ink);border-radius:5px;font-size:13px;white-space:nowrap;display:none;align-items:center;gap:6px;z-index:6}
@@ -182,6 +200,17 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 #talkHud .banner{font-size:38px;line-height:1.05}
 #talkHud .banner small{font-size:17px;letter-spacing:3px}
 #talkHud .tclock{font-size:32px;margin:6px auto 0;gap:8px;width:max-content;background:rgba(26,20,48,.88);border:3px solid #0f0b1e;border-radius:6px;padding:0 14px 3px;text-shadow:none}
+/* the waiting lobby */
+#townHud .banner small{display:block;font-size:13px;color:#ffe9a8;letter-spacing:2px}
+#townHud .tcount{font-size:14px;font-weight:600;margin:4px auto 0;width:max-content;background:rgba(26,20,48,.88);border:3px solid #0f0b1e;border-radius:6px;padding:1px 10px 3px;text-shadow:none;color:#fff}
+#townMenu{position:absolute;display:none;gap:5px;transform:translate(-50%,-100%);z-index:5}
+#townMenu.on{display:flex;animation:tmPop .16s cubic-bezier(.2,1.5,.4,1)}
+#townMenu .btn{width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center}
+#wheelModal{text-align:center}#wheelModal .mhead{text-align:left}
+#wheelCv{display:block;width:min(303px,78%);margin:8px auto 2px;image-rendering:pixelated}
+#wheelRes{min-height:30px;font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
+#wheelRes.pop{animation:wrPop .28s ease-out}@keyframes wrPop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+#wheelModal .odds{justify-content:center}
 #talkMenu{position:absolute;display:none;gap:5px;transform:translate(-50%,-100%);z-index:5}
 #talkMenu.on{display:flex;animation:tmPop .16s cubic-bezier(.2,1.5,.4,1)}
 #talkMenu .btn{width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center}
@@ -244,6 +273,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 .tag{position:absolute;top:calc(13% + 8px);left:12px;font-size:12px;letter-spacing:2px;color:#ff8a8a;z-index:6;opacity:.85}
 #watchHud .tag{color:#9fd8ff;top:calc(14px + env(safe-area-inset-top))}
 #watchHud .cap{bottom:calc(64px + 70px)}
+#nightHud .cap{bottom:calc(13% + 40px)}
 #watchHud .skip{position:absolute;right:10px;bottom:calc(70px + env(safe-area-inset-bottom));font-size:13px;padding:6px 10px}
 .fade{position:absolute;inset:0;background:#000;opacity:0;transition:opacity 1.2s;pointer-events:none;z-index:7}
 .fade.on{opacity:1}
@@ -320,14 +350,44 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
     </div>
   </div>
 
+  <!-- WAITING LOBBY: the town, before the game starts -->
+  <div class="hud" id="townHud">
+    <div class="title banner"><small>WAITING LOBBY · CODE K7QF</small>THE TOWN<div class="tcount" id="townCount"></div></div>
+    <div id="townMenu"><button class="btn" data-a="punch" title="Punch"><i data-ic="fist" data-c="solo"></i></button><button class="btn" data-a="five" title="High five"><i data-ic="hand" data-c="solo"></i></button></div>
+    <div class="bottom"><div class="panel" style="padding:10px 12px">
+      <div style="text-align:center"><b id="townLine">Welcome to town.</b><div class="small" id="townSub"></div></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn dark lob" id="townDance"><i data-ic="note" data-c="solo"></i>Dance</button>
+        <button class="btn dark lob" id="townWave"><i data-ic="heart" data-c="solo"></i>Wave</button>
+        <span class="wal"><i data-ic="coin" data-c="solo"></i><span class="coinN">0</span></span>
+      </div>
+    </div></div>
+    <div class="modal big panel" id="wheelModal">
+      <div class="mhead"><b>TOWN WHEEL</b><span class="wal"><i data-ic="coin" data-c="solo"></i><span class="coinN">0</span></span><button class="btn" id="wheelX"><i data-ic="cross" data-c="solo"></i></button></div>
+      <div class="small">Spin for coins and outfits. A slice is as wide as its odds.</div>
+      <canvas id="wheelCv" width="101" height="110"></canvas>
+      <div id="wheelRes"></div>
+      <div class="odds" id="wheelOdds"></div>
+      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn red" id="wheelSpin">Spin</button><button class="btn" id="spinTest">+1 test spin</button></div>
+    </div>
+  </div>
+
   <!-- VOTE -->
   <div class="hud" id="ghostHud">
     <div class="title banner"><small>YOU ARE DEAD</small>SPECTATING</div>
     <canvas id="mini" width="112" height="150"></canvas>
-    <div class="bottom"><div class="panel" style="padding:10px 12px;text-align:center"><b id="ghostLine">You are a ghost. Fly anywhere.</b><div class="small" id="ghostSub">Tap the map to fly. Tap a cabin to look inside.</div>
+    <div class="bottom"><div class="panel">
+      <div class="gtop"><img id="ghostFace" alt=""><div class="gt"><b id="ghostLine">You are a ghost. Fly anywhere.</b><div class="small" id="ghostSub" style="display:none"></div></div><button class="btn dark" id="ghostFree" title="Stop following"><i data-ic="cross" data-c="solo"></i></button></div>
+      <div class="gdid" id="ghostDid"></div>
       <div class="haunts" id="haunts"></div>
+      <div class="gbar"><button class="btn dark" id="ghostAll"><i data-ic="eye"></i>Everyone's choices</button></div>
       <div class="gcards" id="ghostCards"></div>
       </div></div>
+    <div class="modal big panel" id="ghostModal">
+      <div class="mhead"><b>EVERYONE'S CHOICES</b><button class="btn" id="ghostAllX"><i data-ic="cross" data-c="solo"></i></button></div>
+      <div class="small" style="margin-bottom:6px">Only the dead can see this.</div>
+      <div id="ghostList"></div>
+    </div>
   </div>
   <div class="hud" id="talkHud">
     <div class="title banner"><small>DAY 2</small>DISCUSSION<div class="tclock"><i data-ic="hourglass" data-s="3" data-c="solo"></i><span id="talkClock">5:00</span></div></div>
@@ -429,6 +489,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 
   <nav id="tabs">
     <button class="btn" data-s="lobby">Lobby</button>
+    <button class="btn" data-s="town">Town</button>
     <button class="btn" data-s="talk">Talk</button>
     <button class="btn" data-s="vote">Vote</button>
     <button class="btn" data-s="cabin">Cabin</button>
@@ -439,7 +500,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
   </nav>
 </div>
 
-<script src="icons.js?v=11111415"></script>
+<script src="icons.js?v=11120903"></script>
 <script>
 'use strict';
 const $=s=>document.querySelector(s);
@@ -494,7 +555,7 @@ SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11111959'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11120904'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -636,11 +697,16 @@ function nameTag(hit,txt,col){if(hit)label(txt,(hit.cx-(cam.fx||0))*S,(hit.top-(
 function dirFrom(dx,dy){return Math.abs(dy)>Math.abs(dx)*1.1?(dy<0?'back':'front'):(dx<0?'left':'right');}
 // a face for the UI, cropped from the front sprite
 const FACES={};
-function face(name){if(FACES[name])return FACES[name];if(!SP[name])return'';const d=SP[name].front,src=d.frames[0][0];
+let EYEJ={};
+function face(name,dead){const key=name+(dead?'|x':'');if(FACES[key])return FACES[key];if(!SP[name])return'';const d=SP[name].front;let src=d.frames[0][0];
+  if(dead){const c=mk(src.width,src.height),g=c.getContext('2d');g.drawImage(src,0,0);
+    for(const[ex,ey,ew,eh]of(EYEJ[name]&&EYEJ[name].front)||[]){const s=g.getImageData(ex-1,ey+PAD,1,1).data;g.fillStyle=`rgb(${s[0]},${s[1]},${s[2]})`;g.fillRect(ex,ey+PAD,ew,eh);
+      g.fillStyle='#01032e';for(const[dx,dy]of[[-1,-1],[1,-1],[0,0],[-1,1],[1,1]])g.fillRect(ex+dx,ey+PAD+(eh>>1)+dy,1,1);}
+    src=c;}
   const crop=Math.min(d.h,d.eyeBot+6);let top=0;const id=src.getContext('2d').getImageData(0,0,d.w,crop).data;
   outer:for(let y=0;y<crop;y++)for(let x=0;x<d.w;x++)if(id[(y*d.w+x)*4+3]){top=y;break outer;}
   const hh=crop-top,sz=Math.max(d.w,hh),k=4,c=mk(sz*k,sz*k),x=c.getContext('2d');x.imageSmoothingEnabled=false;
-  x.drawImage(src,0,top,d.w,hh,Math.floor((sz-d.w)/2)*k,(sz-hh)*k,d.w*k,hh*k);return FACES[name]=c.toDataURL();}
+  x.drawImage(src,0,top,d.w,hh,Math.floor((sz-d.w)/2)*k,(sz-hh)*k,d.w*k,hh*k);return FACES[key]=c.toDataURL();}
 // a polyline you can walk along
 class Poly{constructor(pts){this.pts=pts;this.segs=[];this.len=0;for(let i=1;i<pts.length;i++){const l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);this.segs.push(l);this.len+=l;}}
   at(d){d=clamp(d,0,this.len);const P=this.pts;for(let i=0;i<this.segs.length;i++){if(d<=this.segs[i]){const k=this.segs[i]?d/this.segs[i]:0;return{x:lerp(P[i][0],P[i+1][0],k),y:lerp(P[i][1],P[i+1][1],k),dx:P[i+1][0]-P[i][0],dy:P[i+1][1]-P[i][1]};}d-=this.segs[i];}
@@ -862,7 +928,7 @@ function showWin(item,dupe,back){const el=$('#winFx'),fx=WIN_FX[item.rar],col=RA
   $('#winSub').innerHTML=dupe?`You already have this. ${ic('coin',2)} +${back} back`:'New outfit unlocked';
   $('#winWord').innerHTML=fx.word?pxWord(item.rar,fx.word,item.rar,fx.delay+.1):'';
   $('#winEquip').style.display=PEOPLE[0].skin===item.id?'none':'';
-  const again=$('#winAgain');again.innerHTML=ic('coin',2)+' Open case · '+CASE.price;again.disabled=coins<CASE.price;
+  const again=$('#winAgain');again.style.display='';again.innerHTML=ic('coin',2)+' Open case · '+CASE.price;again.disabled=coins<CASE.price;
   el.classList.add('on');
   // pixel confetti on a small canvas (3 screen pixels per dot, like the rest of the game)
   const cvs=$('#winCv'),W=Math.ceil(el.clientWidth/3),H=Math.ceil(el.clientHeight/3),g=cvs.getContext('2d');cvs.width=W;cvs.height=H;
@@ -900,7 +966,7 @@ function ringPos(i,n){const a=Math.PI/2+i/n*Math.PI*2;return{x:Math.round(TOWN.s
 function voteReset(){
   const n=PEOPLE.length;V.ring=PEOPLE.map((p,i)=>{const r=ringPos(i,n);return{...r,cx:r.x,cy:r.y,i,ghost:0,walk:false,dir:'front'};});
   V.alive=PEOPLE.map((_,i)=>i).filter(i=>!V.dead.has(i));
-  V.order=[...V.alive].sort(()=>Math.random()-.5);V.turn=0;V.phase='gather';V.pt=0;V.votes={};V.out=null;
+  V.order=[...V.alive].sort(()=>Math.random()-.5);V.turn=0;V.phase='gather';V.pt=0;V.votes={};V.cast={};V.out=null;
   V.suspect=V.alive.filter(i=>i!==0)[Math.floor(Math.random()*(V.alive.length-1))];
   $('#verdict').classList.remove('on');$('#votePick').classList.remove('on');$('#voteInfo').style.display='';
   setVote('Everyone to the square','One at a time, step up and vote');
@@ -930,7 +996,7 @@ scenes.vote={
     else if(V.phase==='choose'){voter.walk=false;voter.lift=0;voter.dir='front';
       const left=1-V.pt/8;$('#voteBar i').style.transform=`scaleX(${Math.max(0,left)})`;if(left<=0)pickVote(V.suspect);}
     else if(V.phase==='vote'){voter.walk=false;voter.lift=0;voter.dir='front';
-      if(V.pt>.8&&!V.stamped){V.stamped=true;if(V.target>=0)V.votes[V.target]=(V.votes[V.target]||0)+1;}
+      if(V.pt>.8&&!V.stamped){V.stamped=true;V.cast[vi]=V.target;if(V.target>=0)V.votes[V.target]=(V.votes[V.target]||0)+1;}
       setVote(V.target<0?`${fimg(vi)} ${PEOPLE[vi].n} ${vi===0?'skip':'skips'}`:`${fimg(vi)} ${PEOPLE[vi].n} ${vi===0?'vote':'votes'} ${fimg(V.target)} ${PEOPLE[V.target].n}`,`${V.turn+1} of ${V.alive.length} have voted`);
       if(V.pt>2.3){V.phase='down';V.pt=0;V.stamped=false;}}
     else if(V.phase==='down'){const k=Math.min(1,V.pt/1),e=ease(k);
@@ -1099,6 +1165,13 @@ function getUp(){const s=CAB.state;
   else if(s==='chair')animTo(C.sit,C.stand,.45,{dir:'left',lift:3,sortY:180,end:()=>{CAB.state='stand';CAB.dir='left';}});
   else if(s==='arm')animTo(AR.sit,AR.stand,.4,{dir:'right',lift:4,sortY:195,cover:k=>k<.35?['armchair',AR.front]:null,end:()=>{CAB.state='stand';CAB.dir='right';}});}
 let toastT;function toast(msg){const e=$('#toast');e.innerHTML=msg;e.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('on'),2200);}
+// HOLD TO WALK: keep your finger down and you keep walking to wherever it is (cabin, ghost, waiting lobby)
+let HOLD=null;
+function wxy(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*DPR/S+cam.x+(cam.fx||0),(e.clientY-r.top)*DPR/S+cam.y+(cam.fy||0)];}
+function holdWalk(e,sc,fn){HOLD={id:e.pointerId,t:performance.now(),sc,fn};}
+cv.addEventListener('pointermove',e=>{if(!HOLD||HOLD.id!==e.pointerId)return;if(scene!==HOLD.sc||document.querySelector('.modal.on')){HOLD=null;return;}
+  const now=performance.now();if(now-HOLD.t<100)return;HOLD.t=now;const[x,y]=wxy(e);HOLD.fn(x,y);});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>cv.addEventListener(ev,e=>{if(HOLD&&HOLD.id===e.pointerId)HOLD=null;}));
 cv.addEventListener('pointerdown',e=>{
   if(scene!==scenes.cabin||document.querySelector('.modal.on')||CAB.state==='anim')return;
   const r=cv.getBoundingClientRect();const x=(e.clientX-r.left)*DPR/S+cam.x,y=(e.clientY-r.top)*DPR/S+cam.y;
@@ -1109,6 +1182,7 @@ cv.addEventListener('pointerdown',e=>{
   if(inR(AR.hit,x,y)){intoArm();return;}
   if(inR(ROOM.door.hit,x,y)){goTo(ROOM.door.stand,()=>toast(raining?'You peek outside. It\'s pouring.':'You peek outside. All quiet…'));return;}
   goTo([clamp(x,17,179),clamp(y,77,231)]);
+  holdWalk(e,scenes.cabin,(x,y)=>{if(CAB.state==='stand')goTo([clamp(x,17,179),clamp(y,77,231)]);});
 });
 $('#pcYes').onclick=()=>{$('#pcModal').classList.remove('on');ckOpen();};
 $('#pcNo').onclick=()=>{$('#pcModal').classList.remove('on');};
@@ -1834,7 +1908,28 @@ scenes.stalk={hud:'#nightHud',
 /* ---------- SPECTATING: the dead fly round the town as ghosts, live, and can look inside any cabin ---------- */
 const G={x:280,y:372,tx:280,ty:372,dir:'front',inCab:-1,goCab:-1,acts:{},hold:0,watch:-1,fx:[],log:{},spots:[]};
 const G_ACTS={bed:'fast asleep',pc:'on the computer',arm:'in the armchair',fire:'warming up by the fire',pace:'pacing up and down'};
-function ghostNight(){N.t=0;N.capI=0;N.kicks={};N.shake=0;dust.length=0;planNight();G.hold=0;
+// WHAT EVERYONE CHOSE (only the dead see it): tonight's pick, the moment they lock it in, and their vote at the last meeting
+function ghostChoices(){G.pick={};G.lockAt={};G.voted={};G.didH=null;const alive=PEOPLE.map((_,i)=>i).filter(i=>!V.dead.has(i));
+  const rnd=i=>{const o=alive.filter(j=>j!==i&&j!==0);return o[Math.floor(Math.random()*o.length)];};
+  PEOPLE.forEach((p,i)=>{if(!i||V.dead.has(i))return;const r=p.role||'civilian';
+    if(ROLES[r].pick){G.pick[i]=r==='mafia'||(r==='doctor'&&N.heal)||(r==='bodyguard'&&N.guard===i)?N.victim:rnd(i);G.lockAt[i]=r==='mafia'?1:2+Math.random()*5;}
+    G.voted[i]=V.cast&&V.cast[i]!=null?V.cast[i]:Math.random()<.15?-1:rnd(i);});}
+const roleName=i=>ROLES[PEOPLE[i].role||'civilian'].name;
+function ghostTonight(i){const Ro=ROLES[PEOPLE[i].role||'civilian'];if(!Ro.pick)return'Nothing to do';
+  return N.t>=G.lockAt[i]?`${ic('lock',2)} ${Ro.lock}: ${esc(PEOPLE[G.pick[i]].n)}`:'<span class="wait">Still choosing…</span>';}
+const ghostVote=i=>G.voted[i]==null?'No vote yet':G.voted[i]<0?'Skipped':'Voted '+esc(PEOPLE[G.voted[i]].n);
+// the top of the panel: whose night you are looking at (the one you follow, or whoever is home in the cabin you are in)
+function ghostSide(){let w=G.watch>0?G.watch:G.inCab>=0?CABIN_OF.indexOf(G.inCab):-1;if(w<=0||V.dead.has(w))w=-1;
+  const fc=$('#ghostFace');if(fc.dataset.w!==String(w)){fc.dataset.w=w;fc.src=w>0?face(looksLike(w)):icImg('ghost').src;}
+  $('#ghostFree').classList.toggle('on',G.watch>0);
+  const h=w>0?`<div><small>${roleName(w)} · TONIGHT</small>${ghostTonight(w)}</div><div><small>LAST VOTE</small>${ghostVote(w)}</div>`:'';
+  if(h!==G.didH){G.didH=h;const e=$('#ghostDid');e.innerHTML=h;e.classList.toggle('on',!!h);}
+  for(const s of G.spots||[]){const u=G.heads&&G.heads[s.i],dd=s.st==='dead';if(u&&G.headSt[s.i]!==dd){G.headSt[s.i]=dd;u.src=face(looksLike(s.i),dd);u.parentNode.classList.toggle('dead',dd);}}}
+function ghostList(){$('#ghostList').innerHTML=PEOPLE.map((p,i)=>!i?'':V.dead.has(i)?`<div class="gl dead"><img class="f" src="${face(looksLike(i),true)}" alt=""><div class="who">${esc(p.n)}<small>${roleName(i)}</small></div><div class="col">Dead</div></div>`:
+  `<div class="gl"><img class="f" src="${face(looksLike(i))}" alt=""><div class="who">${esc(p.n)}<small>${roleName(i)}</small></div><div class="col"><small>TONIGHT</small>${ghostTonight(i)}</div><div class="col"><small>LAST VOTE</small>${ghostVote(i)}</div></div>`).join('');}
+$('#ghostAll').onclick=()=>{ghostList();$('#ghostModal').classList.add('on');};$('#ghostAllX').onclick=()=>$('#ghostModal').classList.remove('on');
+$('#ghostFree').onclick=()=>{G.watch=-1;ghostCards();ghostHud();};
+function ghostNight(){N.t=0;N.capI=0;N.kicks={};N.shake=0;dust.length=0;planNight();G.hold=0;ghostChoices();
   PEOPLE.forEach((p,i)=>{G.acts[i]=Object.keys(G_ACTS)[Math.floor(Math.random()*5)];const a=Math.floor(Math.random()*G_LOG.length);G.log[i]=G_LOG[a]+', then '+G_LOG[(a+3)%G_LOG.length];});}
 function ghostAway(i){ // is this player out of their cabin right now?
   if(PEOPLE[i].role==='mafia')return N.t>2.5;if(i===N.victim)return N.kind!=='home'&&N.t>2.9;return false;}
@@ -1843,7 +1938,8 @@ const G_LOG=['lit the fire','checked the window twice','sat staring at the door'
 const icImg=n=>icImg[n]||(icImg[n]=Object.assign(new Image(),{src:(ic(n,2).match(/src="([^"]+)"/)||[])[1]||''}));
 // what a full-screen haunt looks like to the player who gets it: the picture swoops across a purple-edged screen
 function hauntFx(n){const el=$('#hauntFx');el.classList.remove('on');el.innerHTML=`<img src="${icImg(n).src}" alt="">`;void el.offsetWidth;el.classList.add('on');clearTimeout(hauntFx.t);hauntFx.t=setTimeout(()=>el.classList.remove('on'),2400);}
-function ghostCards(){$('#ghostCards').innerHTML=PEOPLE.map((p,i)=>i?`<div class="gc${G.watch===i?' sel':''}${V.dead.has(i)?' dead':''}" data-i="${i}"><img src="${face(looksLike(i))}" alt="">${esc(p.n)}</div>`:'').join('');
+function ghostCards(){$('#ghostCards').innerHTML=PEOPLE.map((p,i)=>i?`<div class="gc${G.watch===i?' sel':''}" data-i="${i}">${ic(p.role||'civilian',2,'rk')}<img class="hd" data-i="${i}" src="${face(looksLike(i))}" alt="">${esc(p.n)}</div>`:'').join('');
+  G.heads={};G.headSt={};document.querySelectorAll('#ghostCards img.hd').forEach(u=>G.heads[u.dataset.i]=u);
   document.querySelectorAll('#ghostCards .gc').forEach(c=>c.onclick=()=>ghostWatch(+c.dataset.i));
   $('#haunts').innerHTML=HAUNTS.map(h=>`<button data-h="${h}">${ic(h,2,'solo')}</button>`).join('');
   document.querySelectorAll('#haunts button').forEach(b=>b.onclick=()=>ghostHaunt(b.dataset.h));}
@@ -1874,6 +1970,7 @@ scenes.ghost={hud:'#ghostHud',
   frame(dt,t){
     // the night plays out live, the same one everybody will be shown afterwards; the body stays where it falls
     const stop=N.end-1.4;N.t=Math.min(N.t+dt,stop);if(N.t>=stop){G.hold+=dt;if(G.hold>12)ghostNight();}
+    ghostSide();
     if(G.inCab>=0){ghostRoom(dt,t);return;}
     const dx=G.tx-G.x,dy=G.ty-G.y,dd=Math.hypot(dx,dy),sp=95*dt;
     if(dd>sp){G.x+=dx/dd*sp;G.y+=dy/dd*sp;G.dir=dirFrom(dx,dy);}else{G.x=G.tx;G.y=G.ty;G.dir='front';if(G.goCab>=0){const ci=G.goCab;G.goCab=-1;ghostDoor(ci);}}
@@ -1946,7 +2043,8 @@ function ghostRoom(dt,t){
   G.fxAt=kk>0?[98,130]:act==='bed'?[98,80]:act==='pc'?[157,168]:act==='arm'?[36,172]:act==='fire'?[38,96]:people.length>1?[people[0].x,people[0].y-10]:[98,150];ghostFx(dt);present();
   for(const[q,h]of hits){if(q===gme)nameTag(h,'You','#9fd8ff');else if(q.doc&&(q.alpha??1)>.8)nameTag(h,'Doctor','#9fe8b0');else if(q.name!=='mafia'&&i>=0&&!q.doc)nameTag(h,PEOPLE[i].n,'#fff');}
   drawMini(PLAY[N.kind](N.t,0,t),t);ghostHud();}
-cv.addEventListener('pointerdown',e=>{if(scene!==scenes.ghost||G.fading)return;
+cv.addEventListener('pointerdown',e=>{if(scene!==scenes.ghost||G.fading||document.querySelector('.modal.on'))return;
+  holdWalk(e,scenes.ghost,(x,y)=>{if(G.fading)return;if(G.inCab>=0){if(y<=196){G.rtx=clamp(x,20,176);G.rty=clamp(y+12,74,196);}}else{G.tx=clamp(x,20,540);G.ty=clamp(y+12,40,740);G.goCab=-1;}});
   const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*DPR/S+cam.x+(cam.fx||0),y=(e.clientY-r.top)*DPR/S+cam.y+(cam.fy||0);
   if(G.inCab>=0){ // in a cabin: fly anywhere in the room (ghosts go over the furniture); the doorway at the bottom leads out
     if(y>196){G.rtx=98;G.rty=222;}else{G.rtx=clamp(x,20,176);G.rty=clamp(y+12,74,196);}return;}
@@ -2030,6 +2128,202 @@ scenes.poses={hud:null,frame(dt,t){view(IMG.town,280,372,124);
 scenes.dawn={hud:'#dawnHud',leave(){fxStop();},frame(dt,t){view(IMG.town,280,372,195);lx.fillStyle='rgba(255,200,120,.12)';lx.fillRect(0,0,cam.lw,cam.lh);townLights(t,{dim:.3});present();}};
 $('#dawnGo').onclick=()=>{$('#dayTag').textContent='DAY 3';go(N.meDead?'ghost':'vote');};
 
+/* ---------- THE WAITING LOBBY: everyone who has joined walks round the town until the host starts ----------
+   Lab only: the other players are bots. You can walk (tap, or hold and drag), punch or high-five people, dance, wave,
+   walk into any cabin, and spin the Town Wheel on the stage for coins and outfits.
+   Everyone is an "ent": {i (who), x, y, loc (-1 = the town, else the cabin they are inside), path, act, ko}. */
+const TG=6,TGW=94,TGH=125;let TOWNG=null;
+const WHEEL_AT=[280,364];   // where the wheel's stand meets the stage
+const DIR8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+function buildTownGrid(){TOWNG=new Uint8Array(TGW*TGH);const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext('2d');x.drawImage(b,0,0);const d=x.getImageData(0,0,b.width,b.height).data;
+  for(let gy=0;gy<TGH;gy++)for(let gx=0;gx<TGW;gx++){const px=gx*TG+3,py=gy*TG+3;let ok=px>18&&px<542&&py>58&&py<736;
+    if(ok){const j=(Math.min(b.height-1,py)*b.width+Math.min(b.width-1,px))*4;if(d[j+2]>185&&d[j]<70)ok=false;}        // a pond
+    if(ok&&TOWN.cabins.some(cb=>px>cb.cx-50&&px<cb.cx+50&&py>cb.top-86&&py<cb.top+31))ok=false;                      // a cabin
+    if(ok&&((px-WHEEL_AT[0])/14)**2+((py-WHEEL_AT[1])/8)**2<1)ok=false;                                              // the wheel's stand
+    TOWNG[gy*TGW+gx]=ok?1:0;}}
+const townOk=(x,y)=>{const gx=Math.floor(x/TG),gy=Math.floor(y/TG);return gx>=0&&gy>=0&&gx<TGW&&gy<TGH&&!!TOWNG[gy*TGW+gx];};
+// a path over a walk grid, pulled straight wherever there is a clear line. null = no way there.
+function gridPath(G,gw,gh,gs,sx,sy,tx,ty){
+  const cl=(x,y)=>[clamp(Math.floor(x/gs),0,gw-1),clamp(Math.floor(y/gs),0,gh-1)];
+  const near=(px,py)=>{for(let r=1;r<40;r++)for(let y=py-r;y<=py+r;y++)for(let x=px-r;x<=px+r;x++){if(x<0||y<0||x>=gw||y>=gh||Math.max(Math.abs(x-px),Math.abs(y-py))!==r)continue;if(G[y*gw+x])return[x,y];}return[px,py];};
+  let[ax,ay]=cl(sx,sy),[bx,by]=cl(tx,ty);const startOk=!!G[ay*gw+ax];if(!startOk)[ax,ay]=near(ax,ay);const exact=!!G[by*gw+bx];if(!exact)[bx,by]=near(bx,by);
+  const prev=new Int32Array(gw*gh).fill(-1),q=new Int32Array(gw*gh),start=ay*gw+ax,goal=by*gw+bx;let h=0,n=0;prev[start]=start;q[n++]=start;
+  while(h<n){const c=q[h++];if(c===goal)break;const cx=c%gw,cy=(c/gw)|0;
+    for(const[dx,dy]of DIR8){const nx=cx+dx,ny=cy+dy;if(nx<0||ny<0||nx>=gw||ny>=gh)continue;const m=ny*gw+nx;if(prev[m]!==-1||!G[m])continue;if(dx&&dy&&(!G[cy*gw+nx]||!G[ny*gw+cx]))continue;prev[m]=c;q[n++]=m;}}
+  if(prev[goal]===-1)return null;
+  const pts=[];for(let c=goal;c!==start;c=prev[c])pts.push([(c%gw)*gs+gs/2,((c/gw)|0)*gs+gs/2]);pts.reverse();if(exact)pts.push([tx,ty]);
+  const los=(a,b)=>{const d=Math.hypot(b[0]-a[0],b[1]-a[1]),k=Math.ceil(d/2.5);for(let i=1;i<k;i++){const x=a[0]+(b[0]-a[0])*i/k,y=a[1]+(b[1]-a[1])*i/k;if(!G[Math.floor(y/gs)*gw+Math.floor(x/gs)])return false;}return true;};
+  const out=[];let cur=startOk?[sx,sy]:[ax*gs+gs/2,ay*gs+gs/2],i=0;
+  while(i<pts.length){let j=pts.length-1;while(j>i&&!los(cur,pts[j]))j--;out.push(pts[j]);cur=pts[j];i=j+1;}
+  return out;}
+
+const WL={me:null,bots:[],fx:[],feed:[],sel:null,pos:new Map(),shake:0,fading:false,spins:1,
+  wheel:{a:0,from:0,to:0,t0:null,dur:0,busy:false,res:0,by:null}};
+try{const s=localStorage.getItem('m2_spins');if(s!=null&&!isNaN(+s))WL.spins=+s;}catch(e){}
+const SPIN_PRICE=150;
+const wlEnt=(i,x,y)=>({i,x,y,dir:'front',path:[],walk:false,loc:-1,act:null,ko:null,todo:null,wait:.5+Math.random()*3,phase:i*377,grudge:null,stay:0});
+const wlAll=()=>[WL.me,...WL.bots];
+const wlName=(e,obj)=>e.i===0?(obj?'you':'You'):PEOPLE[e.i].n;
+const wlOk=(loc,x,y)=>loc<0?townOk(x,y):canStand(x,y);
+function wlSay(a,b){if(a){WL.feed.unshift(a);WL.feed.length=Math.min(WL.feed.length,2);}$('#townLine').textContent=WL.feed[0]||'Welcome to town.';$('#townSub').textContent=b||WL.feed[1]||'Waiting for the host to start…';}
+// walk somewhere, then do something when you get there
+function wlGo(e,x,y,todo){if(e.ko)return;if(e.act&&e.act.k!=='punch')e.act=null;
+  const p=e.loc<0?gridPath(TOWNG,TGW,TGH,TG,e.x,e.y,x,y):findPath(e.x,e.y,x,y);
+  if(!p){e.path=[];e.todo=null;return;}e.path=p;e.todo=todo||null;if(!p.length){e.todo=null;if(todo)todo();}}
+function wlSpot(){for(let k=0;k<30;k++){const sq=Math.random()<.7,x=sq?150+Math.random()*260:40+Math.random()*480,y=sq?275+Math.random()*210:90+Math.random()*620;if(townOk(x,y))return[x,y];}return[280,440];}
+// walk up beside someone, then punch or high-five them
+function wlDo(e,kind,tg,again){if(!again)e.tries=0;const a=Math.atan2(e.y-tg.y,e.x-tg.x);wlGo(e,tg.x+Math.cos(a)*16,tg.y+Math.sin(a)*8,()=>wlAct(e,kind,tg));}
+function wlAct(e,kind,tg){if(tg.loc!==e.loc||tg.ko)return;const d=Math.hypot(tg.x-e.x,tg.y-e.y);
+  if(d>26){if(e.i===0&&(e.tries=(e.tries||0)+1)<5)wlDo(e,kind,tg,true);return;}     // they wandered off: you keep after them
+  e.dir=dirFrom(tg.x-e.x,tg.y-e.y);const dd=d||1;
+  if(kind==='punch')e.act={k:'punch',t:0,tg,dx:(tg.x-e.x)/dd,dy:(tg.y-e.y)/dd};
+  else{e.act={k:'five',t:0,tg};if(!tg.act){tg.path=[];tg.todo=null;tg.walk=false;tg.dir=dirFrom(e.x-tg.x,e.y-tg.y);tg.act={k:'five',t:0,tg:e,slave:true};}
+    if(e.loc===WL.me.loc)wlSay(`${wlName(e)} high-fived ${wlName(tg,1)}.`);}}
+function wlHit(e,a){const tg=a.tg;if(tg.loc!==e.loc||tg.ko||Math.hypot(tg.x-e.x,tg.y-e.y)>32){if(e.i===0)wlSay('You missed.');return;}
+  tg.ko={t:0,vx:a.dx*100,vy:a.dy*100};tg.act=null;tg.path=[];tg.todo=null;tg.walk=false;tg.grudge=e;
+  WL.fx.push({k:'pow',x:tg.x-a.dx*4,y:tg.y-16,t:0,loc:e.loc});
+  if(tg.i===0){WL.shake=.35;WL.sel=null;wlMenu();}else if(e.i===0)WL.shake=.12;
+  if(e.loc===WL.me.loc)wlSay(`${wlName(e)} punched ${wlName(tg,1)}!`,tg.i===0?'Get up and get them back.':null);}
+// in and out of a cabin. You: the screen fades through black. Bots just come and go.
+function wlDoor(ci){if(WL.fading)return;WL.fading=true;const xf=$('#xfade');xf.classList.add('on');
+  setTimeout(()=>{const m=WL.me,was=m.loc;m.loc=ci;m.path=[];m.todo=null;m.walk=false;WL.sel=null;wlMenu();
+    if(ci>=0){m.x=98;m.y=214;m.dir='back';$('#phone').style.background=ROOM_VOID;const o=CABIN_OF.indexOf(ci),n=WL.bots.filter(b=>b.loc===ci).length;
+      wlSay(o===0?'Your cabin.':o>0?`${PEOPLE[o].n}'s cabin.`:'An empty cabin.',n?'You are not alone in here.':'Walk to the door to leave.');}
+    else{const c=TOWN.cabins[was];m.x=c.cx;m.y=c.top+38;m.dir='front';$('#phone').style.background='';wlSay('Back outside.');}
+    $('#townCount').style.display=ci>=0?'none':'';xf.classList.remove('on');setTimeout(()=>WL.fading=false,230);},240);}
+function wlBotDoor(b,ci){const was=b.loc;b.path=[];b.todo=null;b.walk=false;
+  if(ci>=0){b.loc=ci;b.x=98;b.y=212;b.dir='back';b.stay=2+Math.floor(Math.random()*3);if(WL.me.loc===ci)wlSay(`${wlName(b)} came in.`);}
+  else{const c=TOWN.cabins[was];b.loc=-1;b.x=c.cx;b.y=c.top+38;b.dir='front';if(WL.me.loc===was)wlSay(`${wlName(b)} left.`);}}
+// what a bot does next
+function wlThink(b){const r=Math.random();b.wait=1+Math.random()*3.5;
+  if(b.grudge){const g=b.grudge;b.grudge=null;if(!g.ko&&g.loc===b.loc&&Math.random()<.65){wlDo(b,'punch',g);return;}}
+  if(b.loc>=0){if(--b.stay<=0)wlGo(b,98,224,()=>wlBotDoor(b,-1));else wlGo(b,30+Math.random()*130,100+Math.random()*90);return;}
+  if(r<.42){const p=wlSpot();wlGo(b,p[0],p[1]);}
+  else if(r<.6){const o=wlAll().filter(q=>q!==b&&q.loc===b.loc&&!q.ko);const tg=o[Math.floor(Math.random()*o.length)];if(tg)wlDo(b,Math.random()<.45?'punch':'five',tg);}
+  else if(r<.7){if(!WL.wheel.busy)wlGo(b,280+(Math.random()<.5?-22:22),WHEEL_AT[1]+12,()=>{b.dir='back';wheelSpin(b);});}
+  else if(r<.82){const ci=Math.floor(Math.random()*8),c=TOWN.cabins[ci];wlGo(b,c.cx,c.top+36,()=>wlBotDoor(b,ci));}
+  else b.act={k:r<.92?'dance':'wave',t:0};}
+function wlStep(e,dt){
+  if(e.ko){const k=e.ko;k.t+=dt;if(k.t<.32){const f=1-k.t/.32,nx=e.x+k.vx*f*dt,ny=e.y+k.vy*f*dt;if(wlOk(e.loc,nx,ny)){e.x=nx;e.y=ny;}}if(k.t>1.5){e.ko=null;e.dir='front';e.wait=.3;}return;}
+  if(e.act){const a=e.act;a.t+=dt;
+    if(a.k==='punch'){if(!a.hit&&a.t>=.14){a.hit=true;wlHit(e,a);}if(a.t>.45)e.act=null;}
+    else if(a.k==='five'){if(!a.hit&&a.t>=.25){a.hit=true;if(!a.slave)WL.fx.push({k:'spark',x:(e.x+a.tg.x)/2,y:(e.y+a.tg.y)/2-22,t:0,loc:e.loc});}if(a.t>.6)e.act=null;}
+    else if(a.k==='dance'){if(Math.floor(a.t/.4)!==Math.floor((a.t-dt)/.4))WL.fx.push({k:'note',x:e.x+(Math.random()-.5)*14,y:e.y-30,t:0,loc:e.loc});if(a.t>2.6)e.act=null;}
+    else if(a.k==='wave'){if(!a.hit){a.hit=true;WL.fx.push({k:'heart',x:e.x,y:e.y-32,t:0,loc:e.loc});}if(a.t>.9)e.act=null;}
+    return;}
+  if(e.path.length){const p=e.path[0],dx=p[0]-e.x,dy=p[1]-e.y,dd=Math.hypot(dx,dy),sp=(e.i===0?76:56)*dt;
+    if(dd<=sp){e.x=p[0];e.y=p[1];e.path.shift();if(!e.path.length){e.walk=false;const td=e.todo;e.todo=null;if(td)td();}}
+    else{e.x+=dx/dd*sp;e.y+=dy/dd*sp;e.dir=dirFrom(dx,dy);e.walk=true;}}
+  else e.walk=false;}
+function wlDraw(e,t){const o={e,name:PEOPLE[e.i].skin,dir:e.dir,x:e.x,y:e.y,t,phase:e.phase,walk:e.walk};
+  if(e.ko){const k=e.ko.t;o.walk=false;if(k<1.25){o.pose='dead';o.lift=k<.32?Math.sin(Math.PI*k/.32)*7:0;}else{o.lift=Math.sin(Math.PI*(k-1.25)/.25)*5;o.dir='front';}}
+  else if(e.act){const a=e.act,k=a.t;o.walk=false;
+    if(a.k==='punch'){const l=7*Math.sin(Math.PI*clamp(k/.3,0,1));o.x+=a.dx*l;o.y+=a.dy*l;}
+    else if(a.k==='five')o.lift=Math.sin(Math.PI*clamp(k/.5,0,1))*6;
+    else if(a.k==='dance'){o.dir=['front','right','back','left'][Math.floor(k/.16)%4];o.lift=Math.abs(Math.sin(k*9))*3;}
+    else{o.lift=Math.abs(Math.sin(k*7))*4;o.dir='front';}}
+  return o;}
+// little pixel effects: POW, a high-five spark, music notes, a heart
+function pxStar(x,y,r){for(let dy=-r;dy<=r;dy++){const w=r-Math.abs(dy);lx.fillRect(x-w,y+dy,2*w+1,1);}const h=Math.round(r*.62);lx.fillRect(x-h,y-h,2*h+1,2*h+1);}
+function pxText(c,str,x,y){for(const ch of String(str)){const g=CK_FONT[ch];if(g)for(let r=0;r<5;r++)for(let q=0;q<3;q++)if(g[r]&(4>>q))c.fillRect(x+q,y+r,1,1);x+=4;}}
+function wlFx(dt,loc){const LIFE={pow:.55,spark:.4,note:1.1,heart:1};
+  for(let i=WL.fx.length-1;i>=0;i--){const f=WL.fx[i];f.t+=dt;const life=LIFE[f.k];if(f.t>life){WL.fx.splice(i,1);continue;}if(f.loc!==loc)continue;const x=X(f.x),y=Y(f.y),k=f.t/life;
+    if(f.k==='pow'){const s=Math.min(1,k/.22),r=Math.round(4+6*s);lx.fillStyle='#1a1430';pxStar(x,y,r+1);lx.fillStyle='#e4544f';pxStar(x,y,r);lx.fillStyle='#ffd25e';pxStar(x,y,r-2);if(s>=1){lx.fillStyle='#1a1430';pxText(lx,'POW',x-5,y-2);}}
+    else if(f.k==='spark'){const r=2+Math.round(k*8);lx.fillStyle=k<.5?'#fff':'#ffd25e';for(const[dx,dy]of DIR8)lx.fillRect(x+dx*r,y+dy*r,2,2);}
+    else{const im=icImg(f.k);if(im.complete&&im.width){lx.globalAlpha=1-k*k;lx.drawImage(im,x-5+Math.round(Math.sin(f.t*6)*2),y-5-Math.round(k*14),10,10);lx.globalAlpha=1;}}}}
+// tap a player: two buttons pop up over their head
+function wlMenu(){$('#townMenu').classList.toggle('on',!!WL.sel);}
+document.querySelectorAll('#townMenu .btn').forEach(b=>b.onclick=()=>{const tg=WL.sel;if(!tg||WL.me.ko)return;WL.sel=null;wlMenu();wlDo(WL.me,b.dataset.a,tg);});
+$('#townDance').onclick=()=>{const m=WL.me;if(m.ko)return;m.path=[];m.todo=null;m.act={k:'dance',t:0};};
+$('#townWave').onclick=()=>{const m=WL.me;if(m.ko)return;m.path=[];m.todo=null;m.act={k:'wave',t:0};};
+
+/* ---- the Town Wheel: slices are as wide as their odds (they add up to 100) ---- */
+const WHEEL=[['c',25,13],['o','common',8],['c',50,9],['c',100,10],['o','rare',6],['c',25,13],['c',50,9],['o','epic',4],['c',25,13],['c',250,4],['c',50,9],['o','legendary',2]];
+const hexRGB=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+const WSEG=(()=>{let s=0;return WHEEL.map(w=>{const col=w[0]==='o'?RAR_COL[w[1]]:w[1]>=250?'#e4544f':w[1]>=100?'#ff9a4a':w[1]>=50?'#e9b25a':'#f6dfae';const o={kind:w[0],v:w[1],w:w[2],s0:s/100,s1:(s+w[2])/100,rgb:hexRGB(col)};s+=w[2];return o;});})();
+const W_NAVY=[26,20,48],W_GOLD=[211,155,42],W_CANV={};
+function wheelPaint(R,a,big){const n=2*R+1,c=W_CANV[n]||(W_CANV[n]=mk(n,n)),x=c.getContext('2d'),id=x.createImageData(n,n),d=id.data,TAU=Math.PI*2,rim=big?4:2,hub=big?6:2;
+  for(let py=0;py<n;py++)for(let px=0;px<n;px++){const dx=px-R,dy=py-R,r=Math.hypot(dx,dy);if(r>R+.3)continue;let col;
+    if(r>R-1.2||r<hub&&r>hub-1.6)col=W_NAVY;else if(r>R-rim||r<hub)col=W_GOLD;
+    else{const f=(((Math.atan2(dy,dx)-a)/TAU)%1+1)%1;let g=WSEG[WSEG.length-1];for(const s of WSEG)if(f<s.s1){g=s;break;}
+      col=big&&Math.min(f-g.s0,g.s1-f)*TAU*r<.6?W_NAVY:g.rgb;}
+    const j=(py*n+px)*4;d[j]=col[0];d[j+1]=col[1];d[j+2]=col[2];d[j+3]=255;}
+  x.putImageData(id,0,0);
+  if(big){x.fillStyle='#1a1430';for(const g of WSEG){const m=a+TAU*(g.s0+g.s1)/2,lx2=R+Math.cos(m)*R*.66,ly2=R+Math.sin(m)*R*.66;
+      if(g.kind==='c'){const s=String(g.v);pxText(x,s,Math.round(lx2-(s.length*4-1)/2),Math.round(ly2-2));}
+      else if(g.w>=6){const im=icImg('hanger');if(im.complete&&im.width)x.drawImage(im,Math.round(lx2-5),Math.round(ly2-5),10,10);}}}
+  return c;}
+// the little wheel that stands on the stage: one picture per step of a turn, made the first time it is needed
+const WHEEL_SPR={};let WHEEL_SH=null;
+function wheelObj(){const k=((Math.round(WL.wheel.a/(Math.PI*2)*96)%96)+96)%96;let c=WHEEL_SPR[k];
+  if(!c){c=mk(27,44);const x=c.getContext('2d');x.drawImage(wheelPaint(12,k/96*Math.PI*2,false),1,4);
+    x.fillStyle='#1a1430';x.fillRect(11,28,5,13);x.fillRect(7,40,13,4);x.fillStyle='#8a5a34';x.fillRect(12,29,3,12);x.fillStyle='#a8733f';x.fillRect(8,41,11,2);
+    x.fillStyle='#1a1430';x.fillRect(11,0,5,4);x.fillRect(12,4,3,2);x.fillStyle='#e4544f';x.fillRect(12,1,3,3);x.fillRect(13,4,1,1);WHEEL_SPR[k]=c;
+    if(!WHEEL_SH){WHEEL_SH=mk(27,44);const s=WHEEL_SH.getContext('2d');s.drawImage(c,0,0);s.globalCompositeOperation='source-in';s.fillStyle='#000';s.fillRect(0,0,27,44);}}
+  return{img:c,shadow:WHEEL_SH,x:WHEEL_AT[0]-13,y:WHEEL_AT[1]-41,base:WHEEL_AT[1]+2};}
+function wheelSpin(who){const W=WL.wheel;if(W.busy)return false;let r=Math.random()*100,k=0;while(k<WSEG.length-1&&r>=WSEG[k].w){r-=WSEG[k].w;k++;}
+  const g=WSEG[k],f=g.s0+(g.s1-g.s0)*(.2+Math.random()*.6),TAU=Math.PI*2;let to=-Math.PI/2-f*TAU;   // the pointer is at the top
+  to+=Math.ceil((W.a-to)/TAU)*TAU+(who.i===0?5:3)*TAU;
+  Object.assign(W,{busy:true,from:W.a,to,t0:null,dur:who.i===0?4.6:3,res:k,by:who});return true;}
+function wheelTick(dt){const W=WL.wheel;if(!W.busy){W.a+=dt*.12;return;}
+  W.t0=(W.t0??0)+dt;const k=Math.min(1,W.t0/W.dur);W.a=W.from+(W.to-W.from)*(1-(1-k)*(1-k));
+  if(k>=1){W.busy=false;W.a%=Math.PI*2;wheelPrize(W.by,WSEG[W.res]);}}
+function wheelPrize(who,g){const what=g.kind==='c'?`${g.v} coins`:(g.v==='epic'?'an ':'a ')+g.v[0].toUpperCase()+g.v.slice(1)+' outfit';
+  if(who.i!==0){if(WL.me.loc<0)wlSay(`${wlName(who)} spun the wheel: ${what}.`);return;}
+  if(g.kind==='c'){coins+=g.v;saveInv();paintCoins();$('#wheelRes').innerHTML=`${ic('coin',3)} +${g.v} coins`;wlSay(`You won ${g.v} coins on the wheel.`);}
+  else{const pool=SKINS.filter(s=>s.rar===g.v),win=pool[Math.floor(Math.random()*pool.length)],dupe=OWNED.has(win.id),back=Math.round(CASE.price*CASE.dupe);
+    if(dupe)coins+=back;else OWNED.add(win.id);saveInv();paintSkin();paintCoins();
+    $('#wheelRes').innerHTML=dupe?`${esc(win.name)} again. ${ic('coin',2)} +${back} back`:`NEW! ${esc(win.name)}`;wlSay(`You won ${esc(win.name)} on the wheel!`);
+    showWin(win,dupe,back);$('#winAgain').style.display='none';}
+  const r=$('#wheelRes');r.classList.remove('pop');void r.offsetWidth;r.classList.add('pop');wheelUI();}
+function wheelUI(){paintCoins();const b=$('#wheelSpin'),W=WL.wheel;b.innerHTML=WL.spins>0?`Spin · ${WL.spins} free`:ic('coin',2)+' Spin · '+SPIN_PRICE;b.disabled=W.busy||(WL.spins<=0&&coins<SPIN_PRICE);
+  $('#wheelOdds').innerHTML=[['COINS',76,''],['COMMON',8,''],['RARE',6,'rare'],['EPIC',4,'epic'],['LEGENDARY',2,'legendary']].map(o=>`<span class="rar ${o[2]}">${o[0]} ${o[1]}%</span>`).join('');}
+function wheelOpen(){$('#wheelRes').innerHTML='';wheelUI();$('#wheelModal').classList.add('on');}
+$('#wheelX').onclick=()=>$('#wheelModal').classList.remove('on');
+$('#wheelSpin').onclick=()=>{const W=WL.wheel;if(W.busy)return;if(WL.spins>0)WL.spins--;else if(coins>=SPIN_PRICE){coins-=SPIN_PRICE;saveInv();}else return;
+  try{localStorage.setItem('m2_spins',String(WL.spins));}catch(e){}$('#wheelRes').innerHTML='';wheelSpin(WL.me);wheelUI();};
+$('#spinTest').onclick=()=>{WL.spins++;try{localStorage.setItem('m2_spins',String(WL.spins));}catch(e){}wheelUI();};
+
+scenes.town={hud:'#townHud',
+  enter(){document.documentElement.style.setProperty('--accent','#e9b25a');if(!TOWNG)buildTownGrid();
+    WL.me=wlEnt(0,280,436);WL.bots=PEOPLE.slice(1).map((p,k)=>{const s=wlSpot();return wlEnt(k+1,s[0],s[1]);});
+    WL.fx=[];WL.sel=null;WL.feed=[];WL.fading=false;WL.shake=0;wlMenu();paintCoins();$('#townCount').style.display='';$('#townCount').textContent=`${PEOPLE.length} of 10 players here`;
+    wlSay('Welcome to town.','Tap or hold to walk. Tap a player, a cabin or the wheel.');},
+  leave(){$('#phone').style.background='';WL.sel=null;wlMenu();},
+  frame(dt,t){const m=WL.me;wheelTick(dt);
+    for(const e of wlAll()){wlStep(e,dt);if(e!==m&&!e.ko&&!e.act&&!e.path.length){e.wait-=dt;if(e.wait<=0)wlThink(e);}}
+    WL.shake=Math.max(0,WL.shake-dt);const sh=WL.shake>0?Math.round(Math.sin(t*.09)*8*WL.shake):0;
+    const people=wlAll().filter(e=>e.loc===m.loc).map(e=>wlDraw(e,t));let hits;
+    if(m.loc>=0){view(IMG.room,97,121,186,{fit:true,topCss:80,void:ROOM_VOID});
+      rain(dt,ROOM.windows.map(w=>[X(w[0]),Y(w[1]),w[2],w[3]]));fireAcc+=dt;while(fireAcc>.06){stepFire();fireAcc-=.06;}
+      hits=drawScene(people,null,IMG.room,ROOM_OBJS);wlFx(dt,m.loc);
+      const fl=.5+.5*noise(t*1.7,2);lights([[33,81,70,'255,130,40',.24+.1*fl,1],[61,64,26,'255,210,140',.3,2],[133,64,26,'255,210,140',.3,3],[151,58,22,'170,255,170',.16,4]],t,ROOM_MASK);
+    }else{dayMode=true;const img=dayImg('town');view(img,m.x+sh,m.y+24,190,{loose:true});
+      if(WL.sel&&WL.sel.loc===m.loc){const q=Math.floor(t/200)%2;lx.strokeStyle=q?'#ffd25e':'#fff2a8';lx.lineWidth=1;lx.beginPath();lx.ellipse(X(WL.sel.x)+.5,Y(WL.sel.y)+.5,9+q,3+q*.5,0,0,7);lx.stroke();}
+      hits=drawScene(people,TOWN.occ,img,[wheelObj()]);wlFx(dt,-1);
+      lx.fillStyle='rgba(255,236,190,.06)';lx.fillRect(0,0,cam.lw,cam.lh);}
+    // stars going round the head of anyone knocked flat
+    for(const p of people){const k=p.e.ko,h=hits.get(p);if(!k||k.t>1.25||!h)continue;lx.fillStyle='#ffd25e';for(let i=0;i<3;i++){const a=t*.009+i*2.1;lx.fillRect(Math.round(h.cx+Math.cos(a)*8),Math.round(h.top-3+Math.sin(a)*2.5),2,2);}}
+    present();dayMode=false;
+    WL.pos.clear();for(const p of people){const h=hits.get(p);if(!h)continue;WL.pos.set(p.e,{x:(h.cx-(cam.fx||0))*S/DPR,y:(h.top-(cam.fy||0))*S/DPR});nameTag(h,wlName(p.e),p.e===m?'#ffd25e':'#fff');}
+    if(WL.sel){const q=WL.pos.get(WL.sel);if(!q||WL.sel.ko){WL.sel=null;wlMenu();}else{const mn=$('#townMenu');mn.style.left=clamp(q.x,50,cv.clientWidth-50)+'px';mn.style.top=(q.y-TAG-10)+'px';}}
+    // the big wheel in its window
+    if($('#wheelModal').classList.contains('on')){const wc=$('#wheelCv').getContext('2d');wc.clearRect(0,0,101,110);wc.drawImage(wheelPaint(48,WL.wheel.a,true),2,11);
+      wc.fillStyle='#1a1430';for(let r=0;r<7;r++)wc.fillRect(50-6+r,2+r,13-2*r,1);wc.fillStyle='#e4544f';for(let r=0;r<5;r++)wc.fillRect(50-4+r,3+r,9-2*r,1);
+      if(!WL.wheel.busy&&$('#wheelSpin').disabled&&(WL.spins>0||coins>=SPIN_PRICE))wheelUI();}
+  }};
+cv.addEventListener('pointerdown',e=>{if(scene!==scenes.town||WL.fading||document.querySelector('.modal.on'))return;const[x,y]=wxy(e),m=WL.me;if(m.ko)return;
+  const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;let best=null,bd=30;
+  for(const[q,p]of WL.pos){if(q===m)continue;const d=Math.hypot(p.x-px,p.y+18-py);if(d<bd){bd=d;best=q;}}
+  if(best){WL.sel=WL.sel===best?null:best;wlMenu();return;}
+  WL.sel=null;wlMenu();
+  if(m.loc>=0){if(y>198||inR(ROOM.door.hit,x,y)){wlGo(m,98,226,()=>wlDoor(-1));return;}
+    wlGo(m,clamp(x,17,179),clamp(y,77,231));holdWalk(e,scenes.town,(x,y)=>{const m=WL.me;if(m.loc>=0&&!m.ko&&y<=198)wlGo(m,clamp(x,17,179),clamp(y,77,231));});return;}
+  if(Math.hypot(x-WHEEL_AT[0],y-(WHEEL_AT[1]-24))<20){wlGo(m,WHEEL_AT[0],WHEEL_AT[1]+14,()=>{m.dir='back';wheelOpen();});return;}
+  const ci=TOWN.cabins.findIndex(c=>Math.abs(x-c.cx)<34&&y>c.top-60&&y<c.top+32);
+  if(ci>=0){const c=TOWN.cabins[ci];wlGo(m,c.cx,c.top+36,()=>wlDoor(ci));return;}
+  wlGo(m,x,y+6);holdWalk(e,scenes.town,(x,y)=>{const m=WL.me;if(m.loc<0&&!m.ko)wlGo(m,x,y+6);});});
+
 /* ---------- shell ---------- */
 function go(name,after){
   const xf=$('#xfade');xf.classList.add('on');
@@ -2069,9 +2363,9 @@ let OBJ_META={};
   await Promise.all(Object.entries(FINAL).map(async([n,dir])=>{try{const m=await (await fetch(`${dir}/poses/poses.json?v=${BUILD}`)).json();POSES[n]=m;
     for(const k of Object.keys(m))jobs.push(load(`pose/${n}/${k}`,`${dir}/poses/${k}.png`));}catch(e){}}));
   await Promise.all(jobs);
-  let EYES={};try{EYES=await (await fetch('assets/final/eyes.json?v='+BUILD)).json();}catch(e){}
+  let EYES={};try{EYES=await (await fetch('assets/final/eyes.json?v='+BUILD)).json();}catch(e){}EYEJ=EYES;
   await loadCabins();await loadProps();buildTown();
-  try{await document.fonts.load('600 16px "Pixelify Sans"');}catch(e){}
+  try{await document.fonts.load('600 16px "Pixelify Sans"');await Promise.all([400,500,600,700].map(w=>document.fonts.load(w+' 16px "Pixelify Sans"','5')));}catch(e){}
   for(const n of names)SP[n]={front:makeDir(IMG[n]),back:makeDir(IMG['back/'+n]),right:makeDir(IMG['side/'+n]),left:makeDir(IMG['side/'+n],true)};
   for(const n of Object.keys(FINAL)){const E=EYES[n]||{};SP[n]={front:makeDir(IMG[`fin/${n}/front`],false,E.front),back:makeDir(IMG[`fin/${n}/back`],false,[]),right:makeDir(IMG[`fin/${n}/right`],false,E.right),left:makeDir(IMG[`fin/${n}/left`],false,E.left)};
     if(POSES[n])SP[n].poses=Object.fromEntries(Object.entries(POSES[n]).map(([k,m])=>[k,{img:IMG[`pose/${n}/${k}`],ax:m.ax}]));}
