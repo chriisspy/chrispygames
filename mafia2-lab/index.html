@@ -488,11 +488,12 @@ const SKINS=[
   {id:'alfa',name:'Alfa Marcus',rar:'epic'},{id:'golf',name:'Golf Chrispy',rar:'epic'},{id:'ferrari',name:'Ferrari Anthony',rar:'epic'},
   // very rare: only from the Mafia case (his call, 10 Nov)
   {id:'batman',name:'Batman',rar:'legendary',locked:true,from:'Mafia Case'}];
+{const RO=['common','rare','epic','legendary'];SKINS.sort((a,b)=>RO.indexOf(a.rar)-RO.indexOf(b.rar));} // always listed Common, Rare, Epic, Legendary (lobby arrows, Collection, Shop)
 SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11111423'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11111424'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
