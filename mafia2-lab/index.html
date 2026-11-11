@@ -368,7 +368,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
       <canvas id="wheelCv" width="101" height="110"></canvas>
       <div id="wheelRes"></div>
       <div class="odds" id="wheelOdds"></div>
-      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn red" id="wheelSpin">Spin</button><button class="btn" id="spinTest">+1 test spin</button></div>
+      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn red" id="wheelSpin">Spin</button><button class="btn" id="spinTest">+500 test coins</button></div>
     </div>
   </div>
 
@@ -555,7 +555,7 @@ SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11120904'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11120909'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -2160,7 +2160,8 @@ function gridPath(G,gw,gh,gs,sx,sy,tx,ty){
 const WL={me:null,bots:[],fx:[],feed:[],sel:null,pos:new Map(),shake:0,fading:false,spins:1,
   wheel:{a:0,from:0,to:0,t0:null,dur:0,busy:false,res:0,by:null}};
 try{const s=localStorage.getItem('m2_spins');if(s!=null&&!isNaN(+s))WL.spins=+s;}catch(e){}
-const SPIN_PRICE=150;
+const SPIN_PRICE=500;   // every spin costs this (his call, 12 Nov)
+const wheelFree=()=>!WL.wheel.busy&&!$('#wheelModal').classList.contains('on');   // nobody is using the wheel
 const wlEnt=(i,x,y)=>({i,x,y,dir:'front',path:[],walk:false,loc:-1,act:null,ko:null,todo:null,wait:.5+Math.random()*3,phase:i*377,grudge:null,stay:0});
 const wlAll=()=>[WL.me,...WL.bots];
 const wlName=(e,obj)=>e.i===0?(obj?'you':'You'):PEOPLE[e.i].n;
@@ -2200,7 +2201,7 @@ function wlThink(b){const r=Math.random();b.wait=1+Math.random()*3.5;
   if(b.loc>=0){if(--b.stay<=0)wlGo(b,98,224,()=>wlBotDoor(b,-1));else wlGo(b,30+Math.random()*130,100+Math.random()*90);return;}
   if(r<.42){const p=wlSpot();wlGo(b,p[0],p[1]);}
   else if(r<.6){const o=wlAll().filter(q=>q!==b&&q.loc===b.loc&&!q.ko);const tg=o[Math.floor(Math.random()*o.length)];if(tg)wlDo(b,Math.random()<.45?'punch':'five',tg);}
-  else if(r<.7){if(!WL.wheel.busy)wlGo(b,280+(Math.random()<.5?-22:22),WHEEL_AT[1]+12,()=>{b.dir='back';wheelSpin(b);});}
+  else if(r<.7){if(wheelFree())wlGo(b,280+(Math.random()<.5?-26:26),WHEEL_AT[1]+12,()=>{b.dir='back';if(wheelFree())wheelSpin(b);});}
   else if(r<.82){const ci=Math.floor(Math.random()*8),c=TOWN.cabins[ci];wlGo(b,c.cx,c.top+36,()=>wlBotDoor(b,ci));}
   else b.act={k:r<.92?'dance':'wave',t:0};}
 function wlStep(e,dt){
@@ -2242,11 +2243,11 @@ const WHEEL=[['c',25,13],['o','common',8],['c',50,9],['c',100,10],['o','rare',6]
 const hexRGB=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
 const WSEG=(()=>{let s=0;return WHEEL.map(w=>{const col=w[0]==='o'?RAR_COL[w[1]]:w[1]>=250?'#e4544f':w[1]>=100?'#ff9a4a':w[1]>=50?'#e9b25a':'#f6dfae';const o={kind:w[0],v:w[1],w:w[2],s0:s/100,s1:(s+w[2])/100,rgb:hexRGB(col)};s+=w[2];return o;});})();
 const W_NAVY=[26,20,48],W_GOLD=[211,155,42],W_CANV={};
-function wheelPaint(R,a,big){const n=2*R+1,c=W_CANV[n]||(W_CANV[n]=mk(n,n)),x=c.getContext('2d'),id=x.createImageData(n,n),d=id.data,TAU=Math.PI*2,rim=big?4:2,hub=big?6:2;
+function wheelPaint(R,a,big){const n=2*R+1,c=W_CANV[n]||(W_CANV[n]=mk(n,n)),x=c.getContext('2d'),id=x.createImageData(n,n),d=id.data,TAU=Math.PI*2,mid=R>=18,rim=big?4:mid?3:2,hub=big?6:mid?3:2;
   for(let py=0;py<n;py++)for(let px=0;px<n;px++){const dx=px-R,dy=py-R,r=Math.hypot(dx,dy);if(r>R+.3)continue;let col;
     if(r>R-1.2||r<hub&&r>hub-1.6)col=W_NAVY;else if(r>R-rim||r<hub)col=W_GOLD;
     else{const f=(((Math.atan2(dy,dx)-a)/TAU)%1+1)%1;let g=WSEG[WSEG.length-1];for(const s of WSEG)if(f<s.s1){g=s;break;}
-      col=big&&Math.min(f-g.s0,g.s1-f)*TAU*r<.6?W_NAVY:g.rgb;}
+      col=(big||mid)&&Math.min(f-g.s0,g.s1-f)*TAU*r<(big?.6:.45)?W_NAVY:g.rgb;}
     const j=(py*n+px)*4;d[j]=col[0];d[j+1]=col[1];d[j+2]=col[2];d[j+3]=255;}
   x.putImageData(id,0,0);
   if(big){x.fillStyle='#1a1430';for(const g of WSEG){const m=a+TAU*(g.s0+g.s1)/2,lx2=R+Math.cos(m)*R*.66,ly2=R+Math.sin(m)*R*.66;
@@ -2256,11 +2257,12 @@ function wheelPaint(R,a,big){const n=2*R+1,c=W_CANV[n]||(W_CANV[n]=mk(n,n)),x=c.
 // the little wheel that stands on the stage: one picture per step of a turn, made the first time it is needed
 const WHEEL_SPR={};let WHEEL_SH=null;
 function wheelObj(){const k=((Math.round(WL.wheel.a/(Math.PI*2)*96)%96)+96)%96;let c=WHEEL_SPR[k];
-  if(!c){c=mk(27,44);const x=c.getContext('2d');x.drawImage(wheelPaint(12,k/96*Math.PI*2,false),1,4);
-    x.fillStyle='#1a1430';x.fillRect(11,28,5,13);x.fillRect(7,40,13,4);x.fillStyle='#8a5a34';x.fillRect(12,29,3,12);x.fillStyle='#a8733f';x.fillRect(8,41,11,2);
-    x.fillStyle='#1a1430';x.fillRect(11,0,5,4);x.fillRect(12,4,3,2);x.fillStyle='#e4544f';x.fillRect(12,1,3,3);x.fillRect(13,4,1,1);WHEEL_SPR[k]=c;
-    if(!WHEEL_SH){WHEEL_SH=mk(27,44);const s=WHEEL_SH.getContext('2d');s.drawImage(c,0,0);s.globalCompositeOperation='source-in';s.fillStyle='#000';s.fillRect(0,0,27,44);}}
-  return{img:c,shadow:WHEEL_SH,x:WHEEL_AT[0]-13,y:WHEEL_AT[1]-41,base:WHEEL_AT[1]+2};}
+  if(!c){c=mk(43,54);const x=c.getContext('2d');   // a 41 px wheel, a short post and a foot under it, the red pointer on top
+    x.fillStyle='#1a1430';x.fillRect(18,43,7,8);x.fillRect(12,49,19,5);x.fillStyle='#8a5a34';x.fillRect(19,43,5,7);x.fillStyle='#a8733f';x.fillRect(13,50,17,3);
+    x.drawImage(wheelPaint(20,k/96*Math.PI*2,false),1,4);
+    x.fillStyle='#1a1430';x.fillRect(18,0,7,5);x.fillRect(19,5,5,2);x.fillRect(20,7,3,1);x.fillStyle='#e4544f';x.fillRect(19,1,5,4);x.fillRect(20,5,3,1);x.fillRect(21,6,1,1);WHEEL_SPR[k]=c;
+    if(!WHEEL_SH){WHEEL_SH=mk(43,54);const s=WHEEL_SH.getContext('2d');s.drawImage(c,0,0);s.globalCompositeOperation='source-in';s.fillStyle='#000';s.fillRect(0,0,43,54);}}
+  return{img:c,shadow:WHEEL_SH,x:WHEEL_AT[0]-21,y:WHEEL_AT[1]-51,base:WHEEL_AT[1]+2};}
 function wheelSpin(who){const W=WL.wheel;if(W.busy)return false;let r=Math.random()*100,k=0;while(k<WSEG.length-1&&r>=WSEG[k].w){r-=WSEG[k].w;k++;}
   const g=WSEG[k],f=g.s0+(g.s1-g.s0)*(.2+Math.random()*.6),TAU=Math.PI*2;let to=-Math.PI/2-f*TAU;   // the pointer is at the top
   to+=Math.ceil((W.a-to)/TAU)*TAU+(who.i===0?5:3)*TAU;
@@ -2276,13 +2278,12 @@ function wheelPrize(who,g){const what=g.kind==='c'?`${g.v} coins`:(g.v==='epic'?
     $('#wheelRes').innerHTML=dupe?`${esc(win.name)} again. ${ic('coin',2)} +${back} back`:`NEW! ${esc(win.name)}`;wlSay(`You won ${esc(win.name)} on the wheel!`);
     showWin(win,dupe,back);$('#winAgain').style.display='none';}
   const r=$('#wheelRes');r.classList.remove('pop');void r.offsetWidth;r.classList.add('pop');wheelUI();}
-function wheelUI(){paintCoins();const b=$('#wheelSpin'),W=WL.wheel;b.innerHTML=WL.spins>0?`Spin · ${WL.spins} free`:ic('coin',2)+' Spin · '+SPIN_PRICE;b.disabled=W.busy||(WL.spins<=0&&coins<SPIN_PRICE);
+function wheelUI(){paintCoins();const b=$('#wheelSpin'),W=WL.wheel;const other=W.busy&&W.by&&W.by.i!==0;b.innerHTML=other?esc(wlName(W.by))+' is spinning…':ic('coin',2)+' Spin · '+SPIN_PRICE;b.disabled=W.busy||coins<SPIN_PRICE;
   $('#wheelOdds').innerHTML=[['COINS',76,''],['COMMON',8,''],['RARE',6,'rare'],['EPIC',4,'epic'],['LEGENDARY',2,'legendary']].map(o=>`<span class="rar ${o[2]}">${o[0]} ${o[1]}%</span>`).join('');}
 function wheelOpen(){$('#wheelRes').innerHTML='';wheelUI();$('#wheelModal').classList.add('on');}
 $('#wheelX').onclick=()=>$('#wheelModal').classList.remove('on');
-$('#wheelSpin').onclick=()=>{const W=WL.wheel;if(W.busy)return;if(WL.spins>0)WL.spins--;else if(coins>=SPIN_PRICE){coins-=SPIN_PRICE;saveInv();}else return;
-  try{localStorage.setItem('m2_spins',String(WL.spins));}catch(e){}$('#wheelRes').innerHTML='';wheelSpin(WL.me);wheelUI();};
-$('#spinTest').onclick=()=>{WL.spins++;try{localStorage.setItem('m2_spins',String(WL.spins));}catch(e){}wheelUI();};
+$('#wheelSpin').onclick=()=>{const W=WL.wheel;if(W.busy||coins<SPIN_PRICE)return;coins-=SPIN_PRICE;saveInv();$('#wheelRes').innerHTML='';wheelSpin(WL.me);wheelUI();};
+$('#spinTest').onclick=()=>{coins+=500;saveInv();wheelUI();};
 
 scenes.town={hud:'#townHud',
   enter(){document.documentElement.style.setProperty('--accent','#e9b25a');if(!TOWNG)buildTownGrid();
@@ -2310,7 +2311,7 @@ scenes.town={hud:'#townHud',
     // the big wheel in its window
     if($('#wheelModal').classList.contains('on')){const wc=$('#wheelCv').getContext('2d');wc.clearRect(0,0,101,110);wc.drawImage(wheelPaint(48,WL.wheel.a,true),2,11);
       wc.fillStyle='#1a1430';for(let r=0;r<7;r++)wc.fillRect(50-6+r,2+r,13-2*r,1);wc.fillStyle='#e4544f';for(let r=0;r<5;r++)wc.fillRect(50-4+r,3+r,9-2*r,1);
-      if(!WL.wheel.busy&&$('#wheelSpin').disabled&&(WL.spins>0||coins>=SPIN_PRICE))wheelUI();}
+      if(!WL.wheel.busy&&$('#wheelSpin').disabled&&coins>=SPIN_PRICE)wheelUI();}
   }};
 cv.addEventListener('pointerdown',e=>{if(scene!==scenes.town||WL.fading||document.querySelector('.modal.on'))return;const[x,y]=wxy(e),m=WL.me;if(m.ko)return;
   const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;let best=null,bd=30;
@@ -2319,7 +2320,7 @@ cv.addEventListener('pointerdown',e=>{if(scene!==scenes.town||WL.fading||documen
   WL.sel=null;wlMenu();
   if(m.loc>=0){if(y>198||inR(ROOM.door.hit,x,y)){wlGo(m,98,226,()=>wlDoor(-1));return;}
     wlGo(m,clamp(x,17,179),clamp(y,77,231));holdWalk(e,scenes.town,(x,y)=>{const m=WL.me;if(m.loc>=0&&!m.ko&&y<=198)wlGo(m,clamp(x,17,179),clamp(y,77,231));});return;}
-  if(Math.hypot(x-WHEEL_AT[0],y-(WHEEL_AT[1]-24))<20){wlGo(m,WHEEL_AT[0],WHEEL_AT[1]+14,()=>{m.dir='back';wheelOpen();});return;}
+  if(Math.hypot(x-WHEEL_AT[0],y-(WHEEL_AT[1]-27))<26){wlGo(m,WHEEL_AT[0],WHEEL_AT[1]+14,()=>{m.dir='back';wheelOpen();});return;}
   const ci=TOWN.cabins.findIndex(c=>Math.abs(x-c.cx)<34&&y>c.top-60&&y<c.top+32);
   if(ci>=0){const c=TOWN.cabins[ci];wlGo(m,c.cx,c.top+36,()=>wlDoor(ci));return;}
   wlGo(m,x,y+6);holdWalk(e,scenes.town,(x,y)=>{const m=WL.me;if(m.loc<0&&!m.ko)wlGo(m,x,y+6);});});
