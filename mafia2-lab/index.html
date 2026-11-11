@@ -125,6 +125,37 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 #reelBox .mark{position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1px;background:var(--gold);box-shadow:0 0 0 1px #1a1430}
 #caseResult{text-align:center;margin-top:8px;min-height:22px;font-size:17px;font-weight:700}
 #caseResult .btn{margin-left:8px;font-size:14px;padding:4px 10px}
+#winFx{position:absolute;inset:0;z-index:30;display:none;overflow:hidden;background:rgba(8,6,20,.88);--rc:#7bc96f;cursor:pointer}
+#winFx.on{display:block}
+#winFx .rays{position:absolute;left:50%;top:42%;width:1000px;height:1000px;margin:-500px;background:repeating-conic-gradient(from 0deg,var(--rc) 0 8deg,transparent 8deg 24deg);opacity:0;
+  -webkit-mask:radial-gradient(circle,#000 0,#000 26%,transparent 60%);mask:radial-gradient(circle,#000 0,#000 26%,transparent 60%)}
+#winFx.on .rays{animation:raySpin 26s linear infinite,rayIn .6s ease-out var(--delay,0s) forwards}
+#winFx .rays.r2{background:repeating-conic-gradient(from 5deg,#fff 0 3deg,transparent 3deg 30deg);--ray:var(--ray2,0)}
+#winFx.on .rays.r2{animation:raySpin 40s linear infinite reverse,rayIn .6s ease-out var(--delay,0s) forwards}
+@keyframes raySpin{to{transform:rotate(360deg)}}@keyframes rayIn{to{opacity:var(--ray,0)}}
+#winCv{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;pointer-events:none}
+#winFx .wflash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#winFx.on .wflash{animation:wFlash .8s ease-out var(--delay,0s) backwards}
+@keyframes wFlash{0%{opacity:var(--flash,0)}100%{opacity:0}}
+#winFx .wwrap{position:absolute;left:0;right:0;top:44%;transform:translateY(-50%);text-align:center;perspective:700px}
+#winFx.shake .wwrap{animation:wShake .5s steps(8)}
+@keyframes wShake{0%,100%{transform:translate(0,-50%)}20%{transform:translate(calc(var(--sh)*-1),calc(-50% + var(--sh)*.6))}40%{transform:translate(var(--sh),calc(-50% - var(--sh)*.5))}60%{transform:translate(calc(var(--sh)*-.6),calc(-50% - var(--sh)*.6))}80%{transform:translate(calc(var(--sh)*.5),calc(-50% + var(--sh)*.4))}}
+#winWord{min-height:44px;margin-bottom:12px}
+#winFx .wcard{position:relative;display:inline-block;width:176px;padding:16px 10px 12px;background:#fff6df;border:5px solid var(--rc);border-radius:8px;color:var(--text);overflow:hidden;
+  box-shadow:0 0 0 4px #1a1430,0 0 var(--glow,18px) var(--rc),0 10px 0 rgba(0,0,0,.45)}
+#winFx.on .wcard{animation:wPop var(--pop,.45s) cubic-bezier(.2,1.4,.4,1) var(--delay,0s) backwards,wTurn 4.6s ease-in-out calc(var(--delay,0s) + var(--pop,.45s)) infinite alternate}
+@keyframes wPop{0%{transform:scale(0) rotateY(-200deg)}100%{transform:scale(1) rotateY(-26deg) rotateZ(-2deg)}}
+@keyframes wTurn{0%{transform:rotateY(-26deg) rotateZ(-2deg)}100%{transform:rotateY(26deg) rotateZ(2deg)}}
+#winImg{image-rendering:pixelated;display:block;margin:0 auto 8px}
+#winName{display:block;font-size:21px;line-height:1.1;margin-bottom:6px}
+#winSub{margin-top:8px;min-height:16px}#winSub img{vertical-align:-3px}
+#winFx .glint{position:absolute;inset:0;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.75) 50%,transparent 62%);transform:translateX(-130%);opacity:var(--glint,0);pointer-events:none}
+#winFx.on .glint{animation:wGlint 2.4s ease-in-out calc(var(--delay,0s) + .5s) infinite}
+@keyframes wGlint{0%{transform:translateX(-130%)}45%,100%{transform:translateX(130%)}}
+#winFx .wbtns{justify-content:center;margin-top:20px;gap:10px}#winFx .wbtns .btn{font-size:17px;padding:8px 16px;display:flex;align-items:center;gap:6px}
+#winFx.on .wbtns,#winFx.on .wtap{animation:wUp .3s ease-out calc(var(--delay,0s) + var(--pop,.45s)) backwards}
+@keyframes wUp{0%{transform:translateY(16px) scale(.9);visibility:hidden}1%{visibility:visible}}
+#winFx .wtap{color:#fff;opacity:.55;margin-top:12px}
 .coin{width:14px;height:14px;background:var(--gold);border:2px solid #8a5a12;box-shadow:inset -3px -3px 0 #e0a92e;display:inline-block}
 /* vote */
 #voteHud .banner,#talkHud .banner,#ghostHud .banner{top:calc(54px + env(safe-area-inset-top));font-size:26px;color:#fff}
@@ -388,6 +419,13 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
     </div>
   </div>
 
+  <!-- WON SOMETHING: a slowly turning card. The rarer the item, the bigger the show. Tap anywhere to close. -->
+  <div id="winFx"><div class="rays"></div><div class="rays r2"></div><canvas id="winCv"></canvas><div class="wflash"></div>
+    <div class="wwrap"><div id="winWord"></div>
+      <div class="wcard" id="winCard"><div class="glint"></div><img id="winImg" alt=""><b id="winName"></b><span class="rar" id="winRar"></span><div class="small" id="winSub"></div></div>
+      <div class="row wbtns"><button class="btn go" id="winEquip">Equip</button><button class="btn red" id="winAgain">Open case</button></div>
+      <div class="small wtap">Tap anywhere to close</div></div></div>
+
   <nav id="tabs">
     <button class="btn" data-s="lobby">Lobby</button>
     <button class="btn" data-s="talk">Talk</button>
@@ -446,15 +484,15 @@ const SKINS=[
   {id:'brownhair',name:'Messy Hair',rar:'common'},
   {id:'beanie',name:'Blue Beanie',rar:'common'},{id:'ponytail',name:'Sunny Ponytail',rar:'rare'},
   {id:'curly',name:'Cosy Jumper',rar:'common'},{id:'farmer',name:'Straw Farmer',rar:'rare'},
-  {id:'raincoat',name:'Cat Raincoat',rar:'epic'},{id:'redcap',name:'Red Cap',rar:'common'},
-  {id:'alfa',name:'Alfa Marcus',rar:'rare'},{id:'golf',name:'Golf Chrispy',rar:'rare'},{id:'ferrari',name:'Ferrari Anthony',rar:'rare'},
+  {id:'raincoat',name:'Cat Raincoat',rar:'rare'},{id:'redcap',name:'Red Cap',rar:'common'},
+  {id:'alfa',name:'Alfa Marcus',rar:'epic'},{id:'golf',name:'Golf Chrispy',rar:'epic'},{id:'ferrari',name:'Ferrari Anthony',rar:'epic'},
   // very rare: only from the Mafia case (his call, 10 Nov)
   {id:'batman',name:'Batman',rar:'legendary',locked:true,from:'Mafia Case'}];
 SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11111417'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11111423'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -798,10 +836,49 @@ function openCase(){if(CASE.busy||coins<CASE.price)return;coins-=CASE.price;CASE
   const el=reel.children[WIN],end=el.offsetLeft+el.offsetWidth/2-box.clientWidth/2+(Math.random()-.5)*36,t0=performance.now(),D=5200;
   // a steady crawl to a stop (ease-out quad): a steeper curve leaves the reel looking frozen before it lands
   const tick=setInterval(()=>{const k=Math.min(1,(performance.now()-t0)/D),e=1-(1-k)*(1-k);reel.style.transform=`translateX(${-Math.round(end*e)}px)`;
-    if(k>=1){clearInterval(tick);CASE.busy=false;const dupe=OWNED.has(win.id),back=Math.round(CASE.price*CASE.dupe);
+    if(k>=1){clearInterval(tick);const dupe=OWNED.has(win.id),back=Math.round(CASE.price*CASE.dupe);
       if(dupe){coins+=back;$('#caseResult').innerHTML=`${esc(win.name)} again. ${ic('coin',2)} +${back} back`;}
-      else{OWNED.add(win.id);$('#caseResult').innerHTML=`NEW! ${esc(win.name)} <span class="rar ${win.rar==='common'?'':win.rar}">${win.rar.toUpperCase()}</span><button class="btn go" id="caseWear">Wear it</button>`;$('#caseWear').onclick=()=>{wear(win.id);$('#caseResult').innerHTML=`You are wearing ${esc(win.name)}.`;};}
-      saveInv();paintShop();paintSkin();}},16);}
+      else{OWNED.add(win.id);$('#caseResult').innerHTML=`NEW! ${esc(win.name)} <span class="rar ${win.rar==='common'?'':win.rar}">${win.rar.toUpperCase()}</span>`;}
+      saveInv();paintSkin();setTimeout(()=>{CASE.busy=false;paintShop();showWin(win,dupe,back);},380);}},16);}
+/* ---------- the win pop-up ----------
+   One card, slowly turning. WIN_FX sets how big the show is for each rarity: rays behind the card, a flash, a shake,
+   a burst of pixel confetti, confetti falling after, a shine sweeping over the card, and a wait before the reveal. */
+const WIN_FX={
+  common:   {ray:0,  ray2:0,  flash:0,  sh:0, burst:16, rain:0,  spark:.25,glow:14,glint:0, delay:0,  pop:.4, word:0},
+  rare:     {ray:.3, ray2:0,  flash:.25,sh:3, burst:46, rain:0,  spark:.6, glow:30,glint:.7,delay:.15,pop:.5, word:4},
+  epic:     {ray:.5, ray2:.2, flash:.55,sh:7, burst:100,rain:.5, spark:1.1,glow:46,glint:1, delay:.5, pop:.6, word:5},
+  legendary:{ray:.75,ray2:.4, flash:.95,sh:13,burst:210,rain:1.3,spark:2,  glow:70,glint:1, delay:1.1,pop:.75,word:6}};
+const WIN={on:false,parts:[],timer:0,item:null};
+function showWin(item,dupe,back){const el=$('#winFx'),fx=WIN_FX[item.rar],col=RAR_COL[item.rar],src=SP[item.id].front.frames[0][0];
+  WIN.item=item;WIN.on=true;WIN.parts=[];el.classList.remove('on','shake');void el.offsetWidth;
+  for(const[k,v]of Object.entries({rc:col,ray:fx.ray,ray2:fx.ray2,flash:fx.flash,sh:fx.sh+'px',glow:fx.glow+'px',glint:fx.glint,delay:fx.delay+'s',pop:fx.pop+'s'}))el.style.setProperty('--'+k,v);
+  const im=$('#winImg');im.src=src.toDataURL();im.style.width=src.width*4+'px';im.style.height=src.height*4+'px';
+  $('#winName').textContent=item.name;const r=$('#winRar');r.textContent=item.rar.toUpperCase();r.className='rar '+(item.rar==='common'?'':item.rar);
+  $('#winSub').innerHTML=dupe?`You already have this. ${ic('coin',2)} +${back} back`:'New outfit unlocked';
+  $('#winWord').innerHTML=fx.word?pxWord(item.rar,fx.word,item.rar,fx.delay+.1):'';
+  $('#winEquip').style.display=PEOPLE[0].skin===item.id?'none':'';
+  const again=$('#winAgain');again.innerHTML=ic('coin',2)+' Open case · '+CASE.price;again.disabled=coins<CASE.price;
+  el.classList.add('on');
+  // pixel confetti on a small canvas (3 screen pixels per dot, like the rest of the game)
+  const cvs=$('#winCv'),W=Math.ceil(el.clientWidth/3),H=Math.ceil(el.clientHeight/3),g=cvs.getContext('2d');cvs.width=W;cvs.height=H;
+  const cx=W/2,cy=H*.44,pal=item.rar==='legendary'?['#ffd45a','#fff2a8','#ffffff','#ff9b4a','#ffcf4a']:item.rar==='epic'?[col,'#ffffff','#ff9bd0','#9fd8ff']:[col,'#ffffff'];
+  const pc=()=>pal[Math.floor(Math.random()*pal.length)];let age=0,fired=false;
+  clearInterval(WIN.timer);WIN.timer=setInterval(()=>{const dt=.033;age+=dt;const P=WIN.parts;
+    if(age<fx.delay){ // the wait before a big reveal: sparks get pulled in to the middle
+      for(let i=0;i<3;i++){const a=Math.random()*6.28,d=60+Math.random()*50;P.push({x:cx+Math.cos(a)*d,y:cy+Math.sin(a)*d,vx:-Math.cos(a)*d/fx.delay*.9,vy:-Math.sin(a)*d/fx.delay*.9,g:0,l:fx.delay-age,c:pc(),s:1});}}
+    else{if(!fired){fired=true;if(fx.sh)el.classList.add('shake');
+        for(let i=0;i<fx.burst;i++){const a=Math.random()*6.28,v=30+Math.random()*(60+fx.burst*.5);P.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-30,g:90,l:.8+Math.random()*1.4,c:pc(),s:Math.random()<.3?2:1});}}
+      if(Math.random()<fx.rain)for(let i=0;i<Math.ceil(fx.rain);i++)P.push({x:Math.random()*W,y:-2,vx:(Math.random()-.5)*14,vy:26+Math.random()*30,g:8,l:5,c:pc(),s:Math.random()<.4?2:1});
+      if(Math.random()<fx.spark){const a=Math.random()*6.28,d=34+Math.random()*24;P.push({x:cx+Math.cos(a)*d,y:cy+Math.sin(a)*d*1.2,vx:0,vy:-6,g:0,l:.7,c:'#ffffff',s:1,tw:1});}}
+    g.clearRect(0,0,W,H);
+    for(let i=P.length-1;i>=0;i--){const q=P[i];q.l-=dt;if(q.l<=0||q.y>H+4){P.splice(i,1);continue;}q.vy+=q.g*dt;q.x+=q.vx*dt;q.y+=q.vy*dt;
+      g.globalAlpha=Math.min(1,q.l*2.5);g.fillStyle=q.c;const x=Math.round(q.x),y=Math.round(q.y);
+      if(q.tw){g.fillRect(x,y-1,1,3);g.fillRect(x-1,y,3,1);}else g.fillRect(x,y,q.s,q.s);}
+    g.globalAlpha=1;},33);}
+function closeWin(){if(!WIN.on)return;WIN.on=false;clearInterval(WIN.timer);$('#winFx').classList.remove('on','shake');paintShop();}
+$('#winFx').onclick=closeWin;
+$('#winEquip').onclick=e=>{e.stopPropagation();wear(WIN.item.id);closeWin();$('#caseResult').innerHTML=`You are wearing ${esc(WIN.item.name)}.`;};
+$('#winAgain').onclick=e=>{e.stopPropagation();closeWin();openCase();};
 $('#shopBtn').onclick=openShop;$('#collBtn').onclick=openColl;$('#shopX').onclick=()=>$('#shopModal').classList.remove('on');$('#collX').onclick=()=>$('#collModal').classList.remove('on');
 $('#caseOpen').onclick=openCase;$('#coinTest').onclick=()=>{coins+=500;saveInv();paintShop();};
 const pk=$('#peekBtn');
@@ -1485,7 +1562,7 @@ function dawn(){const g=N.guard>=0&&!N.heal?N.guard:-1,v=g>=0?g:N.victim,key=N.v
 /* ---------- big pixel words (YOU DIED and friends) ----------
    Every letter is its own little picture made from the same 3 x 5 pixel font as the clicker, with a dark outline,
    a lit top row and a shaded bottom row. They drop in one at a time, land with a squash, and the word drips. */
-const PX_PAL={bad:['#1a0408','#ff7078','#e4242f','#8f0d18'],good:['#052012','#b6ffd0','#4ade80','#1f8a4a'],sub:['#0b0714','#ffffff','#f0e6d6','#c9bca6']};
+const PX_PAL={common:['#0c2408','','#8fe07f',''],rare:['#06162e','','#7fc0ff',''],epic:['#1e0838','','#cf9bff',''],legendary:['#2a1a00','','#ffd45a',''],bad:['#1a0408','#ff7078','#e4242f','#8f0d18'],good:['#052012','#b6ffd0','#4ade80','#1f8a4a'],sub:['#0b0714','#ffffff','#f0e6d6','#c9bca6']};
 const PX_CACHE={};
 function pxGlyph(ch,pal){const k=ch+pal;if(PX_CACHE[k])return PX_CACHE[k];const g=CK_FONT[ch];if(!g)return'';const c=mk(5,7),x=c.getContext('2d'),P=PX_PAL[pal];
   x.fillStyle=P[0];for(let r=0;r<5;r++)for(let q=0;q<3;q++)if(g[r]&(4>>q))x.fillRect(q,r,3,3);                  // outline: every block grown by one pixel
