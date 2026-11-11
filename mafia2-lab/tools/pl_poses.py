@@ -55,10 +55,42 @@ def front_at(a, y):
     xs = np.nonzero(a[y, :, 3])[0]
     return int(xs.max()) if len(xs) else None
 
+HEAD_LOCK = {'bape'}; LEGS = 5      # rows of legs + shoes at the bottom of a front view
+
+def blob(a):
+    """drop crumbs PixelLab leaves floating off the sprite: keep the biggest 4-connected blob"""
+    al = a[..., 3] > 0; h, w = al.shape; lab = np.zeros((h, w), int); n = 0; sz = {}
+    for y in range(h):
+        for x in range(w):
+            if al[y, x] and not lab[y, x]:
+                n += 1; st = [(x, y)]; lab[y, x] = n; c = 0
+                while st:
+                    cx, cy = st.pop(); c += 1
+                    for nx, ny in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                        if 0 <= nx < w and 0 <= ny < h and al[ny, nx] and not lab[ny, nx]: lab[ny, nx] = n; st.append((nx, ny))
+                sz[n] = c
+    if n > 1: a = a.copy(); a[lab != max(sz, key=sz.get)] = 0
+    return a
+
 def main():
     for name in sys.argv[1:]:
         src = f'assets/poses-src/{name}/'; pal = palette(name)
-        F = lambda k, i: clean(np.asarray(Image.open(f'{src}{k}_{i}.png').convert('RGBA')), pal)
+        F0 = lambda k, i: clean(np.asarray(Image.open(f'{src}{k}_{i}.png').convert('RGBA')), pal)
+        def F(k, i):
+            a = F0(k, i)
+            # PixelLab turned this character's head sideways on some front-walk frames (it flickered left and right):
+            # keep the standing frame's whole upper body on every frame and let only the legs move
+            if name in HEAD_LOCK and k == 'walk_south':
+                # the upper body is HIS front sprite (PixelLab's own standing frame lost the cap brim), lined up on the standing frame
+                s0 = F0(k, 0); g = np.nonzero(s0[..., 3].any(1))[0].max(); fr = np.asarray(Image.open(f'assets/final/{name}/front.png').convert('RGBA'))
+                fh, fw = fr.shape[:2]; best = None
+                for x in range(0, s0.shape[1] - fw + 1):
+                    ov = int(((s0[g - fh + 1:g + 1, x:x + fw, 3] > 0) & (fr[..., 3] > 0)).sum())
+                    if best is None or ov > best[0]: best = (ov, x)
+                b = np.zeros_like(s0); b[g - fh + 1:g + 1, best[1]:best[1] + fw] = fr
+                if i > 0: b[g - LEGS + 1:] = a[g - LEGS + 1:]
+                a = b
+            return a
         out = {}
         def base(a):                       # ground line + feet middle from a standing frame
             ys, xs = np.nonzero(a[..., 3]); g = ys.max()
@@ -124,6 +156,7 @@ def main():
         d = f'assets/final/{name}/poses/'; os.makedirs(d, exist_ok=True)
         meta = json.load(open(d + 'poses.json')) if os.path.exists(d + 'poses.json') else {}
         for k, (a, ax, _) in out.items():
+            if not k.startswith(('water', 'logs')): a = blob(np.ascontiguousarray(a))
             Image.fromarray(np.ascontiguousarray(a)).save(d + k + '.png')
             meta[k] = {'w': int(a.shape[1]), 'h': int(a.shape[0]), 'ax': round(float(ax), 1)}
         json.dump(meta, open(d + 'poses.json', 'w'), indent=1)
