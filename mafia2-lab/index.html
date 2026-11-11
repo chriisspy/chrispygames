@@ -488,13 +488,13 @@ const SKINS=[
   {id:'raincoat',name:'Cat Raincoat',rar:'rare'},{id:'redcap',name:'Red Cap',rar:'common'},
   {id:'alfa',name:'Alfa Marcus',rar:'epic'},{id:'golf',name:'Golf Chrispy',rar:'epic'},{id:'ferrari',name:'Ferrari Anthony',rar:'epic'},{id:'bape',name:'Bape Michael',rar:'epic'},{id:'fisher',name:'Fisherman Jarrad',rar:'epic'},
   // very rare: only from the Mafia case (his call, 10 Nov)
-  {id:'batman',name:'Batman',rar:'legendary',locked:true,from:'Mafia Case'}];
+  {id:'batman',name:'Batman',rar:'legendary',locked:true,from:'Mafia Case'},{id:'sheik',name:'Sheik Osama',rar:'legendary'}];
 {const RO=['common','rare','epic','legendary'];SKINS.sort((a,b)=>RO.indexOf(a.rar)-RO.indexOf(b.rar));} // always listed Common, Rare, Epic, Legendary (lobby arrows, Collection, Shop)
 SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11111823'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11111953'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -575,7 +575,9 @@ function tinted(dset,o,b,key){const k=key+o+b;if(dset.tints[k])return dset.tints
 const BREATH=[0,0,0,-1,-2,-2,-2,-1,0,0,1,1,0];
 const NIGHT_TINT='#1c2266|0.3', SHADOW_TINT='#06040e|0.9';
 // poses (tools/make_poses.py, from his finished sprites): sit, dead, water, logs. Each picture's bottom row is the ground.
+const FLY={sheik:1}; // rides a flying carpet: every pose is on it, only the carpet ripples (tools/make_carpet.py)
 function poseKey(c){const d=['left','right','back'].includes(c.dir)?c.dir:'front',sd=d==='left'?'left':'right';
+  if(c.fly){const ph=c.phase||0,b=d!=='back'&&(c.sleep||((c.t+ph*3)%4300)<130);return`${b?'walkb':'walk'}_${d}_${Math.floor((c.t+ph)/(c.walk?95:190))%8}`;}
   if(c.pose==='sit')return'sit_'+d;if(c.pose==='dead')return'dead';
   if(c.pose==='water')return`water_${sd}_${c.step??1+Math.floor(c.t/220)%3}`;
   if(c.pose==='bend')return'bend_'+sd;
@@ -589,11 +591,12 @@ function drawPose(c,set){const p=set.poses&&set.poses[poseKey(c)];if(!p)return n
     for(let yy=Math.floor(-ry);yy<=ry;yy++){const half=Math.round(rx*Math.sqrt(Math.max(0,1-(yy/ry)**2)));if(half<1)continue;
       const x0=Math.round(cx)-half,ww=half*2,py=Math.round(cy)+yy;lx.fillStyle='#4a0710';lx.fillRect(x0,py,ww,1);
       if(half>2){lx.fillStyle='#8a1220';lx.fillRect(x0+1,py,ww-2,1);}if(yy<0&&half>4){lx.fillStyle='#b01c2c';lx.fillRect(x0+3,py,Math.max(1,Math.round(ww*.3)),1);}}}
-  if(!c.noShadow&&!(c.pose==='dead'&&c.blood>0)){lx.globalAlpha=.35*al;lx.fillStyle='#000';lx.beginPath();const sw=c.pose==='dead'?w*.48:Math.max(3,set.front.w*.3);lx.ellipse(c.pose==='dead'?bx+w/2:fx,fy,sw,Math.max(1.5,(c.pose==='dead'?w:set.front.w)*.09),0,0,7);lx.fill();lx.globalAlpha=1;}
+  if(!c.noShadow&&!(c.pose==='dead'&&c.blood>0)){lx.globalAlpha=.35*al;lx.fillStyle='#000';lx.beginPath();const sw=c.pose==='dead'?w*.48:Math.max(3,set.front.w*(FLY[c.name]?.42:.3));lx.ellipse(c.pose==='dead'?bx+w/2:fx,fy,sw,Math.max(1.5,(c.pose==='dead'?w:set.front.w)*.09),0,0,7);lx.fill();lx.globalAlpha=1;}
   lx.globalAlpha=al;lx.drawImage(im,bx,by);lx.globalAlpha=1;
   return{top:by,cx:c.pose==='dead'?bx+Math.round(w/2):fx,box:[bx,by,bx+w,by+h]};}
 function drawChar(c){
   const set=SP[c.name];if(!set)return null;
+  if(FLY[c.name]&&(!c.pose||c.pose==='sit'||c.pose==='walk')){const r=drawPose({...c,pose:'walk',fly:1},set);if(r)return r;}
   if(c.pose){const r=drawPose(c,set);if(r)return r;}
   if(c.walk&&set.poses&&set.poses.walk_front_0){const f=Math.floor((c.t+(c.phase||0))/95)%8; // a tiny 1px bump on each step (2 steps per cycle)
     const r=drawPose({...c,pose:'walk',lift:(c.lift||0)+(f%4===1?1:0)},set);if(r)return r;} // a real walk cycle where one exists
@@ -2054,7 +2057,7 @@ let OBJ_META={};
   // PixelLab characters: 4 views on one canvas, cropped to the box they share so the feet stay on one line
   const PL={};
   // FINAL hand-finished characters (his style): front/back/left/right, trimmed, feet on the bottom row
-  const FINAL=Object.fromEntries(['beanie','brownhair','ponytail','curly','farmer','raincoat','redcap','mafia','doctor','jester','detective','batman','alfa','golf','ferrari','bape','fisher'].map(n=>[n,'assets/final/'+n]));
+  const FINAL=Object.fromEntries(['beanie','brownhair','ponytail','curly','farmer','raincoat','redcap','mafia','doctor','jester','detective','batman','alfa','golf','ferrari','bape','fisher','sheik'].map(n=>[n,'assets/final/'+n]));
   const names=[...SKINS.map(s=>s.id),'mafia','doctor','jester','detective'].filter(n=>!PL[n]&&!FINAL[n]);
   OBJ_META=await (await fetch('assets/room-objects/objects.json?v='+BUILD)).json();
   const jobs=[load('townBase','assets/town3/town-base-night-1x.png'),load('room','assets/room-objects/room-empty.png'),load('quilt','assets/room-objects/bed-quilt.png'),load('chairback','assets/room-objects/chair-backing.png'),load('log','assets/final/log.png')];
