@@ -18,6 +18,7 @@ NAMES = sorted(n for n in os.listdir(ROOT) if os.path.isfile(ROOT + n + '/front.
 FIX = {
     'alfa':   {'front': [], 'right': [], 'left': []},      # sunglasses
     'golf':   {'front': [], 'right': [], 'left': []},      # sunglasses
+    'bape':   {'front': [], 'right': [], 'left': []},      # sunglasses
     'batman': {'front': [], 'right': [], 'left': []},      # white mask eyes
     'mafia':     {'front': [[11, 17, 2, 3], [17, 17, 2, 3]]},                       # the eyes touch his moustache
     'detective': {'front': [[11, 15, 2, 3], [17, 15, 2, 3]], 'right': [[17, 16, 2, 3]], 'left': [[5, 16, 2, 3]]},   # the eye touches the hat brim
