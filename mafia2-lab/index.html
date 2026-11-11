@@ -100,6 +100,31 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 .case{margin-top:10px;display:flex;align-items:center;gap:10px;background:#2a2346;color:#f6dfae;border:3px solid #0f0b1e;border-radius:5px;padding:8px 10px;box-shadow:inset 0 -4px 0 #1b1532}
 .case .ico{width:38px;height:38px;flex:none;border:3px solid #0f0b1e;border-radius:4px;background:linear-gradient(#3b2b19 0 30%,#6b4a2b 30% 100%);position:relative}
 .case .ico:after{content:"";position:absolute;left:13px;top:8px;width:6px;height:9px;background:var(--gold);border:2px solid #0f0b1e}
+.btn.lob{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:15px;padding-left:6px;padding-right:6px}
+.wal{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:16px;white-space:nowrap}
+.modal.big{top:calc(92px + env(safe-area-inset-top));text-align:left;padding:12px;overflow-y:auto;z-index:9}
+.mhead{display:flex;align-items:center;gap:10px;font-size:22px;margin-bottom:6px}.mhead b{flex:1}.mhead .btn{padding:4px 8px}
+.ogrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 8px;padding-top:6px}
+.ocard{position:relative;background:#fff6df;border:3px solid var(--rc);border-radius:5px;padding:6px 2px 5px;text-align:center;font:600 13px "Pixelify Sans";color:var(--text);box-shadow:0 2px 0 #0004;cursor:pointer}
+.ocard img{width:56px;height:56px;image-rendering:pixelated;display:block;margin:0 auto 2px}
+.ocard em{display:block;font-style:normal;font-size:10px;letter-spacing:1px;color:#1a1430;background:var(--rc);border-radius:2px;margin:3px 6px 0;padding:1px 0}
+.ocard em img{width:auto;height:auto;margin:0 auto}
+.ocard.lock{background:#cfc5ae}.ocard.lock>img{filter:brightness(0);opacity:.5}
+.ocard.sel{background:#fff;box-shadow:0 0 0 3px var(--ink),0 2px 0 #0004}
+.ocard.sel:after{content:"WEARING";position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:1px;background:var(--ink);color:#fff;padding:1px 5px;border-radius:2px}
+.ocard.no{animation:ocNo .3s steps(4)}@keyframes ocNo{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.casecard{display:flex;gap:12px;align-items:center;background:#2a2346;color:#f6dfae;border:3px solid #0f0b1e;border-radius:5px;padding:10px;box-shadow:inset 0 -4px 0 #1b1532}
+.odds{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}.odds .rar{font-size:10px;padding:1px 4px}
+#caseItems{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+#caseItems img{width:36px;height:36px;image-rendering:pixelated;border:2px solid var(--rc);border-radius:4px;background:#fff6df}#caseItems img.lock{filter:brightness(.3)}
+#reelBox{display:none;position:relative;overflow:hidden;height:86px;margin-top:10px;border:3px solid var(--ink);border-radius:5px;background:#1a1430}
+#reelBox.on{display:block}#reel{display:flex;gap:6px;padding:7px 0;width:max-content;will-change:transform}
+#reel .rc{flex:none;width:64px;height:66px;box-sizing:border-box;border:3px solid var(--rc);border-radius:5px;background:#fff6df;overflow:hidden}
+#reel .rc img{width:48px;height:48px;image-rendering:pixelated;display:block;margin:2px auto 0}
+#reel .rc i{display:block;height:10px;background:var(--rc)}
+#reelBox .mark{position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1px;background:var(--gold);box-shadow:0 0 0 1px #1a1430}
+#caseResult{text-align:center;margin-top:8px;min-height:22px;font-size:17px;font-weight:700}
+#caseResult .btn{margin-left:8px;font-size:14px;padding:4px 10px}
 .coin{width:14px;height:14px;background:var(--gold);border:2px solid #8a5a12;box-shadow:inset -3px -3px 0 #e0a92e;display:inline-block}
 /* vote */
 #voteHud .banner,#talkHud .banner,#ghostHud .banner{top:calc(54px + env(safe-area-inset-top));font-size:26px;color:#fff}
@@ -123,6 +148,15 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
 #talkHud .banner small{display:block;font-size:13px;color:var(--gold);letter-spacing:2px}
 #talkHud .tclock{font-size:15px;margin-top:2px;display:flex;gap:6px;justify-content:center;align-items:center;color:#fff}
 #voteHud .banner small{display:block;font-size:13px;color:var(--gold);letter-spacing:2px}
+#talkHud .banner{font-size:38px;line-height:1.05}
+#talkHud .banner small{font-size:17px;letter-spacing:3px}
+#talkHud .tclock{font-size:32px;margin:6px auto 0;gap:8px;width:max-content;background:rgba(26,20,48,.88);border:3px solid #0f0b1e;border-radius:6px;padding:0 14px 3px;text-shadow:none}
+#talkMenu{position:absolute;display:none;gap:5px;transform:translate(-50%,-100%);z-index:5}
+#talkMenu.on{display:flex;animation:tmPop .16s cubic-bezier(.2,1.5,.4,1)}
+#talkMenu .btn{width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center}
+#talkMenu .btn.sel{background:#e4544f;border-color:#6b1416}
+@keyframes tmPop{0%{transform:translate(-50%,-80%) scale(.6)}100%{transform:translate(-50%,-100%) scale(1)}}
+#talkHud .modal input,#talkHud .modal textarea{width:100%;font:600 15px "Pixelify Sans";padding:8px;border:3px solid var(--wood);border-radius:5px;background:#fff6df;color:var(--text);margin-top:8px;resize:none}
 #voteMsg{font-size:19px;font-weight:700;text-align:center}
 #voteSub{text-align:center;margin-top:2px}
 #votePick{display:none}
@@ -232,8 +266,25 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
           <button class="btn red" id="peekBtn">Hold: my role outfit</button>
         </div>
         <div class="small" style="text-align:center;margin-top:6px">Only you see your role outfit. Everyone else sees this.</div>
-        <div class="case"><i data-ic="case" data-s="3" data-c="solo"></i><div style="flex:1"><b>Mafia Case</b><div class="small">Hats, coats and heads. 1 in 20 is epic. Batman is legendary.</div></div><button class="btn" style="font-size:14px;display:flex;align-items:center;gap:6px"><i data-ic="coin" data-c="solo"></i>300</button></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn dark lob" id="shopBtn"><i data-ic="case" data-c="solo"></i>Shop</button>
+          <button class="btn dark lob" id="collBtn"><i data-ic="hanger" data-c="solo"></i>Collection</button>
+          <span class="wal"><i data-ic="coin" data-c="solo"></i><span class="coinN">0</span></span>
+        </div>
       </div>
+    </div>
+    <div class="modal big panel" id="collModal">
+      <div class="mhead"><b>COLLECTION</b><span class="small" id="collCount"></span><button class="btn" id="collX"><i data-ic="cross" data-c="solo"></i></button></div>
+      <div class="small" style="margin-bottom:8px">Tap an outfit to wear it. Locked ones come from the Mafia Case.</div>
+      <div class="ogrid" id="collGrid"></div>
+    </div>
+    <div class="modal big panel" id="shopModal">
+      <div class="mhead"><b>SHOP</b><span class="wal"><i data-ic="coin" data-c="solo"></i><span class="coinN">0</span></span><button class="btn" id="shopX"><i data-ic="cross" data-c="solo"></i></button></div>
+      <div class="casecard"><i data-ic="case" data-s="5" data-c="solo"></i><div style="flex:1"><b>Mafia Case</b><div class="small">One random outfit. A double pays some coins back.</div><div class="odds" id="caseOdds"></div></div></div>
+      <div id="caseItems"></div>
+      <div id="reelBox"><div id="reel"></div><i class="mark"></i></div>
+      <div id="caseResult"></div>
+      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn red" id="caseOpen">Open</button><button class="btn" id="coinTest">+500 test coins</button></div>
     </div>
   </div>
 
@@ -247,7 +298,10 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
       </div></div>
   </div>
   <div class="hud" id="talkHud">
-    <div class="title banner"><small>DAY 2</small>DISCUSSION<div class="tclock"><i data-ic="hourglass" data-c="solo"></i><span id="talkClock">5:00</span></div></div>
+    <div class="title banner"><small>DAY 2</small>DISCUSSION<div class="tclock"><i data-ic="hourglass" data-s="3" data-c="solo"></i><span id="talkClock">5:00</span></div></div>
+    <div id="talkMenu"><button class="btn" data-a="msg" title="Message"><i data-ic="chat" data-c="solo"></i></button><button class="btn" data-a="notes" title="Notes"><i data-ic="notes" data-c="solo"></i></button><button class="btn" data-a="mute" title="Mute"><i data-ic="mute" data-c="solo"></i></button></div>
+    <div class="modal panel" id="dmModal"><h3 id="dmTitle">Message</h3><div class="small">Only they can read it.</div><input id="dmIn" maxlength="80" placeholder="Type a message…"><div class="row"><button class="btn go" id="dmSend">Send</button><button class="btn" id="dmCancel">Cancel</button></div></div>
+    <div class="modal panel" id="pnModal"><h3 id="pnTitle">Notes</h3><div class="small">Only you can see your notes.</div><textarea id="pnIn" maxlength="160" rows="3" placeholder="What do you think about them?"></textarea><div class="row"><button class="btn go" id="pnSave">Save</button><button class="btn" id="pnCancel">Cancel</button></div></div>
     <div class="bottom"><div class="panel" style="padding:10px 12px;text-align:center"><b id="talkLine">Who do you think it was?</b><div class="small" id="talkSub">5 minutes to talk. Then the vote.</div></div></div>
   </div>
   <div class="hud" id="voteHud">
@@ -346,7 +400,7 @@ h2 img.ic,h3 img.ic{vertical-align:-6px;margin-right:8px}
   </nav>
 </div>
 
-<script src="icons.js?v=11102019"></script>
+<script src="icons.js?v=11111415"></script>
 <script>
 'use strict';
 const $=s=>document.querySelector(s);
@@ -396,10 +450,11 @@ const SKINS=[
   {id:'alfa',name:'Alfa Marcus',rar:'rare'},{id:'golf',name:'Golf Chrispy',rar:'rare'},{id:'ferrari',name:'Ferrari Anthony',rar:'rare'},
   // very rare: only from the Mafia case (his call, 10 Nov)
   {id:'batman',name:'Batman',rar:'legendary',locked:true,from:'Mafia Case'}];
-const OWNED=new Set(SKINS.filter(s=>!s.locked).map(s=>s.id)); // what this player has unlocked
+SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
+const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11111348'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11111417'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -447,7 +502,7 @@ const tagLo=()=>Math.ceil((TAG+6)*DPR/S); // how tall a name tag is on the grid
 
 /* ---------- people: breathing + blinking frames per direction ---------- */
 const PAD=3;const SP={};
-function makeDir(im,flip){
+function makeDir(im,flip,known){
   const w=im.width,h=im.height;
   const base=mk(w,h),bx=base.getContext('2d');bx.drawImage(im,0,0);
   const d=bx.getImageData(0,0,w,h).data;
@@ -459,6 +514,8 @@ function makeDir(im,flip){
         if(x2-x<=4&&x>0&&x2<w&&A(x-1,y)>0&&L(x-1,y)>110&&A(x2,y)>0&&L(x2,y)>110)hits.push({x,len:x2-x,y,skin:(y*w+x-1)*4});x=x2;}else x++;}
     if(hits.length>=1&&(hits.length>=2||first>=0)){if(first<0)first=y;if(y-first<6)eyes.push(...hits);}else if(first>=0)break;
   }
+  // the real eyes, found once by tools/make_eyes.py: only these blink (the guess above also caught hair and hood edges)
+  if(known){eyes.length=0;for(const[ex,ey,ew,eh]of known)for(let r=0;r<eh;r++){const lx0=(( ey+r)*w+ex-1)*4;eyes.push({x:ex,len:ew,y:ey+r,skin:d[lx0+3]&&L(ex-1,ey+r)>90?lx0:((ey+r)*w+ex+ew)*4});}}
   const eyeBot=eyes.length?Math.max(...eyes.map(e=>e.y)):Math.round(h*.45);
   const blink=mk(w,h),kx=blink.getContext('2d');kx.drawImage(im,0,0);const bd=kx.getImageData(0,0,w,h);
   for(const e of eyes)if(e.y<eyeBot)for(let k=0;k<e.len;k++){const j=(e.y*w+e.x+k)*4;bd.data[j]=d[e.skin];bd.data[j+1]=d[e.skin+1];bd.data[j+2]=d[e.skin+2];}
@@ -694,7 +751,7 @@ let scene=null;const scenes={};
 let skinIdx=0,peek=false;
 scenes.lobby={
   hud:'#lobbyHud',
-  enter(){paintSkin();},
+  enter(){paintSkin();paintCoins();},
   frame(dt,t){
     view(IMG.town,280,112,120);
     fireflies(t,[220,60,120,90]);
@@ -709,8 +766,44 @@ scenes.lobby={
 function paintSkin(){const k=SKINS[skinIdx],lock=!OWNED.has(k.id);$('#skinName').innerHTML=(lock?ic('lock',2)+' ':'')+k.name;const r=$('#skinRar');r.textContent=k.rar.toUpperCase()+(lock?' · '+k.from.toUpperCase():'');r.className='rar '+(k.rar==='common'?'':k.rar);
   const rn=ROLES[viewRole].name[0]+ROLES[viewRole].name.slice(1).toLowerCase();
   $('#peekBtn').textContent=ROLE_SPR[viewRole]?`Hold: my ${rn} outfit`:'Hold: Mafia outfit';}
-$('#skinPrev').onclick=()=>{skinIdx=(skinIdx+SKINS.length-1)%SKINS.length;if(OWNED.has(SKINS[skinIdx].id))PEOPLE[0].skin=SKINS[skinIdx].id;paintSkin();puffAt(280,104);};
-$('#skinNext').onclick=()=>{skinIdx=(skinIdx+1)%SKINS.length;if(OWNED.has(SKINS[skinIdx].id))PEOPLE[0].skin=SKINS[skinIdx].id;paintSkin();puffAt(280,104);};
+$('#skinPrev').onclick=()=>{skinIdx=(skinIdx+SKINS.length-1)%SKINS.length;if(OWNED.has(SKINS[skinIdx].id)){PEOPLE[0].skin=SKINS[skinIdx].id;saveInv();}paintSkin();puffAt(280,104);};
+$('#skinNext').onclick=()=>{skinIdx=(skinIdx+1)%SKINS.length;if(OWNED.has(SKINS[skinIdx].id)){PEOPLE[0].skin=SKINS[skinIdx].id;saveInv();}paintSkin();puffAt(280,104);};
+/* ---------- outfits: coins, the collection, and the Mafia case ----------
+   Lab only: these coins and unlocks live on this phone (m2_coins / m2_owned / m2_skin). The real game will use the
+   main app's coins. A case costs CASE.price; a double pays CASE.dupe of that back (same rule as the main app's cases). */
+const RAR_COL={common:'#7bc96f',rare:'#6fb5ff',epic:'#c58bff',legendary:'#ffcf4a'};
+const CASE={price:300,odds:{common:.55,rare:.3,epic:.12,legendary:.03},dupe:.4,busy:false};
+let coins=1200;
+try{const o=JSON.parse(localStorage.getItem('m2_owned')||'null');if(Array.isArray(o))o.forEach(id=>{if(SKINS.some(s=>s.id===id))OWNED.add(id);});
+  const c=localStorage.getItem('m2_coins');if(c!=null&&!isNaN(+c))coins=+c;
+  const k=localStorage.getItem('m2_skin');if(k&&OWNED.has(k)){PEOPLE[0].skin=k;skinIdx=SKINS.findIndex(s=>s.id===k);}}catch(e){}
+function saveInv(){try{localStorage.setItem('m2_owned',JSON.stringify([...OWNED]));localStorage.setItem('m2_coins',String(coins));localStorage.setItem('m2_skin',PEOPLE[0].skin);}catch(e){}}
+function paintCoins(){document.querySelectorAll('.coinN').forEach(e=>e.textContent=coins);}
+function wear(id){if(!OWNED.has(id))return;PEOPLE[0].skin=id;skinIdx=SKINS.findIndex(s=>s.id===id);paintSkin();puffAt(280,104);saveInv();}
+function openColl(){const g=$('#collGrid');
+  g.innerHTML=SKINS.map(s=>{const own=OWNED.has(s.id);return`<div class="ocard${own?'':' lock'}${own&&PEOPLE[0].skin===s.id?' sel':''}" data-id="${s.id}" style="--rc:${RAR_COL[s.rar]}"><img src="${face(s.id)}" alt=""><span>${own?s.name:'? ? ?'}</span><em>${own?s.rar.toUpperCase():ic('lock',2)}</em></div>`;}).join('');
+  $('#collCount').textContent=`${SKINS.filter(s=>OWNED.has(s.id)).length} / ${SKINS.length}`;
+  g.querySelectorAll('.ocard').forEach(c=>c.onclick=()=>{if(!OWNED.has(c.dataset.id)){c.classList.remove('no');void c.offsetWidth;c.classList.add('no');return;}wear(c.dataset.id);openColl();});
+  $('#shopModal').classList.remove('on');$('#collModal').classList.add('on');}
+function paintShop(){paintCoins();
+  $('#caseOdds').innerHTML=Object.entries(CASE.odds).map(([r,q])=>`<span class="rar ${r==='common'?'':r}">${r.toUpperCase()} ${Math.round(q*100)}%</span>`).join('');
+  $('#caseItems').innerHTML=SKINS.map(s=>`<img class="${OWNED.has(s.id)?'':'lock'}" src="${face(s.id)}" style="--rc:${RAR_COL[s.rar]}" alt="">`).join('');
+  const b=$('#caseOpen');b.innerHTML=ic('coin',2)+' Open · '+CASE.price;b.disabled=CASE.busy||coins<CASE.price;}
+function openShop(){$('#collModal').classList.remove('on');$('#reelBox').classList.remove('on');$('#caseResult').innerHTML='';paintShop();$('#shopModal').classList.add('on');}
+function rollCase(){let r=Math.random(),rar='common';for(const[k,q]of Object.entries(CASE.odds)){if(r<q){rar=k;break;}r-=q;}const pool=SKINS.filter(s=>s.rar===rar);return pool[Math.floor(Math.random()*pool.length)];}
+function openCase(){if(CASE.busy||coins<CASE.price)return;coins-=CASE.price;CASE.busy=true;saveInv();paintShop();
+  const win=rollCase(),WIN=30,strip=[];for(let i=0;i<36;i++)strip.push(i===WIN?win:rollCase());
+  const reel=$('#reel'),box=$('#reelBox');$('#caseResult').innerHTML='';
+  reel.innerHTML=strip.map(s=>`<div class="rc" style="--rc:${RAR_COL[s.rar]}"><img src="${face(s.id)}" alt=""><i></i></div>`).join('');reel.style.transform='translateX(0)';box.classList.add('on');
+  const el=reel.children[WIN],end=el.offsetLeft+el.offsetWidth/2-box.clientWidth/2+(Math.random()-.5)*36,t0=performance.now(),D=5200;
+  // a steady crawl to a stop (ease-out quad): a steeper curve leaves the reel looking frozen before it lands
+  const tick=setInterval(()=>{const k=Math.min(1,(performance.now()-t0)/D),e=1-(1-k)*(1-k);reel.style.transform=`translateX(${-Math.round(end*e)}px)`;
+    if(k>=1){clearInterval(tick);CASE.busy=false;const dupe=OWNED.has(win.id),back=Math.round(CASE.price*CASE.dupe);
+      if(dupe){coins+=back;$('#caseResult').innerHTML=`${esc(win.name)} again. ${ic('coin',2)} +${back} back`;}
+      else{OWNED.add(win.id);$('#caseResult').innerHTML=`NEW! ${esc(win.name)} <span class="rar ${win.rar==='common'?'':win.rar}">${win.rar.toUpperCase()}</span><button class="btn go" id="caseWear">Wear it</button>`;$('#caseWear').onclick=()=>{wear(win.id);$('#caseResult').innerHTML=`You are wearing ${esc(win.name)}.`;};}
+      saveInv();paintShop();paintSkin();}},16);}
+$('#shopBtn').onclick=openShop;$('#collBtn').onclick=openColl;$('#shopX').onclick=()=>$('#shopModal').classList.remove('on');$('#collX').onclick=()=>$('#collModal').classList.remove('on');
+$('#caseOpen').onclick=openCase;$('#coinTest').onclick=()=>{coins+=500;saveInv();paintShop();};
 const pk=$('#peekBtn');
 pk.addEventListener('pointerdown',e=>{e.preventDefault();if(!peek){peek=true;puffAt(280,104);}});
 ['pointerup','pointerleave','pointercancel'].forEach(ev=>pk.addEventListener(ev,()=>{if(peek){peek=false;puffAt(280,104);}}));
@@ -762,11 +855,14 @@ scenes.vote={
           else{const rn={civilian:'a Civilian',mafia:'MAFIA',doctor:'the Doctor',jester:'the Jester… they win!',bodyguard:'the Bodyguard',detective:'the Detective',framer:'the Framer'}[PEOPLE[bi].role||'civilian'];
             $('#verdict').innerHTML=`${PEOPLE[bi].n.toUpperCase()} IS OUT<small>${PEOPLE[bi].n} was ${rn}</small>`;}
           $('#verdict').classList.add('on');setVote('The town has spoken','Night falls soon…');}}}
-    else if(V.phase==='verdict'){if(V.out>=0)V.ring[V.out].ghost=Math.min(1,V.pt/2.2);if(V.pt>6)voteReset();}
+    else if(V.phase==='verdict'){
+      if(V.out>=0){const r=V.ring[V.out],k=Math.min(1,Math.max(0,V.pt-.9)/1.5),e=ease(k); // they walk to the middle of the square, stop, then rise
+        r.cx=lerp(r.x,st.x,e);r.cy=lerp(r.y,st.y,e);r.walk=k>0&&k<1;r.dir=k>0&&k<1?dirFrom(st.x-r.x,st.y-r.y):'front';r.ghost=clamp((V.pt-3)/2.6,0,1);}
+      if(V.pt>8)voteReset();}
 
     const spot=['vote','up','choose'].includes(V.phase)?voter:null;
     // whoever is being voted for gets their own spotlight, fading up as the vote lands
-    const tgt=V.phase==='vote'&&V.target>=0?V.ring[V.target]:null;V.lit=tgt?Math.min(1,(V.lit||0)+dt*3.5):0;
+    const tgt=V.phase==='vote'&&V.target>=0?V.ring[V.target]:V.phase==='verdict'&&V.out>=0?V.ring[V.out]:null;V.lit=tgt?Math.min(1,(V.lit||0)+dt*3.5):0;
     const people=V.ring.filter(r=>!V.dead.has(r.i)).map(r=>({r,name:looksLike(r.i),dir:r.dir,x:r.cx,y:r.cy,t,phase:r.i*377,walk:r.walk,lift:(r.lift||0)+r.ghost*22,tint:tgt===r&&V.lit>.35?null:NIGHT_TINT,alpha:1-r.ghost*.75}));
     if(V.phase==='vote'&&V.target>=0){const r=V.ring[V.target],p=Math.floor(t/180)%2;lx.strokeStyle=p?'#e4544f':'#ff9b8f';lx.lineWidth=1;lx.beginPath();lx.ellipse(X(r.cx)+.5,Y(r.cy)+.5,9+p,3+p*.5,0,0,7);lx.stroke();}
     patchDim=VOTE_WASH;const hits=drawScene(people,TOWN.occ,IMG.town);patchDim=null;
@@ -1057,7 +1153,8 @@ const PLAN={},PLAY={};
 // and never the same story twice in a row.
 const STORY_KINDS=['home','walk','chore','porch','cat','stars','mail'];
 function nextStory(){
-  if(!N.bag.length)for(const kind of STORY_KINDS)for(const saved of[false,true])N.bag.push({kind,saved});
+  // every story once with a death and once with a rescue (the Doctor, or the Bodyguard stepping in), before any repeats
+  if(!N.bag.length){N.flip=!N.flip;STORY_KINDS.forEach((kind,i)=>{N.bag.push({kind,end:'dead'},{kind,end:(i+(N.flip?1:0))%2?'guard':'doc'});});}
   const fresh=N.bag.filter(s=>s.kind!==N.last),pool=fresh.length?fresh:N.bag;
   const s=pool[Math.floor(Math.random()*pool.length)];N.bag.splice(N.bag.indexOf(s),1);N.last=s.kind;return s;
 }
@@ -1068,13 +1165,26 @@ function planNight(force){
   N.victim=force!=null?force:viewRole==='mafia'&&NIGHT.picks.length&&alive.includes(NIGHT.picks[0])?NIGHT.picks[0]:alive[Math.floor(Math.random()*alive.length)];
   // N.heal = the Doctor saves them. The story itself is always planned as the kill (N.saved=false), so nobody can
   // tell which night it is until the very end: either the Doctor comes running, or nobody does.
-  N.kind=st.kind;N.heal=st.saved;N.saved=false;N.variant=null;
+  const end=st.end||(st.saved?'doc':'dead');
+  N.kind=st.kind;N.heal=end==='doc';N.saved=false;N.variant=null;N.guard=-1;N.self=false;
   if(viewRole==='doctor'&&NIGHT.picks.includes(N.victim))N.heal=true; // you saved them yourself
+  // THE DOCTOR SAVES THEMSELF: only the Doctor's own phone shows it (you get up on your own). Everyone else sees the
+  // ordinary "the Doctor runs in" ending, so nobody can tell the Doctor was the one on the ground.
+  if(viewRole==='doctor'&&N.victim===0){N.heal=true;N.self=true;}
+  // THE BODYGUARD: if they guarded tonight's target they jump in the way and die instead (N.guard = who)
+  const bg=viewRole==='bodyguard'?(NIGHT.picks.includes(N.victim)?0:-1):PEOPLE.findIndex((q,i)=>q.role==='bodyguard'&&!V.dead.has(i));
+  if(!N.heal&&bg>=0&&bg!==N.victim&&(bg===0||end==='guard')&&!(force===0&&N.kind==='home'))N.guard=bg;
   N.vci=CABIN_OF[N.victim];N.vic=TOWN.cabins[N.vci];N.wet=raining;N.shots=[];
   PLAN[N.kind]();
   {const i=N.shots.findIndex(s=>/won't see the morning/.test(s[1]));N.tCut=(i>=0?N.shots[i][0]:N.end-3)-.4;} // the moment after the kill, before anyone knows if the Doctor comes
   if(N.heal){const i=N.shots.findIndex(s=>/won't see the morning/.test(s[1])),tD=(i>=0?N.shots[i][0]:N.end-3)-.3;if(i>=0)N.shots.splice(i,1);
-    N.tDoc=tD;N.shots.push([tD+.3,'Footsteps. Someone is running.'],[tD+3.2,'The Doctor. Just in time.','good'],[tD+5.8,`${VN()} lives to see the morning.`,'good']);N.end=tD+8.6;}
+    N.tDoc=tD;if(N.self)N.shots.push([tD+.3,'Nobody is coming. But you are the Doctor.'],[tD+3.2,'You patch yourself up.','good'],[tD+5.8,'Nobody will ever know it was you.','good']);
+    else N.shots.push([tD+.3,'Footsteps. Someone is running.'],[tD+3.2,'The Doctor. Just in time.','good'],[tD+5.8,`${VN()} lives to see the morning.`,'good']);N.end=tD+8.6;}
+  if(N.guard>=0){const i=N.shots.findIndex(s=>/scream/i.test(s[1])),j=N.shots.findIndex(s=>/won't see the morning/.test(s[1]));
+    N.tHit=i>=0?N.shots[i][0]:N.tCut-2.6;if(i>=0)N.shots[i]=[N.tHit,'Somebody jumps in the way!','bad'];
+    const tL=j>=0?N.shots[j][0]:N.tHit+4;if(j>=0)N.shots.splice(j,1);
+    N.shots=N.shots.filter(s=>!(s[0]>N.tHit&&s[0]<tL));   // the "what was left behind" line belongs to a death
+    N.shots.push([N.tHit+2.2,'The Bodyguard took the hit.','bad'],[tL+1.2,`${VN()} lives to see the morning.`,'good']);N.end=tL+4.4;}
   N.shots.sort((a,b)=>a[0]-b[0]);
 }
 const SCREAM=()=>N.wet?'A scream, lost in the rain.':'One scream. Then nothing.';
@@ -1182,6 +1292,14 @@ PLAY.walk=T=>{
   return{cx,cy,vw,people:P,doors,dark,lights:{lampK,dim:.85*(1-dark*.6)},flash:['170,10,20',glow*.3]};
 };
 
+// the stray cat: a bright ginger cat with a dark outline, so it reads against the night grass (11 x 6, drawn facing right)
+const CAT=['O.......O.O','O.......OOO','O.OOOOOOKOK','.OODODOOOOP','.OOOOOOOWW.','.O.O...O.O.'],CAT_RUN=['........O.O','OO......OOO','..OOOOOOKOK','.OODODOOOOP','.OOOOOOOWW.','O.O.....O.O'];
+const CATC={O:'#f6a650',D:'#c56c28',W:'#fff4e0',K:'#1a1430',P:'#ff9bb0'};
+function drawCat(wx,wy,f,run,t){const b=Math.floor(t/90)%2,g=run&&b?CAT_RUN:CAT,x0=X(wx)-5,y0=Y(wy)-5-(run&&b?1:0),wag=!run&&Math.floor(t/420)%2;
+  const cell=(c,r)=>!(wag&&c===0&&r===0)&&g[r][c]!=='.';
+  lx.fillStyle='#120e24';for(let r=0;r<6;r++)for(let c=0;c<11;c++)if(cell(c,r)){const x=x0+(f>0?c:10-c),y=y0+r;lx.fillRect(x-1,y,3,1);lx.fillRect(x,y-1,1,3);}
+  for(let r=0;r<6;r++)for(let c=0;c<11;c++)if(cell(c,r)){lx.fillStyle=CATC[g[r][c]];lx.fillRect(x0+(f>0?c:10-c),y0+r,1,1);}}
+
 /* 3 + 4. OUT THE FRONT: watering the garden, fetching firewood, or just sitting on the porch */
 // a clear patch of grass beside each cabin's steps: [x from the door, y from the door top, which side the flowers are on]
 const YARD=[[-34,66,-1],[62,60,1],[26,62,1],[-32,96,-1],[-26,96,-1],[22,64,1],[-26,64,-1],[24,62,1],[-28,62,-1],[20,60,1]];
@@ -1253,10 +1371,9 @@ PLAY.chore=PLAY.porch=PLAY.cat=PLAY.stars=PLAY.mail=(T,dt,t)=>{
       ['#c66a8a','#d9bf6a','#aeb9e6','#c66a8a','#d9bf6a'].forEach((col,i)=>{const fx=spot[0]+side*(14+i*4),fy=spot[1]+1+(i%2);px(fx,fy-3,1,3,'#2f6b52');px(fx-1,fy-5,3,2,col);px(fx,fy-5,1,1,'#f3e7b0');});
       if(gone&&false){const gx=spot[0]+side*5,gy=spot[1]+2;px(gx-3,gy-3,6,3,'#6f8199');px(gx-3,gy-3,6,1,'#9fb0c6');px(gx+side*4,gy-2,2,1,'#6f8199');px(gx+side*6-1,gy-1,4,1,'rgba(150,180,255,.45)');}
     }else if(variant==='cat'){ // a saucer, and a stray cat that bolts when the shadows come
-      const sx=spot[0]+side*11,sy=spot[1]+1,run=saved?Math.max(0,T-N.tLeave)*60:Math.max(0,T-(tArr-.6))*90,cx=sx+side*(6+run),cy=sy-1;
-      px(sx-2,sy,5,1,'#cfd6e6');px(sx-1,sy-1,3,1,'#f4f7ff');
-      if(run<70){const hop=run>0&&Math.floor(T*10)%2?1:0,f=side<0?1:0;px(cx-3,cy-3-hop,6,3,'#3a3f52');px(cx+side*3-f,cy-5-hop,2,3,'#3a3f52');px(cx+side*3-f,cy-6-hop,1,1,'#3a3f52');px(cx+side*4-f,cy-6-hop,1,1,'#3a3f52');
-        px(cx-side*4-(1-f),cy-4-hop,1,2,'#3a3f52');px(cx-3,cy-hop,1,1,'#2a2e3d');px(cx+2,cy-hop,1,1,'#2a2e3d');px(cx+side*4-f,cy-4-hop,1,1,'#ffd25e');}
+      const sx=spot[0]+side*11,sy=spot[1]+1,run=saved?Math.max(0,T-N.tLeave)*60:Math.max(0,T-(tArr-.6))*90;
+      px(sx-3,sy,7,1,'#8f98b0');px(sx-2,sy-1,5,1,'#f4f7ff');px(sx-3,sy-1,1,1,'#cfd6e6');px(sx+2,sy-1,1,1,'#cfd6e6');
+      if(run<90)drawCat(sx+side*(9+run),sy,run>0?side:-side,run>0,t);
     }else if(variant==='stars'){ // a blanket on the grass, and a few stars winking overhead
       px(spot[0]-8,spot[1]-2,17,5,'#8a2f3a');for(let i=0;i<4;i++)px(spot[0]-8+i*5,spot[1]-2,2,5,'#c9505c');px(spot[0]-8,spot[1],17,1,'#5e1e28');
       if(!N.wet&&!gone)for(let i=0;i<5;i++){const a=Math.sin(t*.003+i*2.1);if(a>.2)px(spot[0]-30+i*15,spot[1]-52-(i%2)*9,1,1,`rgba(255,244,200,${a})`);}
@@ -1284,9 +1401,9 @@ PLAY.chore=PLAY.porch=PLAY.cat=PLAY.stars=PLAY.mail=(T,dt,t)=>{
 scenes.night={
   hud:'#nightHud',
   enter(){N.t=0;N.capI=0;N.kicks={};N.shake=0;dust.length=0;N.cut=false;if(N.keepPlan)N.keepPlan=false;else planNight(); // a night the Mafia already watched is replayed as it was
-    $('#fade').classList.remove('on');$('#cap').textContent='';
+    $('#fade').classList.remove('on');$('#cap').textContent='';$('#bigMsg').className='';
     $('#nightTag').innerHTML=ic('rec')+(viewRole==='mafia'?'NIGHT 2 · YOUR TEAM':'NIGHT 2');},
-  leave(){$('#barT').classList.remove('on');$('#barB').classList.remove('on');$('#fade').classList.remove('on');clearInterval(capTimer);},
+  leave(){$('#barT').classList.remove('on');$('#barB').classList.remove('on');$('#fade').classList.remove('on');clearInterval(capTimer);fxStop();$('#bigMsg').className='';},
   frame(dt,t){
     N.t+=dt;const T=N.t;
     while(N.capI<N.shots.length&&T>N.shots[N.capI][0]){const s=N.shots[N.capI++];caption($('#cap'),s[1],s[2]);}
@@ -1298,9 +1415,16 @@ scenes.night={
     if(N.heal&&T>N.tDoc){ // the Doctor runs up the cabin's path, kneels by them, and they get back up
       const k=T-N.tDoc,c=N.vic,vic=f.people.find(p=>p.kind==='vic'),tx=vic?vic.x:c.feet[0],ty=vic?vic.y:c.feet[1],from=c.route.at(86);
       const e=ease(ramp(k,.2,2.4)),gx=tx+(from.x>=tx?11:-11),dx=lerp(from.x,gx,e),dy=lerp(from.y,ty+1,e),kneel=e>=1&&k<4.4;
-      f.people.push({kind:'doc',x:dx,y:dy,dir:kneel?(gx>tx?'left':'right'):dirFrom(gx-from.x,ty-from.y),walk:e>0&&e<1,al:ramp(k,.2,.7),pose:kneel?'logs':null,step:1});
+      if(!N.self)f.people.push({kind:'doc',x:dx,y:dy,dir:kneel?(gx>tx?'left':'right'):dirFrom(gx-from.x,ty-from.y),walk:e>0&&e<1,al:ramp(k,.2,.7),pose:kneel?'bend':null});
       if(vic){vic.al=1;if(k>4.4){vic.pose=null;vic.dir='front';vic.walk=false;vic.blood=0;}else if(k>2.6)vic.blood=(vic.blood??1)*(1-ramp(k,2.6,4.4));}
       f.flash=null;f.dark=0;}
+    if(N.guard>=0&&T>N.tHit-1.4){ // the Bodyguard sprints up the path and gets between them just as the Mafia strike
+      const k=T-(N.tHit-1.4),c=N.vic,vic=f.people.find(q=>q.kind==='vic'),tx=vic?vic.x:c.feet[0],ty=vic?vic.y:c.feet[1]-2,from=c.route.at(74);
+      const e=ease(ramp(k,0,1.3)),gx=tx+(from.x>=tx?7:-7),hit=T>=N.tHit;
+      f.people.push({kind:'guard',x:lerp(from.x,gx,e),y:lerp(from.y,ty+2,e),dir:hit?'front':dirFrom(gx-from.x,ty-from.y),walk:e<1,al:vic?ramp(k,0,.3):ramp(k,0,.3)*(1-ramp(k,1.15,1.4)),pose:hit&&vic?'dead':null,blood:hit?ramp(T,N.tHit+.2,N.tHit+5):0});
+      if(vic&&hit){vic.pose=null;vic.blood=0;vic.walk=false;vic.al=1;vic.dir=gx>tx?'right':'left';}
+      if(N.guard===0&&T>N.tHit+.1)once('gme',()=>{fxBleed(.9);mdBig('bad');});          // you were the Bodyguard
+      if(N.victim===0&&T>N.tHit+1.3)once('gsv',()=>{fxHeal();mdBig('guard');});}        // you were the one they came for
     let cx=f.cx,cy=f.cy;
     if(N.shake>0){cx+=(Math.random()-.5)*N.shake;cy+=(Math.random()-.5)*N.shake;N.shake=Math.max(0,N.shake-dt*20);}
     view(IMG.town,cx,cy,f.vw||150,{loose:true});
@@ -1309,7 +1433,7 @@ scenes.night={
     if(f.under)f.under();
     // the Mafia are only shadows with red eyes, unless you are one of them
     const mine=viewRole==='mafia';
-    const people=f.people.filter(p=>p.al>0).map(p=>({p,name:p.kind==='maf'?'mafia':p.kind==='doc'?'doctor':looksLike(N.victim),dir:p.dir,x:p.x,y:p.y,t,walk:p.walk,pose:p.pose,step:p.step,blood:p.blood,tint:p.kind==='maf'&&!mine?SHADOW_TINT:NIGHT_TINT,alpha:p.al}));
+    const people=f.people.filter(p=>p.al>0).map(p=>({p,name:p.kind==='maf'?'mafia':p.kind==='doc'?'doctor':p.kind==='guard'?looksLike(N.guard):looksLike(N.victim),dir:p.dir,x:p.x,y:p.y,t,walk:p.walk,pose:p.pose,step:p.step,blood:p.blood,tint:p.kind==='maf'&&!mine?SHADOW_TINT:NIGHT_TINT,alpha:p.al}));
     for(const q of people)if(q.walk&&q.alpha>.5&&Math.random()<dt*5)kickDust(q.x,q.y);
     townLights(t,{dim:.85,...f.lights},'win');
     patchDim='rgba(6,8,30,.38)';const hits=drawScene(people,TOWN.occ,IMG.town);patchDim=null;
@@ -1322,7 +1446,7 @@ scenes.night={
     if(f.flash&&f.flash[1]>0){lx.fillStyle=`rgba(${f.flash[0]},${f.flash[1]})`;lx.fillRect(0,0,cam.lw,cam.lh);}
     rain(dt);vignette(.7);
     present();
-    for(const q of people){if(q.alpha<=.8)continue;if(q.p.kind==='maf'){if(mine)nameTag(hits.get(q),q.p.lbl,'#ff8a8a');}else if(q.p.kind==='doc')nameTag(hits.get(q),'Doctor','#9fe8b0');else nameTag(hits.get(q),VN(),'#fff');}
+    for(const q of people){if(q.alpha<=.8)continue;if(q.p.kind==='maf'){if(mine)nameTag(hits.get(q),q.p.lbl,'#ff8a8a');}else if(q.p.kind==='doc')nameTag(hits.get(q),'Doctor','#9fe8b0');else if(q.p.kind==='guard')nameTag(hits.get(q),N.guard===0?'You':'Bodyguard','#ffcf7a');else nameTag(hits.get(q),VN(),'#fff');}
     for(const[txt,wx,wy]of f.texts||[])label(txt,SX(wx),SY(wy),11*DPR,'#f6dfae');
   }
 };
@@ -1346,13 +1470,14 @@ const DAWN_SAFE={
   stars:['{n} came in from the cold just in time.','Flattened grass by {n}\'s blanket. Somebody else stood there too.'],
   mail:['{n} fetched the post and locked up. Somebody was watching.','Boot prints by {n}\'s mailbox. They stop at the locked door.']};
 const DAWN_DOC=['The Mafia got to {n} last night. The Doctor got there second.','{n} was found on the ground, breathing. Someone had patched them up.','{n} has a bandage and a story. The Doctor isn\'t saying a word.'];
-function dawn(){const v=N.victim,key=N.variant||N.kind,list=N.heal?DAWN_DOC:DAWN_DEAD[key],h=$('#dawnTitle');
+const DAWN_GUARD=['The Mafia came for {n} last night. {g} stepped in the way. {g} was the Bodyguard.','{n} is alive this morning because {g} is not. The Bodyguard did the job.'];
+function dawn(){const g=N.guard>=0&&!N.heal?N.guard:-1,v=g>=0?g:N.victim,key=N.variant||N.kind,list=N.heal?DAWN_DOC:g>=0?DAWN_GUARD:DAWN_DEAD[key],h=$('#dawnTitle');
   if(N.heal){h.innerHTML=ic('heart',4)+(v===0?'THE DOCTOR SAVED<b>YOU</b>':'<b>NOBODY</b>DIED');h.classList.add('safe');}
   else{if(v!==0)V.dead.add(v);h.innerHTML=ic('skull',4)+(v===0?'<b>YOU</b>ARE DEAD':`<b>${esc(PEOPLE[v].n.toUpperCase())}</b>IS DEAD`);h.classList.remove('safe');}
   $('#dawnGo').textContent=v===0&&!N.heal?'Rise as a ghost':'To the square';N.meDead=v===0&&!N.heal;
   setTimeout(()=>{if(scene===scenes.dawn){if(N.heal)fxHeal();else fxBleed(.5);}},350);
   $('#dawnFace').src=face(looksLike(v));
-  $('#dawnStory').textContent=list[Math.floor(Math.random()*list.length)].replace(/\{n\}/g,PEOPLE[v].n);
+  $('#dawnStory').textContent=list[Math.floor(Math.random()*list.length)].replace(/\{n\}/g,g>=0?VN():PEOPLE[v].n).replace(/\{g\}/g,g===0?'You':g>=0?PEOPLE[g].n:'');
   // the note they left (only shown if they really died): yours if it was you, else whatever that player wrote
   const nt=N.heal?'':v===0?NOTE.mine:(NOTE.of[v]??(NOTE.of[v]=Math.random()<.65?NPC_NOTES[Math.floor(Math.random()*NPC_NOTES.length)]:''));
   const dn=$('#dawnNote');dn.style.display=nt?'block':'none';dn.innerHTML=nt?`<b>${esc(PEOPLE[v].n.toUpperCase())} LEFT A NOTE</b>${esc(nt)}`:'';
@@ -1415,7 +1540,7 @@ function killRoom(nm,k,heal,t){const P=[],hit=3.2,dead=k>=hit&&!(heal&&k>11);
   P.push({name:nm,dir:'front',x:98+shake,y:dead?pin+4:lerp(168,pin,ease(ramp(k,.2,hit-1.2))),t,walk:k>.2&&k<hit-1.2,pose:dead?'dead':null,blood:dead?ramp(k,hit+.3,hit+5)*(heal?1-ramp(k,9.6,11):1):0,vic:true});
   for(const j of[0,1]){const a=ramp(k,.1+j*.3,hit-.2),b=ramp(k,hit+1.1+j*.2,hit+3.6);if(b>=1||k<.1+j*.3)continue;
     P.push({name:'mafia',dir:b>0?'front':'back',x:98+(j?12:-12),y:b>0?lerp(156,236,b):lerp(236,156,ease(a)),t,walk:(a>0&&a<1)||b>0,tint:SHADOW_TINT,alpha:b>0?1-ramp(b,.6,1):ramp(k,.1+j*.3,.5+j*.3),phase:j*300});}
-  if(heal&&k>7.4){const a=ease(ramp(k,7.4,9.4)),kn=a>=1&&k<11;P.push({name:'doctor',dir:kn?'left':'back',x:lerp(98,116,a),y:lerp(236,144,a),t,walk:a<1,pose:kn?'logs':null,step:1,alpha:ramp(k,7.4,7.9),doc:true});}
+  if(heal&&k>7.4&&!N.self){const a=ease(ramp(k,7.4,9.4)),kn=a>=1&&k<11;P.push({name:'doctor',dir:kn?'left':'back',x:lerp(98,116,a),y:lerp(236,144,a),t,walk:a<1,pose:kn?'bend':null,alpha:ramp(k,7.4,7.9),doc:true});}
   return P;}
 
 /* ---------- when it is YOU: the same night, at the same moment, seen from inside your own cabin ----------
@@ -1423,8 +1548,8 @@ function killRoom(nm,k,heal,t){const P=[],hit=3.2,dead=k>=hit&&!(heal&&k>11);
    die; green pluses rise if the Doctor saves you; then everyone lands on the morning screen together. */
 const MD={t:0};
 function mdBig(kind){const b=$('#bigMsg');b.className='';void b.offsetWidth;
-  b.innerHTML=kind==='bad'?pxWord('YOU DIED',9,'bad'):pxWord('THE DOCTOR',6,'good')+pxWord('SAVED YOU',6,'good',.55);
-  b.className='on '+kind;}
+  b.innerHTML=kind==='bad'?pxWord('YOU DIED',9,'bad'):kind==='guard'?pxWord('THE BODYGUARD',5,'good')+pxWord('SAVED YOU',6,'good',.55):N.self?pxWord('YOU SAVED',6,'good')+pxWord('YOURSELF',6,'good',.55):pxWord('THE DOCTOR',6,'good')+pxWord('SAVED YOU',6,'good',.55);
+  b.className='on '+(kind==='bad'?'bad':'good');}
 scenes.mydeath={hud:'#nightHud',
   enter(){N.kicks={};N.shake=0;dust.length=0;planNight(0);MD.t=0;MD.i=0;MD.town=N.kind!=='home';fxStop();
     $('#fade').classList.remove('on');$('#cap').textContent='';$('#bigMsg').className='';
@@ -1433,13 +1558,13 @@ scenes.mydeath={hud:'#nightHud',
     // the knock on the door: the same moment, seen from inside your cabin
     MD.tIn=5;MD.end=N.heal?MD.tIn+14.6:MD.tIn+10.6;
     MD.shots=[[.5,'Night 2.'],[1.9,'Your cabin is quiet.'],[3.4,'A knock at the door.'],[MD.tIn,'The door opens. Two shadows.','bad'],[MD.tIn+3.3,'You never even screamed.','bad']];
-    if(N.heal)MD.shots.push([MD.tIn+7.5,'Footsteps. Someone is running.'],[MD.tIn+10.2,'The Doctor. Just in time.','good']);
+    if(N.heal)MD.shots.push(...(N.self?[[MD.tIn+7.5,'Nobody is coming. But you are the Doctor.'],[MD.tIn+10.2,'You patch yourself up.','good']]:[[MD.tIn+7.5,'Footsteps. Someone is running.'],[MD.tIn+10.2,'The Doctor. Just in time.','good']]));
     $('#phone').style.background=ROOM_VOID;$('#nightTag').innerHTML=ic('rec')+'NIGHT 2 · YOUR CABIN';},
   leave(){$('#phone').style.background='';$('#fade').classList.remove('on');$('#bigMsg').className='';clearInterval(capTimer);fxStop();},
   frame(dt,t){
     if(MD.town){const T=N.t+dt;
-      if(T>MD.tK)once('hit',()=>{N.shake=6;fxBleed(.9);});
-      if(!N.heal&&T>MD.tK+2.2)once('big',()=>mdBig('bad'));
+      if(T>MD.tK)once('hit',()=>{N.shake=6;if(N.guard<0)fxBleed(.9);});
+      if(!N.heal&&N.guard<0&&T>MD.tK+2.2)once('big',()=>mdBig('bad'));
       if(N.heal&&T>N.tDoc+4.4)once('up',()=>{fxStop();fxHeal();mdBig('good');});
       scenes.night.frame(dt,t);return;}
     MD.t+=dt;const T=MD.t,k=T-MD.tIn,me=looksLike(0);
@@ -1674,7 +1799,7 @@ scenes.ghost={hud:'#ghostHud',
     lx.fillStyle='rgba(6,8,30,.38)';lx.fillRect(0,0,cam.lw,cam.lh);
     for(const[ci,a]of f.doors||[])doorOpen(ci,a);
     if(f.under)f.under();
-    const people=f.people.filter(p=>p.al>0).map(p=>({p,name:p.kind==='maf'?'mafia':p.kind==='doc'?'doctor':looksLike(N.victim),dir:p.dir,x:p.x,y:p.y,t,walk:p.walk,pose:p.pose,step:p.step,blood:p.blood,tint:p.kind==='maf'?SHADOW_TINT:NIGHT_TINT,alpha:p.al}));
+    const people=f.people.filter(p=>p.al>0).map(p=>({p,name:p.kind==='maf'?'mafia':p.kind==='doc'?'doctor':p.kind==='guard'?looksLike(N.guard):looksLike(N.victim),dir:p.dir,x:p.x,y:p.y,t,walk:p.walk,pose:p.pose,step:p.step,blood:p.blood,tint:p.kind==='maf'?SHADOW_TINT:NIGHT_TINT,alpha:p.al}));
     const me=ghostMe(G.x,G.y,t);people.push(me);
     townLights(t,{dim:.85,...f.lights},'win');
     patchDim='rgba(6,8,30,.38)';const hits=drawScene(people,TOWN.occ,IMG.town);patchDim=null;
@@ -1754,7 +1879,7 @@ function dayOf(src){const c=mk(src.width,src.height),x=c.getContext('2d');x.draw
   x.putImageData(id,0,0);return c;}
 const DAYIMG={};const dayImg=k=>DAYIMG[k]||(DAYIMG[k]=dayOf(IMG[k]));
 let dayMode=false;
-const T={birds:[],next:2,clock:90,speak:null,st:0,bub:'...',clouds:[{x:120,y:300,r:70,v:7},{x:420,y:430,r:90,v:5}],leaves:[]};
+const T={sel:-1,pos:{},muted:new Set(),notes:{},birds:[],next:2,clock:90,speak:null,st:0,bub:'...',clouds:[{x:120,y:300,r:70,v:7},{x:420,y:430,r:90,v:5}],leaves:[]};
 const TALK_LINES=['Who do you think it was?','Somebody saw something.','Keep your eyes on the quiet ones.','Careful who you trust.','It was awfully quiet last night…'];
 function bird(b,t){const f=Math.floor(t/140+b.s)%4,x=X(b.x),y=Y(b.y),d=b.v>0?1:-1;   // 2 wing beats, body 3px
   lx.fillStyle='rgba(20,30,20,.16)';lx.fillRect(x-2,y+b.h,5,1);                       // its shadow on the ground
@@ -1766,8 +1891,9 @@ function bubble(h,kind,t){const x=h.cx-6,y=h.top-tagLo()-13;lx.fillStyle='#1a143
   else{lx.fillStyle=kind==='!'?'#d6383c':'#3b6fd6';if(kind==='!'){lx.fillRect(x+6,y+2,1,3);lx.fillRect(x+6,y+6,1,1);}else{lx.fillRect(x+5,y+2,3,1);lx.fillRect(x+7,y+3,1,1);lx.fillRect(x+6,y+4,1,1);lx.fillRect(x+6,y+6,1,1);}}}
 scenes.talk={hud:'#talkHud',
   enter(){document.documentElement.style.setProperty('--accent','#e9b25a');if(!V.ring.length)voteReset();V.ring.forEach(r=>{r.cx=r.x;r.cy=r.y;r.walk=false;r.lift=0;});
-    T.clock=300;T.birds=[];T.next=1.5;T.speak=null;T.st=0;$('#talkLine').textContent=TALK_LINES[0];},
-  frame(dt,t){dayMode=true;view(dayImg('town'),280,372,195);
+    T.clock=300;T.birds=[];T.next=1.5;T.speak=null;T.st=0;T.sel=-1;talkMenu();$('#talkLine').textContent=TALK_LINES[0];$('#talkSub').textContent='Tap a player to message, note or mute them.';},
+  leave(){T.sel=-1;talkMenu();},
+  frame(dt,t){dayMode=true;view(dayImg('town'),280,354,195);
     // cloud shadows drifting over the square
     for(const c of T.clouds){c.x+=c.v*dt;if(c.x>700)c.x=-140;lx.fillStyle='rgba(30,40,70,.07)';for(let yy=-c.r*.45;yy<c.r*.45;yy+=1){const hw=Math.round(c.r*Math.sqrt(1-(yy/(c.r*.45))**2));lx.fillRect(X(c.x)-hw,Y(c.y+yy),hw*2,1);}}
     // sun glints on the ponds
@@ -1778,7 +1904,11 @@ scenes.talk={hud:'#talkHud',
     const alive=V.ring.filter(r=>!V.dead.has(r.i));
     T.clock-=dt;if(T.clock<=0){T.clock=300;go('vote');}const s=Math.ceil(T.clock);$('#talkClock').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
     const sp=null,people=alive.map(r=>({r,name:looksLike(r.i),dir:dirFrom(280-r.x,372-r.y),x:r.x,y:r.y,t,phase:r.i*377}));
+    if(T.sel>=0){const r=V.ring[T.sel],q=Math.floor(t/200)%2;lx.strokeStyle=q?'#ffd25e':'#fff2a8';lx.lineWidth=1;lx.beginPath();lx.ellipse(X(r.x)+.5,Y(r.y)+.5,9+q,3+q*.5,0,0,7);lx.stroke();}
     const hits=drawScene(people,TOWN.occ,dayImg('town'));
+    // little pixel marks over a head: muted, and whether you have notes on them
+    for(const p of people){const h=hits.get(p),i=p.r.i;if(!h)continue;const marks=[];if(T.muted.has(i))marks.push('mute');if(T.notes[i])marks.push('notes');
+      marks.forEach((m,k)=>{const im=icImg(m);if(im.complete&&im.width)lx.drawImage(im,h.cx-marks.length*5+k*10,h.top-tagLo()-9,10,10);});}
     // butterflies by the grass, and birds crossing now and then (alone or a little flock)
     for(let i=0;i<4;i++){const bx=[176,388,210,352][i]+Math.sin(t*.0011+i*3)*16,by=[300,300,470,470][i]+Math.cos(t*.0017+i)*9;lx.fillStyle=['#ffd25e','#ff9bd0','#fff','#9fd8ff'][i];lx.fillRect(X(bx)+(Math.floor(t/120+i)%2?-1:0),Y(by),Math.floor(t/120+i)%2?3:1,1);}
     T.next-=dt;if(T.next<=0){const n=Math.random()<.35?3:1,dir=Math.random()<.5?1:-1,y0=290+Math.random()*150;
@@ -1787,8 +1917,23 @@ scenes.talk={hud:'#talkHud',
     if(sp&&hits.get(people.find(p=>p.r===sp)))bubble(hits.get(people.find(p=>p.r===sp)),T.bub,t);
     lx.fillStyle='rgba(255,236,190,.06)';lx.fillRect(0,0,cam.lw,cam.lh);   // warm daylight
     present();dayMode=false;
+    T.pos={};for(const p of people){const h=hits.get(p);if(h)T.pos[p.r.i]={x:(h.cx-(cam.fx||0))*S/DPR,y:(h.top-(cam.fy||0))*S/DPR};}
+    if(T.sel>=0&&T.pos[T.sel]){const m=$('#talkMenu');m.style.left=clamp(T.pos[T.sel].x,68,cv.clientWidth-68)+'px';m.style.top=(T.pos[T.sel].y-TAG-10)+'px';}
     for(const p of people)nameTag(hits.get(p),PEOPLE[p.r.i].n,p.r.i===0?'#ffd25e':'#fff');
   }};
+// tap a player in the discussion: three little buttons pop up over their head
+function talkMenu(){const m=$('#talkMenu');m.classList.toggle('on',T.sel>=0);if(T.sel>=0)m.querySelector('[data-a=mute]').classList.toggle('sel',T.muted.has(T.sel));}
+function talkSay(a,b){$('#talkLine').textContent=a;if(b)$('#talkSub').textContent=b;T.st=5;}
+cv.addEventListener('pointerdown',e=>{if(scene!==scenes.talk)return;const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let best=-1,bd=34;
+  for(const i in T.pos){const q=T.pos[i],dd=Math.hypot(q.x-x,q.y+16-y);if(dd<bd&&+i!==0){bd=dd;best=+i;}}T.sel=best===T.sel?-1:best;talkMenu();});
+document.querySelectorAll('#talkMenu .btn').forEach(b=>b.onclick=()=>{const i=T.sel;if(i<0)return;const n=PEOPLE[i].n;
+  if(b.dataset.a==='mute'){if(T.muted.has(i))T.muted.delete(i);else T.muted.add(i);talkMenu();talkSay(T.muted.has(i)?`${n} is muted.`:`${n} is unmuted.`,T.muted.has(i)?'You won\'t hear them or see their messages.':'You can hear them again.');}
+  else if(b.dataset.a==='msg'){$('#dmTitle').innerHTML=ic('chat',3)+' Message '+esc(n);$('#dmIn').value='';$('#dmModal').classList.add('on');T.dm=i;T.sel=-1;talkMenu();setTimeout(()=>$('#dmIn').focus(),50);}
+  else{$('#pnTitle').innerHTML=ic('notes',3)+' Notes on '+esc(n);$('#pnIn').value=T.notes[i]||'';$('#pnModal').classList.add('on');T.pn=i;T.sel=-1;talkMenu();setTimeout(()=>$('#pnIn').focus(),50);}});
+$('#dmSend').onclick=()=>{const v=$('#dmIn').value.trim();$('#dmModal').classList.remove('on');if(v)talkSay(`Message sent to ${PEOPLE[T.dm].n}.`,'Only they can read it.');};
+$('#dmCancel').onclick=()=>$('#dmModal').classList.remove('on');
+$('#pnSave').onclick=()=>{const v=$('#pnIn').value.trim();if(v)T.notes[T.pn]=v;else delete T.notes[T.pn];$('#pnModal').classList.remove('on');talkSay(v?`Note saved on ${PEOPLE[T.pn].n}.`:`Note cleared.`,'Only you can see your notes.');};
+$('#pnCancel').onclick=()=>$('#pnModal').classList.remove('on');
 // test screen: every character in every pose, on the square
 scenes.poses={hud:null,frame(dt,t){view(IMG.town,280,372,124);
   const cast=Object.keys(SP).filter(n=>SP[n].poses&&SP[n].poses.walk_front_0);
@@ -1838,10 +1983,11 @@ let OBJ_META={};
   await Promise.all(Object.entries(FINAL).map(async([n,dir])=>{try{const m=await (await fetch(`${dir}/poses/poses.json?v=${BUILD}`)).json();POSES[n]=m;
     for(const k of Object.keys(m))jobs.push(load(`pose/${n}/${k}`,`${dir}/poses/${k}.png`));}catch(e){}}));
   await Promise.all(jobs);
+  let EYES={};try{EYES=await (await fetch('assets/final/eyes.json?v='+BUILD)).json();}catch(e){}
   await loadCabins();await loadProps();buildTown();
   try{await document.fonts.load('600 16px "Pixelify Sans"');}catch(e){}
   for(const n of names)SP[n]={front:makeDir(IMG[n]),back:makeDir(IMG['back/'+n]),right:makeDir(IMG['side/'+n]),left:makeDir(IMG['side/'+n],true)};
-  for(const n of Object.keys(FINAL)){SP[n]={front:makeDir(IMG[`fin/${n}/front`]),back:makeDir(IMG[`fin/${n}/back`]),right:makeDir(IMG[`fin/${n}/right`]),left:makeDir(IMG[`fin/${n}/left`])};
+  for(const n of Object.keys(FINAL)){const E=EYES[n]||{};SP[n]={front:makeDir(IMG[`fin/${n}/front`],false,E.front),back:makeDir(IMG[`fin/${n}/back`],false,[]),right:makeDir(IMG[`fin/${n}/right`],false,E.right),left:makeDir(IMG[`fin/${n}/left`],false,E.left)};
     if(POSES[n])SP[n].poses=Object.fromEntries(Object.entries(POSES[n]).map(([k,m])=>[k,{img:IMG[`pose/${n}/${k}`],ax:m.ax}]));}
   for(const n of Object.keys(PL)){const V=['south','north','east','west'].map(v=>IMG[`pl/${n}/${v}`]);
     let x0=1e9,y0=1e9,x1=-1,y1=-1;

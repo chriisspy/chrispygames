@@ -22,6 +22,8 @@ sun:['....gg....','.g......g.','...KKKK...','..KGGGGK..','g.KGYGGK.g','g.KGGGGK.
 notes:[E,'.KKKKKKKK.','.KWWWWWWK.','.KWsssWWK.','.KWWWWWWK.','.KWssssWK.','.KWWWWWWK.','.KWsssWWK.','.KKKKKKKK.',E],
 lock:['...KKKK...','..KSSSSK..','..KSKKSK..','.KKKKKKKK.','.KGGGGGGK.','.KGGKKGGK.','.KGGKKGGK.','.KggggggK.','.KKKKKKKK.',E],
 binoculars:[E,'.KKK..KKK.','KSSSKKSSSK','KSSSKKSSSK','KSSSSSSSSK','KKKKKKKKKK','KLLLKKLLLK','KLWLKKLWLK','.KKK..KKK.',E],
+mute:[E,'....KK....','...KSK.R.R','.KKSSK..R.','.KSSSK.R.R','.KSSSK....','.KKSSK....','...KSK....','....KK....',E],
+hanger:['....KK....','...K..K...','......K...','....KKK...','...KOOOK..','..KOKKKOK.','.KOK...KOK','KOOKKKKKOK','KKKKKKKKKK',E],
 skull:['..KKKKKK..','.KWWWWWWK.','KWWWWWWWWK','KWKKWWKKWK','KWKKWWKKWK','KWWWKKWWWK','.KWWWWWWK.','..KWKKWK..','..KKKKKK..',E],
 ghost:['..KKKKKK..','.KWWWWWWK.','KWWWWWWWWK','KWKKWWKKWK','KWKKWWKKWK','KWWWWWWWWK','KWWWKKWWWK','KWWWWWWWWK','KWKKWKKWWK','KK..K..KK.'],
 bat:[E,'K........K','KK.K..K.KK','KHKKHHKKHK','KHHHHHHHHK','KHHRHHRHHK','.KHHHHHHK.','..KHKKHK..','...K..K...',E],

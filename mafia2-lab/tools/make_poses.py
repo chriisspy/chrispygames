@@ -152,11 +152,14 @@ EYES = {
     'golf':     ('shades', []),
 }
 X5 = ((-1, -1), (1, -1), (0, 0), (-1, 1), (1, 1))
+EYEFILE = json.load(open(ROOT + 'eyes.json')) if os.path.exists(ROOT + 'eyes.json') else {}
 
 def dead(a, navy, name=''):
     """lying on its back: the front view laid down (head to the left), eyes turned into little X's"""
     a = a.copy()
-    if name in EYES:
+    if name in EYEFILE:   # the eyes found (and hand-checked) by tools/make_eyes.py; an empty list = sunglasses or a mask, left as drawn
+        kind, spots = 'eye', [tuple(e) for e in EYEFILE[name]['front']]
+    elif name in EYES:
         kind, spots = EYES[name]
         for s in spots:
             if kind == 'eye':
