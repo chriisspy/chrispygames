@@ -576,7 +576,7 @@ SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11121133'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11121136'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -851,7 +851,13 @@ function cabinSign(x,ci){const p=CABIN_OF.indexOf(ci);if(p<0)return;const c=TOWN
   x.fillStyle='#1a1430';x.fillRect(x0,y0,w,9);x.fillRect(x0+2,y0-2,1,2);x.fillRect(x0+w-3,y0-2,1,2);
   x.fillStyle='#b9793f';x.fillRect(x0+1,y0+1,w-2,7);x.fillStyle='#d79a57';x.fillRect(x0+1,y0+1,w-2,1);x.fillStyle='#8a5a2c';x.fillRect(x0+1,y0+7,w-2,1);
   x.fillStyle='#2a1608';pxText(x,s,x0+3,y0+2);}
-function buildTown(){const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext('2d');x.drawImage(b,0,0);
+// each hut at night as its own picture (name sign on, washed like the night ground): the spectator scene lifts a hut out
+// of the town picture with these when the ghost walks behind it, so it can be drawn over the ghost and faded
+let NCAB=null;
+function nightCabins(){return NCAB||(NCAB=TOWN.cabins.map((cb,ci)=>{const c=mk(CABIN_FRAME.w,CABIN_FRAME.h),x=c.getContext('2d'),ox=cb.cx+CABIN_FRAME.dx,oy=cb.top+CABIN_FRAME.dy;
+  x.drawImage(IMG[cabinKey(ci)],0,0);x.translate(-ox,-oy);cabinSign(x,ci);x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-atop';x.fillStyle='rgba(6,8,30,.38)';x.fillRect(0,0,c.width,c.height);
+  return{img:c,x:ox,y:oy,base:cb.top+CABIN_BACK+1,ci};}));}
+function buildTown(){NCAB=null;const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext('2d');x.drawImage(b,0,0);
   TOWN.cabins.forEach((cb,ci)=>x.drawImage(IMG[cabinKey(ci)],cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
   TOWN.cabins.forEach((cb,ci)=>cabinSign(x,ci));
   TOWN.occ.forEach(o=>x.drawImage(IMG['prop/'+o.k],o.x,o.y));
@@ -2076,13 +2082,19 @@ scenes.ghost={hud:'#ghostHud',
       if(sp&&sp.st==='home'&&!ghostAway(G.watch)){ghostWatch(G.watch);return;}                 // they went back in: follow them inside
       if(sp){G.x=G.tx=sp.x+12;G.y=G.ty=sp.y+20;G.fxAt=[sp.x,sp.y];}}
     view(IMG.town,G.x,G.y-14,175,{loose:true});
+    // walking behind a hut (his call, 12 Nov): that hut is rubbed out of the town picture (the bare ground goes back in),
+    // then drawn again in order with the people, see-through, so the ghost shows behind it
+    const hid=behindCabin(G.x,G.y),huts=[];G.cabA=G.cabA||TOWN.cabins.map(()=>1);
+    nightCabins().forEach(o=>{const a=G.cabA[o.ci]=clamp(G.cabA[o.ci]+(o.ci===hid?-1:1)*dt*4,.4,1);if(a>=1)return;
+      const sx=Math.max(0,o.x),sy=Math.max(0,o.y),sw=Math.min(560,o.x+CABIN_FRAME.w)-sx,sh=Math.min(750,o.y+CABIN_FRAME.h)-sy;lx.drawImage(IMG.townBase,sx,sy,sw,sh,X(sx),Y(sy),sw,sh);
+      huts.push({...o,alpha:a,after(){for(const[ci,d]of f.doors||[])if(ci===o.ci)doorOpen(ci,d*a);}});});
     lx.fillStyle='rgba(6,8,30,.38)';lx.fillRect(0,0,cam.lw,cam.lh);
-    for(const[ci,a]of f.doors||[])doorOpen(ci,a);
+    for(const[ci,a]of f.doors||[])if(G.cabA[ci]>=1)doorOpen(ci,a);
     if(f.under)f.under();
     const people=f.people.filter(p=>p.al>0).map(p=>({p,name:p.kind==='maf'?'mafia':p.kind==='doc'?'doctor':p.kind==='guard'?looksLike(N.guard):looksLike(N.victim),dir:p.dir,x:p.x,y:p.y,t,walk:p.walk,pose:p.pose,step:p.step,blood:p.blood,tint:p.kind==='maf'?SHADOW_TINT:NIGHT_TINT,alpha:p.al}));
     const me=ghostMe(G.x,G.y,t);people.push(me);
     townLights(t,{dim:.85,...f.lights},'win');
-    patchDim='rgba(6,8,30,.38)';const hits=drawScene(people,TOWN.occ,IMG.town);patchDim=null;
+    patchDim='rgba(6,8,30,.38)';const hits=drawScene(people,TOWN.occ,IMG.town,huts);patchDim=null;
     if(f.over)f.over();
     drawDust(dt);townLights(t,{dim:.85,...f.lights},'rest');rain(dt);ghostFx(dt);present();
     for(const q of people){if(q===me)nameTag(hits.get(q),'You','#9fd8ff');else if(q.p.kind==='vic'&&q.alpha>.8)nameTag(hits.get(q),VN(),'#fff');}
