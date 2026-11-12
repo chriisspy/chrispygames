@@ -576,7 +576,7 @@ SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11120952'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11121122'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -795,13 +795,14 @@ const TOWN={
   lamps:[[162,308],[398,308],[163,416],[397,416]],
   // every bulb on the strings and chains (measured from the pictures): each one glows and warms the ground
   bulbs:[[244,250],[316,250],[256,254],[304,254],[268,256],[292,256],[225,257],[280,256],[335,257],[218,265],[342,265],[210,272],[350,272],[204,278],[356,278],[194,284],[366,284],[189,287],[371,287],[245,450],[314,450],[259,453],[301,454],[287,456],[274,456],[178,321],[178,332],[178,337],[178,345],[178,352],[178,363],[382,321],[382,332],[382,337],[382,345],[382,352],[382,363],[233,248],[327,248]],
-  cabins:DOORS.map(([cx,top],i)=>({cx,top,door:[cx-6,top+2,cx+6,top+29],feet:[cx,top+34],win:[[cx-25,top+10],[cx+25,top+10],[cx,top-23]],route:new Poly([...ROUTES[i],CENTER])})),
+  cabins:DOORS.map(([cx,top],i)=>({cx,top,door:[cx-6,top+4,cx+7,top+32],feet:[cx,top+34],win:[[cx-25,top+11],[cx+24,top+11],[cx,top-21]],route:new Poly([...ROUTES[i],CENTER])})),
   // posts, lamps and bulb chains (assets/town3/props, made by tools/build_props.py): each is its own picture,
   // drawn in order with the people by where its foot is; the bulb strings hang overhead, so they go on last
   // his call: the side posts with lights (chain + lower post) are ALWAYS in front of people, the bare post behind them is always behind
   occ:[{k:'post1',x:227,y:237,base:287},{k:'post2',x:322,y:237,base:287},{k:'lamp1',x:158,y:300,base:346},{k:'lamp3',x:393,y:300,base:346},{k:'post3',x:172,y:286,base:-1},{k:'post5',x:376,y:286,base:-1},{k:'chain3',x:175,y:315,base:1e9},{k:'chain5',x:379,y:315,base:1e9},{k:'post4',x:175,y:367,base:1e9},{k:'post6',x:379,y:367,base:1e9},{k:'lamp2',x:158,y:407,base:462},{k:'lamp4',x:391,y:407,base:462},{k:'post7',x:227,y:436,base:492},{k:'post8',x:322,y:436,base:492},
     {k:'strings',x:176,y:244,base:1e9}],
 };
+const winFill=(x,y,i)=>i<2?lx.fillRect(X(x)-5,Y(y)-7,12,14):lx.fillRect(X(x)-6,Y(y)-5,13,10);   // the whole pane: the two by the door, then the one in the roof
 function townLights(t,o={},part){ // part 'win' = only the cabin windows (draw before people), 'rest' = everything else, none = all
   const dim=o.dim??1,dark=o.dark??-1,darkK=o.darkK||[],red=o.red||0,tone=o.tone||'255,40,40',lampK=o.lampK??1;const L=[];
   if(part!=='win'){
@@ -822,18 +823,20 @@ function townLights(t,o={},part){ // part 'win' = only the cabin windows (draw b
   lights(L,t);
   if(part==='rest')return;
   lx.save();lx.globalCompositeOperation='lighter';
-  TOWN.cabins.forEach((c,ci)=>c.win.forEach(([x,y],i)=>{const k=ci===dark?(darkK[i]??1):1;if(k<=0)return;lx.fillStyle=`rgba(255,160,60,${.38*dim*k})`;lx.fillRect(X(x)-3,Y(y)-3,7,7);}));
-  if(red>0&&dark>=0){lx.fillStyle=`rgba(${tone},${.8*red})`;TOWN.cabins[dark].win.forEach(([x,y])=>lx.fillRect(X(x)-3,Y(y)-3,7,7));}
+  TOWN.cabins.forEach((c,ci)=>c.win.forEach(([x,y],i)=>{const k=ci===dark?(darkK[i]??1):1;if(k<=0)return;lx.fillStyle=`rgba(255,160,60,${.38*dim*k})`;winFill(x,y,i);}));
+  if(red>0&&dark>=0){lx.fillStyle=`rgba(${tone},${.8*red})`;TOWN.cabins[dark].win.forEach(([x,y],i)=>winFill(x,y,i));}
   lx.restore();
 }
-/* the town picture is put together from layers: the base (grass, trees, ponds, stage, stone paths)
+/* THE TOWN ART IS CHRIS'S OWN (12 Nov 2026; copied in by tools/make_town_art.py, never repainted by code):
+   assets/town4/night.png + day.png (the ground), cabins/ (his huts), props-off/ (posts, lamps and bulbs switched off, for the day).
+   The town picture is put together from layers: the base (grass, trees, ponds, stage, stone paths)
    plus one cabin picture per spot. Every cabin picture uses the same 116 x 154 frame, placed at
    door x-58, door top-90, so any theme fits any spot and its door, windows and steps land where
    TOWN.cabins says (lights, the kill scene and the door opening keep working for every theme). */
 const CABIN_FRAME={dx:-58,dy:-90,w:116,h:154};
 const CABIN_THEMES={
-  // the cabin that was painted at each spot (10 colours)
-  classic:{name:'Classic',rarity:'common',art:ci=>`assets/town3/cabins-cut/cabin${ci}.png`},
+  // the hut he drew for each spot (he drew 8: spots 0 and 9 reuse huts 6 and 4 until he draws two more)
+  classic:{name:'Classic',rarity:'common',art:ci=>`assets/town4/cabins/cabin${ci}.png`},
   // unlockables from the Mafia case go here, one picture that fits any spot, e.g.
   // dark:{name:'Dark Cabin',rarity:'rare',art:()=>'assets/cabins/dark.png'},
   // christmas:{name:'Christmas Cabin',rarity:'epic',art:()=>'assets/cabins/christmas.png'},
@@ -842,33 +845,17 @@ const CABIN_THEMES={
 function cabinTheme(ci){const p=CABIN_OF.indexOf(ci),id=p>=0?PEOPLE[p].cabinTheme:null;return CABIN_THEMES[id]?id:'classic';}
 const cabinKey=ci=>`cab/${cabinTheme(ci)}/${ci}`;
 function loadCabins(){return Promise.all(TOWN.cabins.map((c,ci)=>IMG[cabinKey(ci)]?null:load(cabinKey(ci),CABIN_THEMES[cabinTheme(ci)].art(ci))));}
-function loadProps(){return Promise.all(TOWN.occ.map(o=>IMG['prop/'+o.k]?null:load('prop/'+o.k,`assets/town3/props/${o.k}.png`)));}
-// THE PAVING (12 Nov, his call: "a different stone texture"): the paths and the square are cut out of one big sheet of
-// flagstones (assets/town3/stone.png: a 36 px tile made with Nano Banana, no sharpening (his call) that repeats with no seams) by path-mask.png,
-// with a kerb drawn round the edge. Made once for the day; the night copy is the same stones in cold blue-grey.
-let STONE=null;
-function stoneLayers(){if(STONE)return STONE;const W=560,H=750,src=IMG.stone;
-    const m=mk(W,H),mx=m.getContext('2d');mx.drawImage(IMG.pathMask,0,0);const md=mx.getImageData(0,0,W,H).data,on=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&md[(y*W+x)*4]>127;
-  const c=mk(W,H),x=c.getContext('2d');x.fillStyle=x.createPattern(src,'repeat');x.fillRect(0,0,W,H);
-  const id=x.getImageData(0,0,W,H),d=id.data;
-  for(let y=0;y<H;y++)for(let xx=0;xx<W;xx++){const i=(y*W+xx)*4;if(!on(xx,y)){d[i+3]=0;continue;}
-    if(!on(xx-1,y)||!on(xx+1,y)||!on(xx,y-1)||!on(xx,y+1)){d[i]=96;d[i+1]=82;d[i+2]=72;}                                   // the kerb: a dark line round the paving
-    else if(!on(xx-2,y)||!on(xx+2,y)||!on(xx,y-2)||!on(xx,y+2)){d[i]=226;d[i+1]=214;d[i+2]=192;}}                          // and a pale stone edge just inside it
-  x.putImageData(id,0,0);
-  const n=mk(W,H),nx=n.getContext('2d');nx.drawImage(c,0,0);const nd=nx.getImageData(0,0,W,H),q=nd.data;
-  for(let i=0;i<q.length;i+=4){if(!q[i+3])continue;const px=(i>>2)%W,py=((i>>2)/W)|0,k=.62*clamp(1.15-Math.hypot((px-280)/200,(py-365)/175),0,1);   // k: how much of the lamps' warm light reaches this stone
-    q[i]=lerp(q[i]*.5,q[i]*.86,k);q[i+1]=lerp(q[i+1]*.56,q[i+1]*.7,k);q[i+2]=lerp(q[i+2]*.74+14,q[i+2]*.56,k);}nx.putImageData(nd,0,0);
-  return STONE={day:c,night:n};}
+function loadProps(){return Promise.all(TOWN.occ.map(o=>IMG['prop/'+o.k]?null:load('prop/'+o.k,`assets/town3/props/${o.k}.png`)).concat(TOWN.occ.map(o=>IMG['propoff/'+o.k]?null:load('propoff/'+o.k,`assets/town4/props-off/${o.k}.png`))));}
 // a little wooden board with the owner's name, hung on two hooks just above the door
 function cabinSign(x,ci){const p=CABIN_OF.indexOf(ci);if(p<0)return;const c=TOWN.cabins[ci],s=PEOPLE[p].n.toUpperCase().slice(0,8),w=s.length*4+5,x0=c.cx-Math.floor(w/2),y0=c.top-9;
   x.fillStyle='#1a1430';x.fillRect(x0,y0,w,9);x.fillRect(x0+2,y0-2,1,2);x.fillRect(x0+w-3,y0-2,1,2);
   x.fillStyle='#b9793f';x.fillRect(x0+1,y0+1,w-2,7);x.fillStyle='#d79a57';x.fillRect(x0+1,y0+1,w-2,1);x.fillStyle='#8a5a2c';x.fillRect(x0+1,y0+7,w-2,1);
   x.fillStyle='#2a1608';pxText(x,s,x0+3,y0+2);}
-function buildTown(){const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext('2d');x.drawImage(b,0,0);x.drawImage(stoneLayers().night,0,0);
+function buildTown(){const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext('2d');x.drawImage(b,0,0);
   TOWN.cabins.forEach((cb,ci)=>x.drawImage(IMG[cabinKey(ci)],cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
   TOWN.cabins.forEach((cb,ci)=>cabinSign(x,ci));
   TOWN.occ.forEach(o=>x.drawImage(IMG['prop/'+o.k],o.x,o.y));
-  IMG.town=c;if(typeof DAYIMG!=='undefined'){delete DAYIMG.town;delete DAYIMG['town|wet'];}}
+  IMG.town=c;if(typeof DAYIMG!=='undefined')delete DAYIMG.town;}
 // change someone's cabin (from an unlock), then rebuild the town picture
 async function setCabinTheme(person,id){if(!CABIN_THEMES[id])return false;PEOPLE[person].cabinTheme=id;await loadCabins();buildTown();return true;}
 function doorOpen(ci,a){if(a<=0)return;const r=TOWN.cabins[ci].door;lx.fillStyle=`rgba(8,5,14,${a})`;lx.fillRect(X(r[0]),Y(r[1]),r[2]-r[0],r[3]-r[1]);}
@@ -2163,32 +2150,15 @@ cv.addEventListener('pointerdown',e=>{if(scene!==scenes.ghost||G.fading||documen
   if(ci>=0){const c=TOWN.cabins[ci];G.tx=c.cx;G.ty=c.top+30;G.goCab=ci;}else{G.tx=clamp(x,20,540);G.ty=clamp(y+12,40,740);G.goCab=-1;}});
 
 /* ---------- DAY: the discussion ---------- */
-// The town in daylight, made from the night art, one layer at a time:
-//   'ground' (the base picture): blue night grass -> green. The little ponds are PUDDLES: bright blue only if it rained
-//            the night before (wet), otherwise they are grass like everything round them (his call, 12 Nov).
-//   'plain'  (cabins): only lifted and warmed.   'prop' (posts, lamps, bulb strings): the same.
-// Every layer: a bulb or lamp glass is switched off, so it is dark grey, not glowing (his call, 12 Nov).
-const DRY_GRASS=[[33,93,158],[45,99,165],[30,92,151],[10,77,161]];
-function dayOf(src,mode,wet){const w=src.width,c=mk(w,src.height),x=c.getContext('2d');x.drawImage(src,0,0);const id=x.getImageData(0,0,w,c.height),d=id.data;
-  for(let i=0;i<d.length;i+=4){if(!d[i+3])continue;let r=d[i],g=d[i+1],b=d[i+2],R,G,B,grass=false;
-    if(mode==='ground'&&b>185&&g>60&&r<60){                    // a puddle
-      if(wet){R=r*.9+40;G=g*.95+70;B=b+60;}
-      else{const px=(i>>2)%w,py=((i>>2)/w)|0,q=DRY_GRASS[(((px>>2)*374761393+(py>>2)*668265263)>>>0)%4];r=q[0];g=q[1];b=q[2];grass=true;}}
-    else if(mode==='ground'&&g>b-12&&g>70&&r<90){const L=(r+g+b)/3;R=38+L*.5;G=88+L*.9;B=26+L*.25;}   // the lit leaves of trees and bushes: a rich green, not a pale teal
-    else if(mode==='ground'&&r<75&&r>g*1.5&&r>b){R=r*1.6+42;G=g*1.6+30;B=b*.9+16;}                  // tree trunks: warm brown
-    else if(mode==='ground'&&r<60&&b>r+40&&b>g+8)grass=true;  // night grass (and the shaded side of trees and bushes)
-    else if(mode==='prop'&&r>198&&g>122&&r-b>55){const k=g>=205?52:86;R=k;G=k;B=k+8;}   // a bulb or lamp glass, switched off: dark, with its outer ring a little lighter (never on cabins: cream walls are not bulbs)
-    else if(mode==='plain'){R=r*1.1+10;G=g*1.08+9;B=b*1.02+6;}   // cabins are painted in daylight colours already: only a touch brighter
-    else{R=r*1.28+22;G=g*1.25+18;B=b*1.12+10;}
-    if(grass){R=.55*g+52;G=.62*b+62;B=.5*r+38;}
-    d[i]=Math.min(255,R);d[i+1]=Math.min(255,G);d[i+2]=Math.min(255,B);}
-  x.putImageData(id,0,0);return c;}
-function dayTown(wet){const c=dayOf(IMG.townBase,'ground',wet),x=c.getContext('2d');x.drawImage(stoneLayers().day,0,0);
-  TOWN.cabins.forEach((cb,ci)=>x.drawImage(dayOf(IMG[cabinKey(ci)],'plain'),cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
+// The town in daylight: his own day ground (assets/town4/day.png), his huts as they are, and the posts, lamps and bulb
+// strings with the lights off (assets/town4/props-off). Nothing is recoloured by code any more (12 Nov: "ill just do it myself").
+// The puddles are painted into his day picture, so they are there rain or no rain.
+function dayTown(){const c=mk(560,750),x=c.getContext('2d');x.drawImage(IMG.townDay,0,0);
+  TOWN.cabins.forEach((cb,ci)=>x.drawImage(IMG[cabinKey(ci)],cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
   TOWN.cabins.forEach((cb,ci)=>cabinSign(x,ci));
   TOWN.occ.forEach(o=>x.drawImage(dayImg('prop/'+o.k),o.x,o.y));return c;}
 const DAYIMG={};
-const dayImg=k=>{const key=k==='town'&&raining?'town|wet':k;return DAYIMG[key]||(DAYIMG[key]=k==='town'?dayTown(raining):dayOf(IMG[k],'prop'));};
+const dayImg=k=>k==='town'?(DAYIMG.town||(DAYIMG.town=dayTown())):IMG[k.replace('prop/','propoff/')];
 let dayMode=false;
 const T={sel:-1,pos:{},muted:new Set(),notes:{},birds:[],next:2,clock:90,speak:null,st:0,bub:'...',clouds:[{x:120,y:300,r:70,v:7},{x:420,y:430,r:90,v:5}],leaves:[]};
 const TALK_LINES=['Who do you think it was?','Somebody saw something.','Keep your eyes on the quiet ones.','Careful who you trust.','It was awfully quiet last night…'];
@@ -2488,7 +2458,7 @@ let OBJ_META={};
   const FINAL=Object.fromEntries(['beanie','brownhair','ponytail','curly','farmer','raincoat','redcap','mafia','doctor','jester','detective','batman','alfa','golf','ferrari','bape','fisher','sheik'].map(n=>[n,'assets/final/'+n]));
   const names=[...SKINS.map(s=>s.id),'mafia','doctor','jester','detective'].filter(n=>!PL[n]&&!FINAL[n]);
   OBJ_META=await (await fetch('assets/room-objects/objects.json?v='+BUILD)).json();
-  const jobs=[load('townBase','assets/town3/town-base-night-1x.png'),load('room','assets/room-objects/room-empty.png'),load('quilt','assets/room-objects/bed-quilt.png'),load('chairback','assets/room-objects/chair-backing.png'),load('log','assets/final/log.png'),load('caseSheet','assets/case/open.png'),load('stone','assets/town3/stone.png'),load('pathMask','assets/town3/path-mask.png')];
+  const jobs=[load('townBase','assets/town4/night.png'),load('townDay','assets/town4/day.png'),load('room','assets/room-objects/room-empty.png'),load('quilt','assets/room-objects/bed-quilt.png'),load('chairback','assets/room-objects/chair-backing.png'),load('log','assets/final/log.png'),load('caseSheet','assets/case/open.png')];
   for(const n of Object.keys(OBJ_META))jobs.push(load('obj/'+n,`assets/room-objects/${n}.png`));
   for(const n of names)for(const d of['','back/','side/'])jobs.push(load(d+n,`assets/sprites/${d}${n}.png`));
   for(const[n,dir]of Object.entries(PL))for(const v of['south','north','east','west'])jobs.push(load(`pl/${n}/${v}`,`${dir}/${v}.png`));
