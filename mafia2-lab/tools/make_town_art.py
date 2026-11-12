@@ -2,15 +2,15 @@
 
 He drew these in  Dropbox/Documents/chrispy games/town background assets/NEW :
   night.png, day.png        the whole ground, 560 x 750, road and trees painted in (no cabins, no posts)
-  cabins/cabin1..8.png      eight huts, 152 x 152 (cabin-5.png is hut 5)
+  cabins/cabin1..10.png     ten huts, 152 x 152 (cabin-5.png and cabin-10.png are huts 5 and 10)
   lights/*.png              chain3, lamp2, post2, strings with the bulbs OFF (for the day)
 
 What this does, and nothing more (it never repaints his art):
   * copies night.png / day.png to assets/town4/
   * moves each hut into the game's 116 x 154 hut frame (his picture sits 17 px right and 3 px up of it)
-  * the town has 10 hut spots and he drew 8: spots 0 and 9 reuse huts 6 and 4 until he draws two more
+  * the game counts its hut spots 0-9 and he counts his huts 1-10: hut N goes on spot N, and hut 10 goes on spot 0 (top middle)
   * lights off: his four pictures as they are; chain5 and lamp4 are mirror twins of chain3 and lamp2, so they are his
-    pictures flipped; lamp1, lamp3 and post1 he did not draw, so only their bulb pixels are turned to the same greys he
+    pictures flipped, and post1 is his post2 flipped (his call); lamp1 and lamp3 he did not draw, so only their bulb pixels are turned to the same greys he
     used (looked up from his own before/after colours); posts with no bulb are copied unchanged
 """
 import os, shutil, sys
@@ -19,7 +19,7 @@ from PIL import Image, ImageOps
 SRC = r'C:\Users\Chris\Dropbox\Documents\chrispy games\town background assets\NEW'
 OUT = 'assets/town4'
 LIT = 'assets/town3/props'
-HUT_FOR_SPOT = {0: 6, 9: 4}          # spots with no hut of their own yet
+HUT_FOR_SPOT = {0: 10}               # spot 0 (top middle) is his hut 10
 HUT_DX, HUT_DY = 17, -3              # where the game's hut frame starts inside his 152 x 152 picture
 
 def main():
@@ -50,6 +50,7 @@ def main():
         if n in his: out = his[n]
         elif n == 'chain5': out = ImageOps.mirror(his['chain3'])
         elif n == 'lamp4': out = ImageOps.mirror(his['lamp2'])
+        elif n == 'post1': out = ImageOps.mirror(his['post2'])      # his call: the left post is his right post flipped
         else:
             out = lit.copy(); px = out.load()
             for y in range(out.height):

@@ -576,7 +576,7 @@ SKINS.forEach(s=>{if(s.rar!=='common')s.from='Mafia Case';});
 const OWNED=new Set(SKINS.filter(s=>s.rar==='common').map(s=>s.id)); // what this player has unlocked: the common outfits to start, the rest come from the Mafia case
 const ROLE_SPR={mafia:'mafia',doctor:'doctor',jester:'jester',detective:'detective'};
 const IMG={};
-const BUILD='11121122'; // changes every push, so phones never show an old picture from their cache
+const BUILD='11121133'; // changes every push, so phones never show an old picture from their cache
 document.getElementById('buildTag').textContent='v'+BUILD; // which version this is, so an old cached copy is easy to spot
 const load=(n,src)=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>{IMG[n]=i;res()};i.onerror=()=>rej(new Error('missing '+src));i.src=src+'?v='+BUILD;});
 
@@ -700,7 +700,7 @@ function drawChar(c){
 const OBJ={};
 function makeObj(name,img,m){const sh=mk(img.width,img.height),x=sh.getContext('2d');x.drawImage(img,0,0);x.globalCompositeOperation='source-in';x.fillStyle='#000';x.fillRect(0,0,sh.width,sh.height);
   OBJ[name]={name,img,shadow:sh,...m};}
-function drawObj(o){if(o.base>0){lx.globalAlpha=.3;lx.drawImage(o.shadow,X(o.x)+1,Y(o.y)+2);lx.globalAlpha=1;}lx.drawImage(o.img,X(o.x),Y(o.y));if(o.after)o.after();}
+function drawObj(o){if(o.shadow&&o.base>0){lx.globalAlpha=.3;lx.drawImage(o.shadow,X(o.x)+1,Y(o.y)+2);lx.globalAlpha=1;}if(o.alpha<1)lx.globalAlpha=o.alpha;lx.drawImage(o.img,X(o.x),Y(o.y));lx.globalAlpha=1;if(o.after)o.after();}
 function patchObj(name,r){const o=OBJ[name];lx.drawImage(o.img,r[0]-o.x,r[1]-o.y,r[2]-r[0],r[3]-r[1],X(r[0]),Y(r[1]),r[2]-r[0],r[3]-r[1]);}
 // a town post / lamp / string; while the night's wash is on, a copy washed the same way (only its own pixels)
 const DIMMED={};
@@ -835,7 +835,7 @@ function townLights(t,o={},part){ // part 'win' = only the cabin windows (draw b
    TOWN.cabins says (lights, the kill scene and the door opening keep working for every theme). */
 const CABIN_FRAME={dx:-58,dy:-90,w:116,h:154};
 const CABIN_THEMES={
-  // the hut he drew for each spot (he drew 8: spots 0 and 9 reuse huts 6 and 4 until he draws two more)
+  // the hut he drew for each spot (his huts 1-9 are spots 1-9, his hut 10 is spot 0)
   classic:{name:'Classic',rarity:'common',art:ci=>`assets/town4/cabins/cabin${ci}.png`},
   // unlockables from the Mafia case go here, one picture that fits any spot, e.g.
   // dark:{name:'Dark Cabin',rarity:'rare',art:()=>'assets/cabins/dark.png'},
@@ -855,7 +855,7 @@ function buildTown(){const b=IMG.townBase,c=mk(b.width,b.height),x=c.getContext(
   TOWN.cabins.forEach((cb,ci)=>x.drawImage(IMG[cabinKey(ci)],cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
   TOWN.cabins.forEach((cb,ci)=>cabinSign(x,ci));
   TOWN.occ.forEach(o=>x.drawImage(IMG['prop/'+o.k],o.x,o.y));
-  IMG.town=c;if(typeof DAYIMG!=='undefined')delete DAYIMG.town;}
+  IMG.town=c;if(typeof DAYIMG!=='undefined')for(const k in DAYIMG)delete DAYIMG[k];}
 // change someone's cabin (from an unlock), then rebuild the town picture
 async function setCabinTheme(person,id){if(!CABIN_THEMES[id])return false;PEOPLE[person].cabinTheme=id;await loadCabins();buildTown();return true;}
 function doorOpen(ci,a){if(a<=0)return;const r=TOWN.cabins[ci].door;lx.fillStyle=`rgba(8,5,14,${a})`;lx.fillRect(X(r[0]),Y(r[1]),r[2]-r[0],r[3]-r[1]);}
@@ -2153,12 +2153,14 @@ cv.addEventListener('pointerdown',e=>{if(scene!==scenes.ghost||G.fading||documen
 // The town in daylight: his own day ground (assets/town4/day.png), his huts as they are, and the posts, lamps and bulb
 // strings with the lights off (assets/town4/props-off). Nothing is recoloured by code any more (12 Nov: "ill just do it myself").
 // The puddles are painted into his day picture, so they are there rain or no rain.
-function dayTown(){const c=mk(560,750),x=c.getContext('2d');x.drawImage(IMG.townDay,0,0);
-  TOWN.cabins.forEach((cb,ci)=>x.drawImage(IMG[cabinKey(ci)],cb.cx+CABIN_FRAME.dx,cb.top+CABIN_FRAME.dy));
-  TOWN.cabins.forEach((cb,ci)=>cabinSign(x,ci));
-  TOWN.occ.forEach(o=>x.drawImage(dayImg('prop/'+o.k),o.x,o.y));return c;}
-const DAYIMG={};
-const dayImg=k=>k==='town'?(DAYIMG.town||(DAYIMG.town=dayTown())):IMG[k.replace('prop/','propoff/')];
+// 'ground' = the grass, road and posts; 'cabins' = each hut (with its name sign) as its own picture, so the waiting lobby
+// can draw people behind a hut and fade the hut; 'town' = the two together, for the scenes where nobody walks behind one.
+function dayGround(){const c=mk(560,750),x=c.getContext('2d');x.drawImage(IMG.townDay,0,0);TOWN.occ.forEach(o=>x.drawImage(dayImg('prop/'+o.k),o.x,o.y));return c;}
+function dayCabins(){return TOWN.cabins.map((cb,ci)=>{const c=mk(CABIN_FRAME.w,CABIN_FRAME.h),x=c.getContext('2d'),ox=cb.cx+CABIN_FRAME.dx,oy=cb.top+CABIN_FRAME.dy;
+  x.drawImage(IMG[cabinKey(ci)],0,0);x.translate(-ox,-oy);cabinSign(x,ci);return{img:c,x:ox,y:oy,base:cb.top+CABIN_BACK+1,ci};});}
+function dayTown(){const c=mk(560,750),x=c.getContext('2d');x.drawImage(dayImg('ground'),0,0);dayImg('cabins').forEach(o=>x.drawImage(o.img,o.x,o.y));return c;}
+const DAYIMG={},DAYMAKE={town:dayTown,ground:dayGround,cabins:dayCabins};
+const dayImg=k=>DAYMAKE[k]?(DAYIMG[k]||(DAYIMG[k]=DAYMAKE[k]())):IMG[k.replace('prop/','propoff/')];
 let dayMode=false;
 const T={sel:-1,pos:{},muted:new Set(),notes:{},birds:[],next:2,clock:90,speak:null,st:0,bub:'...',clouds:[{x:120,y:300,r:70,v:7},{x:420,y:430,r:90,v:5}],leaves:[]};
 const TALK_LINES=['Who do you think it was?','Somebody saw something.','Keep your eyes on the quiet ones.','Careful who you trust.','It was awfully quiet last night…'];
@@ -2232,9 +2234,17 @@ $('#dawnGo').onclick=()=>{$('#dayTag').textContent='DAY 3';go(N.meDead?'ghost':'
 const TG=6,TGW=94,TGH=125;let TOWNG=null;
 const WHEEL_AT=[280,364];   // where the wheel's stand meets the stage
 const DIR8=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
-function buildTownGrid(){TOWNG=new Uint8Array(TGW*TGH);   // you can walk anywhere but through a cabin or the wheel (puddles are fine)
+// WALKING BEHIND A HUT (his call, 12 Nov): only the strip the hut stands on is solid (from CABIN_BACK above the door top
+// down to the doorstep). Above that strip you are behind the hut: it is drawn over you, and while YOU are behind one
+// it fades so you can see yourself.
+const CABIN_BACK=-10,CABMASK={};
+function cabMask(ci){const k=cabinKey(ci);if(!CABMASK[k]){const im=IMG[k],c=mk(im.width,im.height),x=c.getContext('2d');x.drawImage(im,0,0);CABMASK[k]=x.getImageData(0,0,im.width,im.height);}return CABMASK[k];}
+// which hut is in front of someone standing at x,y (their feet); -1 = none. Tested on the hut's own shape, at their feet, middle and head.
+function behindCabin(x,y){for(let ci=0;ci<TOWN.cabins.length;ci++){const cb=TOWN.cabins[ci];if(y>cb.top+CABIN_BACK||Math.abs(x-cb.cx)>60)continue;const m=cabMask(ci);
+    for(const dy of[-3,-12,-22]){const px=Math.round(x-cb.cx-CABIN_FRAME.dx),py=Math.round(y+dy-cb.top-CABIN_FRAME.dy);if(px>=0&&py>=0&&px<m.width&&py<m.height&&m.data[(py*m.width+px)*4+3]>0)return ci;}}return -1;}
+function buildTownGrid(){TOWNG=new Uint8Array(TGW*TGH);   // you can walk anywhere but through a hut's floor or the wheel (puddles are fine)
   for(let gy=0;gy<TGH;gy++)for(let gx=0;gx<TGW;gx++){const px=gx*TG+3,py=gy*TG+3;let ok=px>18&&px<542&&py>58&&py<736;
-    if(ok&&TOWN.cabins.some(cb=>px>cb.cx-50&&px<cb.cx+50&&py>cb.top-86&&py<cb.top+31))ok=false;                      // a cabin
+    if(ok&&TOWN.cabins.some(cb=>px>cb.cx-50&&px<cb.cx+50&&py>cb.top+CABIN_BACK&&py<cb.top+31))ok=false;               // the floor of a hut
     if(ok&&((px-WHEEL_AT[0])/14)**2+((py-WHEEL_AT[1])/8)**2<1)ok=false;                                              // the wheel's stand
     TOWNG[gy*TGW+gx]=ok?1:0;}}
 const townOk=(x,y)=>{const gx=Math.floor(x/TG),gy=Math.floor(y/TG);return gx>=0&&gy>=0&&gx<TGW&&gy<TGH&&!!TOWNG[gy*TGW+gx];};
@@ -2400,9 +2410,11 @@ scenes.town={hud:'#townHud',
       rain(dt,ROOM.windows.map(w=>[X(w[0]),Y(w[1]),w[2],w[3]]));fireAcc+=dt;while(fireAcc>.06){stepFire();fireAcc-=.06;}
       hits=drawScene(people,null,IMG.room,ROOM_OBJS);wlFx(dt,m.loc);
       const fl=.5+.5*noise(t*1.7,2);lights([[33,81,70,'255,130,40',.24+.1*fl,1],[61,64,26,'255,210,140',.3,2],[133,64,26,'255,210,140',.3,3],[151,58,22,'170,255,170',.16,4]],t,ROOM_MASK);
-    }else{dayMode=true;const img=dayImg('town');view(img,m.x+sh,m.y+24,190,{loose:true});
+    }else{dayMode=true;const img=dayImg('ground');view(img,m.x+sh,m.y+24,190,{loose:true});
+      const hid=behindCabin(m.x,m.y);WL.cabA=WL.cabA||TOWN.cabins.map(()=>1);
+      const huts=dayImg('cabins').map(o=>{const a=WL.cabA[o.ci]=clamp(WL.cabA[o.ci]+(o.ci===hid?-1:1)*dt*4,.4,1);return a<1?{...o,alpha:a}:o;});
       if(WL.sel&&WL.sel.loc===m.loc){const q=Math.floor(t/200)%2;lx.strokeStyle=q?'#ffd25e':'#fff2a8';lx.lineWidth=1;lx.beginPath();lx.ellipse(X(WL.sel.x)+.5,Y(WL.sel.y)+.5,9+q,3+q*.5,0,0,7);lx.stroke();}
-      hits=drawScene(people,TOWN.occ,img,[wheelObj()]);wlFx(dt,-1);
+      hits=drawScene(people,TOWN.occ,img,[wheelObj(),...huts]);wlFx(dt,-1);
       lx.fillStyle='rgba(255,236,190,.06)';lx.fillRect(0,0,cam.lw,cam.lh);}
     // stars going round the head of anyone knocked flat
     for(const p of people){const k=p.e.ko,h=hits.get(p);if(!k||k.t>1.25||!h)continue;lx.fillStyle='#ffd25e';for(let i=0;i<3;i++){const a=t*.009+i*2.1;lx.fillRect(Math.round(h.cx+Math.cos(a)*8),Math.round(h.top-3+Math.sin(a)*2.5),2,2);}}
@@ -2424,7 +2436,7 @@ cv.addEventListener('pointerdown',e=>{if(scene!==scenes.town||WL.fading||documen
   if(m.loc>=0){if(y>198||inR(ROOM.door.hit,x,y)){wlGo(m,98,226,()=>wlDoor(-1));return;}
     wlGo(m,clamp(x,17,179),clamp(y,77,231));holdWalk(e,scenes.town,(x,y)=>{const m=WL.me;if(m.loc>=0&&!m.ko&&y<=198)wlGo(m,clamp(x,17,179),clamp(y,77,231));});return;}
   if(Math.hypot(x-WHEEL_AT[0],y-(WHEEL_AT[1]-27))<26){wlGo(m,WHEEL_AT[0],WHEEL_AT[1]+14,()=>{m.dir='back';wheelOpen();});return;}
-  const ci=TOWN.cabins.findIndex(c=>Math.abs(x-c.cx)<34&&y>c.top-60&&y<c.top+32);
+  const ci=TOWN.cabins.findIndex(c=>Math.abs(x-c.cx)<34&&y>c.top-32&&y<c.top+32);   // the walls and the door (the roof is not: tap it to walk round the back)
   if(ci>=0){const c=TOWN.cabins[ci];wlGo(m,c.cx,c.top+36,()=>wlDoor(ci));return;}
   wlGo(m,x,y+6);holdWalk(e,scenes.town,(x,y)=>{const m=WL.me;if(m.loc<0&&!m.ko)wlGo(m,x,y+6);});});
 
